@@ -1,0 +1,67 @@
+version: 2
+
+references:
+
+  workspace: &workspace
+    ~/code
+
+  ## Docker configuration
+  android_config: &android_config
+    working_directory: *workspace
+    docker:
+      - image: circleci/android:api-28
+    environment:
+      - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+      - JVM_OPTS: -Xmx3200m
+    resource_class: large
+
+  ## Cache
+  gradle_key: &gradle_key
+    jars-{{ checksum "build.gradle" }}-{{ checksum "verify/build.gradle" }}
+
+  restore_gradle_cache: &restore_gradle_cache
+    restore_cache:
+      key: *gradle_key
+
+  save_gradle_cache: &save_gradle_cache
+    save_cache:
+      key: *gradle_key
+      paths:
+        - ~/.gradle
+
+  ## Build
+  assemble_build: &assemble_build
+    run:
+      name: Assemble Build
+      command: ./gradlew assembleDebug
+
+jobs:
+  assemble_build:
+    <<: *android_config
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - *restore_gradle_cache
+      - *assemble_build
+      - *save_gradle_cache
+
+  unit_tests:
+    <<: *android_config
+    steps:
+      - checkout
+      - *restore_gradle_cache
+      - run:
+          name: Running Unit Tests
+          command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
+      - *save_gradle_cache
+
+workflows:
+  version: 2
+
+  workflow:
+    jobs:
+      - assemble_build
+      - unit_tests:
+          requires:
+            - assemble_build
