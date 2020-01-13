@@ -8,14 +8,13 @@ import com.twilio.verify.models.FactorType
 internal class FactorBuilder {
 
   lateinit var friendlyName: String
+  var type: FactorType? = null
     private set
-  lateinit var type: FactorType
+  var binding: Map<String, Any> = emptyMap()
     private set
-  lateinit var binding: Map<String, Any>
+  var serviceSid: String? = null
     private set
-  lateinit var serviceSid: String
-    private set
-  lateinit var userId: String
+  var userId: String? = null
     private set
 
   fun friendlyName(friendlyName: String) = apply { this.friendlyName = friendlyName }
