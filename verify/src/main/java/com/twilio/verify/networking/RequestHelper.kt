@@ -8,13 +8,14 @@ import com.twilio.verify.BuildConfig
 
 private const val platform = "Android"
 private const val sdkName = "VerifySDK"
+internal const val userAgent = "User-Agent"
 
 class RequestHelper internal constructor(
   context: Context,
   authorization: Authorization
 ) {
 
-  private val userAgentHeader = Pair("User-Agent", generateUserAgent(context))
+  private val userAgentHeader = Pair(userAgent, generateUserAgent(context))
   private val authorizationHeader = authorization.header
   var commonHeaders = mapOf(userAgentHeader, authorizationHeader)
 
