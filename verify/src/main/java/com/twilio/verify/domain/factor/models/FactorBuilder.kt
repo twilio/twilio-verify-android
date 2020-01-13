@@ -7,7 +7,8 @@ import com.twilio.verify.models.FactorType
 
 internal class FactorBuilder {
 
-  lateinit var friendlyName: String
+  var friendlyName: String? = null
+    private set
   var type: FactorType? = null
     private set
   var binding: Map<String, Any> = emptyMap()
