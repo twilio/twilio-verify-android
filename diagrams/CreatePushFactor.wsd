@@ -1,0 +1,63 @@
+@startuml Create push factor
+enum Models.FactorType {
+    push
+}
+interface Models.Factor {
+    sid: String
+    accountSid: String
+    friendlyName: String
+    entitySid: String
+    userId: String
+    serviceSid: String
+    type: FactorType
+}
+class Domain.Factor.Models.PushFactor implements Models.Factor {
+    keyPairAlias: String
+}
+class Domain.Factor.Models.FactorBuilder {
+    friendlyName: String
+    type: FactorType
+    binding: Dictionary
+    serviceSid: String
+    userId: String
+}
+class Domain.Factor.FactorMapper {
+    factor(object: JSONObject): Factor
+}
+class API.FactorAPIClient {
+    create(factorBuilder: FactorBuilder): JSONObject
+}
+class Network.NetworkAdapter implements Network.NetworkProvider {
+
+}
+interface Data.StorageProvider {
+    save(key: String, value: Object)
+}
+class Data.Storage implements Data.StorageProvider {
+
+}
+interface Data.KeyStorage {
+    create(alias: String): KeyPair
+    get(alias: String): KeyPair
+}
+class Data.KeyStoreAdapter implements Data.KeyStorage {
+
+}
+interface Domain.Factor.FactorProvider {
+    create(factorBuilder: FactorBuilder): Factor
+    get(sid: String): Factor
+    update(factor: Factor): Factor
+}
+class Domain.Factor.FactorRepository implements Domain.Factor.FactorProvider {
+
+}
+class Domain.Factor.PushFactory {
+    create(data: String, friendlyName: String, pushToken: String): Factor
+}
+Domain.Factor.PushFactory o-left-> Data.KeyStorage: create key pair
+Domain.Factor.PushFactory o--> Domain.Factor.FactorProvider: create/update factor
+Domain.Factor.FactorRepository o-left-> Data.StorageProvider: save factor
+Domain.Factor.FactorRepository o-right-> API.FactorAPIClient: create factor
+Domain.Factor.FactorRepository o--> Domain.Factor.FactorMapper: map response
+API.FactorAPIClient o-right-> Network.NetworkProvider: call endpoint
+@enduml
