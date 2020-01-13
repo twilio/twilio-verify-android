@@ -1,5 +1,8 @@
 package com.twilio.verify.networking
 
+/*
+ * Copyright (c) 2020, Twilio Inc.
+ */
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

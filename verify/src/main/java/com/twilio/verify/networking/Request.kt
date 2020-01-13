@@ -1,5 +1,8 @@
 package com.twilio.verify.networking
 
+/*
+ * Copyright (c) 2020, Twilio Inc.
+ */
 class Request private constructor(
   internal val httpMethod: HttpMethod,
   internal val url: String,
@@ -20,6 +23,7 @@ class Request private constructor(
     fun headers(headers: MutableMap<String, String>) = apply {
       this.headers = headers + requestHelper.commonHeaders
     }
+
     fun tag(tag: String) = apply { this.tag = tag }
 
     fun build() = Request(

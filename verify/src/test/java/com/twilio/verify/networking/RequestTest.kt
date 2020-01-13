@@ -1,5 +1,8 @@
 package com.twilio.verify.networking
 
+/*
+ * Copyright (c) 2020, Twilio Inc.
+ */
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
 import org.junit.Test

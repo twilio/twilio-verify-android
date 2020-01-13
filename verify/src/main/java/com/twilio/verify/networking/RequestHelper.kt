@@ -6,6 +6,10 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import com.twilio.verify.BuildConfig
 
+/*
+ * Copyright (c) 2020, Twilio Inc.
+ */
+
 private const val platform = "Android"
 private const val sdkName = "VerifySDK"
 internal const val userAgent = "User-Agent"
