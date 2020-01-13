@@ -12,8 +12,6 @@ class Request private constructor(
     private val url: String,
     private var httpMethod: HttpMethod? = HttpMethod.Get,
     private var body: Map<String, Any>? = null,
-    private var contentType: MediaType? = null,
-    private var acceptType: MediaType? = null,
     private var headers: Map<String, String>? = null,
     private var tag: String? = null
   ) {
