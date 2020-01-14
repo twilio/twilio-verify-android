@@ -36,7 +36,12 @@ internal class FactorMapper {
     }
   }
 
-  fun fromStorage(jsonObject: JSONObject): Factor? {
+  fun fromStorage(json: String): Factor? {
+    val jsonObject = try {
+      JSONObject(json)
+    } catch (e: JSONException) {
+      return null
+    }
     val serviceSid = jsonObject.optString(serviceSidKey)
     val userId = jsonObject.optString(userIdKey)
     if (serviceSid.isNullOrEmpty() || userId.isNullOrEmpty()) {
@@ -50,7 +55,7 @@ internal class FactorMapper {
     }
   }
 
-  fun toJSONObject(factor: Factor): JSONObject {
+  fun toJSON(factor: Factor): String {
     return when (factor.type) {
       Push -> JSONObject()
           .put(sidKey, factor.sid)
@@ -60,7 +65,7 @@ internal class FactorMapper {
           .put(entitySidKey, factor.entitySid)
           .put(userIdKey, factor.userId)
           .put(typeKey, factor.type.name)
-          .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias)
+          .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias).toString()
     }
   }
 

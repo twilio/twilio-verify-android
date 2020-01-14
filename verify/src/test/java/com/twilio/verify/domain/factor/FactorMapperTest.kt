@@ -90,7 +90,7 @@ class FactorMapperTest {
         .put(userIdKey, "userId123")
         .put(typeKey, Push.name)
         .put(keyPairAliasKey, "keyPairAlias123")
-    val factor = factorMapper.fromStorage(jsonObject) as PushFactor
+    val factor = factorMapper.fromStorage(jsonObject.toString()) as PushFactor
     assertEquals(Push, factor.type)
     assertEquals(jsonObject.getString(serviceSidKey), factor.serviceSid)
     assertEquals(jsonObject.getString(userIdKey), factor.userId)
@@ -111,7 +111,7 @@ class FactorMapperTest {
         .put(userIdKey, "userId123")
         .put(typeKey, Push.name)
         .put(keyPairAliasKey, "keyPairAlias123")
-    assertNull(factorMapper.fromStorage(jsonObject))
+    assertNull(factorMapper.fromStorage(jsonObject.toString()))
   }
 
   @Test
@@ -125,7 +125,13 @@ class FactorMapperTest {
         .put(userIdKey, "userId123")
         .put(typeKey, "test")
         .put(keyPairAliasKey, "keyPairAlias123")
-    assertNull(factorMapper.fromStorage(jsonObject))
+    assertNull(factorMapper.fromStorage(jsonObject.toString()))
+  }
+
+  @Test
+  fun testFromStorage_invalidJson_shouldReturnNull() {
+    val json = "test"
+    assertNull(factorMapper.fromStorage(json))
   }
 
   @Test
@@ -134,7 +140,8 @@ class FactorMapperTest {
         sid = "sid123", friendlyName = "factor name", accountSid = "accountSid123",
         serviceSid = "serviceSid123", entitySid = "entitySid123", userId = "userId123"
     ).apply { keyPairAlias = "keyPairAlias123" }
-    val jsonObject = factorMapper.toJSONObject(factor)
+    val json = factorMapper.toJSON(factor)
+    val jsonObject = JSONObject(json)
     assertEquals(Push.name, jsonObject.getString(typeKey))
     assertEquals(factor.serviceSid, jsonObject.getString(serviceSidKey))
     assertEquals(factor.userId, jsonObject.getString(userIdKey))
