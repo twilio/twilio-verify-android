@@ -16,7 +16,7 @@ internal const val friendlyNameKey = "friendly_name"
 internal const val accountSidKey = "account_sid"
 internal const val serviceSidKey = "service_sid"
 internal const val entitySidKey = "entity_sid"
-internal const val userIdKey = "user_id"
+internal const val entityIdKey = "user_id"
 internal const val keyPairAliasKey = "key_pair"
 
 internal class FactorMapper {
@@ -26,12 +26,12 @@ internal class FactorMapper {
     factorBuilder: FactorBuilder
   ): Factor? {
     val serviceSid = factorBuilder.serviceSid
-    val userId = factorBuilder.userId
-    if (serviceSid.isNullOrEmpty() || userId.isNullOrEmpty()) {
+    val entityId = factorBuilder.entityId
+    if (serviceSid.isNullOrEmpty() || entityId.isNullOrEmpty()) {
       return null
     }
     return when (factorBuilder.type) {
-      Push -> toPushFactor(serviceSid, userId, jsonObject)
+      Push -> toPushFactor(serviceSid, entityId, jsonObject)
       else -> null
     }
   }
@@ -43,12 +43,12 @@ internal class FactorMapper {
       return null
     }
     val serviceSid = jsonObject.optString(serviceSidKey)
-    val userId = jsonObject.optString(userIdKey)
-    if (serviceSid.isNullOrEmpty() || userId.isNullOrEmpty()) {
+    val entityId = jsonObject.optString(entityIdKey)
+    if (serviceSid.isNullOrEmpty() || entityId.isNullOrEmpty()) {
       return null
     }
     return when (jsonObject.getString(typeKey)) {
-      Push.name -> toPushFactor(serviceSid, userId, jsonObject)?.apply {
+      Push.factorTypeName -> toPushFactor(serviceSid, entityId, jsonObject)?.apply {
         keyPairAlias = jsonObject.getString(keyPairAliasKey)
       }
       else -> null
@@ -63,15 +63,15 @@ internal class FactorMapper {
           .put(accountSidKey, factor.accountSid)
           .put(serviceSidKey, factor.serviceSid)
           .put(entitySidKey, factor.entitySid)
-          .put(userIdKey, factor.userId)
-          .put(typeKey, factor.type.name)
+          .put(entityIdKey, factor.entityId)
+          .put(typeKey, factor.type.factorTypeName)
           .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias).toString()
     }
   }
 
   private fun toPushFactor(
     serviceSid: String,
-    userId: String,
+    entityId: String,
     jsonObject: JSONObject
   ): PushFactor? {
     return try {
@@ -81,7 +81,7 @@ internal class FactorMapper {
           accountSid = jsonObject.getString(accountSidKey),
           serviceSid = serviceSid,
           entitySid = jsonObject.getString(entitySidKey),
-          userId = userId
+          entityId = entityId
       )
     } catch (e: JSONException) {
       null

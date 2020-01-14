@@ -13,7 +13,7 @@ internal class PushFactor(
   override val accountSid: String,
   override val serviceSid: String,
   override val entitySid: String,
-  override val userId: String
+  override val entityId: String
 ) : Factor {
   override val type: FactorType = Push
 
