@@ -77,6 +77,7 @@ class StorageTest {
     val key = "key123"
     sharedPreferences.edit()
         .remove(key)
+        .apply()
     assertNull(storage.get(key))
   }
 }
