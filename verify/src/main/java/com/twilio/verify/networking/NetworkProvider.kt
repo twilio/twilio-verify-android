@@ -8,6 +8,6 @@ interface NetworkProvider {
   fun execute(
     request: Request,
     success: (response: String) -> Unit,
-    failure: (exception: Exception) -> Unit
+    error: () -> Unit
   )
 }

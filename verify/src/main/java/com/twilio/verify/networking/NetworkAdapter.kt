@@ -1,34 +1,52 @@
 package com.twilio.verify.networking
 
-import java.net.HttpURLConnection
+import java.io.BufferedWriter
+import java.io.OutputStream
+import java.io.OutputStreamWriter
 import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
 
-class NetworkAdapter() : NetworkProvider {
+class NetworkAdapter : NetworkProvider {
 
   override fun execute(
     request: Request,
     success: (response: String) -> Unit,
-    failure: (exception: Exception) -> Unit
+    error: () -> Unit
   ) {
-    val urlConnection = URL(request.url).openConnection() as HttpURLConnection
-    urlConnection.requestMethod = request.httpMethod.method
-    for ((key, value) in request.headers) {
-      urlConnection.setRequestProperty(key, value)
-    }
+    var urlConnection: HttpsURLConnection? = null
     try {
-      val response = urlConnection.inputStream.bufferedReader()
-          .use { it.readText() }
-      success(response)
+      urlConnection = URL(request.url).openConnection() as HttpsURLConnection
+      urlConnection.requestMethod = request.httpMethod.method
+      for ((key, value) in request.headers) {
+        urlConnection.setRequestProperty(key, value)
+      }
+      urlConnection.doInput = true
+      urlConnection.doOutput = true
+
+      val os: OutputStream = urlConnection.outputStream
+      val writer = BufferedWriter(
+          OutputStreamWriter(os, "UTF-8")
+      )
+      writer.write(request.getParams())
+      writer.flush()
+      writer.close()
+      os.close()
+      val responseCode = urlConnection.responseCode
+      if (responseCode < 400) {
+        val response = urlConnection.inputStream.bufferedReader()
+            .use { it.readText() }
+        success(response)
+      } else {
+        throw (Throwable("Invalid response"))
+      }
     } catch (e: Exception) {
-      failure(e)
+      error()
     } finally {
-      urlConnection.disconnect()
+      urlConnection?.disconnect()
     }
-
   }
-
 }

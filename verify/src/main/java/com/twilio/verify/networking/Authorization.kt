@@ -8,7 +8,7 @@ import android.util.Base64
 internal const val AuthorizationHeader = "Authorization"
 internal const val BasicAuth = "Basic"
 
-data class Authorization internal constructor(
+data class Authorization constructor(
   private val accountSid: String,
   private val authToken: String
 ) {
