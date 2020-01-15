@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Twilio Inc.
+ * Copyright (c) 2020, Twilio Inc.
  */
 package com.twilio.verify.domain.factor.models
 
@@ -13,7 +13,7 @@ internal class PushFactor(
   override val accountSid: String,
   override val serviceSid: String,
   override val entitySid: String,
-  override val userId: String
+  override val entityId: String
 ) : Factor {
   override val type: FactorType = Push
 
