@@ -27,7 +27,8 @@ class Domain.Factor.FactorMapper {
     toJSON(factor: Factor): String
 }
 class API.FactorAPIClient {
-    create(factorBuilder: FactorBuilder): JSONObject?
+    create(factorBuilder: FactorBuilder, success: (JSONObject)->(), error: ()->())
+    verify(factor: Factor, authPayload: String, success: ()->(), error: ()->())
 }
 class Network.NetworkAdapter implements Network.NetworkProvider {
 
@@ -39,22 +40,23 @@ class Data.Storage implements Data.StorageProvider {
 
 }
 interface Data.KeyStorage {
-    create(alias: String): KeyPair
-    get(alias: String): KeyPair
+    create(alias: String): String?
+    sign(alias: String, message: String): String?
 }
 class Data.KeyStoreAdapter implements Data.KeyStorage {
 
 }
 interface Domain.Factor.FactorProvider {
-    create(factorBuilder: FactorBuilder): Factor?
+    create(factorBuilder: FactorBuilder, success: (Factor?)->())
     get(sid: String): Factor?
     update(factor: Factor): Factor?
+    verify(factor: Factor, authPayload: String, success: ()->())
 }
 class Domain.Factor.FactorRepository implements Domain.Factor.FactorProvider {
 
 }
 class Domain.Factor.PushFactory {
-    create(jwt: String, friendlyName: String, pushToken: String): Factor?
+    create(jwt: String, friendlyName: String, pushToken: String, success: (Factor?)->())
 }
 Domain.Factor.PushFactory o-left-> Data.KeyStorage: create key pair
 Domain.Factor.PushFactory o--> Domain.Factor.FactorProvider: create/update factor
