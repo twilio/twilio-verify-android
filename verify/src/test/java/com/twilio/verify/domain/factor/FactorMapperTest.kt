@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.domain.factor
 
-import com.twilio.verify.domain.factor.models.FactorBuilder
+import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorType.Push
 import org.json.JSONObject
@@ -22,18 +22,17 @@ class FactorMapperTest {
 
   @Test
   fun `Map a valid response from API should return a factor`() {
-    val factorBuilder = FactorBuilder().serviceSid("serviceSid123")
-        .entityId("entityId123")
-        .type(Push)
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
-    val factor = factorMapper.fromApi(jsonObject, factorBuilder) as PushFactor
-    assertEquals(factorBuilder.type, factor.type)
-    assertEquals(factorBuilder.serviceSid, factor.serviceSid)
-    assertEquals(factorBuilder.entityId, factor.entityId)
+    val factor = factorMapper.fromApi(jsonObject, factorPayload) as PushFactor
+    assertEquals(factorPayload.type, factor.type)
+    assertEquals(factorPayload.serviceSid, factor.serviceSid)
+    assertEquals(factorPayload.entityId, factor.entityId)
     assertEquals(jsonObject.getString(sidKey), factor.sid)
     assertEquals(jsonObject.getString(friendlyNameKey), factor.friendlyName)
     assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
@@ -42,41 +41,36 @@ class FactorMapperTest {
 
   @Test
   fun `Map an incomplete response from API should return null`() {
-    val factorBuilder = FactorBuilder()
-        .serviceSid("serviceSid123")
-        .entityId("entityId123")
-        .type(Push)
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorBuilder))
+    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
   }
 
   @Test
-  fun `Map a response without service sid from API should return null`() {
-    val factorBuilder = FactorBuilder()
-        .entityId("entityId123")
-        .type(Push)
+  fun `Map a response without factor sid from API should return null`() {
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
-        .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorBuilder))
+    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
   }
 
   @Test
   fun `Map a response without entity sid from API should return null`() {
-    val factorBuilder = FactorBuilder()
-        .serviceSid("serviceSid123")
-        .type(Push)
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
-        .put(entitySidKey, "entitySid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorBuilder))
+        .put(serviceSidKey, "serviceSid123")
+    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
   }
 
   @Test

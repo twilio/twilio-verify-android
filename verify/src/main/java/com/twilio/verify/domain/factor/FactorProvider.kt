@@ -3,11 +3,11 @@
  */
 package com.twilio.verify.domain.factor
 
-import com.twilio.verify.domain.factor.models.FactorBuilder
+import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.Factor
 
 internal interface FactorProvider {
-  fun create(factorBuilder: FactorBuilder, success: (Factor?) -> Unit)
+  fun create(factorPayload: FactorPayload, success: (Factor?) -> Unit)
   fun get(sid: String): Factor?
   fun update(factor: Factor): Factor?
 }
