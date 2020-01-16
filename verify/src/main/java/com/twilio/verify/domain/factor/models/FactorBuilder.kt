@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Twilio Inc.
+ * Copyright (c) 2020, Twilio Inc.
  */
 package com.twilio.verify.domain.factor.models
 
@@ -15,12 +15,12 @@ internal class FactorBuilder {
     private set
   var serviceSid: String? = null
     private set
-  var userId: String? = null
+  var entityId: String? = null
     private set
 
   fun friendlyName(friendlyName: String) = apply { this.friendlyName = friendlyName }
   fun type(type: FactorType) = apply { this.type = type }
   fun binding(binding: Map<String, Any>) = apply { this.binding = binding }
   fun serviceSid(serviceSid: String) = apply { this.serviceSid = serviceSid }
-  fun userId(userId: String) = apply { this.userId = userId }
+  fun entityId(entityId: String) = apply { this.entityId = entityId }
 }

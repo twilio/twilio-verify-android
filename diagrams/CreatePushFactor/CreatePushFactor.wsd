@@ -4,11 +4,11 @@ enum Models.FactorType {
 }
 interface Models.Factor {
     sid: String
-    accountSid: String
     friendlyName: String
-    entitySid: String
-    userId: String
+    accountSid: String
     serviceSid: String
+    entitySid: String
+    entityId: String
     type: FactorType
 }
 class Domain.Factor.Models.PushFactor implements Models.Factor {
@@ -19,13 +19,15 @@ class Domain.Factor.Models.FactorBuilder {
     type: FactorType
     binding: Dictionary
     serviceSid: String
-    userId: String
+    entityId: String
 }
 class Domain.Factor.FactorMapper {
-    factor(object: JSONObject): Factor
+    fromApi(jsonObject: JSONObject, factorBuilder: FactorBuilder): Factor?
+    fromStorage(json: String): Factor?
+    toJSON(factor: Factor): String
 }
 class API.FactorAPIClient {
-    create(factorBuilder: FactorBuilder): JSONObject
+    create(factorBuilder: FactorBuilder): JSONObject?
 }
 class Network.NetworkAdapter implements Network.NetworkProvider {
 
@@ -44,15 +46,15 @@ class Data.KeyStoreAdapter implements Data.KeyStorage {
 
 }
 interface Domain.Factor.FactorProvider {
-    create(factorBuilder: FactorBuilder): Factor
-    get(sid: String): Factor
-    update(factor: Factor): Factor
+    create(factorBuilder: FactorBuilder): Factor?
+    get(sid: String): Factor?
+    update(factor: Factor): Factor?
 }
 class Domain.Factor.FactorRepository implements Domain.Factor.FactorProvider {
 
 }
 class Domain.Factor.PushFactory {
-    create(data: String, friendlyName: String, pushToken: String): Factor
+    create(jwt: String, friendlyName: String, pushToken: String): Factor?
 }
 Domain.Factor.PushFactory o-left-> Data.KeyStorage: create key pair
 Domain.Factor.PushFactory o--> Domain.Factor.FactorProvider: create/update factor
