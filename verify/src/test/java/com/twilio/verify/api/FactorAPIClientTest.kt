@@ -91,7 +91,7 @@ class FactorAPIClientTest {
           .type(factorTypeMock)
           .binding(mapOf("pushToken" to pushToken, "publicKey" to publicKey))
           .serviceSid(serviceSid)
-          .userId(userId)
+          .entityId(userId)
 
     factorAPIClient.create(factorBuilder, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {

@@ -58,7 +58,7 @@ class FactorAPIClient(
   private fun url(factorBuilder: FactorBuilder): String {
     return url.replace(serviceSidPath, factorBuilder.serviceSid ?: "", true)
         .replace(
-            userIdPath, factorBuilder.userId ?: "", true
+            userIdPath, factorBuilder.entityId ?: "", true
         )
   }
 
