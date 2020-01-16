@@ -18,7 +18,11 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            buildConfigField "String", 'BASE_URL', "\"https://authy.twilio.com/v1/\""
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            buildConfigField "String", 'BASE_URL', "\"https://authy.stage.twilio.com/v1/\""
         }
     }
     testOptions.unitTests.includeAndroidResources = true

@@ -1,15 +1,9 @@
 package com.twilio.verify.api
 
 import android.content.Context
+import com.twilio.verify.BuildConfig
 import com.twilio.verify.domain.factor.models.FactorPayload
-import com.twilio.verify.networking.Authorization
-import com.twilio.verify.networking.HttpMethod
-import com.twilio.verify.networking.MediaTypeHeader
-import com.twilio.verify.networking.MediaTypeValue
-import com.twilio.verify.networking.NetworkAdapter
-import com.twilio.verify.networking.NetworkProvider
-import com.twilio.verify.networking.Request
-import com.twilio.verify.networking.RequestHelper
+import com.twilio.verify.networking.*
 import org.json.JSONObject
 
 /*
@@ -19,7 +13,7 @@ import org.json.JSONObject
 internal const val serviceSidPath = "{ServiceSid}"
 internal const val userIdPath = "{UserId}"
 internal const val url =
-  "https://authy.twilio.com/v1/Services/$serviceSidPath/Entities/$userIdPath/Factors"
+  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$userIdPath/Factors"
 internal const val friendlyName = "FriendlyName"
 internal const val factorType = "FactorType"
 internal const val binding = "Binding"
