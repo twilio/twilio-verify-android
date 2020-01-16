@@ -40,7 +40,7 @@ class FactorRepositoryTest {
   )
 
   @Test
-  fun testCreate_validData_shouldReturnFactor() {
+  fun `Create a factor with a valid factor builder should return a factor`() {
     val sid = "sid123"
     val factorBuilder = FactorBuilder().type(Push)
         .entityId("entityId123")
@@ -75,7 +75,7 @@ class FactorRepositoryTest {
   }
 
   @Test
-  fun testCreate_noResponseFromApi_shouldNotReturnFactor() {
+  fun `No response from API creating a factor should not call success`() {
     val factorBuilder = FactorBuilder().type(Push)
         .entityId("entityId123")
         .serviceSid("serviceSid123")
@@ -94,7 +94,7 @@ class FactorRepositoryTest {
   }
 
   @Test
-  fun testCreate_noFactorFromMapper_shouldNotReturnFactor() {
+  fun `No factor from mapper creating a factor should not call success`() {
     val sid = "sid123"
     val factorBuilder = FactorBuilder().type(Push)
         .entityId("entityId123")
@@ -120,7 +120,7 @@ class FactorRepositoryTest {
   }
 
   @Test
-  fun testCreate_noFactorFromStorage_shouldNotReturnFactor() {
+  fun `No factor from storage creating a factor should not call success`() {
     val sid = "sid123"
     val factorBuilder = FactorBuilder().type(Push)
         .entityId("entityId123")
@@ -153,7 +153,7 @@ class FactorRepositoryTest {
   }
 
   @Test
-  fun testGet_savedFactor_shouldReturnFactor() {
+  fun `Get an existing factor should return it`() {
     val sid = "sid123"
     val factor = mock<Factor> {
       on(it.sid).thenReturn(sid)
@@ -167,14 +167,14 @@ class FactorRepositoryTest {
   }
 
   @Test
-  fun testGet_noFactorForSid_shouldReturnNull() {
+  fun `Get a non existing factor should return null`() {
     val sid = "sid123"
     whenever(storage.get(sid)).thenReturn(null)
     assertNull(factorRepository.get(sid))
   }
 
   @Test
-  fun testGet_noFactorFromMapper_shouldReturnNull() {
+  fun `Get a null from mapper getting a factor should return null`() {
     val sid = "sid123"
     val factorToJson = JSONObject().put(sidKey, sid)
         .toString()
@@ -184,7 +184,7 @@ class FactorRepositoryTest {
   }
 
   @Test
-  fun testUpdate_withFactor_shouldReturnUpdatedFactor() {
+  fun `Update a factor should return the updated factor`() {
     val sid = "sid123"
     val factor = mock<Factor> {
       on(it.sid).thenReturn(sid)
@@ -203,7 +203,7 @@ class FactorRepositoryTest {
   }
 
   @Test
-  fun testUpdate_noUpdatedFactorFound_shouldReturnNull() {
+  fun `Non existing factor in storage updating factor should return null`() {
     val sid = "sid123"
     val factor = mock<Factor> {
       on(it.sid).thenReturn(sid)
