@@ -1,10 +1,11 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.domain.factor.models.FactorBuilder
+import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.HttpMethod
-import com.twilio.verify.networking.MediaType
+import com.twilio.verify.networking.MediaTypeHeader
+import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
@@ -30,7 +31,7 @@ class FactorAPIClient(
 ) {
 
   internal fun create(
-    factorBuilder: FactorBuilder,
+    factorPayload: FactorPayload,
     success: (response: JSONObject) -> Unit,
     error: () -> Unit
   ) {
@@ -38,11 +39,11 @@ class FactorAPIClient(
       val requestHelper = RequestHelper(context, authorization)
       val request = Request.Builder(
           requestHelper,
-          url(factorBuilder)
+          url(factorPayload)
       )
           .httpMethod(HttpMethod.Post)
           .headers(headers().toMutableMap())
-          .body(body(factorBuilder))
+          .body(body(factorPayload))
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it))
@@ -55,23 +56,22 @@ class FactorAPIClient(
 
   }
 
-  private fun url(factorBuilder: FactorBuilder): String {
-    return url.replace(serviceSidPath, factorBuilder.serviceSid ?: "", true)
+  private fun url(factorPayload: FactorPayload): String =
+    url.replace(serviceSidPath, factorPayload.serviceSid, true)
         .replace(
-            userIdPath, factorBuilder.entityId ?: "", true
+            userIdPath, factorPayload.entityId, true
         )
-  }
 
   private fun headers(): Map<String, String> =
     mapOf(
-        MediaType.Accept.type to MediaType.Json.type,
-        MediaType.ContentType.type to MediaType.UrlEncoded.type
+        MediaTypeHeader.Accept.type to MediaTypeValue.Json.type,
+        MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
     )
 
-  private fun body(factorBuilder: FactorBuilder): Map<String, String?> =
+  private fun body(factorPayload: FactorPayload): Map<String, String?> =
     mapOf(
-        friendlyName to factorBuilder.friendlyName,
-        factorType to factorBuilder.type?.factorTypeName,
-        binding to factorBuilder.binding.values.joinToString("|")
+        friendlyName to factorPayload.friendlyName,
+        factorType to factorPayload.type.factorTypeName,
+        binding to factorPayload.binding.values.joinToString("|")
     )
 }

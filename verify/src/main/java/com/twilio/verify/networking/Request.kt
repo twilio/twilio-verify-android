@@ -19,8 +19,10 @@ class Request internal constructor(
   fun getParams(): String? {
     return when {
       body == null -> ""
-      headers[MediaType.ContentType.type] == MediaType.UrlEncoded.type -> queryParams(body)
-      headers[MediaType.ContentType.type] == MediaType.Json.type -> jsonParams(body)
+      headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type -> queryParams(
+          body
+      )
+      headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.Json.type -> jsonParams(body)
       else -> ""
     }
   }
@@ -35,7 +37,7 @@ class Request internal constructor(
         .encodedQuery
   }
 
-  private fun jsonParams(params: Map<String, Any?>): String? {
+  private fun jsonParams(params: Map<String, Any?>): String {
     val jsonObject = JSONObject()
     for ((key, value) in params) {
       jsonObject.put(key, value)

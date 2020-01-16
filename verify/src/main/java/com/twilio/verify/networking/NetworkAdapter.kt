@@ -23,10 +23,8 @@ class NetworkAdapter : NetworkProvider {
       for ((key, value) in request.headers) {
         urlConnection.setRequestProperty(key, value)
       }
-      urlConnection.doInput = true
-      urlConnection.doOutput = true
-
       if (request.getParams()?.isNotEmpty() == true) {
+        urlConnection.doOutput = true
         val os: OutputStream = urlConnection.outputStream
         val writer = BufferedWriter(
             OutputStreamWriter(os, "UTF-8")

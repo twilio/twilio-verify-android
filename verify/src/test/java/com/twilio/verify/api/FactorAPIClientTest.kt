@@ -7,12 +7,13 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.verify.domain.factor.models.FactorBuilder
+import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.HttpMethod
-import com.twilio.verify.networking.MediaType
+import com.twilio.verify.networking.MediaTypeHeader
+import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.userAgent
@@ -51,7 +52,7 @@ class FactorAPIClientTest {
         firstValue.invoke(response)
       }
     }
-    factorAPIClient.create(FactorBuilder(), { jsonObject ->
+    factorAPIClient.create(FactorPayload("", Push, emptyMap(), "", ""), { jsonObject ->
       assertEquals(response, jsonObject.toString())
     }, {
       fail()
@@ -65,7 +66,7 @@ class FactorAPIClientTest {
         firstValue.invoke()
       }
     }
-    factorAPIClient.create(FactorBuilder(), {
+    factorAPIClient.create(FactorPayload("", Push, emptyMap(), "", ""), {
       fail()
     }, {})
   }
@@ -73,10 +74,10 @@ class FactorAPIClientTest {
   @Test
   fun `Request should match to the expected params`() {
     val serviceSid = "serviceSid"
-    val userId = "userId"
+    val entityId = "userId"
     val expectedURL = url.replace(serviceSidPath, serviceSid, true)
         .replace(
-            userIdPath, userId, true
+            userIdPath, entityId, true
         )
     val friendlyNameMock = "Test"
     val factorTypeMock = Push
@@ -87,11 +88,11 @@ class FactorAPIClientTest {
         binding to "$pushToken|$publicKey"
     )
     val factorBuilder =
-      FactorBuilder().friendlyName(friendlyNameMock)
-          .type(factorTypeMock)
-          .binding(mapOf("pushToken" to pushToken, "publicKey" to publicKey))
-          .serviceSid(serviceSid)
-          .entityId(userId)
+      FactorPayload(
+          friendlyNameMock, factorTypeMock,
+          mapOf("pushToken" to pushToken, "publicKey" to publicKey), serviceSid,
+          entityId
+      )
 
     factorAPIClient.create(factorBuilder, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
@@ -101,8 +102,8 @@ class FactorAPIClientTest {
       assertEquals(URL(expectedURL), url)
       assertEquals(HttpMethod.Post, httpMethod)
       assertEquals(expectedBody, body)
-      assertTrue(headers[MediaType.ContentType.type] == MediaType.UrlEncoded.type)
-      assertTrue(headers[MediaType.Accept.type] == MediaType.Json.type)
+      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
+      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
     }

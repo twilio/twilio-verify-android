@@ -40,8 +40,8 @@ class RequestTest {
   fun `Request should match the params that were send to the RequestBuilder, with custom headers`() {
     val httpMethod = HttpMethod.Post
     val url = "https://twilio.com"
-    val contentType = MediaType.UrlEncoded
-    val acceptType = MediaType.UrlEncoded
+    val contentType = MediaTypeValue.UrlEncoded
+    val acceptType = MediaTypeValue.UrlEncoded
     val tag = "tag"
     val headers = mutableMapOf("Content-Type" to contentType.type, "Accept-Type" to acceptType.type)
     val authorization = Authorization("accountSid", "authToken")
@@ -78,7 +78,7 @@ class RequestTest {
           .httpMethod(httpMethod)
           .tag(tag)
           .body(mapOf(key1 to value1, key2 to value2))
-          .headers(mapOf(MediaType.ContentType.type to MediaType.UrlEncoded.type).toMutableMap())
+          .headers(mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type).toMutableMap())
           .build()
 
     assertEquals(expectedParams, request.getParams())
@@ -105,7 +105,7 @@ class RequestTest {
           .httpMethod(httpMethod)
           .tag(tag)
           .body(mapOf(key1 to value1, key2 to value2))
-          .headers(mapOf(MediaType.ContentType.type to MediaType.Json.type).toMutableMap())
+          .headers(mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap())
           .build()
 
     assertEquals(expectedParams.toString(), request.getParams())
@@ -124,7 +124,7 @@ class RequestTest {
       Request.Builder(requestHelper, url)
           .httpMethod(httpMethod)
           .tag(tag)
-          .headers(mapOf(MediaType.ContentType.type to MediaType.Json.type).toMutableMap())
+          .headers(mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap())
           .build()
 
     assertEquals(expectedParams, request.getParams())

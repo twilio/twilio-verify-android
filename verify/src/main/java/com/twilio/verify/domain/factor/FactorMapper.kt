@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.domain.factor
 
-import com.twilio.verify.domain.factor.models.FactorBuilder
+import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
@@ -23,14 +23,14 @@ internal class FactorMapper {
 
   fun fromApi(
     jsonObject: JSONObject,
-    factorBuilder: FactorBuilder
+    factorPayload: FactorPayload
   ): Factor? {
-    val serviceSid = factorBuilder.serviceSid
-    val entityId = factorBuilder.entityId
+    val serviceSid = factorPayload.serviceSid
+    val entityId = factorPayload.entityId
     if (serviceSid.isNullOrEmpty() || entityId.isNullOrEmpty()) {
       return null
     }
-    return when (factorBuilder.type) {
+    return when (factorPayload.type) {
       Push -> toPushFactor(serviceSid, entityId, jsonObject)
       else -> null
     }

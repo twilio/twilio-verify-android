@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.domain.factor
 
-import com.twilio.verify.domain.factor.models.FactorBuilder
+import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorType.Push
 import org.json.JSONObject
@@ -22,9 +22,7 @@ class FactorMapperTest {
 
   @Test
   fun testFromApi_validData_shouldReturnFactor() {
-    val factorBuilder = FactorBuilder().serviceSid("serviceSid123")
-        .entityId("entityId123")
-        .type(Push)
+    val factorBuilder = FactorPayload("", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -42,10 +40,7 @@ class FactorMapperTest {
 
   @Test
   fun testFromApi_invalidData_shouldReturnNull() {
-    val factorBuilder = FactorBuilder()
-        .serviceSid("serviceSid123")
-        .entityId("entityId123")
-        .type(Push)
+    val factorBuilder = FactorPayload("", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
@@ -55,9 +50,7 @@ class FactorMapperTest {
 
   @Test
   fun testFromApi_invalidServiceSid_shouldReturnNull() {
-    val factorBuilder = FactorBuilder()
-        .entityId("entityId123")
-        .type(Push)
+    val factorBuilder = FactorPayload("", Push, emptyMap(), "", "entityId123")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -68,9 +61,7 @@ class FactorMapperTest {
 
   @Test
   fun testFromApi_invalidEntityId_shouldReturnNull() {
-    val factorBuilder = FactorBuilder()
-        .serviceSid("serviceSid123")
-        .type(Push)
+    val factorBuilder = FactorPayload("", Push, emptyMap(), "serviceSid123", "")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
