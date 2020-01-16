@@ -5,6 +5,7 @@ import com.twilio.verify.domain.factor.models.FactorBuilder
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.HttpMethod
 import com.twilio.verify.networking.MediaType
+import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.RequestHelper
@@ -14,16 +15,16 @@ import org.json.JSONObject
  * Copyright (c) 2020, Twilio Inc.
  */
 
-private const val serviceSidPath = "{ServiceSid}"
-private const val userIdPath = "{UserId}"
-private const val url =
+internal const val serviceSidPath = "{ServiceSid}"
+internal const val userIdPath = "{UserId}"
+internal const val url =
   "https://authy.twilio.com/v1/Services/$serviceSidPath/Entities/$userIdPath/Factors"
-private const val friendlyName = "FriendlyName"
-private const val factorType = "FactorType"
-private const val binding = "Binding"
+internal const val friendlyName = "FriendlyName"
+internal const val factorType = "FactorType"
+internal const val binding = "Binding"
 
 class FactorAPIClient(
-  private val networkProvider: NetworkProvider,
+  private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
   private val authorization: Authorization
 ) {
@@ -33,20 +34,25 @@ class FactorAPIClient(
     success: (response: JSONObject) -> Unit,
     error: () -> Unit
   ) {
-    val requestHelper = RequestHelper(context, authorization)
-    val request = Request.Builder(
-        requestHelper,
-        url(factorBuilder)
-    )
-        .httpMethod(HttpMethod.Post)
-        .headers(headers().toMutableMap())
-        .body(body(factorBuilder))
-        .build()
-    networkProvider.execute(request, {
-      success(JSONObject(it))
-    }, {
+    try {
+      val requestHelper = RequestHelper(context, authorization)
+      val request = Request.Builder(
+          requestHelper,
+          url(factorBuilder)
+      )
+          .httpMethod(HttpMethod.Post)
+          .headers(headers().toMutableMap())
+          .body(body(factorBuilder))
+          .build()
+      networkProvider.execute(request, {
+        success(JSONObject(it))
+      }, {
+        error()
+      })
+    } catch (e: Exception) {
       error()
-    })
+    }
+
   }
 
   private fun url(factorBuilder: FactorBuilder): String {
@@ -66,5 +72,6 @@ class FactorAPIClient(
     mapOf(
         friendlyName to factorBuilder.friendlyName,
         factorType to factorBuilder.type?.factorTypeName,
-        binding to factorBuilder.binding.values.joinToString { "|" })
+        binding to factorBuilder.binding.values.joinToString("|")
+    )
 }

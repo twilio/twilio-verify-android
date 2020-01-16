@@ -2,27 +2,27 @@ package com.twilio.verify.networking
 
 import android.net.Uri
 import org.json.JSONObject
+import java.net.MalformedURLException
+import java.net.URL
 
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-class Request private constructor(
+class Request internal constructor(
   internal val httpMethod: HttpMethod,
-  internal val url: String,
+  internal val url: URL,
   internal val body: Map<String, Any?>?,
   internal val headers: Map<String, String>,
   internal val tag: String
 ) {
 
   fun getParams(): String? {
-    if (body != null) {
-      return if (headers[MediaType.ContentType.type] == MediaType.UrlEncoded.type) {
-        queryParams(body)
-      } else {
-        jsonParams(body)
-      }
+    return when {
+      body == null -> ""
+      headers[MediaType.ContentType.type] == MediaType.UrlEncoded.type -> queryParams(body)
+      headers[MediaType.ContentType.type] == MediaType.Json.type -> jsonParams(body)
+      else -> ""
     }
-    return ""
   }
 
   private fun queryParams(params: Map<String, Any?>): String? {
@@ -59,9 +59,10 @@ class Request private constructor(
 
     fun tag(tag: String) = apply { this.tag = tag }
 
+    @Throws(MalformedURLException::class)
     fun build() = Request(
         httpMethod ?: HttpMethod.Get,
-        url,
+        URL(url),
         body,
         headers ?: requestHelper.commonHeaders,
         tag ?: ""
