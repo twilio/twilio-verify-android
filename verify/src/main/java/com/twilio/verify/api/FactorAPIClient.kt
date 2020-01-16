@@ -11,9 +11,9 @@ import org.json.JSONObject
  */
 
 internal const val serviceSidPath = "{ServiceSid}"
-internal const val userIdPath = "{UserId}"
+internal const val entityIdPath = "{EntityId}"
 internal const val url =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$userIdPath/Factors"
+  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entityIdPath/Factors"
 internal const val friendlyName = "FriendlyName"
 internal const val factorType = "FactorType"
 internal const val binding = "Binding"
@@ -53,7 +53,7 @@ class FactorAPIClient(
   private fun url(factorPayload: FactorPayload): String =
     url.replace(serviceSidPath, factorPayload.serviceSid, true)
         .replace(
-            userIdPath, factorPayload.entityId, true
+            entityIdPath, factorPayload.entityId, true
         )
 
   private fun headers(): Map<String, String> =

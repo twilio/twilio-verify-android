@@ -77,7 +77,7 @@ class FactorAPIClientTest {
     val entityId = "userId"
     val expectedURL = url.replace(serviceSidPath, serviceSid, true)
         .replace(
-            userIdPath, entityId, true
+            entityIdPath, entityId, true
         )
     val friendlyNameMock = "Test"
     val factorTypeMock = Push
