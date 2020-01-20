@@ -22,7 +22,6 @@ android {
     }
     debug {
       buildConfigField "String", 'BASE_URL', "\"https://authy.stage.twilio.com/v1/\""
-
     }
   }
   testOptions.unitTests.includeAndroidResources = true
