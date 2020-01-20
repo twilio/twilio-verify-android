@@ -1,6 +1,6 @@
 @startuml TwilioVerifySDK
 interface TwilioVerify {
-    createFactor(factorXYZ: FactorXYZ, success: (Factor) -> (), error: (exception: TwilioException)->())
+    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (exception: TwilioException)->())
     getChallenge(challengeSid: String, success: (Challenge) -> (), error: (exception: TwilioException)->())
     verifyChallenge(challenge: Challenge, success: (Challenge) -> (), error: (exception: TwilioException)->())
 }
@@ -13,10 +13,10 @@ class TwilioVerify.Builder {
 class Domain.TwilioVerifyManager implements TwilioVerify {
     TwilioVerifyManager(context: Context, authorization: Authorization)
 }
-interface FactorXYZ {
+interface FactorInput {
     friendlyName: String
 }
-class PushFactorXYZ implements FactorXYZ {
+class PushFactorInput implements FactorInput {
     pushToken: String
     jwt: String
 }
