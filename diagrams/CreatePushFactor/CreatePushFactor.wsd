@@ -14,7 +14,7 @@ interface Models.Factor {
 class Domain.Factor.Models.PushFactor implements Models.Factor {
     keyPairAlias: String
 }
-class Domain.Factor.Models.FactorBuilder {
+class Domain.Factor.Models.FactorPayload {
     friendlyName: String
     type: FactorType
     binding: Dictionary
@@ -22,12 +22,12 @@ class Domain.Factor.Models.FactorBuilder {
     entityId: String
 }
 class Domain.Factor.FactorMapper {
-    fromApi(jsonObject: JSONObject, factorBuilder: FactorBuilder): Factor?
+    fromApi(jsonObject: JSONObject, factorPayload: FactorPayload): Factor?
     fromStorage(json: String): Factor?
     toJSON(factor: Factor): String
 }
 class API.FactorAPIClient {
-    create(factorBuilder: FactorBuilder, success: (JSONObject)->(), error: ()->())
+    create(factorPayload: FactorPayload, success: (JSONObject)->(), error: ()->())
     verify(factor: Factor, authPayload: String, success: ()->(), error: ()->())
 }
 class Network.NetworkAdapter implements Network.NetworkProvider {
@@ -47,7 +47,7 @@ class Data.KeyStoreAdapter implements Data.KeyStorage {
 
 }
 interface Domain.Factor.FactorProvider {
-    create(factorBuilder: FactorBuilder, success: (Factor?)->())
+    create(factorPayload: FactorPayload, success: (Factor?)->())
     get(sid: String): Factor?
     update(factor: Factor): Factor?
     verify(factor: Factor, authPayload: String, success: ()->())

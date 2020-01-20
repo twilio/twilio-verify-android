@@ -6,7 +6,7 @@ package com.twilio.verify.domain.factor
 import android.content.Context
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
-import com.twilio.verify.domain.factor.models.FactorBuilder
+import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.toEnrollmentJWT
 import com.twilio.verify.models.Factor
@@ -34,11 +34,10 @@ internal class PushFactory(
     }
     val alias = generateKeyPairAlias()
     val publicKey = keyStorage.create(alias) ?: return
-    val factorBuilder = FactorBuilder().friendlyName(friendlyName)
-        .serviceSid(enrollmentJWT.authyGrant.serviceSid)
-        .entityId(enrollmentJWT.authyGrant.entityId)
-        .binding(mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey))
-        .type(Push)
+    val factorBuilder = FactorPayload(
+        friendlyName, Push, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey),
+        enrollmentJWT.authyGrant.serviceSid, enrollmentJWT.authyGrant.entityId
+    )
     factorProvider.create(factorBuilder) { factor ->
       (factor as? PushFactor?)?.apply {
         keyPairAlias = alias

@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.domain.factor
 
-import com.twilio.verify.domain.factor.models.FactorBuilder
+import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorType.Push
 import org.json.JSONObject
@@ -21,19 +21,18 @@ class FactorMapperTest {
   private val factorMapper = FactorMapper()
 
   @Test
-  fun testFromApi_validData_shouldReturnFactor() {
-    val factorBuilder = FactorBuilder().serviceSid("serviceSid123")
-        .entityId("entityId123")
-        .type(Push)
+  fun `Map a valid response from API should return a factor`() {
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
-    val factor = factorMapper.fromApi(jsonObject, factorBuilder) as PushFactor
-    assertEquals(factorBuilder.type, factor.type)
-    assertEquals(factorBuilder.serviceSid, factor.serviceSid)
-    assertEquals(factorBuilder.entityId, factor.entityId)
+    val factor = factorMapper.fromApi(jsonObject, factorPayload) as PushFactor
+    assertEquals(factorPayload.type, factor.type)
+    assertEquals(factorPayload.serviceSid, factor.serviceSid)
+    assertEquals(factorPayload.entityId, factor.entityId)
     assertEquals(jsonObject.getString(sidKey), factor.sid)
     assertEquals(jsonObject.getString(friendlyNameKey), factor.friendlyName)
     assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
@@ -41,46 +40,41 @@ class FactorMapperTest {
   }
 
   @Test
-  fun testFromApi_invalidData_shouldReturnNull() {
-    val factorBuilder = FactorBuilder()
-        .serviceSid("serviceSid123")
-        .entityId("entityId123")
-        .type(Push)
+  fun `Map an incomplete response from API should return null`() {
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorBuilder))
+    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
   }
 
   @Test
-  fun testFromApi_invalidServiceSid_shouldReturnNull() {
-    val factorBuilder = FactorBuilder()
-        .entityId("entityId123")
-        .type(Push)
+  fun `Map a response without factor sid from API should return null`() {
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
-        .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorBuilder))
+    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
   }
 
   @Test
-  fun testFromApi_invalidEntityId_shouldReturnNull() {
-    val factorBuilder = FactorBuilder()
-        .serviceSid("serviceSid123")
-        .type(Push)
+  fun `Map a response without entity sid from API should return null`() {
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
-        .put(entitySidKey, "entitySid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorBuilder))
+        .put(serviceSidKey, "serviceSid123")
+    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
   }
 
   @Test
-  fun testFromStorage_validData_shouldReturnFactor() {
+  fun `Map a valid json from storage should return a factor`() {
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -102,7 +96,7 @@ class FactorMapperTest {
   }
 
   @Test
-  fun testFromStorage_invalidData_shouldReturnNull() {
+  fun `Map an incomplete json from storage should return null`() {
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -115,7 +109,7 @@ class FactorMapperTest {
   }
 
   @Test
-  fun testFromStorage_invalidFactorType_shouldReturnNull() {
+  fun `Map an invalid factor type from storage should return null`() {
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -129,13 +123,13 @@ class FactorMapperTest {
   }
 
   @Test
-  fun testFromStorage_invalidJson_shouldReturnNull() {
+  fun `Map an invalid json from storage should return null`() {
     val json = "test"
     assertNull(factorMapper.fromStorage(json))
   }
 
   @Test
-  fun testToStorage_withFactorData_shouldReturnDataAsJsonObject() {
+  fun `Map a factor to JSON should return complete factor data as JSONObject`() {
     val factor = PushFactor(
         sid = "sid123", friendlyName = "factor name", accountSid = "accountSid123",
         serviceSid = "serviceSid123", entitySid = "entitySid123", entityId = "entityId123"

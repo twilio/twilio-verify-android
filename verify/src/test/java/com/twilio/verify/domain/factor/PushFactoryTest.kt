@@ -37,7 +37,7 @@ class PushFactoryTest {
     )
 
   @Test
-  fun testCreate_withJWT_shouldReturnFactor() {
+  fun `Create factor with valid JWT should call success lambda`() {
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entityId = "1"
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
@@ -74,7 +74,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun testCreate_noPayloadJwt_shouldNotReturnFactor() {
+  fun `Create factor with no payload in JWT should not call success lambda`() {
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
@@ -84,7 +84,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun testCreate_invalidJWT_shouldNotReturnFactor() {
+  fun `Create factor with invalid JWT should not call success lambda`() {
     val jwt = "test.test"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
@@ -94,7 +94,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun testCreate_noGrant_shouldNotReturnFactor() {
+  fun `Create factor with no grant in JWT should not call success lambda`() {
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7fSwiaXNzIjoiZWI4Mj" +
         "EyZGZjOTUzMzliMmNmYjIyNThjM2YyNGI2ZmIiLCJuYmYiOjE1NzU2MDM3MTgsImV4cCI6MTU3NTYwNzMxOCwic3" +
@@ -108,7 +108,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun testCreate_noServiceSid_shouldNotReturnFactor() {
+  fun `Create factor with no service sid in JWT should not call success lambda`() {
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7ImVudG" +
         "l0eV9pZCI6IjEiLCJmYWN0b3IiOiJwdXNoIn19LCJpc3MiOiJlYjgyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0Yj" +
@@ -122,7 +122,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun testCreate_noEntityId_shouldNotReturnFactor() {
+  fun `Create factor with no entity sid in JWT should not call success lambda`() {
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
         "ZpY2Vfc2lkIjoiSVNiYjc4MjNhYTVkY2NlOTA0NDNmODU2NDA2YWJkNzAwMCIsImZhY3RvciI6InB1c2gifX0sIm" +
@@ -137,7 +137,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun testCreate_noFactorType_shouldNotReturnFactor() {
+  fun `Create factor with no factor type in JWT should not call success lambda`() {
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
         "ZpY2Vfc2lkIjoiSVNiYjc4MjNhYTVkY2NlOTA0NDNmODU2NDA2YWJkNzAwMCIsImVudGl0eV9pZCI6IjEifX0sIm" +
@@ -152,7 +152,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun testCreate_noPushFactor_shouldNotReturnFactor() {
+  fun `Create factor with not supported factor type in JWT should not call success lambda`() {
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
         "ZpY2Vfc2lkIjoiSVNiYjc4MjNhYTVkY2NlOTA0NDNmODU2NDA2YWJkNzAwMCIsImVudGl0eV9pZCI6IjEiLCJmYW" +
@@ -167,7 +167,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun testCreate_publicKeyNotCreated_shouldNotReturnFactor() {
+  fun `Keypair not created creating a factor should not call success lambda`() {
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
         "ZpY2Vfc2lkIjoiSVNiYjc4MjNhYTVkY2NlOTA0NDNmODU2NDA2YWJkNzAwMCIsImVudGl0eV9pZCI6IjEiLCJmYW" +

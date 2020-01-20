@@ -18,7 +18,11 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            buildConfigField "String", 'BASE_URL', "\"https://authy.twilio.com/v1/\""
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            buildConfigField "String", 'BASE_URL', "\"https://authy.stage.twilio.com/v1/\""
         }
     }
     testOptions.unitTests.includeAndroidResources = true
@@ -34,4 +38,5 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testImplementation 'org.robolectric:robolectric:4.3.1'
     testImplementation 'androidx.test:core:1.2.0'
+    testImplementation "org.mockito:mockito-inline:2.28.2"
 }
