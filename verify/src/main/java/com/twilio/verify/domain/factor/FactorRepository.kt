@@ -8,21 +8,16 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.Storage
-import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.data.StorageException
+import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.Authorization
 
 private const val sharedPreferencesName = "TwilioVerify"
 
 internal class FactorRepository(
   context: Context,
-  authorization: Authorization,
-  private val apiClient: FactorAPIClient = FactorAPIClient(
-      context = context,
-      authorization = authorization
-  ),
+  private val apiClient: FactorAPIClient,
   private val storage: StorageProvider = Storage(
       context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
   ),

@@ -13,7 +13,7 @@ import java.security.Signature
 
 private const val provider = "AndroidKeyStore"
 
-class KeyStoreAdapter : KeyStorage {
+internal class KeyStoreAdapter : KeyStorage {
   override fun create(alias: String): String {
     return try {
       val keyPairGenerator = KeyPairGenerator.getInstance(

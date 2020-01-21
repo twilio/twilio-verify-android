@@ -9,7 +9,7 @@ import javax.net.ssl.HttpsURLConnection
  * Copyright (c) 2020, Twilio Inc.
  */
 
-class NetworkAdapter : NetworkProvider {
+internal class NetworkAdapter : NetworkProvider {
 
   override fun execute(
     request: Request,

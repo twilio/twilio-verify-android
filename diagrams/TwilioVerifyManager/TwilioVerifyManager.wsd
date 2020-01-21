@@ -1,8 +1,8 @@
 @startuml TwilioVerifySDK
 interface TwilioVerify {
-    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (exception: TwilioException)->())
-    getChallenge(challengeSid: String, success: (Challenge) -> (), error: (exception: TwilioException)->())
-    verifyChallenge(challenge: Challenge, success: (Challenge) -> (), error: (exception: TwilioException)->())
+    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (exception: TwilioVerifyException)->())
+    getChallenge(challengeSid: String, success: (Challenge) -> (), error: (exception: TwilioVerifyException)->())
+    verifyChallenge(challenge: Challenge, success: (Challenge) -> (), error: (exception: TwilioVerifyException)->())
 }
 class TwilioVerify.Builder {
          authorization: Authorization
@@ -31,9 +31,6 @@ enum TwilioVerifyException.ErrorCodes {
 class NetworkException {
     statusCode: Int
     errorBody: String?
-}
-class MapperException {
-    messsage: String
 }
 Domain.TwilioVerifyManager o-left-> Domain.Factor.PushFactory: create factor
 @enduml

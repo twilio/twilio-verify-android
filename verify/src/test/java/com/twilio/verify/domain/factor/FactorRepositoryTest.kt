@@ -20,7 +20,6 @@ import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
-import com.twilio.verify.networking.Authorization
 import org.hamcrest.Matchers.instanceOf
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -41,9 +40,8 @@ class FactorRepositoryTest {
   private val apiClient: FactorAPIClient = mock()
   private val storage: StorageProvider = mock()
   private val factorMapper: FactorMapper = mock()
-  private val authorization: Authorization = mock()
   private val factorRepository = FactorRepository(
-      ApplicationProvider.getApplicationContext<Context>(), authorization, apiClient, storage,
+      ApplicationProvider.getApplicationContext<Context>(), apiClient, storage,
       factorMapper
   )
 

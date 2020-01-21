@@ -9,11 +9,11 @@ import java.net.URL
  * Copyright (c) 2020, Twilio Inc.
  */
 class Request internal constructor(
-  internal val httpMethod: HttpMethod,
-  internal val url: URL,
-  internal val body: Map<String, Any?>?,
-  internal val headers: Map<String, String>,
-  internal val tag: String
+  val httpMethod: HttpMethod,
+  val url: URL,
+  val body: Map<String, Any?>?,
+  val headers: Map<String, String>,
+  val tag: String
 ) {
 
   fun getParams(): String? {
