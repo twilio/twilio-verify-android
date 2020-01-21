@@ -38,7 +38,7 @@ references:
   assemble_build: &assemble_build
     run:
       name: Assemble Build
-      command: ./gradlew assembleDebug
+      command: ./gradlew assembleDebug verify::assembleDebugAndroidTest
   
   #Firebase Test Lab
   store_google_service_account: &store_google_service_account
@@ -65,7 +65,7 @@ jobs:
       - *assemble_build
       - *save_gradle_cache
       - run: mkdir -p ~/code/builds
-      - run: cp verify/build/outputs/apk/androidTest/verify-debug-androidTest.apk ~/code/builds
+      - run: cp verify/build/outputs/apk/androidTest/debug/verify-debug-androidTest.apk ~/code/builds
       - persist_to_workspace:
           root: .
           paths:
