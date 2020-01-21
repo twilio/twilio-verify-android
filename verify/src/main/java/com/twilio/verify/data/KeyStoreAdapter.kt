@@ -9,14 +9,16 @@ import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.Signature
 
+private const val provider = "AndroidKeyStore"
+
 class KeyStoreAdapter : KeyStorage {
   override fun create(alias: String): String? {
     return try {
-      val kpg: KeyPairGenerator = KeyPairGenerator.getInstance(
+      val kpg = KeyPairGenerator.getInstance(
           KeyProperties.KEY_ALGORITHM_EC,
-          "AndroidKeyStore"
+          provider
       )
-      val parameterSpec: KeyGenParameterSpec = KeyGenParameterSpec.Builder(
+      val parameterSpec = KeyGenParameterSpec.Builder(
           alias,
           KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY
       )
@@ -38,11 +40,11 @@ class KeyStoreAdapter : KeyStorage {
     alias: String,
     message: String
   ): String? {
-    val ks: KeyStore = KeyStore.getInstance("AndroidKeyStore")
+    val ks = KeyStore.getInstance(provider)
         .apply {
           load(null)
         }
-    val entry: KeyStore.Entry = ks.getEntry(alias, null)
+    val entry = ks.getEntry(alias, null)
     if (entry !is KeyStore.PrivateKeyEntry) {
       return null
     }
