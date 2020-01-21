@@ -17,5 +17,5 @@ internal class PushFactor(
 ) : Factor {
   override val type: FactorType = Push
 
-  lateinit var keyPairAlias: String
+  var keyPairAlias: String? = null
 }
