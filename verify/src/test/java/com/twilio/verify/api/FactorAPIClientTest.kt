@@ -87,14 +87,14 @@ class FactorAPIClientTest {
         friendlyName to friendlyNameMock, factorType to factorTypeMock.factorTypeName,
         binding to "$pushToken|$publicKey"
     )
-    val factorBuilder =
+    val factorPayload =
       FactorPayload(
           friendlyNameMock, factorTypeMock,
           mapOf("pushToken" to pushToken, "publicKey" to publicKey), serviceSid,
           entityId
       )
 
-    factorAPIClient.create(factorBuilder, {}, {})
+    factorAPIClient.create(factorPayload, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
       verify(networkProvider).execute(capture(), any(), any())
     }

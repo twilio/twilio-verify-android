@@ -32,7 +32,6 @@ internal class FactorMapper {
     }
     return when (factorPayload.type) {
       Push -> toPushFactor(serviceSid, entityId, jsonObject)
-      else -> null
     }
   }
 
