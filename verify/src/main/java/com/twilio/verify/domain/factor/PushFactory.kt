@@ -6,7 +6,9 @@ package com.twilio.verify.domain.factor
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.data.KeyStorage
+import com.twilio.verify.data.KeyStorageException
 import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -46,8 +48,16 @@ internal class PushFactory(
         (factor as? PushFactor?)?.apply {
           keyPairAlias = alias
         }
-            ?.let { factorProvider.update(it) }
-        success(factor)
+            ?.let { pushFactor ->
+              pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }?.let {
+                factorProvider.update(pushFactor)
+                success(pushFactor)
+              } ?: run {
+                error(
+                    TwilioVerifyException(KeyStorageException("Key pair not set"), KeyStorageError)
+                )
+              }
+            }
       }, error)
     } catch (e: TwilioVerifyException) {
       error(e)

@@ -56,7 +56,7 @@ internal class FactorMapper {
     }
     return when (jsonObject.getString(typeKey)) {
       Push.factorTypeName -> toPushFactor(serviceSid, entityId, jsonObject).apply {
-        keyPairAlias = jsonObject.getString(keyPairAliasKey)
+        keyPairAlias = jsonObject.optString(keyPairAliasKey)
       }
       else -> throw TwilioVerifyException(
           IllegalArgumentException("Invalid factor type from json"), MapperError
