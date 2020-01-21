@@ -9,6 +9,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
@@ -49,7 +50,7 @@ class FactorAPIClientTest {
   }
 
   @Test
-  fun `API client a success response should call success`() {
+  fun `Create a factor with a success response should call success`() {
     val response = "{\"key\":\"value\"}"
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
@@ -66,7 +67,7 @@ class FactorAPIClientTest {
   }
 
   @Test
-  fun `API client with an error response should call error`() {
+  fun `Create a factor with an error response should call error`() {
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
@@ -82,7 +83,7 @@ class FactorAPIClientTest {
   }
 
   @Test
-  fun `Error executing request should call error`() {
+  fun `Error creating a factor should call error`() {
     val factorPayload = FactorPayload("factor name", Push, emptyMap(), "serviceSid", "entityId")
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
@@ -95,10 +96,10 @@ class FactorAPIClientTest {
   }
 
   @Test
-  fun `Request should match to the expected params`() {
+  fun `Create factor request should match to the expected params`() {
     val serviceSid = "serviceSid"
     val entityId = "userId"
-    val expectedURL = url.replace(serviceSidPath, serviceSid, true)
+    val expectedURL = createFactorURL.replace(serviceSidPath, serviceSid, true)
         .replace(
             entityIdPath, entityId, true
         )
@@ -118,6 +119,77 @@ class FactorAPIClientTest {
       )
 
     factorAPIClient.create(factorPayload, {}, {})
+    val requestCaptor = argumentCaptor<Request>().apply {
+      verify(networkProvider).execute(capture(), any(), any())
+    }
+    requestCaptor.firstValue.apply {
+      assertEquals(URL(expectedURL), url)
+      assertEquals(HttpMethod.Post, httpMethod)
+      assertEquals(expectedBody, body)
+      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
+      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
+      assertTrue(headers.containsKey(AuthorizationHeader))
+      assertTrue(headers.containsKey(userAgent))
+    }
+  }
+
+  @Test
+  fun `Verify a factor with a success response should call success`() {
+    val response = "{\"key\":\"value\"}"
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    factorAPIClient.verify(
+        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId"),
+        "authyPayload",
+        { jsonObject ->
+          assertEquals(response, jsonObject.toString())
+        }, {
+      fail()
+    })
+  }
+
+  @Test
+  fun `Verify a factor with an error response should not call success`() {
+    val expectedException = NetworkException(500, null)
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    factorAPIClient.verify(
+        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId"),
+        "authyPayload", {
+      fail()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+    })
+  }
+
+  @Test
+  fun `Verify factor request should match to the expected params`() {
+    val sidMock = "sid"
+    val friendlyNameMock = "friendlyName"
+    val accountSidMock = "accountSid"
+    val serviceSidMock = "serviceSid"
+    val entitySidMock = "entitySid"
+    val entityIdMock = "entityId"
+    val authPayloadMock = "authPayload"
+    val expectedURL = verifyFactorURL.replace(serviceSidPath, serviceSidMock, true)
+        .replace(
+            entityIdPath, entityIdMock, true
+        )
+        .replace(factorSidPath, sidMock)
+
+    val expectedBody = mapOf(authPayloadParam to authPayloadMock)
+    val factor =
+      PushFactor(
+          sidMock, friendlyNameMock, accountSidMock, serviceSidMock, entitySidMock, entityIdMock
+      )
+
+    factorAPIClient.verify(factor, authPayloadMock, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
       verify(networkProvider).execute(capture(), any(), any())
     }
