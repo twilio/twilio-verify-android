@@ -18,7 +18,7 @@ interface TwilioVerify {
   fun createFactor(
     factorInput: FactorInput,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException)
+    error: (TwilioVerifyException) -> Unit
   )
 
   class Builder(

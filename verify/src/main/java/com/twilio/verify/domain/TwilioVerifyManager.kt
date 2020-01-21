@@ -14,7 +14,7 @@ internal class TwilioVerifyManager(private val pushFactory: PushFactory) :
   override fun createFactor(
     factorInput: FactorInput,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException)
+    error: (TwilioVerifyException) -> Unit
   ) {
     TODO(
         "not implemented"
