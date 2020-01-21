@@ -4,9 +4,9 @@
 package com.twilio.verify.data
 
 interface KeyStorage {
-  fun create(alias: String): String?
+  fun create(alias: String): String
   fun sign(
     alias: String,
     message: String
-  ): String?
+  ): String
 }

@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
@@ -14,6 +15,7 @@ import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.HttpMethod
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.MediaTypeValue
+import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.userAgent
@@ -24,12 +26,14 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.net.URL
 
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE)
 class FactorAPIClientTest {
 
   lateinit var factorAPIClient: FactorAPIClient
@@ -52,23 +56,42 @@ class FactorAPIClientTest {
         firstValue.invoke(response)
       }
     }
-    factorAPIClient.create(FactorPayload("", Push, emptyMap(), "", ""), { jsonObject ->
-      assertEquals(response, jsonObject.toString())
-    }, {
+    factorAPIClient.create(
+        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123"),
+        { jsonObject ->
+          assertEquals(response, jsonObject.toString())
+        }, {
       fail()
     })
   }
 
   @Test
-  fun `API client with an error response should not call success`() {
-    argumentCaptor<() -> Unit>().apply {
+  fun `API client with an error response should call error`() {
+    val expectedException = NetworkException(500, null)
+    argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
-        firstValue.invoke()
+        firstValue.invoke(expectedException)
       }
     }
-    factorAPIClient.create(FactorPayload("", Push, emptyMap(), "", ""), {
+    factorAPIClient.create(
+        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123"), {
       fail()
-    }, {})
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+    })
+  }
+
+  @Test
+  fun `Error executing request should call error`() {
+    val factorPayload = FactorPayload("factor name", Push, emptyMap(), "serviceSid", "entityId")
+    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
+    factorAPIClient.create(factorPayload, {
+      fail()
+    }, { exception ->
+      assertTrue(exception.cause is NetworkException)
+      assertTrue(exception.cause?.cause is RuntimeException)
+      assertEquals(NetworkError.message, exception.message)
+    })
   }
 
   @Test

@@ -3,6 +3,8 @@
  */
 package com.twilio.verify.domain.factor
 
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
@@ -21,39 +23,48 @@ internal const val keyPairAliasKey = "key_pair"
 
 internal class FactorMapper {
 
+  @Throws(TwilioVerifyException::class)
   fun fromApi(
     jsonObject: JSONObject,
     factorPayload: FactorPayload
-  ): Factor? {
+  ): Factor {
     val serviceSid = factorPayload.serviceSid
     val entityId = factorPayload.entityId
-    if (serviceSid.isNullOrEmpty() || entityId.isNullOrEmpty()) {
-      return null
+    if (serviceSid.isEmpty() || entityId.isEmpty()) {
+      throw TwilioVerifyException(
+          IllegalArgumentException("ServiceSid or EntityId is null or empty"), MapperError
+      )
     }
     return when (factorPayload.type) {
       Push -> toPushFactor(serviceSid, entityId, jsonObject)
     }
   }
 
-  fun fromStorage(json: String): Factor? {
+  @Throws(TwilioVerifyException::class)
+  fun fromStorage(json: String): Factor {
     val jsonObject = try {
       JSONObject(json)
     } catch (e: JSONException) {
-      return null
+      throw TwilioVerifyException(e, MapperError)
     }
     val serviceSid = jsonObject.optString(serviceSidKey)
     val entityId = jsonObject.optString(entityIdKey)
     if (serviceSid.isNullOrEmpty() || entityId.isNullOrEmpty()) {
-      return null
+      throw TwilioVerifyException(
+          IllegalArgumentException("ServiceSid or EntityId is null or empty"), MapperError
+      )
     }
     return when (jsonObject.getString(typeKey)) {
-      Push.factorTypeName -> toPushFactor(serviceSid, entityId, jsonObject)?.apply {
+      Push.factorTypeName -> toPushFactor(serviceSid, entityId, jsonObject).apply {
         keyPairAlias = jsonObject.getString(keyPairAliasKey)
       }
-      else -> null
+      else -> throw TwilioVerifyException(
+          IllegalArgumentException("Invalid factor type from json"), MapperError
+      )
     }
   }
 
+  @Throws(TwilioVerifyException::class)
   fun toJSON(factor: Factor): String {
     return when (factor.type) {
       Push -> JSONObject()
@@ -68,11 +79,12 @@ internal class FactorMapper {
     }
   }
 
+  @Throws(TwilioVerifyException::class)
   private fun toPushFactor(
     serviceSid: String,
     entityId: String,
     jsonObject: JSONObject
-  ): PushFactor? {
+  ): PushFactor {
     return try {
       PushFactor(
           sid = jsonObject.getString(sidKey),
@@ -83,7 +95,7 @@ internal class FactorMapper {
           entityId = entityId
       )
     } catch (e: JSONException) {
-      null
+      throw TwilioVerifyException(e, MapperError)
     }
   }
 }

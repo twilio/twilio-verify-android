@@ -78,7 +78,11 @@ class RequestTest {
           .httpMethod(httpMethod)
           .tag(tag)
           .body(mapOf(key1 to value1, key2 to value2))
-          .headers(mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type).toMutableMap())
+          .headers(
+              mapOf(
+                  MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
+              ).toMutableMap()
+          )
           .build()
 
     assertEquals(expectedParams, request.getParams())
@@ -105,7 +109,9 @@ class RequestTest {
           .httpMethod(httpMethod)
           .tag(tag)
           .body(mapOf(key1 to value1, key2 to value2))
-          .headers(mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap())
+          .headers(
+              mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap()
+          )
           .build()
 
     assertEquals(expectedParams.toString(), request.getParams())
@@ -124,7 +130,9 @@ class RequestTest {
       Request.Builder(requestHelper, url)
           .httpMethod(httpMethod)
           .tag(tag)
-          .headers(mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap())
+          .headers(
+              mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap()
+          )
           .build()
 
     assertEquals(expectedParams, request.getParams())

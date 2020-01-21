@@ -3,13 +3,19 @@
  */
 package com.twilio.verify.domain.factor
 
+import com.twilio.verify.ErrorCodeMatcher
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorType.Push
+import org.hamcrest.Matchers.instanceOf
+import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -19,6 +25,9 @@ import org.robolectric.annotation.Config
 class FactorMapperTest {
 
   private val factorMapper = FactorMapper()
+
+  @get:Rule
+  val exceptionRule: ExpectedException = ExpectedException.none()
 
   @Test
   fun `Map a valid response from API should return a factor`() {
@@ -40,29 +49,49 @@ class FactorMapperTest {
   }
 
   @Test
-  fun `Map an incomplete response from API should return null`() {
+  fun `Map an incomplete response from API should throw an exception`() {
     val factorPayload =
       FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    factorMapper.fromApi(jsonObject, factorPayload)
   }
 
   @Test
-  fun `Map a response without factor sid from API should return null`() {
+  fun `Map a response with invalid serviceSid in payload from API should throw an exception`() {
+    val factorPayload = FactorPayload("factor name", Push, emptyMap(), "", "entityId123")
+    val jsonObject = JSONObject()
+        .put(sidKey, "sid123")
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(entitySidKey, "entitySid123")
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
+    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    factorMapper.fromApi(jsonObject, factorPayload)
+  }
+
+  @Test
+  fun `Map a response without factor sid from API should throw an exception`() {
     val factorPayload =
       FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    factorMapper.fromApi(jsonObject, factorPayload)
   }
 
   @Test
-  fun `Map a response without entity sid from API should return null`() {
+  fun `Map a response without entity sid from API should throw an exception`() {
     val factorPayload =
       FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
     val jsonObject = JSONObject()
@@ -70,7 +99,10 @@ class FactorMapperTest {
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(serviceSidKey, "serviceSid123")
-    assertNull(factorMapper.fromApi(jsonObject, factorPayload))
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    factorMapper.fromApi(jsonObject, factorPayload)
   }
 
   @Test
@@ -96,7 +128,7 @@ class FactorMapperTest {
   }
 
   @Test
-  fun `Map an incomplete json from storage should return null`() {
+  fun `Map an incomplete json from storage should throw an exception`() {
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -105,11 +137,14 @@ class FactorMapperTest {
         .put(entityIdKey, "entityId123")
         .put(typeKey, Push.factorTypeName)
         .put(keyPairAliasKey, "keyPairAlias123")
-    assertNull(factorMapper.fromStorage(jsonObject.toString()))
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
+    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    factorMapper.fromStorage(jsonObject.toString())
   }
 
   @Test
-  fun `Map an invalid factor type from storage should return null`() {
+  fun `Map an invalid factor type from storage should throw an exception`() {
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -119,13 +154,19 @@ class FactorMapperTest {
         .put(entityIdKey, "entityId123")
         .put(typeKey, "test")
         .put(keyPairAliasKey, "keyPairAlias123")
-    assertNull(factorMapper.fromStorage(jsonObject.toString()))
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
+    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    factorMapper.fromStorage(jsonObject.toString())
   }
 
   @Test
-  fun `Map an invalid json from storage should return null`() {
+  fun `Map an invalid json from storage should throw an exception`() {
     val json = "test"
-    assertNull(factorMapper.fromStorage(json))
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    factorMapper.fromStorage(json)
   }
 
   @Test
