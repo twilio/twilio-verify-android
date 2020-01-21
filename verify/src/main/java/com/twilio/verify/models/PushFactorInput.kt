@@ -6,5 +6,5 @@ package com.twilio.verify.models
 class PushFactorInput(
   override val friendlyName: String,
   val pushToken: String,
-  jwt: String
+  val jwt: String
 ) : FactorInput
