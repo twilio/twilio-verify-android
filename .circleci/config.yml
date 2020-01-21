@@ -30,6 +30,11 @@ references:
         - ~/.gradle
 
   ## Build
+  decrypt_google_services: &decrypt_google_services
+    run:
+      name: Decrypt SampleApp Google Services
+      command: cd sample; ./add_google_services_file $GOOGLE_SERVICES_KEY $GOOGLE_SERVICES_IV
+
   assemble_build: &assemble_build
     run:
       name: Assemble Build
@@ -56,6 +61,7 @@ jobs:
       - attach_workspace:
           at: *workspace
       - *restore_gradle_cache
+      - *decrypt_google_services
       - *assemble_build
       - *save_gradle_cache
       - run: mkdir -p ~/code/builds
@@ -93,5 +99,8 @@ workflows:
     jobs:
       - assemble_build
       - unit_tests:
+          requires:
+            - assemble_build
+      - instrumentation_tests_single_device:
           requires:
             - assemble_build
