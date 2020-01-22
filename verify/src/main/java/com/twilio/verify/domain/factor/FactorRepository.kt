@@ -38,6 +38,23 @@ internal class FactorRepository(
     }, error)
   }
 
+  override fun verify(
+    factor: Factor,
+    payload: String,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    apiClient.verify(factor, payload, { response ->
+      try {
+        val updatedFactor = update(factorMapper.fromApi(factor, response))
+        success(updatedFactor)
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      }
+
+    }, error)
+  }
+
   @Throws(TwilioVerifyException::class)
   override fun get(sid: String): Factor? =
     storage.get(sid)?.let {

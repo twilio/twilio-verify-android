@@ -6,9 +6,11 @@ package com.twilio.verify.domain.factor
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStorageException
 import com.twilio.verify.data.KeyStoreAdapter
+import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.toEnrollmentJWT
@@ -57,6 +59,24 @@ internal class PushFactory(
       }, error)
     } catch (e: TwilioVerifyException) {
       error(e)
+    }
+  }
+
+  fun verify(
+    sid: String,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    val factor = factorProvider.get(sid) as? PushFactor
+    factor?.let { pushFactor ->
+      pushFactor.keyPairAlias?.let { keyPairAlias ->
+        val payload = keyStorage.sign(
+            keyPairAlias, pushFactor.sid
+        )
+        factorProvider.verify(factor, payload, success, error)
+      }
+    } ?: run {
+      error(TwilioVerifyException(StorageException("Factor not found"), StorageError))
     }
   }
 

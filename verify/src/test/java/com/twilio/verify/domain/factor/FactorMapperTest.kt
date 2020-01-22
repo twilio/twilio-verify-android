@@ -8,6 +8,8 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.models.FactorStatus
+import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.Push
 import org.hamcrest.Matchers.instanceOf
 import org.json.JSONException
@@ -38,6 +40,7 @@ class FactorMapperTest {
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
+        .put(statusKey, Unverified.value)
     val factor = factorMapper.fromApi(jsonObject, factorPayload) as PushFactor
     assertEquals(factorPayload.type, factor.type)
     assertEquals(factorPayload.serviceSid, factor.serviceSid)
@@ -46,6 +49,7 @@ class FactorMapperTest {
     assertEquals(jsonObject.getString(friendlyNameKey), factor.friendlyName)
     assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
     assertEquals(jsonObject.getString(entitySidKey), factor.entitySid)
+    assertEquals(jsonObject.getString(statusKey), factor.status.value)
   }
 
   @Test
@@ -116,6 +120,7 @@ class FactorMapperTest {
         .put(entityIdKey, "entityId123")
         .put(typeKey, Push.factorTypeName)
         .put(keyPairAliasKey, "keyPairAlias123")
+        .put(statusKey, Unverified.value)
     val factor = factorMapper.fromStorage(jsonObject.toString()) as PushFactor
     assertEquals(Push, factor.type)
     assertEquals(jsonObject.getString(serviceSidKey), factor.serviceSid)
@@ -125,6 +130,7 @@ class FactorMapperTest {
     assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
     assertEquals(jsonObject.getString(entitySidKey), factor.entitySid)
     assertEquals(jsonObject.getString(keyPairAliasKey), factor.keyPairAlias)
+    assertEquals(jsonObject.getString(statusKey), factor.status.value)
   }
 
   @Test
@@ -173,7 +179,7 @@ class FactorMapperTest {
   fun `Map a factor to JSON should return complete factor data as JSONObject`() {
     val factor = PushFactor(
         sid = "sid123", friendlyName = "factor name", accountSid = "accountSid123",
-        serviceSid = "serviceSid123", entitySid = "entitySid123", entityId = "entityId123"
+        serviceSid = "serviceSid123", entitySid = "entitySid123", entityId = "entityId123", status = Unverified
     ).apply { keyPairAlias = "keyPairAlias123" }
     val json = factorMapper.toJSON(factor)
     val jsonObject = JSONObject(json)

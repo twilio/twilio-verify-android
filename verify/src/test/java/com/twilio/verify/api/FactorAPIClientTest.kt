@@ -10,6 +10,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
@@ -142,7 +143,7 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.verify(
-        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId"),
+        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId", Unverified),
         "authyPayload",
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -160,7 +161,7 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.verify(
-        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId"),
+        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId", Unverified),
         "authyPayload", {
       fail()
     }, { exception ->
@@ -186,7 +187,7 @@ class FactorAPIClientTest {
     val expectedBody = mapOf(authPayloadParam to authPayloadMock)
     val factor =
       PushFactor(
-          sidMock, friendlyNameMock, accountSidMock, serviceSidMock, entitySidMock, entityIdMock
+          sidMock, friendlyNameMock, accountSidMock, serviceSidMock, entitySidMock, entityIdMock, Unverified
       )
 
     factorAPIClient.verify(factor, authPayloadMock, {}, {})

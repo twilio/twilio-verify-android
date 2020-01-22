@@ -8,6 +8,7 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
+import com.twilio.verify.models.VerifyFactorInput
 
 internal class TwilioVerifyManager(private val factorFacade: FactorFacade) : TwilioVerify {
   override fun createFactor(
@@ -16,5 +17,13 @@ internal class TwilioVerifyManager(private val factorFacade: FactorFacade) : Twi
     error: (TwilioVerifyException) -> Unit
   ) {
     factorFacade.createFactor(factorInput, success, error)
+  }
+
+  override fun verifyFactor(
+    verifyFactorInput: VerifyFactorInput,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    factorFacade.verifyFactor(verifyFactorInput, success, error)
   }
 }

@@ -12,6 +12,8 @@ import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.entitySidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.factor.sidKey
+import com.twilio.verify.domain.factor.statusKey
+import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkProvider
@@ -47,6 +49,7 @@ class TwilioVerifyTest {
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
+        .put(statusKey, FactorStatus.Unverified.value)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(jsonObject.toString())
