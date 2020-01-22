@@ -29,7 +29,7 @@ internal class KeyStoreAdapter(private val androidKeyStore: AndroidKeyStore = An
     message: String
   ): String {
     return try {
-      androidKeyStore.sign(alias, message)
+      String(androidKeyStore.sign(alias, message))
     } catch (e: Exception) {
       throw TwilioVerifyException(KeyStorageException(e), KeyStorageError)
     }
@@ -66,7 +66,7 @@ class AndroidKeyStore {
   fun sign(
     alias: String,
     message: String
-  ): String {
+  ): ByteArray {
     val ks = KeyStore.getInstance(provider)
         .apply {
           load(null)
@@ -81,6 +81,5 @@ class AndroidKeyStore {
           update(message.toByteArray())
           sign()
         }
-        .let { String(it) }
   }
 }

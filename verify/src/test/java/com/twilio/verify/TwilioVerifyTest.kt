@@ -83,10 +83,10 @@ class TestKeystore {
   fun sign(
     alias: String,
     message: String
-  ): String {
+  ): ByteArray {
     val dsa = Signature.getInstance("SHA256withRSA")
     dsa.initSign(keys[alias]?.private)
     dsa.update(message.toByteArray())
-    return String(dsa.sign())
+    return dsa.sign()
   }
 }
