@@ -4,10 +4,8 @@
 package com.twilio.verify
 
 import android.content.Context
-import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.domain.TwilioVerifyManager
-import com.twilio.verify.domain.factor.FactorRepository
-import com.twilio.verify.domain.factor.PushFactory
+import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.networking.Authorization
@@ -29,11 +27,14 @@ interface TwilioVerify {
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
 
+    @Throws(TwilioVerifyException::class)
     fun build(): TwilioVerify {
-      val repository = FactorRepository(
-          context, FactorAPIClient(networkProvider, context, authorization)
-      )
-      return TwilioVerifyManager(PushFactory(repository))
+      val factorFacade = FactorFacade.Builder()
+          .context(context)
+          .authorization(authorization)
+          .networkProvider(networkProvider)
+          .build()
+      return TwilioVerifyManager(factorFacade)
     }
   }
 }

@@ -13,6 +13,7 @@ class TwilioVerifyException(
     MapperError("Exception while mapping an entity"),
     StorageError("Exception while storing/loading an entity"),
     InputError("Exception while loading input"),
-    KeyStorageError("Exception while storing/loading key pairs")
+    KeyStorageError("Exception while storing/loading key pairs"),
+    InitializationError("Exception while initializing")
   }
 }
