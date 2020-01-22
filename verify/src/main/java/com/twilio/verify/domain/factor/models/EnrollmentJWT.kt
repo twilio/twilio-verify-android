@@ -4,6 +4,8 @@
 package com.twilio.verify.domain.factor.models
 
 import android.util.Base64
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -24,21 +26,22 @@ internal const val serviceSidKey = "service_sid"
 internal const val entityIdKey = "entity_id"
 internal const val factorKey = "factor"
 
-internal fun toEnrollmentJWT(jwt: String): EnrollmentJWT? {
+@Throws(TwilioVerifyException::class)
+internal fun toEnrollmentJWT(jwt: String): EnrollmentJWT {
   val parts = jwt.split(".")
   if (parts.size < 2) {
-    return null
+    throw TwilioVerifyException(IllegalArgumentException("Invalid JWT"), InputError)
   }
   val payloadJson = try {
     JSONObject(String(Base64.decode(parts[1], Base64.DEFAULT)))
   } catch (e: Exception) {
-    return null
+    throw TwilioVerifyException(IllegalArgumentException("Invalid JWT", e), InputError)
   }
   val authyGrantJson = try {
     payloadJson.getJSONObject(grantsKey)
         .getJSONObject(authyGrantKey)
   } catch (e: JSONException) {
-    return null
+    throw TwilioVerifyException(IllegalArgumentException("Invalid JWT", e), InputError)
   }
   val authyGrant = try {
     AuthyGrant(
@@ -48,7 +51,7 @@ internal fun toEnrollmentJWT(jwt: String): EnrollmentJWT? {
         )
     )
   } catch (e: JSONException) {
-    return null
+    throw TwilioVerifyException(IllegalArgumentException("Invalid JWT", e), InputError)
   }
   return EnrollmentJWT(jwt, authyGrant)
 }

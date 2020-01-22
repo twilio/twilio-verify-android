@@ -4,7 +4,11 @@
 package com.twilio.verify.domain.factor
 
 import android.content.Context
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.data.KeyStorage
+import com.twilio.verify.data.KeyStorageException
 import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -26,24 +30,37 @@ internal class PushFactory(
     jwt: String,
     friendlyName: String,
     pushToken: String,
-    success: (Factor?) -> Unit
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
   ) {
-    val enrollmentJWT = toEnrollmentJWT(jwt) ?: return
-    if (enrollmentJWT.authyGrant.factorType != Push.factorTypeName) {
-      return
-    }
-    val alias = generateKeyPairAlias()
-    val publicKey = keyStorage.create(alias) ?: return
-    val factorBuilder = FactorPayload(
-        friendlyName, Push, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey),
-        enrollmentJWT.authyGrant.serviceSid, enrollmentJWT.authyGrant.entityId
-    )
-    factorProvider.create(factorBuilder) { factor ->
-      (factor as? PushFactor?)?.apply {
-        keyPairAlias = alias
+    try {
+      val enrollmentJWT = toEnrollmentJWT(jwt)
+      if (enrollmentJWT.authyGrant.factorType != Push.factorTypeName) {
+        throw TwilioVerifyException(IllegalArgumentException("Invalid factor type"), InputError)
       }
-          ?.let { factorProvider.update(it) }
-      success(factor)
+      val alias = generateKeyPairAlias()
+      val publicKey = keyStorage.create(alias)
+      val factorBuilder = FactorPayload(
+          friendlyName, Push, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey),
+          enrollmentJWT.authyGrant.serviceSid, enrollmentJWT.authyGrant.entityId
+      )
+      factorProvider.create(factorBuilder, { factor ->
+        (factor as? PushFactor?)?.apply {
+          keyPairAlias = alias
+        }
+            ?.let { pushFactor ->
+              pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }?.let {
+                factorProvider.update(pushFactor)
+                success(pushFactor)
+              } ?: run {
+                error(
+                    TwilioVerifyException(KeyStorageException("Key pair not set"), KeyStorageError)
+                )
+              }
+            }
+      }, error)
+    } catch (e: TwilioVerifyException) {
+      error(e)
     }
   }
 

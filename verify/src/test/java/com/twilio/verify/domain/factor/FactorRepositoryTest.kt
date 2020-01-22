@@ -11,17 +11,25 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.ErrorCodeMatcher
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
+import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
+import org.hamcrest.Matchers.instanceOf
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -38,6 +46,9 @@ class FactorRepositoryTest {
       ApplicationProvider.getApplicationContext<Context>(), authorization, apiClient, storage,
       factorMapper
   )
+
+  @get:Rule
+  val exceptionRule: ExpectedException = ExpectedException.none()
 
   @Test
   fun `Create a factor with a valid factor builder should return a factor`() {
@@ -64,29 +75,32 @@ class FactorRepositoryTest {
     whenever(factorMapper.toJSON(factor)).thenReturn(factorToJson)
     whenever(storage.get(sid)).thenReturn(factorToJson)
     whenever(factorMapper.fromStorage(factorToJson)).thenReturn(factor)
-    factorRepository.create(factorPayload) {
+    factorRepository.create(factorPayload, {
       assertEquals(factor, it)
-    }
+    }, { fail() })
     verify(storage).save(sid, factorToJson)
   }
 
   @Test
-  fun `No response from API creating a factor should not call success`() {
+  fun `No response from API creating a factor should call error`() {
     val factorPayload = FactorPayload(
         "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entityId123"
     )
-    argumentCaptor<() -> Unit>().apply {
+    val expectedException: TwilioVerifyException = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(apiClient.create(eq(factorPayload), any(), capture())).then {
-        firstValue.invoke()
+        firstValue.invoke(expectedException)
       }
     }
-    factorRepository.create(factorPayload) {
+    factorRepository.create(factorPayload, {
       fail()
-    }
+    }, { exception ->
+      assertEquals(expectedException, exception)
+    })
   }
 
   @Test
-  fun `No factor from mapper creating a factor should not call success`() {
+  fun `Error from mapper creating a factor should call error`() {
     val sid = "sid123"
     val factorPayload = FactorPayload(
         "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entityId123"
@@ -101,14 +115,17 @@ class FactorRepositoryTest {
         firstValue.invoke(response)
       }
     }
-    whenever(factorMapper.fromApi(response, factorPayload)).thenReturn(null)
-    factorRepository.create(factorPayload) {
-      assertNull(it)
-    }
+    val expectedException: TwilioVerifyException = mock()
+    whenever(factorMapper.fromApi(response, factorPayload)).thenThrow(expectedException)
+    factorRepository.create(factorPayload, {
+      fail()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+    })
   }
 
   @Test
-  fun `No factor from storage creating a factor should not call success`() {
+  fun `No factor from storage creating a factor should call error`() {
     val sid = "sid123"
     val factorPayload = FactorPayload(
         "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entityId123"
@@ -131,9 +148,11 @@ class FactorRepositoryTest {
     whenever(factorMapper.fromApi(response, factorPayload)).thenReturn(factor)
     whenever(factorMapper.toJSON(factor)).thenReturn(factorToJson)
     whenever(storage.get(sid)).thenReturn(null)
-    factorRepository.create(factorPayload) {
-      assertNull(it)
-    }
+    factorRepository.create(factorPayload, {
+      fail()
+    }, { exception ->
+      assertTrue(exception.cause is StorageException)
+    })
   }
 
   @Test
@@ -187,12 +206,19 @@ class FactorRepositoryTest {
   }
 
   @Test
-  fun `Non existing factor in storage updating factor should return null`() {
+  fun `Non existing factor in storage updating factor should throw an exception`() {
     val sid = "sid123"
     val factor = mock<Factor> {
       on(it.sid).thenReturn(sid)
     }
     whenever(storage.get(sid)).thenReturn(null)
-    assertNull(factorRepository.update(factor))
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(
+        instanceOf(
+            StorageException::class.java
+        )
+    )
+    exceptionRule.expect(ErrorCodeMatcher(StorageError))
+    factorRepository.update(factor)
   }
 }

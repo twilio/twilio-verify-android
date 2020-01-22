@@ -14,7 +14,7 @@ class NetworkAdapter : NetworkProvider {
   override fun execute(
     request: Request,
     success: (response: String) -> Unit,
-    error: () -> Unit
+    error: (NetworkException) -> Unit
   ) {
     var urlConnection: HttpsURLConnection? = null
     try {
@@ -40,10 +40,12 @@ class NetworkAdapter : NetworkProvider {
             .use { it.readText() }
         success(response)
       } else {
-        error()
+        val errorResponse = urlConnection.inputStream.bufferedReader()
+            .use { it.readText() }
+        error(NetworkException(responseCode, errorResponse))
       }
     } catch (e: Exception) {
-      error()
+      error(NetworkException(e))
     } finally {
       urlConnection?.disconnect()
     }

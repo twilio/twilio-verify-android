@@ -2,6 +2,8 @@ package com.twilio.verify.api
 
 import android.content.Context
 import com.twilio.verify.BuildConfig
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authorization
@@ -9,6 +11,7 @@ import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkAdapter
+import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.RequestHelper
@@ -39,7 +42,7 @@ class FactorAPIClient(
   internal fun create(
     factorPayload: FactorPayload,
     success: (response: JSONObject) -> Unit,
-    error: () -> Unit
+    error: (TwilioVerifyException) -> Unit
   ) {
     try {
       val requestHelper = RequestHelper(context, authorization)
@@ -53,11 +56,11 @@ class FactorAPIClient(
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it))
-      }, {
-        error()
+      }, { exception ->
+        error(TwilioVerifyException(exception, NetworkError))
       })
     } catch (e: Exception) {
-      error()
+      error(TwilioVerifyException(NetworkException(e), NetworkError))
     }
   }
 
@@ -65,7 +68,7 @@ class FactorAPIClient(
     factor: Factor,
     authPayload: String,
     success: (response: JSONObject) -> Unit,
-    error: () -> Unit
+    error: (TwilioVerifyException) -> Unit
   ) {
     try {
       val requestHelper = RequestHelper(context, authorization)
@@ -76,11 +79,11 @@ class FactorAPIClient(
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it))
-      }, {
-        error()
+      }, { exception ->
+        error(TwilioVerifyException(exception, NetworkError))
       })
     } catch (e: Exception) {
-      error()
+      error(TwilioVerifyException(NetworkException(e), NetworkError))
     }
   }
 
