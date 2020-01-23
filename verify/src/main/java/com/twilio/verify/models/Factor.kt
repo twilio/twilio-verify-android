@@ -4,7 +4,7 @@
 package com.twilio.verify.models
 
 interface Factor {
-  val status: FactorStatus
+  var status: FactorStatus
   val sid: String
   val friendlyName: String
   val accountSid: String

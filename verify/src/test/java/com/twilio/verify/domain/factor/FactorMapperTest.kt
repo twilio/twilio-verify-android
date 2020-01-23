@@ -9,6 +9,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorStatus.Unverified
+import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.FactorType.Push
 import org.hamcrest.Matchers.instanceOf
 import org.json.JSONException
@@ -66,24 +67,12 @@ class FactorMapperTest {
   }
 
   @Test
-  fun `Map a valid response from verifying a token API should return a factor`() {
+  fun `Map a valid response from verifying a token API should return the factor status`() {
     val pushFactor = PushFactor("", "", "", "", "", "", Unverified)
     val jsonObject = JSONObject()
-        .put(sidKey, "sid123")
-        .put(friendlyNameKey, "factor name")
-        .put(accountSidKey, "accountSid123")
-        .put(entitySidKey, "entitySid123")
-        .put(statusKey, Unverified.value)
-        .put(serviceSidKey, "serviceSid")
-        .put(entityIdKey, "entityId")
-    val factor = factorMapper.fromApi(pushFactor, jsonObject)
-    assertEquals(jsonObject.getString(serviceSidKey), factor.serviceSid)
-    assertEquals(jsonObject.getString(entityIdKey), factor.entityId)
-    assertEquals(jsonObject.getString(sidKey), factor.sid)
-    assertEquals(jsonObject.getString(friendlyNameKey), factor.friendlyName)
-    assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
-    assertEquals(jsonObject.getString(entitySidKey), factor.entitySid)
-    assertEquals(jsonObject.getString(statusKey), factor.status.value)
+        .put(statusKey, Verified.value)
+    pushFactor.status = factorMapper.status(jsonObject)
+    assertEquals(jsonObject.getString(statusKey), pushFactor.status.value)
   }
 
   @Test

@@ -21,6 +21,7 @@ import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
+import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.FactorType.Push
 import org.hamcrest.Matchers.instanceOf
 import org.json.JSONObject
@@ -251,11 +252,13 @@ class FactorRepositoryTest {
         firstValue.invoke(response)
       }
     }
-    whenever(factorMapper.fromApi(factor, response)).thenReturn(factor)
+    val expectedFactorStatus = Verified
+    whenever(factorMapper.status(response)).thenReturn(expectedFactorStatus)
     whenever(storage.get(sid)).thenReturn(factorToJson)
     whenever(factorMapper.toJSON(factor)).thenReturn(factorToJson)
     whenever(factorMapper.fromStorage(factorToJson)).thenReturn(factor)
     factorRepository.verify(factor, payload, {
+      assertEquals(expectedFactorStatus, it.status)
       assertEquals(factor, it)
     }, { fail() })
     verify(storage).save(sid, factorToJson)
@@ -287,7 +290,7 @@ class FactorRepositoryTest {
       }
     }
     val expectedException: TwilioVerifyException = mock()
-    whenever(factorMapper.fromApi(factor, response)).thenThrow(expectedException)
+    whenever(factorMapper.status(response)).thenThrow(expectedException)
     factorRepository.verify(factor, payload, {
       fail()
     }, { exception -> assertEquals(expectedException, exception) })

@@ -342,4 +342,24 @@ class PushFactoryTest {
       assertEquals(expectedException, exception)
     })
   }
+
+  @Test
+  fun `Verify factor with null alias should call error`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entitySid = "entitySid"
+    val entityId = "1"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val keyPairAlias = null
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    factor.keyPairAlias = keyPairAlias
+    whenever(factorProvider.get(sid)).thenReturn(factor)
+    pushFactory.verify(sid, {
+      fail()
+    }, { exception ->
+      assertTrue(exception.cause is KeyStorageException)
+    })
+  }
 }

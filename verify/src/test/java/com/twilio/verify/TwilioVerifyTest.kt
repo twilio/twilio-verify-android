@@ -17,7 +17,7 @@ import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.PushVerifyFactorInput
+import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkProvider
 import org.json.JSONObject
@@ -96,7 +96,7 @@ class TwilioVerifyTest {
       }
     }
     twilioVerify.createFactor(factorInput, { createdFactor ->
-      val verifyFactorInput = PushVerifyFactorInput(sid)
+      val verifyFactorInput = VerifyPushFactorInput(sid)
       argumentCaptor<(String) -> Unit>().apply {
         whenever(networkProvider.execute(any(), capture(), any())).then {
           firstValue.invoke(jsonObject.toString())

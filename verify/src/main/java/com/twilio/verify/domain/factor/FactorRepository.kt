@@ -46,12 +46,12 @@ internal class FactorRepository(
   ) {
     apiClient.verify(factor, payload, { response ->
       try {
-        val updatedFactor = update(factorMapper.fromApi(factor, response))
+        factor.status = factorMapper.status(response)
+        val updatedFactor = update(factor)
         success(updatedFactor)
       } catch (e: TwilioVerifyException) {
         error(e)
       }
-
     }, error)
   }
 

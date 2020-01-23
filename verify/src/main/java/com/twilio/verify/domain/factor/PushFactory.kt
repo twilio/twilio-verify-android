@@ -74,6 +74,8 @@ internal class PushFactory(
             keyPairAlias, pushFactor.sid
         )
         factorProvider.verify(factor, payload, success, error)
+      } ?: run {
+        error(TwilioVerifyException(KeyStorageException("Alias not found"), KeyStorageError))
       }
     } ?: run {
       error(TwilioVerifyException(StorageException("Factor not found"), StorageError))

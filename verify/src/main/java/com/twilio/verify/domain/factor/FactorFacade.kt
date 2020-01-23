@@ -10,7 +10,7 @@ import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.PushVerifyFactorInput
+import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkProvider
@@ -37,7 +37,7 @@ internal class FactorFacade(private val pushFactory: PushFactory) {
     error: (TwilioVerifyException) -> Unit
   ) {
     when (verifyFactorInput) {
-      is PushVerifyFactorInput -> {
+      is VerifyPushFactorInput -> {
         pushFactory.verify(verifyFactorInput.sid, success, error)
       }
     }

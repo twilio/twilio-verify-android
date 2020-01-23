@@ -44,15 +44,13 @@ internal class FactorMapper {
   }
 
   @Throws(TwilioVerifyException::class)
-  fun fromApi(
-    factor: Factor,
+  fun status(
     jsonObject: JSONObject
-  ): Factor {
-    return when (factor) {
-      is PushFactor -> toPushFactor(jsonObject)
-      else -> throw TwilioVerifyException(
-          IllegalArgumentException("Invalid factor type"), MapperError
-      )
+  ): FactorStatus {
+    return try {
+      FactorStatus.values().find { it.value == jsonObject.getString(statusKey) } ?: Unverified
+    } catch (e: JSONException) {
+      throw TwilioVerifyException(e, MapperError)
     }
   }
 
@@ -110,26 +108,6 @@ internal class FactorMapper {
           serviceSid = serviceSid,
           entitySid = jsonObject.getString(entitySidKey),
           entityId = entityId,
-          status = FactorStatus.values().find { it.value == jsonObject.getString(statusKey) }
-              ?: Unverified
-      )
-    } catch (e: JSONException) {
-      throw TwilioVerifyException(e, MapperError)
-    }
-  }
-
-  @Throws(TwilioVerifyException::class)
-  private fun toPushFactor(
-    jsonObject: JSONObject
-  ): PushFactor {
-    return try {
-      PushFactor(
-          sid = jsonObject.getString(sidKey),
-          friendlyName = jsonObject.getString(friendlyNameKey),
-          accountSid = jsonObject.getString(accountSidKey),
-          serviceSid = jsonObject.getString(serviceSidKey),
-          entitySid = jsonObject.getString(entitySidKey),
-          entityId = jsonObject.getString(entityIdKey),
           status = FactorStatus.values().find { it.value == jsonObject.getString(statusKey) }
               ?: Unverified
       )
