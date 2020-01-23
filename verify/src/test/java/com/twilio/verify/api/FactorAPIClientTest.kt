@@ -37,9 +37,9 @@ import java.net.URL
 @Config(manifest = Config.NONE)
 class FactorAPIClientTest {
 
-  lateinit var factorAPIClient: FactorAPIClient
-  lateinit var networkProvider: NetworkProvider
-  lateinit var authorization: Authorization
+  private lateinit var factorAPIClient: FactorAPIClient
+  private lateinit var networkProvider: NetworkProvider
+  private lateinit var authorization: Authorization
 
   @Before
   fun setup() {

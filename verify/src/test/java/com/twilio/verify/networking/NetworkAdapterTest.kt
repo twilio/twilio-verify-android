@@ -22,7 +22,7 @@ import javax.net.ssl.HttpsURLConnection
 @RunWith(RobolectricTestRunner::class)
 class NetworkAdapterTest {
 
-  lateinit var networkAdapter: NetworkAdapter
+  private lateinit var networkAdapter: NetworkAdapter
   lateinit var request: Request
 
   @Before

@@ -33,13 +33,13 @@ internal const val factorType = "FactorType"
 internal const val binding = "Binding"
 internal const val authPayloadParam = "AuthPayload"
 
-class FactorAPIClient(
+internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
   private val authorization: Authorization
 ) {
 
-  internal fun create(
+  fun create(
     factorPayload: FactorPayload,
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit

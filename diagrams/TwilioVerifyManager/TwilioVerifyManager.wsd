@@ -1,8 +1,8 @@
 @startuml TwilioVerifySDK
 interface TwilioVerify {
-    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (exception: TwilioException)->())
-    getChallenge(challengeSid: String, success: (Challenge) -> (), error: (exception: TwilioException)->())
-    verifyChallenge(challenge: Challenge, success: (Challenge) -> (), error: (exception: TwilioException)->())
+    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (exception: TwilioVerifyException)->())
+    getChallenge(challengeSid: String, success: (Challenge) -> (), error: (exception: TwilioVerifyException)->())
+    verifyChallenge(challenge: Challenge, success: (Challenge) -> (), error: (exception: TwilioVerifyException)->())
 }
 class TwilioVerify.Builder {
          authorization: Authorization
@@ -11,7 +11,10 @@ class TwilioVerify.Builder {
          build(): TwilioVerify
     }
 class Domain.TwilioVerifyManager implements TwilioVerify {
-    TwilioVerifyManager(context: Context, authorization: Authorization)
+    
+}
+class Domain.Factor.FactorFacade {
+    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (exception: TwilioVerifyException)->())
 }
 interface FactorInput {
     friendlyName: String
@@ -21,8 +24,8 @@ class PushFactorInput implements FactorInput {
     jwt: String
 }
 
-class TwilioVerifyException extends RuntimeException {
-    e: Exception
+class TwilioVerifyException extends Exception {
+    cause: Exception
     errorCode: ErrorCode
 }
 enum TwilioVerifyException.ErrorCodes {
@@ -32,8 +35,6 @@ class NetworkException {
     statusCode: Int
     errorBody: String?
 }
-class MapperException {
-    messsage: String
-}
-Domain.TwilioVerifyManager o-left-> Domain.Factor.PushFactory: create factor
+Domain.TwilioVerifyManager o-left-> Domain.Factor.FactorFacade: create factor
+Domain.Factor.FactorFacade o-left-> Domain.Factor.PushFactory: create push factor
 @enduml

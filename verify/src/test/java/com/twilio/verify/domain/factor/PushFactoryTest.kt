@@ -3,8 +3,6 @@
  */
 package com.twilio.verify.domain.factor
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
@@ -19,7 +17,6 @@ import com.twilio.verify.data.KeyStorageException
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
-import com.twilio.verify.networking.Authorization
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -35,12 +32,7 @@ class PushFactoryTest {
 
   private val factorProvider: FactorProvider = mock()
   private val keyStorage: KeyStorage = mock()
-  private val authorization: Authorization = mock()
-  private val pushFactory =
-    PushFactory(
-        ApplicationProvider.getApplicationContext<Context>(), authorization, factorProvider,
-        keyStorage
-    )
+  private val pushFactory = PushFactory(factorProvider, keyStorage)
 
   @Test
   fun `Create factor with valid JWT should call success lambda`() {
