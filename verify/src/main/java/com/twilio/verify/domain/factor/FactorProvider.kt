@@ -13,10 +13,13 @@ internal interface FactorProvider {
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
-  fun verify(factor: Factor,
+
+  fun verify(
+    factor: Factor,
     payload: String,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit)
+    error: (TwilioVerifyException) -> Unit
+  )
 
   fun get(sid: String): Factor?
   fun update(factor: Factor): Factor?
