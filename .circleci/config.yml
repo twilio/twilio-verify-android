@@ -75,6 +75,7 @@ jobs:
     steps:
       - checkout
       - *restore_gradle_cache
+      - *decrypt_google_services
       - run:
           name: Running Unit Tests
           command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2

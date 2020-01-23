@@ -1,8 +1,13 @@
-package com.twilio.verify
+package com.twilio.verify.api
 
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
-import com.twilio.verify.api.APIResponses
+import com.twilio.verify.TwilioVerify
+import com.twilio.verify.TwilioVerify.Builder
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorType
 import com.twilio.verify.models.PushFactorInput
@@ -26,7 +31,7 @@ class TwilioVerifyTests : BaseServerTest() {
     val context: Context = InstrumentationRegistry.getInstrumentation()
         .targetContext
     val authorization = Authorization("accountSid", "authToken")
-    twilioVerify = TwilioVerify.Builder(context, authorization)
+    twilioVerify = Builder(context, authorization)
         .networkProvider(NetworkAdapter(httpsURLConnection))
         .build()
   }
@@ -59,7 +64,7 @@ class TwilioVerifyTests : BaseServerTest() {
     val factorInput = PushFactorInput(friendlyName, "pushToken", jwt)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(),
-        TwilioVerifyException.ErrorCode.InputError
+        InputError
     )
     enqueueMockResponse(200, APIResponses.createValidFactorResponse())
     twilioVerify.createFactor(factorInput, {
@@ -81,7 +86,7 @@ class TwilioVerifyTests : BaseServerTest() {
     val factorInput = PushFactorInput(friendlyName, "pushToken", jwt)
     val expectedException = TwilioVerifyException(
         NetworkException(null, null),
-        TwilioVerifyException.ErrorCode.NetworkError
+        NetworkError
     )
     enqueueMockResponse(400, APIResponses.createValidFactorResponse())
     twilioVerify.createFactor(factorInput, {
@@ -103,7 +108,7 @@ class TwilioVerifyTests : BaseServerTest() {
     val factorInput = PushFactorInput(friendlyName, "pushToken", jwt)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(null, null),
-        TwilioVerifyException.ErrorCode.MapperError
+        MapperError
     )
     enqueueMockResponse(200, APIResponses.createInvalidFactorResponse())
     twilioVerify.createFactor(factorInput, {
@@ -131,7 +136,7 @@ class TwilioVerifyTests : BaseServerTest() {
     val verifyInput = VerifyPushFactorInput(sid)
     val expectedException = TwilioVerifyException(
         NetworkException(null, null),
-        TwilioVerifyException.ErrorCode.NetworkError
+        NetworkError
     )
     enqueueMockResponse(400, APIResponses.verifyValidFactorResponse())
     twilioVerify.verifyFactor(verifyInput, {
@@ -147,7 +152,7 @@ class TwilioVerifyTests : BaseServerTest() {
     val verifyInput = VerifyPushFactorInput(sid)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(null, null),
-        TwilioVerifyException.ErrorCode.MapperError
+        MapperError
     )
     enqueueMockResponse(200, APIResponses.verifyInvalidFactorResponse())
     twilioVerify.verifyFactor(verifyInput, {

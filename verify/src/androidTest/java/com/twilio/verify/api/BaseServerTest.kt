@@ -1,14 +1,11 @@
-package com.twilio.verify
+package com.twilio.verify.api
 
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Test
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLConnection
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -22,7 +19,8 @@ open class BaseServerTest {
   open fun before() {
     mockWebServer = MockWebServer()
     mockWebServer.start()
-    httpsURLConnection = URL(mockWebServer.url("/").toString()).openConnection() as HttpURLConnection
+    httpsURLConnection =
+      URL(mockWebServer.url("/").toString()).openConnection() as HttpURLConnection
   }
 
   @After
@@ -40,13 +38,5 @@ open class BaseServerTest {
       mockResponse.setBody(fileContent)
     }
     mockWebServer.enqueue(mockResponse)
-  }
-
-  fun waitResponse() {
-    try {
-      Thread.sleep(100)
-    } catch (e: InterruptedException) {
-      e.printStackTrace()
-    }
   }
 }

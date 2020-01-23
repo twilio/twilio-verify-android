@@ -10,6 +10,6 @@ import com.google.firebase.messaging.FirebaseMessagingService
 class FirebasePushService: FirebaseMessagingService() {
 
   override fun onNewToken(token: String) {
-    Log.d("sergio", token)
+    Log.d("newToken", token)
   }
 }
