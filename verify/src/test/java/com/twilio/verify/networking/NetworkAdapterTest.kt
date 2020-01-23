@@ -2,6 +2,7 @@ package com.twilio.verify.networking
 
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -9,6 +10,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import java.io.ByteArrayInputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.URL
@@ -20,7 +22,7 @@ import javax.net.ssl.HttpsURLConnection
 @RunWith(RobolectricTestRunner::class)
 class NetworkAdapterTest {
 
-  lateinit var networkAdapter: NetworkAdapter
+  private lateinit var networkAdapter: NetworkAdapter
   lateinit var request: Request
 
   @Before
@@ -59,6 +61,23 @@ class NetworkAdapterTest {
     `when`(request.httpMethod).thenReturn(HttpMethod.Post)
     `when`(url.openConnection()).thenReturn(urlConnection)
     `when`(urlConnection.responseCode).thenReturn(400)
-    networkAdapter.execute(request, { fail() }, {})
+    val expectedResponse = "Error"
+    val inputStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
+    `when`(urlConnection.inputStream).thenReturn(inputStream)
+    networkAdapter.execute(request, { fail() }, { exception ->
+      assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
+    })
+  }
+
+  @Test
+  fun `Request with failure opening connection should return error`() {
+    val url: URL = mock()
+    `when`(request.url).thenReturn(url)
+    `when`(request.httpMethod).thenReturn(HttpMethod.Post)
+    val expectedException: IOException = mock()
+    `when`(url.openConnection()).thenThrow(expectedException)
+    networkAdapter.execute(request, { fail() }, { exception ->
+      assertEquals(expectedException, exception.cause)
+    })
   }
 }

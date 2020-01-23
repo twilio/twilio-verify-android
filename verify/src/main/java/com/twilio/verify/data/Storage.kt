@@ -5,7 +5,7 @@ package com.twilio.verify.data
 
 import android.content.SharedPreferences
 
-class Storage(private val sharedPreferences: SharedPreferences) : StorageProvider {
+internal class Storage(private val sharedPreferences: SharedPreferences) : StorageProvider {
   override fun save(
     key: String,
     value: String

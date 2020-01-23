@@ -31,7 +31,7 @@ class StorageTest {
   }
 
   @Test
-  fun testSave_newValue_shouldAddValueToPreferences() {
+  fun `Save a new value should add it to preferences`() {
     val key = "key123"
     val value = "value123"
     storage.save(key, value)
@@ -39,7 +39,7 @@ class StorageTest {
   }
 
   @Test
-  fun testSave_updateValue_shouldAddValueToPreferences() {
+  fun `Update a value should update it in preferences`() {
     val key = "key123"
     val value1 = "value123"
     val value2 = "value123"
@@ -49,7 +49,7 @@ class StorageTest {
   }
 
   @Test
-  fun testSave_withJsonObject_shouldRecoverJsonObject() {
+  fun `Save a json string should save it correctly`() {
     val key = "key123"
     val value = JSONObject().apply {
       put("jKey1", "jValue1")
@@ -63,7 +63,7 @@ class StorageTest {
   }
 
   @Test
-  fun testGet_containsValue_returnsValue() {
+  fun `Get an existing value should return it`() {
     val key = "key123"
     val value = "value123"
     sharedPreferences.edit()
@@ -73,7 +73,7 @@ class StorageTest {
   }
 
   @Test
-  fun testGet_noValue_returnsNull() {
+  fun `Get a non existing value should return null`() {
     val key = "key123"
     sharedPreferences.edit()
         .remove(key)

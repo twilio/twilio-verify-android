@@ -101,6 +101,6 @@ workflows:
       - unit_tests:
           requires:
             - assemble_build
-      - instrumentation_tests_single_device:
-          requires:
-            - assemble_build
+      #- instrumentation_tests_single_device:
+      #    requires:
+      #      - assemble_build
