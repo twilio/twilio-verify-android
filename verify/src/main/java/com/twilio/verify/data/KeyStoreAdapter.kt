@@ -75,7 +75,7 @@ class AndroidKeyStore {
     if (entry !is KeyStore.PrivateKeyEntry) {
       throw IllegalArgumentException("Key entry not found for alias")
     }
-    return Signature.getInstance("SHA256withRSA")
+    return Signature.getInstance("SHA256withECDSA")
         .run {
           initSign(entry.privateKey)
           update(message.toByteArray())

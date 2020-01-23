@@ -18,7 +18,9 @@ import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorType.Push
 import org.hamcrest.Matchers.instanceOf
 import org.json.JSONObject
@@ -218,5 +220,76 @@ class FactorRepositoryTest {
     )
     exceptionRule.expect(ErrorCodeMatcher(StorageError))
     factorRepository.update(factor)
+  }
+
+  @Test
+  fun `Verify a factor with valid params should return a factor`() {
+    val sid = "sid123"
+    val factor = PushFactor(
+        sid,
+        "friendlyName",
+        "accountSid",
+        "serviceSid",
+        "entitySid",
+        "entityId",
+        FactorStatus.Unverified
+    )
+    val payload = "authPayload"
+    val response = JSONObject()
+        .put(sidKey, sid)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(serviceSidKey, "serviceSid")
+        .put(entitySidKey, "entitySid123")
+        .put(entityIdKey, "entityId")
+        .put(statusKey, FactorStatus.Unverified.value)
+
+    val factorToJson = JSONObject().put(sidKey, sid)
+        .toString()
+    argumentCaptor<(JSONObject) -> Unit>().apply {
+      whenever(apiClient.verify(eq(factor), eq(payload), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    whenever(factorMapper.fromApi(factor, response)).thenReturn(factor)
+    whenever(storage.get(sid)).thenReturn(factorToJson)
+    whenever(factorMapper.toJSON(factor)).thenReturn(factorToJson)
+    whenever(factorMapper.fromStorage(factorToJson)).thenReturn(factor)
+    factorRepository.verify(factor, payload, {
+      assertEquals(factor, it)
+    }, { fail() })
+    verify(storage).save(sid, factorToJson)
+  }
+
+  @Test
+  fun `Error from mapper verifying a factor should call error`() {
+    val sid = "sid123"
+    val factor = PushFactor(
+        sid,
+        "friendlyName",
+        "accountSid",
+        "serviceSid",
+        "entitySid",
+        "entityId",
+        FactorStatus.Unverified
+    )
+    val payload = "authPayload"
+    val response = JSONObject()
+        .put(sidKey, sid)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(serviceSidKey, "serviceSid")
+        .put(entitySidKey, "entitySid123")
+        .put(entityIdKey, "entityId")
+    argumentCaptor<(JSONObject) -> Unit>().apply {
+      whenever(apiClient.verify(eq(factor), eq(payload), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    val expectedException: TwilioVerifyException = mock()
+    whenever(factorMapper.fromApi(factor, response)).thenThrow(expectedException)
+    factorRepository.verify(factor, payload, {
+      fail()
+    }, { exception -> assertEquals(expectedException, exception) })
   }
 }

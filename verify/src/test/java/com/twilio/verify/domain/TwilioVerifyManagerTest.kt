@@ -13,6 +13,8 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.PushVerifyFactorInput
+import com.twilio.verify.models.VerifyFactorInput
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
@@ -53,6 +55,38 @@ class TwilioVerifyManagerTest {
       }
     }
     twilioVerifyManager.createFactor(factorInput, {
+      fail()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+    })
+  }
+
+  @Test
+  fun `Verify a factor should call success`() {
+    val verifyFactorInput = PushVerifyFactorInput("sid")
+    val expectedFactor: Factor = mock()
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(factorFacade.verifyFactor(eq(verifyFactorInput), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+    twilioVerifyManager.verifyFactor(verifyFactorInput, { factor ->
+      assertEquals(expectedFactor, factor)
+    }, {
+      fail()
+    })
+  }
+
+  @Test
+  fun `Error verifying a factor should call error`() {
+    val verifyFactorInput = PushVerifyFactorInput("sid")
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorFacade.verifyFactor(eq(verifyFactorInput), any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    twilioVerifyManager.verifyFactor(verifyFactorInput, {
       fail()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
