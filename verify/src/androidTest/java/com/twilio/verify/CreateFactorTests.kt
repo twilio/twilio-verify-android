@@ -1,28 +1,36 @@
-package com.twilio.verify.api
+package com.twilio.verify
 
 import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
-import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerify.Builder
-import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.api.APIResponses
+import com.twilio.verify.data.Storage
+import com.twilio.verify.data.provider
+import com.twilio.verify.domain.factor.FactorMapper
 import com.twilio.verify.domain.factor.models.PushFactor
-import com.twilio.verify.models.FactorType
+import com.twilio.verify.domain.factor.sharedPreferencesName
+import com.twilio.verify.models.Factor
+import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkException
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
+import java.security.KeyStore
 
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
 
-class TwilioVerifyTests : BaseServerTest() {
+class CreateFactorTests : BaseServerTest() {
 
   private lateinit var twilioVerify: TwilioVerify
 
@@ -37,7 +45,7 @@ class TwilioVerifyTests : BaseServerTest() {
   }
 
   @Test
-  fun testCreateFactorWithValidJWTAndValidAPIResponseShouldReturnToken() {
+  fun testCreateFactorWithValidJWTAndValidAPIResponseShouldReturnFactor() {
     val friendlyName = "friendlyName"
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
@@ -50,11 +58,41 @@ class TwilioVerifyTests : BaseServerTest() {
     twilioVerify.createFactor(factorInput, {
       assertEquals(friendlyName, it.friendlyName)
       assertTrue(it is PushFactor)
-      assertEquals(FactorType.Push, it.type)
+      assertEquals(Push, it.type)
       assertNotNull((it as PushFactor).keyPairAlias)
+      checkFactorWasStored(it)
+      checkKeyPairWasCreated(it)
     }, {
       fail()
     })
+  }
+
+  private fun checkFactorWasStored(factor: Factor) {
+    val sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
+        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+    val storage = Storage(sharedPreferences)
+    val storedFactorSid = storage.get(factor.sid)
+    assertNotNull(storedFactorSid)
+    val storedFactor = FactorMapper().fromStorage(storedFactorSid!!)
+    assertEquals(factor.type, storedFactor.type)
+    assertEquals(factor.friendlyName, storedFactor.friendlyName)
+    assertEquals(factor.status, storedFactor.status)
+    assertEquals(factor.entitySid, storedFactor.entitySid)
+    assertEquals(factor.entityId, storedFactor.entityId)
+    assertEquals(factor.accountSid, storedFactor.accountSid)
+    assertEquals(factor.serviceSid, storedFactor.serviceSid)
+  }
+
+  private fun checkKeyPairWasCreated(factor: Factor) {
+    val alias = (factor as PushFactor).keyPairAlias
+    val keyStore = KeyStore.getInstance(provider)
+    keyStore.load(null)
+    val entry = keyStore.getEntry(alias, null)
+    val privateKey = (entry as KeyStore.PrivateKeyEntry).privateKey
+    val publicKey = keyStore.getCertificate(alias)
+        .publicKey
+    assertNotNull(privateKey)
+    assertNotNull(publicKey)
   }
 
   @Test
@@ -112,50 +150,6 @@ class TwilioVerifyTests : BaseServerTest() {
     )
     enqueueMockResponse(200, APIResponses.createInvalidFactorResponse())
     twilioVerify.createFactor(factorInput, {
-      fail()
-    }, { exception ->
-      assertEquals(expectedException.message, exception.message)
-    })
-  }
-
-  @Test
-  fun testVerifyFactorWithValidAPIResponseShouldReturnToken() {
-    val sid = "sid"
-    val verifyInput = VerifyPushFactorInput(sid)
-    enqueueMockResponse(200, APIResponses.verifyValidFactorResponse())
-    twilioVerify.verifyFactor(verifyInput, {
-      assertEquals(sid, it.sid)
-    }, {
-      fail()
-    })
-  }
-
-  @Test
-  fun testVerifyFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
-    val sid = "sid"
-    val verifyInput = VerifyPushFactorInput(sid)
-    val expectedException = TwilioVerifyException(
-        NetworkException(null, null),
-        NetworkError
-    )
-    enqueueMockResponse(400, APIResponses.verifyValidFactorResponse())
-    twilioVerify.verifyFactor(verifyInput, {
-      fail()
-    }, { exception ->
-      assertEquals(expectedException.message, exception.message)
-    })
-  }
-
-  @Test
-  fun testVerifyFactorWithInvalidAPIResponseBodyShouldThrowMapperError() {
-    val sid = "sid"
-    val verifyInput = VerifyPushFactorInput(sid)
-    val expectedException = TwilioVerifyException(
-        IllegalArgumentException(null, null),
-        MapperError
-    )
-    enqueueMockResponse(200, APIResponses.verifyInvalidFactorResponse())
-    twilioVerify.verifyFactor(verifyInput, {
       fail()
     }, { exception ->
       assertEquals(expectedException.message, exception.message)

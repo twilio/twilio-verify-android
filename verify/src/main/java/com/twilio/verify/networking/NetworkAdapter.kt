@@ -1,9 +1,6 @@
 package com.twilio.verify.networking
 
-import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import java.io.BufferedWriter
-import java.io.IOException
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -50,7 +47,7 @@ class NetworkAdapter(private var urlConnection: HttpURLConnection? = null) : Net
               .use { it.readText() }
           error(NetworkException(responseCode, errorResponse))
         }
-      } ?: run { (error(TwilioVerifyException(IOException("Invalid URL"), NetworkError))) }
+      } ?: run { (error(NetworkException(IllegalArgumentException()))) }
     } catch (e: Exception) {
       error(NetworkException(e))
     } finally {

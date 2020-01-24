@@ -1,4 +1,4 @@
-package com.twilio.verify.api
+package com.twilio.verify
 
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

@@ -13,7 +13,7 @@ import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.Factor
 
-private const val sharedPreferencesName = "TwilioVerify"
+internal const val sharedPreferencesName = "TwilioVerify"
 
 internal class FactorRepository(
   context: Context,
