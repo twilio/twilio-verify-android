@@ -1,23 +1,15 @@
 package com.twilio.verify
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.platform.app.InstrumentationRegistry
-import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.api.APIResponses
-import com.twilio.verify.data.Storage
 import com.twilio.verify.data.provider
 import com.twilio.verify.domain.factor.FactorMapper
 import com.twilio.verify.domain.factor.models.PushFactor
-import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.networking.Authorization
-import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -31,18 +23,6 @@ import java.security.KeyStore
  */
 
 class CreateFactorTests : BaseServerTest() {
-
-  private lateinit var twilioVerify: TwilioVerify
-
-  override fun before() {
-    super.before()
-    val context: Context = InstrumentationRegistry.getInstrumentation()
-        .targetContext
-    val authorization = Authorization("accountSid", "authToken")
-    twilioVerify = Builder(context, authorization)
-        .networkProvider(NetworkAdapter(httpsURLConnection))
-        .build()
-  }
 
   @Test
   fun testCreateFactorWithValidJWTAndValidAPIResponseShouldReturnFactor() {
@@ -59,7 +39,8 @@ class CreateFactorTests : BaseServerTest() {
       assertEquals(friendlyName, it.friendlyName)
       assertTrue(it is PushFactor)
       assertEquals(Push, it.type)
-      assertNotNull((it as PushFactor).keyPairAlias)
+      keyPairAlias = (it as PushFactor).keyPairAlias
+      assertNotNull(keyPairAlias)
       checkFactorWasStored(it)
       checkKeyPairWasCreated(it)
     }, {
@@ -68,10 +49,7 @@ class CreateFactorTests : BaseServerTest() {
   }
 
   private fun checkFactorWasStored(factor: Factor) {
-    val sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
-        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-    val storage = Storage(sharedPreferences)
-    val storedFactorSid = storage.get(factor.sid)
+    val storedFactorSid = sharedPreferences.getString(factor.sid, null)
     assertNotNull(storedFactorSid)
     val storedFactor = FactorMapper().fromStorage(storedFactorSid!!)
     assertEquals(factor.type, storedFactor.type)
