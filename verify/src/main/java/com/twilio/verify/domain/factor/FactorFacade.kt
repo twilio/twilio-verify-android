@@ -7,10 +7,27 @@ import android.content.Context
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.api.FactorAPIClient
+import com.twilio.verify.models.Factor
+import com.twilio.verify.models.FactorInput
+import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkProvider
 
 internal class FactorFacade(private val pushFactory: PushFactory) {
+
+  fun createFactor(
+    factorInput: FactorInput,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    when (factorInput) {
+      is PushFactorInput -> {
+        pushFactory.create(
+            factorInput.jwt, factorInput.friendlyName, factorInput.pushToken, success, error
+        )
+      }
+    }
+  }
 
   class Builder {
     private lateinit var appContext: Context

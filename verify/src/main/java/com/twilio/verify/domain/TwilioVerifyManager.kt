@@ -15,8 +15,6 @@ internal class TwilioVerifyManager(private val factorFacade: FactorFacade) : Twi
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    TODO(
-        "not implemented"
-    )
+    factorFacade.createFactor(factorInput, success, error)
   }
 }
