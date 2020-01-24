@@ -18,12 +18,12 @@ import org.junit.Test
 class VerifyFactorTests : BaseServerTest() {
 
   override fun before() {
-    super.before()
     createFactor()
     super.before()
   }
 
   private fun createFactor() {
+    super.before()
     val friendlyName = "friendlyName"
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
