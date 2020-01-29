@@ -30,10 +30,28 @@ references:
         - ~/.gradle
 
   ## Build
+  decrypt_google_services: &decrypt_google_services
+    run:
+      name: Decrypt SampleApp Google Services
+      command: cd sample; ./add_google_services_file $GOOGLE_SERVICES_KEY $GOOGLE_SERVICES_IV
+
   assemble_build: &assemble_build
     run:
       name: Assemble Build
-      command: ./gradlew assembleDebug
+      command: ./gradlew assembleDebug verify::assembleDebugAndroidTest
+  
+  #Firebase Test Lab
+  store_google_service_account: &store_google_service_account
+    run:
+      name: Store Google Service Account
+      command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+
+  authorize_gcloud: &authorize_gcloud
+    run:
+      name: Authorize gcloud and set config defaults
+      command: |
+        sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+        sudo gcloud --quiet config set project twilioverify-sdk
 
 jobs:
   assemble_build:
@@ -43,18 +61,37 @@ jobs:
       - attach_workspace:
           at: *workspace
       - *restore_gradle_cache
+      - *decrypt_google_services
       - *assemble_build
       - *save_gradle_cache
-
+      - run: mkdir -p ~/code/builds
+      - run: cp verify/build/outputs/apk/androidTest/debug/verify-debug-androidTest.apk ~/code/builds
+      - persist_to_workspace:
+          root: .
+          paths:
+            - builds
   unit_tests:
     <<: *android_config
     steps:
       - checkout
       - *restore_gradle_cache
+      - *decrypt_google_services
       - run:
           name: Running Unit Tests
           command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
       - *save_gradle_cache
+  instrumentation_tests_single_device:
+    <<: *android_config
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - *store_google_service_account
+      - *authorize_gcloud
+      - run:
+          name: Run integration tests on single device
+          command:
+            sudo gcloud firebase test android run --project twilioverify-sdk --type instrumentation --app ~/verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
 
 workflows:
   version: 2
@@ -65,3 +102,6 @@ workflows:
       - unit_tests:
           requires:
             - assemble_build
+      #- instrumentation_tests_single_device:
+      #    requires:
+      #      - assemble_build

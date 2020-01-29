@@ -1,0 +1,7 @@
+#!/bin/bash -v
+#./add_google_services_file Authy SECRET_KEY SECRET_IV
+KEY=$1
+IV=$2
+
+openssl aes-256-cbc -d -in secrets.tar.enc -out secrets.tar -K $KEY -iv $IV
+tar -xvf secrets.tar

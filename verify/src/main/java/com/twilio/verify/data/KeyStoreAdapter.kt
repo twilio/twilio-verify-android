@@ -12,7 +12,7 @@ import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.Signature
 
-private const val provider = "AndroidKeyStore"
+internal const val provider = "AndroidKeyStore"
 
 internal class KeyStoreAdapter(private val androidKeyStore: AndroidKeyStore = AndroidKeyStore()) :
     KeyStorage {
