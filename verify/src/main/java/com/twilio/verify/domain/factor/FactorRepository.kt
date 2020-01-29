@@ -13,7 +13,7 @@ import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.Factor
 
-private const val sharedPreferencesName = "TwilioVerify"
+internal const val sharedPreferencesName = "TwilioVerify"
 
 internal class FactorRepository(
   context: Context,
@@ -32,6 +32,23 @@ internal class FactorRepository(
       try {
         val factor = update(factorMapper.fromApi(response, factorPayload))
         success(factor)
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      }
+    }, error)
+  }
+
+  override fun verify(
+    factor: Factor,
+    payload: String,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    apiClient.verify(factor, payload, { response ->
+      try {
+        factor.status = factorMapper.status(response)
+        val updatedFactor = update(factor)
+        success(updatedFactor)
       } catch (e: TwilioVerifyException) {
         error(e)
       }

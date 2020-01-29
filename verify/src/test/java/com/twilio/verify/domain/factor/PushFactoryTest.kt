@@ -6,6 +6,7 @@ package com.twilio.verify.domain.factor
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -14,8 +15,10 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStorageException
+import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorType.Push
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -251,6 +254,109 @@ class PushFactoryTest {
       }
     }
     pushFactory.create(jwt, friendlyName, pushToken, {
+      fail()
+    }, { exception ->
+      assertTrue(exception.cause is KeyStorageException)
+    })
+  }
+
+  @Test
+  fun `Verify factor with stored factor should call success`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entitySid = "entitySid"
+    val entityId = "1"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val keyPairAlias = "keyPairAlias"
+    val payload = "payload"
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    factor.keyPairAlias = keyPairAlias
+    whenever(factorProvider.get(sid)).thenReturn(factor)
+    whenever(keyStorage.sign(eq(keyPairAlias), eq(factor.sid))).thenReturn(payload)
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(factorProvider.verify(eq(factor), eq(payload), capture(), any())).then {
+        firstValue.invoke(factor)
+      }
+    }
+    pushFactory.verify(sid, {
+      assertEquals(serviceSid, it.serviceSid)
+      assertEquals(entityId, it.entityId)
+      assertEquals(friendlyName, it.friendlyName)
+      assertEquals(Push, it.type)
+      assertEquals(status, it.status)
+      assertEquals(accountSid, it.accountSid)
+      assertEquals(entitySid, it.entitySid)
+      assertEquals(sid, it.sid)
+      verify(keyStorage).sign(keyPairAlias, factor.sid)
+    }, {
+      fail()
+    })
+  }
+
+  @Test
+  fun `Verify factor without stored factor should call error`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entitySid = "entitySid"
+    val entityId = "1"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val keyPairAlias = "keyPairAlias"
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    factor.keyPairAlias = keyPairAlias
+    whenever(factorProvider.get(sid)).thenReturn(null)
+    pushFactory.verify(sid, {
+      fail()
+    }, { exception ->
+      assertTrue(exception.cause is StorageException)
+    })
+  }
+
+  @Test
+  fun `Verify factor with API error should call error`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entitySid = "entitySid"
+    val entityId = "1"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val keyPairAlias = "keyPairAlias"
+    val payload = "payload"
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    factor.keyPairAlias = keyPairAlias
+    whenever(factorProvider.get(sid)).thenReturn(factor)
+    whenever(keyStorage.sign(eq(keyPairAlias), eq(factor.sid))).thenReturn(payload)
+    val expectedException: TwilioVerifyException = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorProvider.verify(eq(factor), eq(payload), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    pushFactory.verify(sid, {
+      fail()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+    })
+  }
+
+  @Test
+  fun `Verify factor with null alias should call error`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entitySid = "entitySid"
+    val entityId = "1"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val keyPairAlias = null
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    factor.keyPairAlias = keyPairAlias
+    whenever(factorProvider.get(sid)).thenReturn(factor)
+    pushFactory.verify(sid, {
       fail()
     }, { exception ->
       assertTrue(exception.cause is KeyStorageException)

@@ -8,11 +8,14 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.FactorStatus
+import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.Push
 import org.json.JSONException
 import org.json.JSONObject
 
 internal const val typeKey = "type"
+internal const val statusKey = "status"
 internal const val sidKey = "sid"
 internal const val friendlyNameKey = "friendly_name"
 internal const val accountSidKey = "account_sid"
@@ -37,6 +40,17 @@ internal class FactorMapper {
     }
     return when (factorPayload.type) {
       Push -> toPushFactor(serviceSid, entityId, jsonObject)
+    }
+  }
+
+  @Throws(TwilioVerifyException::class)
+  fun status(
+    jsonObject: JSONObject
+  ): FactorStatus {
+    return try {
+      FactorStatus.values().find { it.value == jsonObject.getString(statusKey) } ?: Unverified
+    } catch (e: JSONException) {
+      throw TwilioVerifyException(e, MapperError)
     }
   }
 
@@ -75,7 +89,8 @@ internal class FactorMapper {
           .put(entitySidKey, factor.entitySid)
           .put(entityIdKey, factor.entityId)
           .put(typeKey, factor.type.factorTypeName)
-          .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias).toString()
+          .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias)
+          .put(statusKey, factor.status).toString()
     }
   }
 
@@ -92,7 +107,9 @@ internal class FactorMapper {
           accountSid = jsonObject.getString(accountSidKey),
           serviceSid = serviceSid,
           entitySid = jsonObject.getString(entitySidKey),
-          entityId = entityId
+          entityId = entityId,
+          status = FactorStatus.values().find { it.value == jsonObject.getString(statusKey) }
+              ?: Unverified
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)

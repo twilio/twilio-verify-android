@@ -1,0 +1,14 @@
+{
+  "account_sid": "accountSid",
+  "sid": "sid",
+  "friendly_name": "friendlyName",
+  "entity_sid": "entitySid",
+  "type": "Push",
+  "date_created": "12357899",
+  "date_updated": "976351423",
+  "url": "https://twilio.com",
+  "binding": {
+    "user": "test"
+  },
+  "status": "unverified"
+}
