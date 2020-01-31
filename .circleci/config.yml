@@ -51,7 +51,7 @@ references:
       name: Authorize gcloud and set config defaults
       command: |
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-        sudo gcloud --quiet config set project twilioverify-sdk
+        sudo gcloud --quiet config set project twilio-firebase-266721
 
 jobs:
   assemble_build:
@@ -91,7 +91,7 @@ jobs:
       - run:
           name: Run integration tests on single device
           command:
-            sudo gcloud firebase test android run --project twilioverify-sdk --type instrumentation --app ~/verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ~/verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
 
 workflows:
   version: 2
@@ -102,6 +102,6 @@ workflows:
       - unit_tests:
           requires:
             - assemble_build
-      #- instrumentation_tests_single_device:
-      #    requires:
-      #      - assemble_build
+      - instrumentation_tests_single_device:
+          requires:
+            - assemble_build
