@@ -95,8 +95,9 @@ jobs:
           command: |
             pwd
             ls
-            cd verify/ftl
-            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            ls verify/
+            ls verify/ftl
+            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app /home/circleci/code/verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
 
 workflows:
   version: 2
