@@ -15,4 +15,4 @@ twilio-verify-tests:
         # Samsung Galaxy S9+ (US)
         - {model: star2qlteue, version: 26, locale: en, orientation: portrait}
         # Pixel 3
-        - {model: Pixblueline, version: 29, locale: en, orientation: portrait}
+        - {model: blueline, version: 29, locale: en, orientation: portrait}
