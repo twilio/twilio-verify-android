@@ -91,7 +91,7 @@ jobs:
       - run:
           name: Run integration tests on single device
           command:
-            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ~/verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
 
 workflows:
   version: 2
