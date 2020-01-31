@@ -52,8 +52,6 @@ references:
       command: |
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
         sudo gcloud --quiet config set project twilio-firebase-266721
-        pwd
-        ls
 
 jobs:
   assemble_build:
