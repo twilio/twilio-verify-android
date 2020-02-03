@@ -6,17 +6,13 @@ twilio-verify-tests:
     device:
         # Pixel 2
         - {model: walleye, version: 27, locale: en, orientation: portrait}
-        # Pixel 2 XL
-        - {model: taimen, version: 26, locale: en, orientation: portrait}
         # Pixel
         - {model: sailfish, version: 25, locale: en, orientation: portrait}
         # Galaxy A5 2017
         - {model: a5y17lte, version: 24, locale: en, orientation: portrait}
         # Moto G4 Plus
         - {model: athene, version: 23, locale: en, orientation: portrait}
-        # Xperia XZ2
-        - {model: H8296, version: 28, locale: en, orientation: portrait}
         # Samsung Galaxy S9+ (US)
         - {model: star2qlteue, version: 26, locale: en, orientation: portrait}
-        # Pixel 2 with Android Q
-        - {model: Pixel2_Q, version: Q, locale: en, orientation: portrait}
+        # Pixel 3
+        - {model: blueline, version: 29, locale: en, orientation: portrait}

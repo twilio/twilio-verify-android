@@ -51,7 +51,7 @@ references:
       name: Authorize gcloud and set config defaults
       command: |
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-        sudo gcloud --quiet config set project twilioverify-sdk
+        sudo gcloud --quiet config set project twilio-firebase-266721
 
 jobs:
   assemble_build:
@@ -90,8 +90,23 @@ jobs:
       - *authorize_gcloud
       - run:
           name: Run integration tests on single device
+          command: 
+            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ~/code/verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+  instrumentation_tests_multiple_devices:
+    <<: *android_config
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - *store_google_service_account
+      - *authorize_gcloud
+      - run:
+          name: Replace ftl yaml build values
+          command: sed -i -e 's/{{test_build}}/builds\/verify-debug-androidTest.apk/g' ftl-config.yaml
+      - run:
+          name: Run integration tests on multiple devices
           command:
-            sudo gcloud firebase test android run --project twilioverify-sdk --type instrumentation --app ~/verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilio-firebase-266721 ftl-config.yaml:twilio-verify-tests
 
 workflows:
   version: 2
@@ -102,6 +117,10 @@ workflows:
       - unit_tests:
           requires:
             - assemble_build
-      #- instrumentation_tests_single_device:
-      #    requires:
-      #      - assemble_build
+      - instrumentation_tests_single_device:
+          requires:
+            - assemble_build
+      - instrumentation_tests_multiple_devices:
+          requires:
+            - unit_tests 
+            - instrumentation_tests_single_device
