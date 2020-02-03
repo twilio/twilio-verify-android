@@ -51,11 +51,11 @@ open class BaseServerTest {
     sharedPreferences.edit()
         .clear()
         .apply()
-    keyPairAlias?.let {
+    keyPairAlias?.let { alias ->
       KeyStore.getInstance(provider)
           .apply {
             load(null)
-            deleteEntry(keyPairAlias)
+            deleteEntry(alias)
           }
     }
   }
