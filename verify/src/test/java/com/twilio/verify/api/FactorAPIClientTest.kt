@@ -10,6 +10,8 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.domain.factor.publicKeyKey
+import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
@@ -21,6 +23,7 @@ import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.userAgent
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -41,10 +44,11 @@ class FactorAPIClientTest {
   private lateinit var factorAPIClient: FactorAPIClient
   private lateinit var networkProvider: NetworkProvider
   private lateinit var authorization: Authorization
+  private lateinit var context: Context
 
   @Before
   fun setup() {
-    val context: Context = ApplicationProvider.getApplicationContext()
+    context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
     authorization = Authorization("accountSid", "authToken")
     factorAPIClient = FactorAPIClient(networkProvider, context, authorization)
@@ -110,12 +114,17 @@ class FactorAPIClientTest {
     val publicKey = "12345"
     val expectedBody = mapOf(
         friendlyName to friendlyNameMock, factorType to factorTypeMock.factorTypeName,
-        binding to "$pushToken|$publicKey"
+        binding to JSONObject().apply {
+          put(pushTokenKey, pushToken)
+          put(publicKeyKey, publicKey)
+          put(typeKey, fcmPushType)
+          put(applicationKey, context.applicationInfo.loadLabel(context.packageManager))
+        }.toString()
     )
     val factorPayload =
       FactorPayload(
           friendlyNameMock, factorTypeMock,
-          mapOf("pushToken" to pushToken, "publicKey" to publicKey), serviceSid,
+          mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey), serviceSid,
           entityId
       )
 
@@ -123,6 +132,7 @@ class FactorAPIClientTest {
     val requestCaptor = argumentCaptor<Request>().apply {
       verify(networkProvider).execute(capture(), any(), any())
     }
+
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
       assertEquals(HttpMethod.Post, httpMethod)
@@ -143,7 +153,15 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.verify(
-        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId", Unverified),
+        PushFactor(
+            "sid",
+            "friendlyName",
+            "accountSid",
+            "serviceSid",
+            "entitySid",
+            "entityId",
+            Unverified
+        ),
         "authyPayload",
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -161,7 +179,15 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.verify(
-        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId", Unverified),
+        PushFactor(
+            "sid",
+            "friendlyName",
+            "accountSid",
+            "serviceSid",
+            "entitySid",
+            "entityId",
+            Unverified
+        ),
         "authyPayload", {
       fail()
     }, { exception ->
@@ -187,7 +213,13 @@ class FactorAPIClientTest {
     val expectedBody = mapOf(authPayloadParam to authPayloadMock)
     val factor =
       PushFactor(
-          sidMock, friendlyNameMock, accountSidMock, serviceSidMock, entitySidMock, entityIdMock, Unverified
+          sidMock,
+          friendlyNameMock,
+          accountSidMock,
+          serviceSidMock,
+          entitySidMock,
+          entityIdMock,
+          Unverified
       )
 
     factorAPIClient.verify(factor, authPayloadMock, {}, {})
