@@ -51,11 +51,13 @@ open class BaseServerTest {
     sharedPreferences.edit()
         .clear()
         .apply()
-    KeyStore.getInstance(provider)
-        .apply {
-          load(null)
-          deleteEntry(keyPairAlias)
-        }
+    keyPairAlias?.let {
+      KeyStore.getInstance(provider)
+          .apply {
+            load(null)
+            deleteEntry(keyPairAlias)
+          }
+    }
   }
 
   fun enqueueMockResponse(
