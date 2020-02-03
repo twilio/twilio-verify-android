@@ -5,6 +5,8 @@ import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.publicKeyKey
+import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.HttpMethod.Post
@@ -52,7 +54,7 @@ internal class FactorAPIClient(
       )
           .httpMethod(Post)
           .headers(headers().toMutableMap())
-          .body(createFactorBody(factorPayload))
+          .body(createFactorBody(factorPayload, context))
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it))
@@ -105,12 +107,28 @@ internal class FactorAPIClient(
         MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
     )
 
-  private fun createFactorBody(factorPayload: FactorPayload): Map<String, String?> =
+  private fun createFactorBody(
+    factorPayload: FactorPayload,
+    context: Context
+  ): Map<String, String?> =
     mapOf(
         friendlyName to factorPayload.friendlyName,
         factorType to factorPayload.type.factorTypeName,
-        binding to factorPayload.binding.values.joinToString("|")
+        binding to factorBinding(factorPayload, context)
     )
+
+  private fun factorBinding(
+    factorPayload: FactorPayload,
+    context: Context
+  ): String {
+    val json = JSONObject().apply {
+      put(pushTokenKey, factorPayload.binding[pushTokenKey])
+      put(publicKeyKey, factorPayload.binding[publicKeyKey])
+      put("type", "fcm")
+      put("application", context.applicationInfo.loadLabel(context.packageManager))
+    }
+    return json.toString()
+  }
 
   private fun verifyFactorBody(authPayload: String): Map<String, String?> =
     mapOf(authPayloadParam to authPayload)
