@@ -2,31 +2,29 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 android {
-    compileSdkVersion 28
+  compileSdkVersion 28
 
+  defaultConfig {
+    minSdkVersion 23
+    targetSdkVersion 28
+    versionCode 1
+    versionName "1.0"
 
-    defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    consumerProguardFiles 'consumer-rules.pro'
+  }
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles 'consumer-rules.pro'
+  buildTypes {
+    release {
+      minifyEnabled false
+      buildConfigField "String", 'BASE_URL', "\"https://authy.twilio.com/v1/\""
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            buildConfigField "String", 'BASE_URL', "\"https://authy.twilio.com/v1/\""
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            buildConfigField "String", 'BASE_URL', "\"https://authy.stage.twilio.com/v1/\""
-        }
+    debug {
+      buildConfigField "String", 'BASE_URL', "\"https://authy.stage.twilio.com/v1/\""
     }
-    testOptions.unitTests.includeAndroidResources = true
-
+  }
+  testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
@@ -41,4 +39,5 @@ dependencies {
   testImplementation 'org.robolectric:robolectric:4.3.1'
   testImplementation 'androidx.test:core:1.2.0'
   testImplementation "org.mockito:mockito-inline:2.28.2"
+  implementation project(path: ':security')
 }

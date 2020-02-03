@@ -1,2 +1,2 @@
-include ':sample', ':verify'
+include ':sample', ':verify', ':security'
 rootProject.name='TwilioVerify'
