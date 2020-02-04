@@ -17,7 +17,7 @@ import com.twilio.verify.domain.factor.models.toEnrollmentJWT
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
 
-internal const val pushTokenKey = "push_token"
+internal const val pushTokenKey = "address"
 internal const val publicKeyKey = "public_key"
 
 internal class PushFactory(

@@ -5,16 +5,11 @@ import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.publicKeyKey
+import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.Authorization
+import com.twilio.verify.networking.*
 import com.twilio.verify.networking.HttpMethod.Post
-import com.twilio.verify.networking.MediaTypeHeader
-import com.twilio.verify.networking.MediaTypeValue
-import com.twilio.verify.networking.NetworkAdapter
-import com.twilio.verify.networking.NetworkException
-import com.twilio.verify.networking.NetworkProvider
-import com.twilio.verify.networking.Request
-import com.twilio.verify.networking.RequestHelper
 import org.json.JSONObject
 
 /*
@@ -32,6 +27,9 @@ internal const val friendlyName = "FriendlyName"
 internal const val factorType = "FactorType"
 internal const val binding = "Binding"
 internal const val authPayloadParam = "AuthPayload"
+internal const val typeKey = "type"
+internal const val applicationKey = "application"
+internal const val fcmPushType = "fcm"
 
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -52,7 +50,7 @@ internal class FactorAPIClient(
       )
           .httpMethod(Post)
           .headers(headers().toMutableMap())
-          .body(createFactorBody(factorPayload))
+          .body(createFactorBody(factorPayload, context))
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it))
@@ -105,12 +103,25 @@ internal class FactorAPIClient(
         MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
     )
 
-  private fun createFactorBody(factorPayload: FactorPayload): Map<String, String?> =
+  private fun createFactorBody(
+    factorPayload: FactorPayload,
+    context: Context
+  ): Map<String, String?> =
     mapOf(
         friendlyName to factorPayload.friendlyName,
         factorType to factorPayload.type.factorTypeName,
-        binding to factorPayload.binding.values.joinToString("|")
+        binding to binding(factorPayload, context)
     )
+
+  private fun binding(
+    factorPayload: FactorPayload,
+    context: Context
+  ): String = JSONObject().apply {
+    put(pushTokenKey, factorPayload.binding[pushTokenKey])
+    put(publicKeyKey, factorPayload.binding[publicKeyKey])
+    put(typeKey, fcmPushType)
+    put(applicationKey, context.applicationInfo.loadLabel(context.packageManager))
+  }.toString()
 
   private fun verifyFactorBody(authPayload: String): Map<String, String?> =
     mapOf(authPayloadParam to authPayload)
