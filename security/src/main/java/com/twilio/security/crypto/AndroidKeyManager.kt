@@ -54,7 +54,7 @@ class AndroidKeyManager(
   }
 
   private fun getPrivateKeyEntry(alias: String): PrivateKeyEntry {
-    return keyStore.getEntry(alias, null).takeIf { it is PrivateKeyEntry } as PrivateKeyEntry?
+    return keyStore.getEntry(alias, null) as? PrivateKeyEntry?
         ?: run { throw IllegalArgumentException("Private key entry not found") }
   }
 
@@ -77,7 +77,7 @@ class AndroidKeyManager(
   private fun getSecretKeyEntry(alias: String): SecretKeyEntry {
     return keyStore.getEntry(
         alias, null
-    ).takeIf { it is SecretKeyEntry } as SecretKeyEntry?
+    ) as? SecretKeyEntry
         ?: run { throw IllegalArgumentException("Secret key entry not found") }
   }
 
