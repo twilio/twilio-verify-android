@@ -3,7 +3,7 @@
  */
 package com.twilio.security.crypto
 
-import com.twilio.security.crypto.key.encrypter.AESGCMEncrypter
+import com.twilio.security.crypto.key.encrypter.AESEncrypter
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
 import com.twilio.security.crypto.key.template.EncrypterTemplate
 import org.junit.After
@@ -19,7 +19,7 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-class AESGCMEncrypterTests {
+class AESGCMNoPaddingEncrypterTests {
 
   private val keyStore = KeyStore.getInstance(providerName)
       .apply { load(null) }
@@ -46,12 +46,12 @@ class AESGCMEncrypterTests {
   fun testEncrypter_withNonExistingKey_shouldReturnEncrypterForNewKey() {
     val template = AESGCMNoPaddingEncrypterTemplate(alias)
     val encrypter = androidKeyManager.encrypter(template)
-    assertTrue(encrypter is AESGCMEncrypter)
+    assertTrue(encrypter is AESEncrypter)
     assertTrue(keyStore.containsAlias(alias))
-    assertNotNull((encrypter as? AESGCMEncrypter)?.entry)
+    assertNotNull((encrypter as? AESEncrypter)?.entry)
     assertEquals(
         (keyStore.getEntry(alias, null) as? SecretKeyEntry)?.secretKey,
-        (encrypter as AESGCMEncrypter).entry.secretKey
+        (encrypter as AESEncrypter).entry.secretKey
     )
   }
 
@@ -60,10 +60,10 @@ class AESGCMEncrypterTests {
     val template = AESGCMNoPaddingEncrypterTemplate(alias)
     val key = createKey(template)
     val encrypter = androidKeyManager.encrypter(template)
-    assertTrue(encrypter is AESGCMEncrypter)
+    assertTrue(encrypter is AESEncrypter)
     assertTrue(keyStore.containsAlias(alias))
-    assertNotNull((encrypter as? AESGCMEncrypter)?.entry)
-    assertEquals(key, (encrypter as AESGCMEncrypter).entry.secretKey)
+    assertNotNull((encrypter as? AESEncrypter)?.entry)
+    assertEquals(key, (encrypter as AESEncrypter).entry.secretKey)
   }
 
   @Test

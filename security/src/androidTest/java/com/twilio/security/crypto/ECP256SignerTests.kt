@@ -16,7 +16,7 @@ import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.Signature
 
-class ECSignerTests {
+class ECP256SignerTests {
 
   private val keyStore = KeyStore.getInstance(providerName)
       .apply { load(null) }

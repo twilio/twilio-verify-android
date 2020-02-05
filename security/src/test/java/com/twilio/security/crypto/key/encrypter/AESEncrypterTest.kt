@@ -31,7 +31,7 @@ import java.security.Security
 import javax.crypto.spec.GCMParameterSpec
 
 @RunWith(RobolectricTestRunner::class)
-class AESGCMEncrypterTest {
+class AESEncrypterTest {
 
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()
@@ -39,7 +39,7 @@ class AESGCMEncrypterTest {
   private val providerName = "TestKeyStore"
   private val cipherAlgorithm = "TestCipherAlgorithm"
 
-  private lateinit var AESGCMEncrypter: AESGCMEncrypter
+  private lateinit var AESEncrypter: AESEncrypter
   private lateinit var provider: Provider
 
   @Before
@@ -63,7 +63,7 @@ class AESGCMEncrypterTest {
     cipherMockInput = CipherMockInput()
     cipherMockOutput = CipherMockOutput()
     val entry: KeyStore.SecretKeyEntry = mock()
-    AESGCMEncrypter = AESGCMEncrypter(entry, cipherAlgorithm)
+    AESEncrypter = AESEncrypter(entry, cipherAlgorithm, GCMParameterSpec::class.java)
   }
 
   @After
@@ -83,8 +83,8 @@ class AESGCMEncrypterTest {
     val expectedEncryptedData = EncryptedData(gcmParameterSpec, encrypted.toByteArray())
     cipherMockInput.encrypted = encrypted
     cipherMockInput.algorithmParameters = algorithmParameters
-    val encryptedData = AESGCMEncrypter.encrypt(data)
-    assertEquals(AESGCMEncrypter.entry.secretKey, cipherMockOutput.secretKey)
+    val encryptedData = AESEncrypter.encrypt(data)
+    assertEquals(AESEncrypter.entry.secretKey, cipherMockOutput.secretKey)
     assertTrue(cipherMockOutput.cipherInitialized)
     assertEquals(expectedEncryptedData, encryptedData)
   }
@@ -100,6 +100,6 @@ class AESGCMEncrypterTest {
             RuntimeException::class.java
         )
     )
-    AESGCMEncrypter.encrypt(data)
+    AESEncrypter.encrypt(data)
   }
 }

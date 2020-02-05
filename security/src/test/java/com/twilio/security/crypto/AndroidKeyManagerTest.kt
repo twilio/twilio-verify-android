@@ -6,7 +6,7 @@ package com.twilio.security.crypto
 import android.security.keystore.KeyProperties
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.security.crypto.key.encrypter.AESGCMEncrypter
+import com.twilio.security.crypto.key.encrypter.AESEncrypter
 import com.twilio.security.crypto.key.signer.ECSigner
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
@@ -39,6 +39,7 @@ import java.security.PublicKey
 import java.security.Security
 import java.security.cert.Certificate
 import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
@@ -234,6 +235,7 @@ class AndroidKeyManagerTest {
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
+    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     whenever(entry.secretKey).thenReturn(key)
     keyStoreMockInput =
       KeyStoreMockInput(
@@ -241,8 +243,8 @@ class AndroidKeyManagerTest {
       )
     val encrypter = androidKeyManager.encrypter(template)
     assertTrue(keyStoreMockOutput.generatedKeyPair)
-    assertTrue(encrypter is AESGCMEncrypter)
-    assertEquals(keyStoreMockInput.entry, (encrypter as? AESGCMEncrypter)?.entry)
+    assertTrue(encrypter is AESEncrypter)
+    assertEquals(keyStoreMockInput.entry, (encrypter as? AESEncrypter)?.entry)
   }
 
   @Test
@@ -252,13 +254,14 @@ class AndroidKeyManagerTest {
     val template: AESGCMNoPaddingEncrypterTemplate = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
+    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     keyStoreMockInput =
       KeyStoreMockInput(
           containsAlias = true, entry = mock<SecretKeyEntry>(), key = null
       )
     val encrypter = androidKeyManager.encrypter(template)
     assertFalse(keyStoreMockOutput.generatedKeyPair)
-    assertTrue(encrypter is AESGCMEncrypter)
-    assertEquals(keyStoreMockInput.entry, (encrypter as? AESGCMEncrypter)?.entry)
+    assertTrue(encrypter is AESEncrypter)
+    assertEquals(keyStoreMockInput.entry, (encrypter as? AESEncrypter)?.entry)
   }
 }
