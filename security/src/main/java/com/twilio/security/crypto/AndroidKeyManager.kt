@@ -46,11 +46,8 @@ class AndroidKeyManager(
     val keyPair = keyPairGenerator.generateKeyPair()
     return getPrivateKeyEntry(
         template.alias
-    ).takeIf {
-      keyPair?.public != null && keyPair.public.encoded.contentEquals(
-          it.certificate.publicKey.encoded
-      )
-    } ?: run { throw IllegalArgumentException("New private key entry not found") }
+    ).takeIf { keyPair?.public?.encoded?.contentEquals(it.certificate.publicKey.encoded) == true }
+        ?: run { throw IllegalArgumentException("New private key entry not found") }
   }
 
   private fun getPrivateKeyEntry(alias: String): PrivateKeyEntry {
