@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-package com.twilio.security.crypto.key.encryptor
+package com.twilio.security.crypto.key.encrypter
 
 import com.twilio.security.crypto.KeyException
 
-interface Encryptor {
+interface Encrypter {
   @Throws(KeyException::class)
   fun encrypt(data: ByteArray): ByteArray
 

@@ -7,12 +7,12 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyGenParameterSpec.Builder
 import android.security.keystore.KeyProperties
 
-sealed class EncryptorTemplate : Template {
+sealed class EncrypterTemplate : Template {
   internal abstract val keyGenParameterSpec: KeyGenParameterSpec
   internal abstract val cipherAlgorithm: String
 }
 
-data class AESGCMNoPaddingEncryptorTemplate(override val alias: String) : EncryptorTemplate() {
+data class AESGCMNoPaddingEncrypterTemplate(override val alias: String) : EncrypterTemplate() {
   override val algorithm = KeyProperties.KEY_ALGORITHM_AES
   override val keyGenParameterSpec: KeyGenParameterSpec = Builder(
       alias,
