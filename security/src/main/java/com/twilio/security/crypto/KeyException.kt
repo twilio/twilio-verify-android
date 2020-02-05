@@ -8,5 +8,4 @@ class KeyException constructor(
   exception: Exception?
 ) : Exception(message, exception) {
   constructor(exception: Exception) : this(exception.message, exception)
-  constructor(message: String) : this(message, null)
 }

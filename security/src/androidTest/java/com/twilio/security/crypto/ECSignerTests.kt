@@ -14,8 +14,9 @@ import org.junit.Test
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
+import java.security.Signature
 
-class SignerTests {
+class ECSignerTests {
 
   private val keyStore = KeyStore.getInstance(providerName)
       .apply { load(null) }
@@ -67,6 +68,22 @@ class SignerTests {
             (signer as ECSigner).entry.certificate.publicKey.encoded
         ) == true
     )
+  }
+
+  @Test
+  fun testSign_withSigner_shouldReturnSignature() {
+    val data = "message".toByteArray()
+    val template = ECP256SignerTemplate(alias)
+    val keyPair = createKeyPair(template)
+    val signer = androidKeyManager.signer(template)
+    val signature = signer.sign(data)
+    val valid: Boolean = Signature.getInstance(template.signatureAlgorithm)
+        .run {
+          initVerify(keyPair.public)
+          update(data)
+          verify(signature)
+        }
+    assertTrue(valid)
   }
 
   private fun createKeyPair(template: SignerTemplate): KeyPair {

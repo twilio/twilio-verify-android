@@ -3,7 +3,7 @@
  */
 package com.twilio.security.crypto
 
-import com.twilio.security.crypto.key.encrypter.AESEncrypter
+import com.twilio.security.crypto.key.encrypter.AESGCMEncrypter
 import com.twilio.security.crypto.key.encrypter.Encrypter
 import com.twilio.security.crypto.key.signer.ECSigner
 import com.twilio.security.crypto.key.signer.Signer
@@ -31,7 +31,7 @@ class AndroidKeyManager(
         getPrivateKeyEntry(template.alias)
       }
       return when (template) {
-        is ECP256SignerTemplate -> ECSigner(entry)
+        is ECP256SignerTemplate -> ECSigner(entry, template.signatureAlgorithm)
       }
     } catch (e: Exception) {
       throw KeyException(e)
@@ -64,7 +64,7 @@ class AndroidKeyManager(
         getSecretKeyEntry(template.alias)
       }
       return when (template) {
-        is AESGCMNoPaddingEncrypterTemplate -> AESEncrypter(entry)
+        is AESGCMNoPaddingEncrypterTemplate -> AESGCMEncrypter(entry, template.cipherAlgorithm)
       }
     } catch (e: Exception) {
       throw KeyException(e)
