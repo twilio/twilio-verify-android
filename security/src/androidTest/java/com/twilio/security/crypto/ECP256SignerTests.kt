@@ -86,6 +86,16 @@ class ECP256SignerTests {
     assertTrue(valid)
   }
 
+  @Test
+  fun testGetPublicKey_shouldReturnKeyStorePublicKey() {
+    val template = ECP256SignerTemplate(alias)
+    val signer = androidKeyManager.signer(template)
+    assertTrue(keyStore.containsAlias(alias))
+    val expectedPublicKey = keyStore.getCertificate(alias)
+        .publicKey.encoded
+    assertTrue(signer.getPublic().contentEquals(expectedPublicKey))
+  }
+
   private fun createKeyPair(template: SignerTemplate): KeyPair {
     val keyPairGenerator = KeyPairGenerator.getInstance(
         template.algorithm, providerName

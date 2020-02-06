@@ -3,6 +3,7 @@
  */
 package com.twilio.security.crypto.key.signer
 
+import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.KeyException
@@ -24,10 +25,13 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.lang.Exception
 import java.security.KeyStore.PrivateKeyEntry
 import java.security.PrivateKey
 import java.security.Provider
+import java.security.PublicKey
 import java.security.Security
+import java.security.cert.Certificate
 
 @RunWith(RobolectricTestRunner::class)
 class ECSignerTest {
@@ -40,6 +44,7 @@ class ECSignerTest {
 
   private lateinit var ecSigner: ECSigner
   private lateinit var provider: Provider
+
 
   @Before
   fun setup() {
@@ -96,5 +101,30 @@ class ECSignerTest {
         )
     )
     ecSigner.sign(data)
+  }
+
+  @Test
+  fun `Get PublicKey should return expected key`() {
+    val certificate: Certificate = mock()
+    whenever(ecSigner.entry.certificate).thenReturn(certificate)
+    val publicKey: PublicKey = mock()
+    whenever(ecSigner.entry.certificate.publicKey).thenReturn(publicKey)
+    val expectedPublicKeyEncoded = ByteArray(1)
+    whenever(ecSigner.entry.certificate.publicKey.encoded).thenReturn(expectedPublicKeyEncoded)
+
+    assertEquals(expectedPublicKeyEncoded, ecSigner.getPublic())
+  }
+
+  @Test(expected = KeyException::class)
+  fun `Error getting PublicKey should throw exception`() {
+    val certificate: Certificate = mock()
+    whenever(ecSigner.entry.certificate).thenReturn(certificate)
+    val publicKey: PublicKey = mock()
+    whenever(ecSigner.entry.certificate.publicKey).thenReturn(publicKey)
+    val exception: KeyException = mock()
+    given(ecSigner.entry.certificate.publicKey).willAnswer {
+      throw KeyException(exception)
+    }
+    ecSigner.getPublic()
   }
 }
