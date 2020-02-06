@@ -107,10 +107,12 @@ class ECSignerTest {
     whenever(ecSigner.entry.certificate).thenReturn(certificate)
     val publicKey: PublicKey = mock()
     whenever(ecSigner.entry.certificate.publicKey).thenReturn(publicKey)
-    val expectedPublicKeyEncoded = ByteArray(1)
-    whenever(ecSigner.entry.certificate.publicKey.encoded).thenReturn(expectedPublicKeyEncoded)
+    val expectedPublicKey = "publicKey"
+    whenever(ecSigner.entry.certificate.publicKey.encoded).thenReturn(
+        expectedPublicKey.toByteArray()
+    )
 
-    assertEquals(expectedPublicKeyEncoded, ecSigner.getPublic())
+    assertTrue(ecSigner.getPublic().contentEquals(expectedPublicKey.toByteArray()))
   }
 
   @Test(expected = KeyException::class)
