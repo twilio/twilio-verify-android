@@ -17,7 +17,7 @@ references:
 
   ## Cache
   gradle_key: &gradle_key
-    jars-{{ checksum "build.gradle" }}-{{ checksum "verify/build.gradle" }}
+    jars-{{ checksum "build.gradle" }}-{{ checksum "verify/build.gradle" }}-{{ checksum "security/build.gradle" }}
 
   restore_gradle_cache: &restore_gradle_cache
     restore_cache:
@@ -38,8 +38,8 @@ references:
   assemble_build: &assemble_build
     run:
       name: Assemble Build
-      command: ./gradlew assembleDebug verify::assembleDebugAndroidTest
-  
+      command: ./gradlew assembleDebug assembleDebugAndroidTest
+
   #Firebase Test Lab
   store_google_service_account: &store_google_service_account
     run:

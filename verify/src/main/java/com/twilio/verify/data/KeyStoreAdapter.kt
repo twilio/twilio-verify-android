@@ -5,6 +5,8 @@ package com.twilio.verify.data
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Base64
+import android.util.Base64.NO_WRAP
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import java.security.KeyPair
@@ -18,7 +20,7 @@ internal class KeyStoreAdapter(private val androidKeyStore: AndroidKeyStore = An
     KeyStorage {
   override fun create(alias: String): String {
     return try {
-      String(androidKeyStore.createKeyPair(alias).public.encoded)
+      Base64.encodeToString(androidKeyStore.createKeyPair(alias).public.encoded, NO_WRAP)
     } catch (e: Exception) {
       throw TwilioVerifyException(KeyStorageException(e), KeyStorageError)
     }
