@@ -1,4 +1,4 @@
-package com.twilio.security.crypto.mocks
+package com.twilio.security.crypto.mocks.keystore
 
 import java.security.KeyStore
 

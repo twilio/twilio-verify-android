@@ -43,7 +43,7 @@ class NetworkAdapter(private var urlConnection: HttpURLConnection? = null) : Net
               .use { it.readText() }
           success(response)
         } else {
-          val errorResponse = httpUrlConnection.inputStream.bufferedReader()
+          val errorResponse = httpUrlConnection.errorStream.bufferedReader()
               .use { it.readText() }
           error(NetworkException(responseCode, errorResponse))
         }

@@ -31,7 +31,7 @@ class AndroidKeyManager(
         getPrivateKeyEntry(template.alias)
       }
       return when (template) {
-        is ECP256SignerTemplate -> ECSigner(entry)
+        is ECP256SignerTemplate -> ECSigner(entry, template.signatureAlgorithm)
       }
     } catch (e: Exception) {
       throw KeyException(e)
@@ -64,7 +64,9 @@ class AndroidKeyManager(
         getSecretKeyEntry(template.alias)
       }
       return when (template) {
-        is AESGCMNoPaddingEncrypterTemplate -> AESEncrypter(entry)
+        is AESGCMNoPaddingEncrypterTemplate -> AESEncrypter(
+            entry, template.cipherAlgorithm, template.parameterSpecClass
+        )
       }
     } catch (e: Exception) {
       throw KeyException(e)

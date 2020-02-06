@@ -14,10 +14,12 @@ import org.junit.Before
 import org.junit.Test
 import java.security.KeyStore
 import java.security.KeyStore.SecretKeyEntry
+import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
-class EncrypterTests {
+class AESGCMNoPaddingEncrypterTests {
 
   private val keyStore = KeyStore.getInstance(providerName)
       .apply { load(null) }
@@ -62,6 +64,22 @@ class EncrypterTests {
     assertTrue(keyStore.containsAlias(alias))
     assertNotNull((encrypter as? AESEncrypter)?.entry)
     assertEquals(key, (encrypter as AESEncrypter).entry.secretKey)
+  }
+
+  @Test
+  fun testEncrypt_withEncrypter_shouldReturnEncryptedData() {
+    val data = "message".toByteArray()
+    val template = AESGCMNoPaddingEncrypterTemplate(alias)
+    val key = createKey(template)
+    val encrypter = androidKeyManager.encrypter(template)
+    val encryptedData = encrypter.encrypt(data)
+    assertTrue(encryptedData.algorithmParameterSpec is GCMParameterSpec)
+    val decrypted = Cipher.getInstance(template.cipherAlgorithm)
+        .run {
+          init(Cipher.DECRYPT_MODE, key, encryptedData.algorithmParameterSpec)
+          doFinal(encryptedData.encrypted)
+        }
+    assertTrue(data.contentEquals(decrypted))
   }
 
   private fun createKey(template: EncrypterTemplate): SecretKey {
