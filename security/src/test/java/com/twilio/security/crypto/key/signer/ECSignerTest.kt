@@ -25,7 +25,6 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.lang.Exception
 import java.security.KeyStore.PrivateKeyEntry
 import java.security.PrivateKey
 import java.security.Provider
@@ -44,7 +43,6 @@ class ECSignerTest {
 
   private lateinit var ecSigner: ECSigner
   private lateinit var provider: Provider
-
 
   @Before
   fun setup() {
