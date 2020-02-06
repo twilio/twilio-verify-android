@@ -62,8 +62,8 @@ class NetworkAdapterTest {
     `when`(url.openConnection()).thenReturn(urlConnection)
     `when`(urlConnection.responseCode).thenReturn(400)
     val expectedResponse = "Error"
-    val inputStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
-    `when`(urlConnection.inputStream).thenReturn(inputStream)
+    val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
+    `when`(urlConnection.errorStream).thenReturn(errorStream)
     networkAdapter.execute(request, { fail() }, { exception ->
       assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
     })

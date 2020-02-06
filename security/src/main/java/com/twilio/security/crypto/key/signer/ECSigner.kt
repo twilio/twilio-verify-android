@@ -34,8 +34,10 @@ class ECSigner(
 
   @Throws(KeyException::class)
   override fun getPublic(): ByteArray {
-    TODO(
-        "not implemented"
-    ) //To change body of created functions use File | Settings | File Templates.
+    return try {
+      entry.certificate.publicKey.encoded
+    } catch (e: Exception) {
+      throw KeyException(e)
+    }
   }
 }
