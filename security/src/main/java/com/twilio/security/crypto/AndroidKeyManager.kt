@@ -26,6 +26,9 @@ class AndroidKeyManager(
   override fun signer(template: SignerTemplate): Signer {
     try {
       val entry = if (!keyStore.containsAlias(template.alias)) {
+        if (template.shouldExist) {
+          throw IllegalStateException("The alias does not exist")
+        }
         createSignerKeyPair(template)
       } else {
         getPrivateKeyEntry(template.alias)
@@ -59,6 +62,9 @@ class AndroidKeyManager(
   override fun encrypter(template: EncrypterTemplate): Encrypter {
     try {
       val entry = if (!keyStore.containsAlias(template.alias)) {
+        if (template.shouldExist) {
+          throw IllegalStateException("The alias does not exist")
+        }
         createEncrypterKey(template)
       } else {
         getSecretKeyEntry(template.alias)

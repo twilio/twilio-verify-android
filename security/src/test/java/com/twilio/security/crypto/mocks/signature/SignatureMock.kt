@@ -22,18 +22,20 @@ class SignatureMock : SignatureSpi() {
     off: Int,
     len: Int
   ) {
-    signatureMockOutput.signatureUpdatedData = b
+    signatureMockOutput.updatedData = b
   }
 
   override fun engineVerify(sigBytes: ByteArray?): Boolean {
-    throw NotImplementedError()
+    if (signatureMockInput.error != null) {
+      throw signatureMockInput.error!!
+    }
+    return signatureMockInput.result
   }
 
   override fun engineSign(): ByteArray {
     if (signatureMockInput.error != null) {
       throw signatureMockInput.error!!
     }
-    signatureMockOutput.signatureDone = true
     return signatureMockInput.signature.toByteArray()
   }
 
@@ -42,11 +44,12 @@ class SignatureMock : SignatureSpi() {
   }
 
   override fun engineInitVerify(publicKey: PublicKey?) {
-    throw NotImplementedError()
+    signatureMockOutput.initialized = true
+    signatureMockOutput.publicKey = publicKey
   }
 
   override fun engineInitSign(privateKey: PrivateKey?) {
-    signatureMockOutput.signatureInitialized = true
+    signatureMockOutput.initialized = true
     signatureMockOutput.privateKey = privateKey
   }
 

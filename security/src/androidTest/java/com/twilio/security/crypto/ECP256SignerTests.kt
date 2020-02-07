@@ -77,7 +77,7 @@ class ECP256SignerTests {
     val keyPair = createKeyPair(template)
     val signer = androidKeyManager.signer(template)
     val signature = signer.sign(data)
-    val valid: Boolean = Signature.getInstance(template.signatureAlgorithm)
+    val valid = Signature.getInstance(template.signatureAlgorithm)
         .run {
           initVerify(keyPair.public)
           update(data)
@@ -94,6 +94,22 @@ class ECP256SignerTests {
     val expectedPublicKey = keyStore.getCertificate(alias)
         .publicKey.encoded
     assertTrue(signer.getPublic().contentEquals(expectedPublicKey))
+  }
+
+  @Test
+  fun testVerify_withSigner_shouldReturnTrue() {
+    val data = "message".toByteArray()
+    val template = ECP256SignerTemplate(alias)
+    val keyPair = createKeyPair(template)
+    val signature = Signature.getInstance(template.signatureAlgorithm)
+        .run {
+          initSign(keyPair.private)
+          update(data)
+          sign()
+        }
+    val signer = androidKeyManager.signer(template)
+    val valid = signer.verify(data, signature)
+    assertTrue(valid)
   }
 
   private fun createKeyPair(template: SignerTemplate): KeyPair {

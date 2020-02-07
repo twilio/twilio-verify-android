@@ -72,7 +72,7 @@ class AESEncrypterTest {
   }
 
   @Test
-  fun `Encrypt data using algorithm`() {
+  fun `Encrypt data using algorithm should return encrypted`() {
     val data = "test".toByteArray()
     val encrypted = "encrypted"
     val algorithmParameters: AlgorithmParameters = mock()
@@ -90,7 +90,7 @@ class AESEncrypterTest {
   }
 
   @Test
-  fun `Error encrypting data`() {
+  fun `Error encrypting data should throw exception`() {
     val data = "test".toByteArray()
     val error: RuntimeException = mock()
     cipherMockInput.error = error
@@ -101,5 +101,43 @@ class AESEncrypterTest {
         )
     )
     AESEncrypter.encrypt(data)
+  }
+
+  @Test
+  fun `Decrypt data using algorithm should return encrypted`() {
+    val data = "test"
+    val encrypted = "encrypted"
+    val algorithmParameters: AlgorithmParameters = mock()
+    val gcmParameterSpec: GCMParameterSpec = mock()
+    whenever(algorithmParameters.getParameterSpec(GCMParameterSpec::class.java)).thenReturn(
+        gcmParameterSpec
+    )
+    val encryptedData = EncryptedData(gcmParameterSpec, encrypted.toByteArray())
+    cipherMockInput.decrypted = data
+    cipherMockInput.algorithmParameters = algorithmParameters
+    val decrypted = AESEncrypter.decrypt(encryptedData)
+    assertEquals(AESEncrypter.entry.secretKey, cipherMockOutput.secretKey)
+    assertTrue(cipherMockOutput.cipherInitialized)
+    assertTrue(data.toByteArray().contentEquals(decrypted))
+  }
+
+  @Test
+  fun `Error decrypting data should throw exception`() {
+    val algorithmParameters: AlgorithmParameters = mock()
+    val gcmParameterSpec: GCMParameterSpec = mock()
+    whenever(algorithmParameters.getParameterSpec(GCMParameterSpec::class.java)).thenReturn(
+        gcmParameterSpec
+    )
+    val encrypted = "encrypted"
+    val encryptedData = EncryptedData(gcmParameterSpec, encrypted.toByteArray())
+    val error: RuntimeException = mock()
+    cipherMockInput.error = error
+    exceptionRule.expect(KeyException::class.java)
+    exceptionRule.expectCause(
+        Matchers.instanceOf(
+            RuntimeException::class.java
+        )
+    )
+    AESEncrypter.decrypt(encryptedData)
   }
 }

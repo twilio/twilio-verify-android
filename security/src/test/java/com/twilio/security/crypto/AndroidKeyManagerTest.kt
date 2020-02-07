@@ -206,6 +206,25 @@ class AndroidKeyManagerTest {
   }
 
   @Test
+  fun `Alias not found for previously created signer`() {
+    val alias = "test"
+    val template: ECP256SignerTemplate = mock()
+    whenever(template.alias).thenReturn(alias)
+    whenever(template.shouldExist).thenReturn(true)
+    keyStoreMockInput =
+      KeyStoreMockInput(
+          containsAlias = false, entry = null, key = null
+      )
+    exceptionRule.expect(KeyException::class.java)
+    exceptionRule.expectCause(
+        Matchers.instanceOf(
+            IllegalStateException::class.java
+        )
+    )
+    androidKeyManager.signer(template)
+  }
+
+  @Test
   fun `Error getting an existing entry for EC signer`() {
     val alias = "test"
     val template: ECP256SignerTemplate = mock()
@@ -263,5 +282,24 @@ class AndroidKeyManagerTest {
     assertFalse(keyStoreMockOutput.generatedKeyPair)
     assertTrue(encrypter is AESEncrypter)
     assertEquals(keyStoreMockInput.entry, (encrypter as? AESEncrypter)?.entry)
+  }
+
+  @Test
+  fun `Alias not found for previously created encrypter`() {
+    val alias = "test"
+    val template: AESGCMNoPaddingEncrypterTemplate = mock()
+    whenever(template.alias).thenReturn(alias)
+    whenever(template.shouldExist).thenReturn(true)
+    keyStoreMockInput =
+      KeyStoreMockInput(
+          containsAlias = false, entry = null, key = null
+      )
+    exceptionRule.expect(KeyException::class.java)
+    exceptionRule.expectCause(
+        Matchers.instanceOf(
+            IllegalStateException::class.java
+        )
+    )
+    androidKeyManager.encrypter(template)
   }
 }

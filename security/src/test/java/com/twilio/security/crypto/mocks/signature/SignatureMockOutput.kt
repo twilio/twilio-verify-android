@@ -4,10 +4,11 @@
 package com.twilio.security.crypto.mocks.signature
 
 import java.security.PrivateKey
+import java.security.PublicKey
 
 data class SignatureMockOutput(
-  var signatureInitialized: Boolean = false,
-  var signatureDone: Boolean = false,
+  var initialized: Boolean = false,
   var privateKey: PrivateKey? = null,
-  var signatureUpdatedData: ByteArray? = null
+  var publicKey: PublicKey? = null,
+  var updatedData: ByteArray? = null
 )

@@ -13,7 +13,10 @@ sealed class SignerTemplate : Template {
   internal abstract val signatureAlgorithm: String
 }
 
-data class ECP256SignerTemplate(override val alias: String) : SignerTemplate() {
+data class ECP256SignerTemplate(
+  override val alias: String,
+  override val shouldExist: Boolean = false
+) : SignerTemplate() {
   override val algorithm = KeyProperties.KEY_ALGORITHM_EC
   override val keyGenParameterSpec: KeyGenParameterSpec =
     Builder(alias, KeyProperties.PURPOSE_SIGN).setAlgorithmParameterSpec(

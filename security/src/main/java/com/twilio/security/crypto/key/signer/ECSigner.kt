@@ -26,10 +26,20 @@ class ECSigner(
   }
 
   @Throws(KeyException::class)
-  override fun verify(signature: ByteArray): Boolean {
-    TODO(
-        "not implemented"
-    ) //To change body of created functions use File | Settings | File Templates.
+  override fun verify(
+    data: ByteArray,
+    signature: ByteArray
+  ): Boolean {
+    return try {
+      Signature.getInstance(signatureAlgorithm)
+          .run {
+            initVerify(entry.certificate)
+            update(data)
+            verify(signature)
+          }
+    } catch (e: Exception) {
+      throw KeyException(e)
+    }
   }
 
   @Throws(KeyException::class)
