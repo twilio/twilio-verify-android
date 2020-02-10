@@ -34,7 +34,8 @@ class CipherMock : CipherSpi() {
     params: AlgorithmParameterSpec?,
     random: SecureRandom?
   ) {
-    throw NotImplementedError()
+    cipherMockOutput.cipherInitialized = true
+    cipherMockOutput.secretKey = key
   }
 
   override fun engineInit(
@@ -58,7 +59,10 @@ class CipherMock : CipherSpi() {
     if (cipherMockInput.error != null) {
       throw cipherMockInput.error!!
     }
-    return cipherMockInput.encrypted.toByteArray()
+    if (cipherMockInput.encrypted.isNotBlank()) {
+      return cipherMockInput.encrypted.toByteArray()
+    }
+    return cipherMockInput.decrypted.toByteArray()
   }
 
   override fun engineDoFinal(

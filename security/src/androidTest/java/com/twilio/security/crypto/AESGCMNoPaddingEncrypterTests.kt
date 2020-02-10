@@ -4,6 +4,7 @@
 package com.twilio.security.crypto
 
 import com.twilio.security.crypto.key.encrypter.AESEncrypter
+import com.twilio.security.crypto.key.encrypter.EncryptedData
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
 import com.twilio.security.crypto.key.template.EncrypterTemplate
 import org.junit.After
@@ -79,6 +80,21 @@ class AESGCMNoPaddingEncrypterTests {
           init(Cipher.DECRYPT_MODE, key, encryptedData.algorithmParameterSpec)
           doFinal(encryptedData.encrypted)
         }
+    assertTrue(data.contentEquals(decrypted))
+  }
+
+  @Test
+  fun testDecrypt_withEncrypter_shouldReturnData() {
+    val data = "message".toByteArray()
+    val template = AESGCMNoPaddingEncrypterTemplate(alias)
+    val key = createKey(template)
+    val encryptedData = Cipher.getInstance(template.cipherAlgorithm)
+        .run {
+          init(Cipher.ENCRYPT_MODE, key)
+          EncryptedData(parameters.getParameterSpec(template.parameterSpecClass), doFinal(data))
+        }
+    val encrypter = androidKeyManager.encrypter(template)
+    val decrypted = encrypter.decrypt(encryptedData)
     assertTrue(data.contentEquals(decrypted))
   }
 

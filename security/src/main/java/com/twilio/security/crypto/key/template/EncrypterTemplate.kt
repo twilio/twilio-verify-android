@@ -15,7 +15,10 @@ sealed class EncrypterTemplate : Template {
   internal abstract val parameterSpecClass: Class<out AlgorithmParameterSpec>
 }
 
-data class AESGCMNoPaddingEncrypterTemplate(override val alias: String) : EncrypterTemplate() {
+data class AESGCMNoPaddingEncrypterTemplate(
+  override val alias: String,
+  override val shouldExist: Boolean = false
+) : EncrypterTemplate() {
   override val algorithm = KeyProperties.KEY_ALGORITHM_AES
   override val keyGenParameterSpec: KeyGenParameterSpec = Builder(
       alias,
@@ -25,5 +28,6 @@ data class AESGCMNoPaddingEncrypterTemplate(override val alias: String) : Encryp
       .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
       .build()
   override val cipherAlgorithm = "AES/GCM/NoPadding"
-  override val parameterSpecClass: Class<out AlgorithmParameterSpec> = GCMParameterSpec::class.java
+  override val parameterSpecClass: Class<out AlgorithmParameterSpec> =
+    GCMParameterSpec::class.java
 }

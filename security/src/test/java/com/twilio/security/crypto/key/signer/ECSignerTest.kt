@@ -66,7 +66,11 @@ class ECSignerTest {
     signatureMockOutput = SignatureMockOutput()
     val entry: PrivateKeyEntry = mock()
     val privateKey: PrivateKey = mock()
+    val certificate: Certificate = mock()
+    val publicKey: PublicKey = mock()
     whenever(entry.privateKey).thenReturn(privateKey)
+    whenever(entry.certificate).thenReturn(certificate)
+    whenever(certificate.publicKey).thenReturn(publicKey)
     ecSigner = ECSigner(entry, signatureAlgorithm)
   }
 
@@ -76,19 +80,19 @@ class ECSignerTest {
   }
 
   @Test
-  fun `Sign data using algorithm`() {
+  fun `Sign data using algorithm should return signature`() {
     val data = "test".toByteArray()
     val expectedSignature = "signature"
     signatureMockInput.signature = expectedSignature
     val signature = ecSigner.sign(data)
     assertEquals(ecSigner.entry.privateKey, signatureMockOutput.privateKey)
-    assertTrue(signatureMockOutput.signatureInitialized)
-    assertTrue(data.contentEquals(signatureMockOutput.signatureUpdatedData!!))
+    assertTrue(signatureMockOutput.initialized)
+    assertTrue(data.contentEquals(signatureMockOutput.updatedData!!))
     assertTrue(expectedSignature.toByteArray().contentEquals(signature))
   }
 
   @Test
-  fun `Error signing data`() {
+  fun `Error signing data should throw exception`() {
     val data = "test".toByteArray()
     val error: RuntimeException = mock()
     signatureMockInput.error = error
@@ -126,5 +130,33 @@ class ECSignerTest {
       throw KeyException(exception)
     }
     ecSigner.getPublic()
+  }
+
+  @Test
+  fun `Verify signature using algorithm should return true`() {
+    val data = "test".toByteArray()
+    val signature = "signature".toByteArray()
+    val expectedResult = true
+    signatureMockInput.result = expectedResult
+    val result = ecSigner.verify(data, signature)
+    assertEquals(ecSigner.entry.certificate.publicKey, signatureMockOutput.publicKey)
+    assertTrue(signatureMockOutput.initialized)
+    assertTrue(data.contentEquals(signatureMockOutput.updatedData!!))
+    assertEquals(expectedResult, result)
+  }
+
+  @Test
+  fun `Error verifying signature should throw exception`() {
+    val data = "test".toByteArray()
+    val signature = "signature".toByteArray()
+    val error: RuntimeException = mock()
+    signatureMockInput.error = error
+    exceptionRule.expect(KeyException::class.java)
+    exceptionRule.expectCause(
+        Matchers.instanceOf(
+            RuntimeException::class.java
+        )
+    )
+    ecSigner.verify(data, signature)
   }
 }

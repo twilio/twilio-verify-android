@@ -7,6 +7,7 @@ import java.security.AlgorithmParameters
 
 data class CipherMockInput(
   var encrypted: String = "",
+  var decrypted: String = "",
   var error: RuntimeException? = null,
   var algorithmParameters: AlgorithmParameters? = null
 )

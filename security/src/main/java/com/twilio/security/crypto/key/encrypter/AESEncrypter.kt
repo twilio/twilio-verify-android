@@ -26,8 +26,14 @@ class AESEncrypter(
   }
 
   override fun decrypt(data: EncryptedData): ByteArray {
-    TODO(
-        "not implemented"
-    ) //To change body of created functions use File | Settings | File Templates.
+    return try {
+      Cipher.getInstance(cipherAlgorithm)
+          .run {
+            init(Cipher.DECRYPT_MODE, entry.secretKey, data.algorithmParameterSpec)
+            doFinal(data.encrypted)
+          }
+    } catch (e: Exception) {
+      throw KeyException(e)
+    }
   }
 }
