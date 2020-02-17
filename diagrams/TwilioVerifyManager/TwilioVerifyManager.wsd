@@ -1,8 +1,9 @@
 @startuml TwilioVerifySDK
 interface TwilioVerify {
-    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (exception: TwilioVerifyException)->())
-    getChallenge(challengeSid: String, success: (Challenge) -> (), error: (exception: TwilioVerifyException)->())
-    verifyChallenge(challenge: Challenge, success: (Challenge) -> (), error: (exception: TwilioVerifyException)->())
+    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (TwilioVerifyException)->())
+    verifyFactor(verifyFactorInput: VerifyFactorInput, success: (Factor) -> (), error: (TwilioVerifyException)->())
+    getChallenge(challengeSid: String, success: (Challenge) -> (), error: (TwilioVerifyException)->())
+    verifyChallenge(challenge: Challenge, success: (Challenge) -> (), error: (TwilioVerifyException)->())
 }
 class TwilioVerify.Builder {
          authorization: Authorization
@@ -14,7 +15,8 @@ class Domain.TwilioVerifyManager implements TwilioVerify {
     
 }
 class Domain.Factor.FactorFacade {
-    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (exception: TwilioVerifyException)->())
+    createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (TwilioVerifyException)->())
+    verifyFactor(verifyFactorInput: VerifyFactorInput, success: (Factor) -> (), error: (TwilioVerifyException)->())
 }
 interface FactorInput {
     friendlyName: String
@@ -22,6 +24,13 @@ interface FactorInput {
 class PushFactorInput implements FactorInput {
     pushToken: String
     jwt: String
+}
+interface VerifyFactorInput {
+    sid: String
+}
+
+class VerifyPushFactorInput implements VerifyFactorInput {
+    
 }
 
 class TwilioVerifyException extends Exception {

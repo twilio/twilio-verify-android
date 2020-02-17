@@ -2,6 +2,10 @@
 enum Models.FactorType {
     push
 }
+enum Models.FactorStatus {
+    Verified("verified"),
+    Unverified("unverified")
+}
 interface Models.Factor {
     sid: String
     friendlyName: String
@@ -10,9 +14,10 @@ interface Models.Factor {
     entitySid: String
     entityId: String
     type: FactorType
+    status: FactorStatus
 }
 class Domain.Factor.Models.PushFactor implements Models.Factor {
-    keyPairAlias: String
+    keyPairAlias: String?
 }
 class Domain.Factor.Models.FactorPayload {
     friendlyName: String
@@ -22,41 +27,44 @@ class Domain.Factor.Models.FactorPayload {
     entityId: String
 }
 class Domain.Factor.FactorMapper {
-    fromApi(jsonObject: JSONObject, factorPayload: FactorPayload): Factor?
-    fromStorage(json: String): Factor?
+    fromApi(jsonObject: JSONObject, factorPayload: FactorPayload): Factor
+    fromStorage(json: String): Factor
     toJSON(factor: Factor): String
+    status(jsonObject: JSONObject): FactorStatus
 }
 class API.FactorAPIClient {
-    create(factorPayload: FactorPayload, success: (JSONObject)->(), error: ()->())
-    verify(factor: Factor, authPayload: String, success: ()->(), error: ()->())
+    create(factorPayload: FactorPayload, success: (JSONObject)->(), error: (TwilioVerifyException)->())
+    verify(factor: Factor, authPayload: String, success: (JSONObject)->(), error: (TwilioVerifyException)->())
 }
 class Network.NetworkAdapter implements Network.NetworkProvider {
 
 }
 interface Data.StorageProvider {
     save(key: String, value: Object)
+    get(key: String): Object?
 }
 class Data.Storage implements Data.StorageProvider {
 
 }
 interface Data.KeyStorage {
-    create(alias: String): String?
-    sign(alias: String, message: String): String?
+    create(alias: String): String
+    sign(alias: String, message: String): String
 }
 class Data.KeyStoreAdapter implements Data.KeyStorage {
 
 }
 interface Domain.Factor.FactorProvider {
-    create(factorPayload: FactorPayload, success: (Factor?)->())
+    create(factorPayload: FactorPayload, success: (Factor?)->(), error: (TwilioVerifyException)->())
     get(sid: String): Factor?
     update(factor: Factor): Factor?
-    verify(factor: Factor, authPayload: String, success: ()->())
+    verify(factor: Factor, payload: String, success: (Factor)->(), error: (TwilioVerifyException)->())
 }
 class Domain.Factor.FactorRepository implements Domain.Factor.FactorProvider {
 
 }
 class Domain.Factor.PushFactory {
-    create(jwt: String, friendlyName: String, pushToken: String, success: (Factor?)->())
+    create(jwt: String, friendlyName: String, pushToken: String, success: (Factor)->(), error: (TwilioVerifyException)->())
+    verify(sid: String, , success: (Factor)->(), error: (TwilioVerifyException)->())
 }
 Domain.Factor.PushFactory o-left-> Data.KeyStorage: create key pair
 Domain.Factor.PushFactory o--> Domain.Factor.FactorProvider: create/update factor
