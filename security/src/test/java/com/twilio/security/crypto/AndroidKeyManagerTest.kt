@@ -302,4 +302,44 @@ class AndroidKeyManagerTest {
     )
     androidKeyManager.encrypter(template)
   }
+
+  @Test
+  fun `Delete alias should delete it from keystore`() {
+    val alias = "test"
+    keyStoreMockInput =
+      KeyStoreMockInput(
+          containsAlias = true, entry = mock<PrivateKeyEntry>(), key = null
+      )
+    androidKeyManager.delete(alias)
+    assertEquals(alias, keyStoreMockOutput.deletedAlias)
+  }
+
+  @Test
+  fun `Delete non-existing alias should not call delete from keystore`() {
+    val alias = "test"
+    keyStoreMockInput =
+      KeyStoreMockInput(
+          containsAlias = false, entry = null, key = null
+      )
+    androidKeyManager.delete(alias)
+    assertTrue(keyStoreMockOutput.deletedAlias.isNullOrEmpty())
+  }
+
+  @Test
+  fun `Error deleting alias should throw exception`() {
+    val alias = "test"
+    val error: RuntimeException = mock()
+    keyStoreMockInput =
+      KeyStoreMockInput(
+          containsAlias = true, entry = mock<PrivateKeyEntry>(), key = null,
+          error = error
+      )
+    exceptionRule.expect(KeyException::class.java)
+    exceptionRule.expectCause(
+        Matchers.instanceOf(
+            RuntimeException::class.java
+        )
+    )
+    androidKeyManager.delete(alias)
+  }
 }

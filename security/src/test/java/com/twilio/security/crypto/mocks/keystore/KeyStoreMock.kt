@@ -37,7 +37,10 @@ class KeyStoreMock : KeyStoreSpi() {
   }
 
   override fun engineDeleteEntry(alias: String?) {
-    throw NotImplementedError()
+    if (keyStoreMockInput.error != null) {
+      throw keyStoreMockInput.error!!
+    }
+    keyStoreMockOutput.deletedAlias = alias
   }
 
   override fun engineSetKeyEntry(
