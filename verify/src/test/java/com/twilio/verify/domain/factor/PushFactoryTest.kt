@@ -332,6 +332,7 @@ class PushFactoryTest {
   @Test
   fun `Verify factor with stored factor should call success`() {
     val sid = "sid"
+    val verificationCode = "verificationCode"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entitySid = "entitySid"
     val friendlyName = "factor name"
@@ -342,14 +343,14 @@ class PushFactoryTest {
     val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    whenever(keyStorage.sign(eq(keyPairAlias), eq(factor.sid))).thenReturn(payload)
+    whenever(keyStorage.sign(eq(keyPairAlias), eq(verificationCode))).thenReturn(payload)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.verify(eq(factor), eq(payload), capture(), any())).then {
         firstValue.invoke(factor)
       }
     }
     counter.incrementAndGet()
-    pushFactory.verify(sid, {
+    pushFactory.verify(sid, verificationCode, {
       assertEquals(serviceSid, it.serviceSid)
       assertEquals(friendlyName, it.friendlyName)
       assertEquals(Push, it.type)
@@ -357,7 +358,7 @@ class PushFactoryTest {
       assertEquals(accountSid, it.accountSid)
       assertEquals(entitySid, it.entitySid)
       assertEquals(sid, it.sid)
-      verify(keyStorage).sign(keyPairAlias, factor.sid)
+      verify(keyStorage).sign(keyPairAlias, verificationCode)
       counter.decrementAndGet()
     }, {
       fail()
@@ -369,6 +370,7 @@ class PushFactoryTest {
   @Test
   fun `Verify factor without stored factor should call error`() {
     val sid = "sid"
+    val verificationCode = "verificationCode"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entitySid = "entitySid"
     val friendlyName = "factor name"
@@ -379,7 +381,7 @@ class PushFactoryTest {
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(null)
     counter.incrementAndGet()
-    pushFactory.verify(sid, {
+    pushFactory.verify(sid, verificationCode, {
       fail()
       counter.decrementAndGet()
     }, { exception ->
@@ -392,6 +394,7 @@ class PushFactoryTest {
   @Test
   fun `Verify factor with API error should call error`() {
     val sid = "sid"
+    val verificationCode = "verificationCode"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entitySid = "entitySid"
     val friendlyName = "factor name"
@@ -402,7 +405,7 @@ class PushFactoryTest {
     val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    whenever(keyStorage.sign(eq(keyPairAlias), eq(factor.sid))).thenReturn(payload)
+    whenever(keyStorage.sign(eq(keyPairAlias), eq(verificationCode))).thenReturn(payload)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorProvider.verify(eq(factor), eq(payload), any(), capture())).then {
@@ -410,7 +413,7 @@ class PushFactoryTest {
       }
     }
     counter.incrementAndGet()
-    pushFactory.verify(sid, {
+    pushFactory.verify(sid, verificationCode, {
       fail()
       counter.decrementAndGet()
     }, { exception ->
@@ -423,6 +426,7 @@ class PushFactoryTest {
   @Test
   fun `Verify factor with null alias should call error`() {
     val sid = "sid"
+    val verificationCode = "verificationCode"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entitySid = "entitySid"
     val friendlyName = "factor name"
@@ -433,7 +437,7 @@ class PushFactoryTest {
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
     counter.incrementAndGet()
-    pushFactory.verify(sid, {
+    pushFactory.verify(sid, verificationCode, {
       fail()
       counter.decrementAndGet()
     }, { exception ->

@@ -10,7 +10,7 @@ import com.twilio.verify.models.Factor
 internal class FactorChallenge(
   override val sid: String,
   override val details: LinkedHashMap<String, String>,
-  override val hiddenDetails: LinkedHashMap<String, String>,
+  override val hiddenDetails: String,
   override val factorSid: String,
   override var status: ChallengeStatus
 ) : Challenge {

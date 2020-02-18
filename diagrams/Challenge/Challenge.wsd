@@ -2,7 +2,7 @@
 interface Models.Challenge {
     sid: String
     details: LinkedHashMap<String, String>
-    hiddenDetails: LinkedHashMap<String, String>
+    hiddenDetails: String
     factorSid: String
     status: ChallengeStatus
 }

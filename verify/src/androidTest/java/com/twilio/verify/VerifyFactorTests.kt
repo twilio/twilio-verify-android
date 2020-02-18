@@ -53,7 +53,8 @@ class VerifyFactorTests : BaseServerTest() {
   @Test
   fun testVerifyFactorWithValidAPIResponseShouldReturnFactor() {
     val sid = "sid"
-    val verifyInput = VerifyPushFactorInput(sid)
+    val verificationCode = "verificationCode"
+    val verifyInput = VerifyPushFactorInput(sid, verificationCode)
     enqueueMockResponse(200, APIResponses.verifyValidFactorResponse())
     idlingResource.increment()
     twilioVerify.verifyFactor(verifyInput, {
@@ -69,7 +70,8 @@ class VerifyFactorTests : BaseServerTest() {
   @Test
   fun testVerifyFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
     val sid = "sid"
-    val verifyInput = VerifyPushFactorInput(sid)
+    val verificationCode = "verificationCode"
+    val verifyInput = VerifyPushFactorInput(sid, verificationCode)
     val expectedException = TwilioVerifyException(
         NetworkException(null, null),
         NetworkError
@@ -89,7 +91,8 @@ class VerifyFactorTests : BaseServerTest() {
   @Test
   fun testVerifyFactorWithInvalidAPIResponseBodyShouldThrowMapperError() {
     val sid = "sid"
-    val verifyInput = VerifyPushFactorInput(sid)
+    val verificationCode = "verificationCode"
+    val verifyInput = VerifyPushFactorInput(sid, verificationCode)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(null, null),
         MapperError
@@ -111,6 +114,7 @@ class VerifyFactorTests : BaseServerTest() {
     tearDown()
     super.before()
     val sid = "sid"
+    val verificationCode = "verificationCode"
     val friendlyName = "friendlyName"
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
@@ -125,7 +129,7 @@ class VerifyFactorTests : BaseServerTest() {
     twilioVerify.createFactor(factorInput, {
       keyPairAlias = (it as PushFactor).keyPairAlias
       idlingResource.decrement()
-      val verifyInput = VerifyPushFactorInput(sid)
+      val verifyInput = VerifyPushFactorInput(sid, verificationCode)
       idlingResource.increment()
       httpsURLConnection =
         URL(mockWebServer.url("/").toString()).openConnection() as HttpURLConnection
