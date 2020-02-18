@@ -63,7 +63,7 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.create(
-        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123"),
+        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123"),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
         }, {
@@ -80,7 +80,7 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.create(
-        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123"), {
+        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123"), {
       fail()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
@@ -89,7 +89,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Error creating a factor should call error`() {
-    val factorPayload = FactorPayload("factor name", Push, emptyMap(), "serviceSid", "entityId")
+    val factorPayload = FactorPayload("factor name", Push, emptyMap(), "serviceSid", "entitySid")
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
       fail()
@@ -103,10 +103,10 @@ class FactorAPIClientTest {
   @Test
   fun `Create factor request should match to the expected params`() {
     val serviceSid = "serviceSid"
-    val entityId = "userId"
+    val entitySid = "entitySid"
     val expectedURL = createFactorURL.replace(serviceSidPath, serviceSid, true)
         .replace(
-            entityIdPath, entityId, true
+            entitySidPath, entitySid, true
         )
     val friendlyNameMock = "Test"
     val factorTypeMock = Push
@@ -125,7 +125,7 @@ class FactorAPIClientTest {
       FactorPayload(
           friendlyNameMock, factorTypeMock,
           mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey), serviceSid,
-          entityId
+          entitySid
       )
 
     factorAPIClient.create(factorPayload, {}, {})
@@ -159,7 +159,6 @@ class FactorAPIClientTest {
             "accountSid",
             "serviceSid",
             "entitySid",
-            "entityId",
             Unverified
         ),
         "authyPayload",
@@ -185,7 +184,6 @@ class FactorAPIClientTest {
             "accountSid",
             "serviceSid",
             "entitySid",
-            "entityId",
             Unverified
         ),
         "authyPayload", {
@@ -202,11 +200,10 @@ class FactorAPIClientTest {
     val accountSidMock = "accountSid"
     val serviceSidMock = "serviceSid"
     val entitySidMock = "entitySid"
-    val entityIdMock = "entityId"
     val authPayloadMock = "authPayload"
     val expectedURL = verifyFactorURL.replace(serviceSidPath, serviceSidMock, true)
         .replace(
-            entityIdPath, entityIdMock, true
+            entitySidPath, entitySidMock, true
         )
         .replace(factorSidPath, sidMock)
 
@@ -218,7 +215,6 @@ class FactorAPIClientTest {
           accountSidMock,
           serviceSidMock,
           entitySidMock,
-          entityIdMock,
           Unverified
       )
 
