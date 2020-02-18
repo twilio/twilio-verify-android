@@ -38,7 +38,7 @@ references:
   assemble_build: &assemble_build
     run:
       name: Assemble Build
-      command: ./gradlew assembleDebug assembleDebugAndroidTest
+      command: ./gradlew assembleDebug assembleDebugAndroidTest :security::assembleDebugAndroidTest
 
   #Firebase Test Lab
   store_google_service_account: &store_google_service_account
@@ -66,6 +66,7 @@ jobs:
       - *save_gradle_cache
       - run: mkdir -p ~/code/builds
       - run: cp verify/build/outputs/apk/androidTest/debug/verify-debug-androidTest.apk ~/code/builds
+      - run: cp security/build/outputs/apk/androidTest/debug/security-debug-androidTest.apk ~/code/builds
       - persist_to_workspace:
           root: .
           paths:
@@ -80,7 +81,7 @@ jobs:
           name: Running Unit Tests
           command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
       - *save_gradle_cache
-  instrumentation_tests_single_device:
+  security_instrumentation_tests_single_device:
     <<: *android_config
     steps:
       - checkout
@@ -89,10 +90,22 @@ jobs:
       - *store_google_service_account
       - *authorize_gcloud
       - run:
-          name: Run integration tests on single device
+          name: Run security integration tests on single device
           command: 
-            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ~/code/verify/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
-  instrumentation_tests_multiple_devices:
+            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ~/code/ftl/dummy.apk --test ~/code/builds/security-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+  verify_instrumentation_tests_single_device:
+    <<: *android_config
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - *store_google_service_account
+      - *authorize_gcloud
+      - run:
+          name: Run verify integration tests on single device
+          command: 
+            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ~/code/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+  security_instrumentation_tests_multiple_devices:
     <<: *android_config
     steps:
       - checkout
@@ -102,11 +115,26 @@ jobs:
       - *authorize_gcloud
       - run:
           name: Replace ftl yaml build values
-          command: sed -i -e 's/{{test_build}}/builds\/verify-debug-androidTest.apk/g' ftl-config.yaml
+          command: sed -i -e 's/{{test_build}}/builds\/security-debug-androidTest.apk/g' ftl/security-ftl-config.yaml
       - run:
-          name: Run integration tests on multiple devices
+          name: Run security integration tests on multiple devices
           command:
-            sudo gcloud firebase test android run --project twilio-firebase-266721 ftl-config.yaml:twilio-verify-tests
+            sudo gcloud firebase test android run --project twilio-firebase-266721 ftl/security-ftl-config.yaml:twilio-security-tests
+  verify_instrumentation_tests_multiple_devices:
+    <<: *android_config
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - *store_google_service_account
+      - *authorize_gcloud
+      - run:
+          name: Replace ftl yaml build values
+          command: sed -i -e 's/{{test_build}}/builds\/verify-debug-androidTest.apk/g' ftl/verify-ftl-config.yaml
+      - run:
+          name: Run verify integration tests on multiple devices
+          command:
+            sudo gcloud firebase test android run --project twilio-firebase-266721 ftl/verify-ftl-config.yaml:twilio-verify-tests
 
 workflows:
   version: 2
@@ -117,10 +145,17 @@ workflows:
       - unit_tests:
           requires:
             - assemble_build
-      - instrumentation_tests_single_device:
+      - security_instrumentation_tests_single_device:
           requires:
             - assemble_build
-      - instrumentation_tests_multiple_devices:
+      - verify_instrumentation_tests_single_device:
+          requires:
+            - assemble_build
+      - security_instrumentation_tests_multiple_devices:
           requires:
             - unit_tests 
-            - instrumentation_tests_single_device
+            - security_instrumentation_tests_single_device
+      - verify_instrumentation_tests_multiple_devices:
+          requires:
+            - unit_tests 
+            - verify_instrumentation_tests_single_device

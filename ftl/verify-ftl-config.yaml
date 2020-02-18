@@ -1,0 +1,14 @@
+twilio-verify-tests:
+    timeout: 30m
+    type: instrumentation
+    app: ftl/dummy.apk
+    test: {{test_build}}
+    device:
+        # Moto G4 Plus
+        - {model: athene, version: 23, locale: en, orientation: portrait}
+        # Samsung Galaxy S9+ (US)
+        - {model: star2qlteue, version: 26, locale: en, orientation: portrait}
+        # Pixel 2
+        - {model: walleye, version: 27, locale: en, orientation: portrait}
+        # Pixel 3
+        - {model: blueline, version: 29, locale: en, orientation: portrait}

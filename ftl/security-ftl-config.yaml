@@ -1,7 +1,7 @@
-twilio-verify-tests:
+twilio-security-tests:
     timeout: 30m
     type: instrumentation
-    app: verify/ftl/dummy.apk
+    app: ftl/dummy.apk
     test: {{test_build}}
     device:
         # Pixel 2
