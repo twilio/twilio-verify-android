@@ -1,5 +1,6 @@
 package com.twilio.verify
 
+import androidx.test.espresso.idling.CountingIdlingResource
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
@@ -12,6 +13,7 @@ import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.networking.NetworkException
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -24,6 +26,8 @@ import java.security.KeyStore
 
 class CreateFactorTests : BaseServerTest() {
 
+  private val idlingResource = CountingIdlingResource("VerifyFactorTests")
+
   @Test
   fun testCreateFactorWithValidJWTAndValidAPIResponseShouldReturnFactor() {
     val friendlyName = "friendlyName"
@@ -35,6 +39,7 @@ class CreateFactorTests : BaseServerTest() {
         "0.QWrQhpdrJTtXXFwDX9LL4wCy43SWhjS-w5p9C6bcsTk"
     val factorInput = PushFactorInput(friendlyName, "pushToken", jwt)
     enqueueMockResponse(200, APIResponses.createValidFactorResponse())
+    idlingResource.increment()
     twilioVerify.createFactor(factorInput, {
       assertEquals(friendlyName, it.friendlyName)
       assertTrue(it is PushFactor)
@@ -43,9 +48,12 @@ class CreateFactorTests : BaseServerTest() {
       assertNotNull(keyPairAlias)
       checkFactorWasStored(it)
       checkKeyPairWasCreated(it)
+      idlingResource.decrement()
     }, {
       fail()
+      idlingResource.decrement()
     })
+    idlingResource.waitForResource()
   }
 
   private fun checkFactorWasStored(factor: Factor) {
@@ -83,11 +91,15 @@ class CreateFactorTests : BaseServerTest() {
         InputError
     )
     enqueueMockResponse(200, APIResponses.createValidFactorResponse())
+    idlingResource.increment()
     twilioVerify.createFactor(factorInput, {
       fail()
+      idlingResource.decrement()
     }, { exception ->
       assertEquals(expectedException.message, exception.message)
+      idlingResource.decrement()
     })
+    idlingResource.waitForResource()
   }
 
   @Test
@@ -105,11 +117,16 @@ class CreateFactorTests : BaseServerTest() {
         NetworkError
     )
     enqueueMockResponse(400, APIResponses.createValidFactorResponse())
+    idlingResource.increment()
     twilioVerify.createFactor(factorInput, {
       fail()
+      idlingResource.decrement()
     }, { exception ->
       assertEquals(expectedException.message, exception.message)
+      assertFalse(keyStore.aliases().hasMoreElements())
+      idlingResource.decrement()
     })
+    idlingResource.waitForResource()
   }
 
   @Test
@@ -127,10 +144,14 @@ class CreateFactorTests : BaseServerTest() {
         MapperError
     )
     enqueueMockResponse(200, APIResponses.createInvalidFactorResponse())
+    idlingResource.increment()
     twilioVerify.createFactor(factorInput, {
       fail()
+      idlingResource.decrement()
     }, { exception ->
       assertEquals(expectedException.message, exception.message)
+      idlingResource.decrement()
     })
+    idlingResource.waitForResource()
   }
 }

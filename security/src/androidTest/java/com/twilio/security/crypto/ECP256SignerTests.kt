@@ -7,6 +7,7 @@ import com.twilio.security.crypto.key.signer.ECSigner
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -110,6 +111,15 @@ class ECP256SignerTests {
     val signer = androidKeyManager.signer(template)
     val valid = signer.verify(data, signature)
     assertTrue(valid)
+  }
+
+  @Test
+  fun testDelete_withExistingKeyPair_shouldDeleteAlias() {
+    val template = ECP256SignerTemplate(alias)
+    createKeyPair(template)
+    assertTrue(keyStore.containsAlias(alias))
+    androidKeyManager.delete(alias)
+    assertFalse(keyStore.containsAlias(alias))
   }
 
   private fun createKeyPair(template: SignerTemplate): KeyPair {

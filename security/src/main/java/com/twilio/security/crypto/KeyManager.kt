@@ -15,9 +15,12 @@ interface KeyManager {
 
   @Throws(KeyException::class)
   fun encrypter(template: EncrypterTemplate): Encrypter
+
+  @Throws(KeyException::class)
+  fun delete(alias: String)
 }
 
 internal const val providerName = "AndroidKeyStore"
 
 fun keyManager(): KeyManager =
-  AndroidKeyManager(KeyStore.getInstance(providerName).apply { load(null) })
+  AndroidKeyManager(KeyStore.getInstance(providerName).apply { load(null) }, providerName)

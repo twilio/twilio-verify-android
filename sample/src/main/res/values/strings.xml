@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TwilioVerify</string>
+  <string name="create_factor">Create factor</string>
+  <string name="create_factor_coroutines">Create factor \nusing coroutines</string>
 </resources>

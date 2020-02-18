@@ -9,4 +9,6 @@ interface KeyStorage {
     alias: String,
     message: String
   ): String
+
+  fun delete(alias: String)
 }

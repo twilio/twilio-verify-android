@@ -1,0 +1,38 @@
+@startuml Challenge
+interface Models.Challenge {
+    sid: String
+    details: LinkedHashMap<String, String>
+    hiddenDetails: LinkedHashMap<String, String>
+    factorSid: String
+    status: ChallengeStatus
+}
+class FactorChallenge implements Models.Challenge  {
+    factor: Factor
+}
+enum Models.ChallengeStatus {
+
+}
+class Domain.Challenge.ChallengeMapper {
+    fromApi(jsonObject: JSONObject): Challenge
+}
+class API.ChallengeAPIClient {
+    get(sid: String, success: (JSONObject)->(), error: (TwilioVerifyException)->())
+    update(challenge: Challenge, authPayload: String, success: ()->(), error: (TwilioVerifyException)->())
+}
+interface Domain.Challenge.ChallengeProvider {
+    get(sid: String, success: (Challenge)->(), error: (TwilioVerifyException)->())
+    update(challenge: Challenge, authPayload: String, success: (Challenge)->(), error: (TwilioVerifyException)->())
+}
+class Domain.Challenge.ChallengeRepository implements Domain.Challenge.ChallengeProvider {
+
+}
+class Domain.Challenge.PushChallengeProcessor {
+    get(sid: String, factorSid: String, success: (Challenge)->(), error: (TwilioVerifyException)->())
+    update(sid: String, factorSid: String, status: ChallengeStatus, success: ()->(), error: (TwilioVerifyException)->())
+}
+Domain.Challenge.ChallengeRepository o--> Domain.Challenge.ChallengeMapper: map response
+Domain.Challenge.ChallengeRepository o--> API.ChallengeAPIClient: get/update challenge
+Domain.Challenge.PushChallengeProcessor o--> Domain.Challenge.ChallengeRepository: get/update challenge
+Domain.Challenge.PushChallengeProcessor o--> Domain.Factor.FactorRepository: get factor
+Domain.Challenge.PushChallengeProcessor o--> Data.KeyStorage: calculate signature
+@enduml

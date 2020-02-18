@@ -9,6 +9,7 @@ import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
 import com.twilio.security.crypto.key.template.EncrypterTemplate
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -96,6 +97,15 @@ class AESGCMNoPaddingEncrypterTests {
     val encrypter = androidKeyManager.encrypter(template)
     val decrypted = encrypter.decrypt(encryptedData)
     assertTrue(data.contentEquals(decrypted))
+  }
+
+  @Test
+  fun testDelete_withExistingKeyPair_shouldDeleteAlias() {
+    val template = AESGCMNoPaddingEncrypterTemplate(alias)
+    createKey(template)
+    assertTrue(keyStore.containsAlias(alias))
+    androidKeyManager.delete(alias)
+    assertFalse(keyStore.containsAlias(alias))
   }
 
   private fun createKey(template: EncrypterTemplate): SecretKey {
