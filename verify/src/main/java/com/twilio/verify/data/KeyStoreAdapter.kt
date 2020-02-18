@@ -28,10 +28,10 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     message: String
   ): String {
     return try {
-      String(
+      Base64.encodeToString(
           manager.signer(ECP256SignerTemplate(alias, shouldExist = true)).sign(
               message.toByteArray()
-          )
+          ), NO_WRAP
       )
     } catch (e: Exception) {
       throw TwilioVerifyException(e, KeyStorageError)
