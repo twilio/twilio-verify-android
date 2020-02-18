@@ -19,7 +19,7 @@ import javax.crypto.KeyGenerator
 
 class AndroidKeyManager(
   private val keyStore: KeyStore,
-  private val provider: String = keyStore.provider.name
+  private val provider: String
 ) : KeyManager {
 
   @Throws(KeyException::class)
@@ -73,6 +73,17 @@ class AndroidKeyManager(
         is AESGCMNoPaddingEncrypterTemplate -> AESEncrypter(
             entry, template.cipherAlgorithm, template.parameterSpecClass
         )
+      }
+    } catch (e: Exception) {
+      throw KeyException(e)
+    }
+  }
+
+  @Throws(KeyException::class)
+  override fun delete(alias: String) {
+    try {
+      if (keyStore.containsAlias(alias)) {
+        keyStore.deleteEntry(alias)
       }
     } catch (e: Exception) {
       throw KeyException(e)

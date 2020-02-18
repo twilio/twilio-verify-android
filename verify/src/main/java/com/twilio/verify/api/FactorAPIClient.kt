@@ -8,8 +8,15 @@ import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.publicKeyKey
 import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.*
+import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.MediaTypeHeader
+import com.twilio.verify.networking.MediaTypeValue
+import com.twilio.verify.networking.NetworkAdapter
+import com.twilio.verify.networking.NetworkException
+import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.RequestHelper
 import org.json.JSONObject
 
 /*

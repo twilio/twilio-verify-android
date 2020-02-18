@@ -52,6 +52,7 @@ class NetworkAdapter(private var urlConnection: HttpURLConnection? = null) : Net
       error(NetworkException(e))
     } finally {
       urlConnection?.disconnect()
+      urlConnection = null
     }
   }
 }
