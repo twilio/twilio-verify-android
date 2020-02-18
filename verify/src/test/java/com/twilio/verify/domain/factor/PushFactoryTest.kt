@@ -44,7 +44,7 @@ class PushFactoryTest {
   @Test
   fun `Create factor with valid JWT should call success lambda`() {
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
-    val entityId = "1"
+    val entitySid = "1"
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
         "ZpY2Vfc2lkIjoiSVNiYjc4MjNhYTVkY2NlOTA0NDNmODU2NDA2YWJkNzAwMCIsImVudGl0eV9pZCI6IjEiLCJmYW" +
@@ -62,7 +62,7 @@ class PushFactoryTest {
         return@then publicKey
       }
     }
-    val pushFactor = PushFactor("1", friendlyName, "1", serviceSid, entityId, entityId)
+    val pushFactor = PushFactor("1", friendlyName, "1", serviceSid, entitySid)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.create(any(), capture(), any())).then {
         firstValue.invoke(pushFactor)
@@ -73,7 +73,7 @@ class PushFactoryTest {
       verify(factorProvider).create(check { pushFactor ->
         assertEquals(binding, pushFactor.binding)
         assertEquals(serviceSid, pushFactor.serviceSid)
-        assertEquals(entityId, pushFactor.entityId)
+        assertEquals(entitySid, pushFactor.entitySid)
         assertEquals(friendlyName, pushFactor.friendlyName)
       }, any(), any())
       verify(factorProvider).update(check {
@@ -334,13 +334,12 @@ class PushFactoryTest {
     val sid = "sid"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entitySid = "entitySid"
-    val entityId = "1"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
     val keyPairAlias = "keyPairAlias"
     val payload = "payload"
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
     whenever(keyStorage.sign(eq(keyPairAlias), eq(factor.sid))).thenReturn(payload)
@@ -352,7 +351,6 @@ class PushFactoryTest {
     counter.incrementAndGet()
     pushFactory.verify(sid, {
       assertEquals(serviceSid, it.serviceSid)
-      assertEquals(entityId, it.entityId)
       assertEquals(friendlyName, it.friendlyName)
       assertEquals(Push, it.type)
       assertEquals(status, it.status)
@@ -373,12 +371,11 @@ class PushFactoryTest {
     val sid = "sid"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entitySid = "entitySid"
-    val entityId = "1"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
     val keyPairAlias = "keyPairAlias"
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(null)
     counter.incrementAndGet()
@@ -397,13 +394,12 @@ class PushFactoryTest {
     val sid = "sid"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entitySid = "entitySid"
-    val entityId = "1"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
     val keyPairAlias = "keyPairAlias"
     val payload = "payload"
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
     whenever(keyStorage.sign(eq(keyPairAlias), eq(factor.sid))).thenReturn(payload)
@@ -429,12 +425,11 @@ class PushFactoryTest {
     val sid = "sid"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entitySid = "entitySid"
-    val entityId = "1"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
     val keyPairAlias = null
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, entityId, status)
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
     counter.incrementAndGet()

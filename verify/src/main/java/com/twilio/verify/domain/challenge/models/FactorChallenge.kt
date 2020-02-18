@@ -14,5 +14,5 @@ internal class FactorChallenge(
   override val factorSid: String,
   override var status: ChallengeStatus
 ) : Challenge {
-  var factor: Factor? = null
+  internal var factor: Factor? = null
 }

@@ -11,7 +11,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.verify.domain.factor.accountSidKey
-import com.twilio.verify.domain.factor.entityIdKey
 import com.twilio.verify.domain.factor.entitySidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -118,7 +117,6 @@ class TwilioVerifyTest {
         .put(accountSidKey, "accountSid123")
         .put(entitySidKey, "entitySid123")
         .put(serviceSidKey, "serviceSid")
-        .put(entityIdKey, "entityId")
         .put(statusKey, FactorStatus.Verified.value)
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +

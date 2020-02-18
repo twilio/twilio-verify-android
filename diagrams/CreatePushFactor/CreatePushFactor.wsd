@@ -12,7 +12,6 @@ interface Models.Factor {
     accountSid: String
     serviceSid: String
     entitySid: String
-    entityId: String
     type: FactorType
     status: FactorStatus
 }
@@ -24,7 +23,7 @@ class Domain.Factor.Models.FactorPayload {
     type: FactorType
     binding: Dictionary
     serviceSid: String
-    entityId: String
+    entitySid: String
 }
 class Domain.Factor.FactorMapper {
     fromApi(jsonObject: JSONObject, factorPayload: FactorPayload): Factor
