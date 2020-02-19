@@ -10,8 +10,6 @@ import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.HttpMethod.Post
-import com.twilio.verify.networking.MediaTypeHeader
-import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
@@ -22,27 +20,23 @@ import org.json.JSONObject
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-
-internal const val serviceSidPath = "{ServiceSid}"
-internal const val entityIdPath = "{EntityId}"
-internal const val factorSidPath = "{FactorSid}"
 internal const val createFactorURL =
   "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entityIdPath/Factors"
 internal const val verifyFactorURL =
   "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entityIdPath/Factors/$factorSidPath"
+
+internal const val applicationKey = "application"
+internal const val typeKey = "type"
+internal const val fcmPushType = "fcm"
 internal const val friendlyName = "FriendlyName"
 internal const val factorType = "FactorType"
 internal const val binding = "Binding"
-internal const val authPayloadParam = "AuthPayload"
-internal const val typeKey = "type"
-internal const val applicationKey = "application"
-internal const val fcmPushType = "fcm"
 
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
   private val authorization: Authorization
-) {
+) : APIClient() {
 
   fun create(
     factorPayload: FactorPayload,
@@ -56,7 +50,7 @@ internal class FactorAPIClient(
           createFactorURL(factorPayload)
       )
           .httpMethod(Post)
-          .headers(headers().toMutableMap())
+          .headers(postMediaTypeHeaders().toMutableMap())
           .body(createFactorBody(factorPayload, context))
           .build()
       networkProvider.execute(request, {
@@ -79,7 +73,7 @@ internal class FactorAPIClient(
       val requestHelper = RequestHelper(context, authorization)
       val request = Request.Builder(requestHelper, verifyFactorURL(factor))
           .httpMethod(Post)
-          .headers(headers().toMutableMap())
+          .headers(postMediaTypeHeaders().toMutableMap())
           .body(verifyFactorBody(authPayload))
           .build()
       networkProvider.execute(request, {
@@ -103,12 +97,6 @@ internal class FactorAPIClient(
         .replace(
             entityIdPath, factor.entityId, true
         ).replace(factorSidPath, factor.sid)
-
-  private fun headers(): Map<String, String> =
-    mapOf(
-        MediaTypeHeader.Accept.type to MediaTypeValue.Json.type,
-        MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
-    )
 
   private fun createFactorBody(
     factorPayload: FactorPayload,
