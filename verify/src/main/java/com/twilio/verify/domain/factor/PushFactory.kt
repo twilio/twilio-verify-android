@@ -44,9 +44,10 @@ internal class PushFactory(
         val publicKey = keyStorage.create(alias)
         val factorBuilder = FactorPayload(
             friendlyName, Push, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey),
-            enrollmentJWT.authyGrant.serviceSid, enrollmentJWT.authyGrant.entityId
+            enrollmentJWT.authyGrant.serviceSid, enrollmentJWT.authyGrant.entitySid
         )
-        factorProvider.create(factorBuilder, { factor ->
+
+        fun onFactorCreated(factor: Factor) {
           (factor as? PushFactor?)?.apply {
             keyPairAlias = alias
           }
@@ -61,10 +62,12 @@ internal class PushFactory(
                   )
                 }
               }
-        }, { exception ->
+        }
+
+        factorProvider.create(factorBuilder, ::onFactorCreated) { exception ->
           keyStorage.delete(alias)
           onError(exception)
-        })
+        }
       } catch (e: TwilioVerifyException) {
         onError(e)
       }
@@ -79,16 +82,19 @@ internal class PushFactory(
     execute(success, error) { onSuccess, onError ->
       try {
         val factor = factorProvider.get(sid) as? PushFactor
-        factor?.let { pushFactor ->
+
+        fun verifyFactor(pushFactor: PushFactor) {
           pushFactor.keyPairAlias?.let { keyPairAlias ->
             val payload = keyStorage.sign(
                 keyPairAlias, pushFactor.sid
             )
-            factorProvider.verify(factor, payload, onSuccess, onError)
+            factorProvider.verify(pushFactor, payload, onSuccess, onError)
           } ?: run {
             throw TwilioVerifyException(IllegalStateException("Alias not found"), KeyStorageError)
           }
-        } ?: run {
+        }
+
+        factor?.let(::verifyFactor) ?: run {
           throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
         }
       } catch (e: TwilioVerifyException) {

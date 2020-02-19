@@ -18,7 +18,7 @@ import com.twilio.verify.networking.RequestHelper
  */
 internal const val challengeSidPath = "{ChallengeSid}"
 internal const val updateChallengeURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entityIdPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
+  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
 
 internal class ChallengeAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -56,7 +56,7 @@ internal class ChallengeAPIClient(
     challenge.factor?.let { factor ->
       updateChallengeURL.replace(serviceSidPath, factor.serviceSid, true)
           .replace(
-              entityIdPath, factor.entityId, true
+              entitySidPath, factor.entitySid, true
           )
           .replace(challengeSidPath, challenge.sid)
     } ?: run {

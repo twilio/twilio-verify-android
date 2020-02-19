@@ -21,9 +21,9 @@ import org.json.JSONObject
  * Copyright (c) 2020, Twilio Inc.
  */
 internal const val createFactorURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entityIdPath/Factors"
+  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors"
 internal const val verifyFactorURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entityIdPath/Factors/$factorSidPath"
+  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath"
 
 internal const val applicationKey = "application"
 internal const val typeKey = "type"
@@ -89,13 +89,13 @@ internal class FactorAPIClient(
   private fun createFactorURL(factorPayload: FactorPayload): String =
     createFactorURL.replace(serviceSidPath, factorPayload.serviceSid, true)
         .replace(
-            entityIdPath, factorPayload.entityId, true
+            entitySidPath, factorPayload.entitySid, true
         )
 
   private fun verifyFactorURL(factor: Factor): String =
     verifyFactorURL.replace(serviceSidPath, factor.serviceSid, true)
         .replace(
-            entityIdPath, factor.entityId, true
+            entitySidPath, factor.entitySid, true
         ).replace(factorSidPath, factor.sid)
 
   private fun createFactorBody(

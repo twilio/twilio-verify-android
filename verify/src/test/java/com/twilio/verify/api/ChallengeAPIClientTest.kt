@@ -45,7 +45,7 @@ class ChallengeAPIClientTest {
   private val factorChallenge =
     FactorChallenge("sid", linkedMapOf(), linkedMapOf(), "factorSid", Pending).apply {
       factor =
-        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityId")
+        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid")
     }
 
   @Before
@@ -115,7 +115,7 @@ class ChallengeAPIClientTest {
     val expectedURL =
       updateChallengeURL.replace(serviceSidPath, factorChallenge.factor!!.serviceSid, true)
           .replace(
-              entityIdPath, factorChallenge.factor!!.entityId, true
+              entitySidPath, factorChallenge.factor!!.entitySid, true
           )
           .replace(challengeSidPath, factorChallenge.sid)
 

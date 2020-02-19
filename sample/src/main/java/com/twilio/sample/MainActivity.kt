@@ -51,20 +51,19 @@ class MainActivity : AppCompatActivity() {
         "0.QWrQhpdrJTtXXFwDX9LL4wCy43SWhjS-w5p9C6bcsTk"
     val name = "name"
     createFactor.setOnClickListener {
-      result.text = "Creating factor"
-      if (!this::token.isInitialized) {
-        result.text = "Invalid push token"
-      } else {
-        createFactor(jwt, name)
-      }
+      startCreateFactor { createFactor(jwt, name) }
     }
     createFactorCoroutines.setOnClickListener {
-      result.text = "Creating factor"
-      if (!this::token.isInitialized) {
-        result.text = "Invalid push token"
-      } else {
-        createFactorUsingCoroutine(jwt, name)
-      }
+      startCreateFactor { createFactorUsingCoroutine(jwt, name) }
+    }
+  }
+
+  private fun startCreateFactor(createFactorMethod: () -> Unit) {
+    result.text = "Creating factor"
+    if (!this::token.isInitialized) {
+      result.text = "Invalid push token"
+    } else {
+      createFactorMethod()
     }
   }
 
@@ -72,13 +71,7 @@ class MainActivity : AppCompatActivity() {
     jwt: String,
     name: String
   ) {
-    twilioVerify.createFactor(
-        PushFactorInput(name, token, jwt),
-        { factor -> result.text = factor.sid },
-        { e ->
-          e.printStackTrace()
-          result.text = e.message
-        })
+    twilioVerify.createFactor(PushFactorInput(name, token, jwt), ::onSuccess, ::onError)
   }
 
   private fun createFactorUsingCoroutine(
@@ -88,10 +81,9 @@ class MainActivity : AppCompatActivity() {
     CoroutineScope(Dispatchers.Main).launch {
       try {
         val factor = createFactor(name, token, jwt)
-        result.text = factor.sid
+        onSuccess(factor)
       } catch (e: Exception) {
-        e.printStackTrace()
-        result.text = e.message
+        onError(e)
       }
     }
   }
@@ -108,5 +100,14 @@ class MainActivity : AppCompatActivity() {
         cont.resumeWithException(exception)
       })
     }
+  }
+
+  private fun onSuccess(factor: Factor) {
+    result.text = factor.sid
+  }
+
+  private fun onError(exception: Exception) {
+    exception.printStackTrace()
+    result.text = exception.message
   }
 }

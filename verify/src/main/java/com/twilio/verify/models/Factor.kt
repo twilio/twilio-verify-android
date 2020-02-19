@@ -10,7 +10,6 @@ interface Factor {
   val accountSid: String
   val serviceSid: String
   val entitySid: String
-  val entityId: String
   val type: FactorType
 }
 

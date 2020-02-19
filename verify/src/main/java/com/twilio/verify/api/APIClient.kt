@@ -7,7 +7,7 @@ import com.twilio.verify.networking.MediaTypeValue
  * Copyright (c) 2020, Twilio Inc.
  */
 internal const val serviceSidPath = "{ServiceSid}"
-internal const val entityIdPath = "{EntityId}"
+internal const val entitySidPath = "{EntityId}"
 internal const val factorSidPath = "{FactorSid}"
 
 internal const val authPayloadParam = "AuthPayload"
