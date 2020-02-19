@@ -14,7 +14,7 @@ internal const val authPayloadParam = "AuthPayload"
 
 open class APIClient {
 
-  fun postMediaTypeHeaders(): Map<String, String> =
+  protected fun postMediaTypeHeaders(): Map<String, String> =
     mapOf(
         MediaTypeHeader.Accept.type to MediaTypeValue.Json.type,
         MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
