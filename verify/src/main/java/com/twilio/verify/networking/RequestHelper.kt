@@ -5,6 +5,8 @@ import android.os.Build
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import com.twilio.verify.BuildConfig
+import com.twilio.verify.networking.HttpMethod.Get
+import com.twilio.verify.networking.HttpMethod.Post
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -21,7 +23,6 @@ class RequestHelper internal constructor(
 
   private val userAgentHeader = Pair(userAgent, generateUserAgent(context))
   private val authorizationHeader = authorization.header
-  var commonHeaders = mapOf(userAgentHeader, authorizationHeader)
 
   private fun generateUserAgent(context: Context): String {
     val userAgentBuilder = StringBuilder()
@@ -59,4 +60,26 @@ class RequestHelper internal constructor(
         .append(sdkVersionCode)
     return userAgentBuilder.toString()
   }
+
+  fun commonHeaders(httpMethod: HttpMethod?): Map<String, String> {
+    var commonHeaders = mapOf(userAgentHeader, authorizationHeader)
+    commonHeaders = when (httpMethod) {
+      Post -> commonHeaders.plus(httpPostRequestMediaTypeHeaders())
+      Get -> commonHeaders.plus(httpGetRequestMediaTypeHeaders())
+      else -> commonHeaders
+    }
+    return commonHeaders
+  }
+
+  private fun httpPostRequestMediaTypeHeaders(): Map<String, String> =
+    mapOf(
+        MediaTypeHeader.Accept.type to MediaTypeValue.Json.type,
+        MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
+    )
+
+  private fun httpGetRequestMediaTypeHeaders(): Map<String, String> =
+    mapOf(
+        MediaTypeHeader.Accept.type to MediaTypeValue.UrlEncoded.type,
+        MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
+    )
 }

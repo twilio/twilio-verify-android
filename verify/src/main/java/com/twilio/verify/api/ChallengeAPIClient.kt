@@ -24,7 +24,7 @@ internal class ChallengeAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
   private val authorization: Authorization
-): APIClient() {
+) {
 
   fun update(
     challenge: FactorChallenge,
@@ -39,7 +39,6 @@ internal class ChallengeAPIClient(
           updateChallengeURL(challenge)
       )
           .httpMethod(Post)
-          .headers(postMediaTypeHeaders().toMutableMap())
           .body(updateChallengeBody(authPayload))
           .build()
       networkProvider.execute(request, {

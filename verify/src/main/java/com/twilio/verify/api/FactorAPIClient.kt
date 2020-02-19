@@ -20,6 +20,12 @@ import org.json.JSONObject
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
+internal const val serviceSidPath = "{ServiceSid}"
+internal const val entitySidPath = "{EntitySid}"
+internal const val factorSidPath = "{FactorSid}"
+
+internal const val authPayloadParam = "AuthPayload"
+
 internal const val createFactorURL =
   "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors"
 internal const val verifyFactorURL =
@@ -36,7 +42,7 @@ internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
   private val authorization: Authorization
-) : APIClient() {
+) {
 
   fun create(
     factorPayload: FactorPayload,
@@ -50,7 +56,6 @@ internal class FactorAPIClient(
           createFactorURL(factorPayload)
       )
           .httpMethod(Post)
-          .headers(postMediaTypeHeaders().toMutableMap())
           .body(createFactorBody(factorPayload, context))
           .build()
       networkProvider.execute(request, {
@@ -73,7 +78,6 @@ internal class FactorAPIClient(
       val requestHelper = RequestHelper(context, authorization)
       val request = Request.Builder(requestHelper, verifyFactorURL(factor))
           .httpMethod(Post)
-          .headers(postMediaTypeHeaders().toMutableMap())
           .body(verifyFactorBody(authPayload))
           .build()
       networkProvider.execute(request, {
