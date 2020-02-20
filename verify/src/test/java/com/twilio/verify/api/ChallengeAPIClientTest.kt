@@ -116,6 +116,7 @@ class ChallengeAPIClientTest {
           .replace(
               entitySidPath, factorChallenge.factor!!.entitySid, true
           )
+          .replace(factorSidPath, factorChallenge.factor!!.sid)
           .replace(challengeSidPath, factorChallenge.sid)
 
     val authPayload = "authPayload"
@@ -197,6 +198,7 @@ class ChallengeAPIClientTest {
           .replace(
               entitySidPath, factor.entitySid, true
           )
+          .replace(factorSidPath, factor.sid)
           .replace(challengeSidPath, challengeSid)
 
     challengeAPIClient.get(challengeSid, factor, {}, {})

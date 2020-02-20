@@ -86,6 +86,7 @@ internal class ChallengeAPIClient(
           .replace(
               entitySidPath, factor.entitySid, true
           )
+          .replace(factorSidPath, factor.sid)
           .replace(challengeSidPath, challenge.sid)
     } ?: run {
       throw IllegalArgumentException("ServiceSid or EntitySid is null or empty")
@@ -105,6 +106,7 @@ internal class ChallengeAPIClient(
       .replace(
           entitySidPath, factor.entitySid, true
       )
+      .replace(factorSidPath, factor.sid)
       .replace(challengeSidPath, challengeSid)
 
 }
