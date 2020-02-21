@@ -16,7 +16,7 @@ class Domain.Challenge.ChallengeMapper {
     fromApi(jsonObject: JSONObject): Challenge
 }
 class API.ChallengeAPIClient {
-    get(sid: String, pushFactor: PushFactor, success: (JSONObject)->(), error: (TwilioVerifyException)->())
+    get(sid: String, factor: Factor, success: (JSONObject)->(), error: (TwilioVerifyException)->())
     update(challenge: Challenge, authPayload: String, success: ()->(), error: (TwilioVerifyException)->())
 }
 interface Domain.Challenge.ChallengeProvider {

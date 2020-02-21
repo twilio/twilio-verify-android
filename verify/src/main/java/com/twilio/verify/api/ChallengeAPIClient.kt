@@ -5,7 +5,7 @@ import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.challenge.models.FactorChallenge
-import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.HttpMethod.Get
 import com.twilio.verify.networking.HttpMethod.Post
@@ -58,7 +58,7 @@ internal class ChallengeAPIClient(
 
   fun get(
     sid: String,
-    pushFactor: PushFactor,
+    factor: Factor,
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
@@ -66,7 +66,7 @@ internal class ChallengeAPIClient(
       val requestHelper = RequestHelper(context, authorization)
       val request = Request.Builder(
           requestHelper,
-          getChallengeURL(sid, pushFactor)
+          getChallengeURL(sid, factor)
       )
           .httpMethod(Get)
           .build()
@@ -101,7 +101,7 @@ internal class ChallengeAPIClient(
 
   private fun getChallengeURL(
     challengeSid: String,
-    factor: PushFactor
+    factor: Factor
   ) = getChallengeURL.replace(serviceSidPath, factor.serviceSid, true)
       .replace(
           entitySidPath, factor.entitySid, true
