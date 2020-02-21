@@ -11,9 +11,4 @@ interface Challenge {
   var status: ChallengeStatus
 }
 
-enum class ChallengeStatus(val value: String) {
-  Pending("pending"),
-  Expired("expired"),
-  Approved("approved"),
-  Denied("denied")
-}
+enum class ChallengeStatus

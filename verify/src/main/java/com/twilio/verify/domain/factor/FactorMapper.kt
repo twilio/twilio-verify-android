@@ -88,7 +88,7 @@ internal class FactorMapper {
           .put(entitySidKey, factor.entitySid)
           .put(typeKey, factor.type.factorTypeName)
           .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias)
-          .put(statusKey, factor.status).toString()
+          .put(statusKey, factor.status.value).toString()
     }
   }
 
