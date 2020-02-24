@@ -63,7 +63,7 @@ class Domain.Factor.FactorRepository implements Domain.Factor.FactorProvider {
 }
 class Domain.Factor.PushFactory {
     create(jwt: String, friendlyName: String, pushToken: String, success: (Factor)->(), error: (TwilioVerifyException)->())
-    verify(sid: String, , success: (Factor)->(), error: (TwilioVerifyException)->())
+    verify(sid: String, verificationCode: String, success: (Factor)->(), error: (TwilioVerifyException)->())
 }
 Domain.Factor.PushFactory o-left-> Data.KeyStorage: create key pair
 Domain.Factor.PushFactory o--> Domain.Factor.FactorProvider: create/update factor
