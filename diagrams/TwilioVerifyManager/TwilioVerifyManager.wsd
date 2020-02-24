@@ -17,6 +17,7 @@ class Domain.TwilioVerifyManager implements TwilioVerify {
 class Domain.Factor.FactorFacade {
     createFactor(factorInput: FactorInput, success: (Factor) -> (), error: (TwilioVerifyException)->())
     verifyFactor(verifyFactorInput: VerifyFactorInput, success: (Factor) -> (), error: (TwilioVerifyException)->())
+    getFactor(factorSid: String, success: (Factor) -> (), error: (TwilioVerifyException)->())
 }
 class Domain.Challenge.ChallengeFacade {
     getChallenge(sid: String, factorSid: String, success: (Challenge)->(), error: (TwilioVerifyException)->())
@@ -39,7 +40,7 @@ interface UpdateChallengeInput {
 }
 
 class VerifyPushFactorInput implements VerifyFactorInput {
-    
+    verificationCode: String
 }
 class UpdatePushChallengeInput implements UpdateChallengeInput {
     
@@ -60,4 +61,6 @@ Domain.TwilioVerifyManager o--> Domain.Factor.FactorFacade: create factor
 Domain.TwilioVerifyManager o--> Domain.Challenge.ChallengeFacade: get/update challenge
 Domain.Factor.FactorFacade o--> Domain.Factor.PushFactory: create push factor
 Domain.Challenge.ChallengeFacade o--> Domain.Challenge.PushChallengeProcessor: get/update challenge
+Domain.Challenge.ChallengeFacade o--> Domain.Factor.FactorFacade: get factor
+Domain.Factor.FactorFacade o--> Domain.Factor.FactorProvider: get factor
 @enduml
