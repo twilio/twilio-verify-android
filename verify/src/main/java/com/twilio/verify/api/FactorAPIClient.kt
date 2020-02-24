@@ -119,7 +119,7 @@ internal class FactorAPIClient(
     put(pushTokenKey, factorPayload.binding[pushTokenKey])
     put(publicKeyKey, factorPayload.binding[publicKeyKey])
     put(typeKey, fcmPushType)
-    put(applicationKey, context.applicationInfo.loadLabel(context.packageManager))
+    put(applicationKey, context.applicationInfo.packageName)
   }.toString()
 
   private fun verifyFactorBody(authPayload: String): Map<String, String?> =

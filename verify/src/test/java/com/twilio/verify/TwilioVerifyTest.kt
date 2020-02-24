@@ -111,6 +111,7 @@ class TwilioVerifyTest {
   @Test
   fun `Verify a factor should call success`() {
     val sid = "sid"
+    val verificationCode = "verificationCode"
     val jsonObject = JSONObject()
         .put(sidKey, sid)
         .put(friendlyNameKey, "factor name")
@@ -132,7 +133,7 @@ class TwilioVerifyTest {
     }
     counter.incrementAndGet()
     twilioVerify.createFactor(factorInput, { createdFactor ->
-      val verifyFactorInput = VerifyPushFactorInput(sid)
+      val verifyFactorInput = VerifyPushFactorInput(sid, verificationCode)
       argumentCaptor<(String) -> Unit>().apply {
         whenever(networkProvider.execute(any(), capture(), any())).then {
           firstValue.invoke(jsonObject.toString())

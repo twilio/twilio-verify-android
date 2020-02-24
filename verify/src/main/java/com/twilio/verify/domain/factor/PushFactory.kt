@@ -76,6 +76,7 @@ internal class PushFactory(
 
   fun verify(
     sid: String,
+    verificationCode: String,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
@@ -85,9 +86,7 @@ internal class PushFactory(
 
         fun verifyFactor(pushFactor: PushFactor) {
           pushFactor.keyPairAlias?.let { keyPairAlias ->
-            val payload = keyStorage.sign(
-                keyPairAlias, pushFactor.sid
-            )
+            val payload = keyStorage.sign(keyPairAlias, verificationCode)
             factorProvider.verify(pushFactor, payload, onSuccess, onError)
           } ?: run {
             throw TwilioVerifyException(IllegalStateException("Alias not found"), KeyStorageError)

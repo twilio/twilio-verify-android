@@ -43,7 +43,7 @@ class ChallengeAPIClientTest {
   private lateinit var context: Context
 
   private val factorChallenge =
-    FactorChallenge("sid", linkedMapOf(), linkedMapOf(), "factorSid", Pending).apply {
+    FactorChallenge("sid", linkedMapOf(), "", "factorSid", Pending).apply {
       factor =
         PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid")
     }
@@ -99,7 +99,7 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Update a challenge with null factor should call error`() {
-    val challenge = FactorChallenge("sid", linkedMapOf(), linkedMapOf(), "factorSid", Pending)
+    val challenge = FactorChallenge("sid", linkedMapOf(), "", "factorSid", Pending)
     challengeAPIClient.update(challenge, "authPayload", {
       fail()
     }, { exception ->
