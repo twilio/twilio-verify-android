@@ -109,7 +109,6 @@ class ChallengeAPIClientTest {
     })
   }
 
-
   @Test
   fun `Update challenge request should match to the expected params`() {
     val expectedURL =
@@ -136,6 +135,82 @@ class ChallengeAPIClientTest {
       assertEquals(expectedBody, body)
       assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
       assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
+      assertTrue(headers.containsKey(AuthorizationHeader))
+      assertTrue(headers.containsKey(userAgent))
+    }
+  }
+
+  @Test
+  fun `Get a challenge with a success response should call success`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid")
+    val response = "{\"key\":\"value\"}"
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    challengeAPIClient.get("sid", factor, { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+    }, {
+      fail()
+    })
+  }
+
+  @Test
+  fun `Get a challenge with an error response should call error`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid")
+    val expectedException = NetworkException(500, null)
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    challengeAPIClient.get("sid", factor, {
+      fail()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+    })
+  }
+
+  @Test
+  fun `Error getting a challenge should call error`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid")
+    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
+    challengeAPIClient.get("sid", factor, {
+      fail()
+    }, { exception ->
+      assertTrue(exception.cause is NetworkException)
+      assertTrue(exception.cause?.cause is RuntimeException)
+      assertEquals(NetworkError.message, exception.message)
+    })
+  }
+
+  @Test
+  fun `Get challenge request should match to the expected params`() {
+    val challengeSid = "sid"
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid")
+    val expectedURL =
+      getChallengeURL.replace(serviceSidPath, factor.serviceSid, true)
+          .replace(
+              entitySidPath, factor.entitySid, true
+          )
+          .replace(factorSidPath, factor.sid)
+          .replace(challengeSidPath, challengeSid)
+
+    challengeAPIClient.get(challengeSid, factor, {}, {})
+    val requestCaptor = argumentCaptor<Request>().apply {
+      verify(networkProvider).execute(capture(), any(), any())
+    }
+
+    requestCaptor.firstValue.apply {
+      assertEquals(URL(expectedURL), url)
+      assertEquals(HttpMethod.Get, httpMethod)
+      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
+      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.UrlEncoded.type)
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
     }
