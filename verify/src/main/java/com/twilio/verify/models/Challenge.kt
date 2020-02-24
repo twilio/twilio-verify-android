@@ -11,4 +11,9 @@ interface Challenge {
   var status: ChallengeStatus
 }
 
-enum class ChallengeStatus
+enum class ChallengeStatus {
+  Pending,
+  Approved,
+  Denied,
+  Expired
+}

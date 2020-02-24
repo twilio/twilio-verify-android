@@ -33,7 +33,7 @@ class RequestTest {
     assertEquals(httpMethod, request.httpMethod)
     assertEquals(URL(url), request.url)
     assertEquals(tag, request.tag)
-    assertEquals(requestHelper.commonHeaders, request.headers)
+    assertEquals(requestHelper.commonHeaders(request.httpMethod), request.headers)
   }
 
   @Test
@@ -57,7 +57,7 @@ class RequestTest {
     assertEquals(httpMethod, request.httpMethod)
     assertEquals(URL(url), request.url)
     assertEquals(tag, request.tag)
-    assertEquals(headers + requestHelper.commonHeaders, request.headers)
+    assertEquals(headers + requestHelper.commonHeaders(request.httpMethod), request.headers)
   }
 
   @Test
@@ -133,29 +133,6 @@ class RequestTest {
           .headers(
               mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap()
           )
-          .build()
-
-    assertEquals(expectedParams, request.getParams())
-  }
-
-  @Test
-  fun `Request params without Content-Type should be empty`() {
-    val httpMethod = HttpMethod.Post
-    val url = "https://twilio.com"
-    val tag = "tag"
-    val authorization = Authorization("accountSid", "authToken")
-    val requestHelper =
-      RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
-    val key1 = "Key"
-    val value1 = "Value"
-    val key2 = "Twilio"
-    val value2 = "Authy"
-    val expectedParams = ""
-    val request =
-      Request.Builder(requestHelper, url)
-          .httpMethod(httpMethod)
-          .tag(tag)
-          .body(mapOf(key1 to value1, key2 to value2))
           .build()
 
     assertEquals(expectedParams, request.getParams())
