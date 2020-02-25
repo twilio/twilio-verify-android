@@ -3,12 +3,17 @@
  */
 package com.twilio.verify.models
 
+import java.util.Date
+
 interface Challenge {
   val sid: String
-  val details: LinkedHashMap<String, String>
+  val challengeDetails: ChallengeDetails
   val hiddenDetails: String
   val factorSid: String
-  var status: ChallengeStatus
+  val status: ChallengeStatus
+  val createdAt: Date
+  val updatedAt: Date
+  val expirationDate: Date
 }
 
 enum class ChallengeStatus {
@@ -17,3 +22,14 @@ enum class ChallengeStatus {
   Denied,
   Expired
 }
+
+data class ChallengeDetails(
+  val message: String,
+  val fields: List<Detail>,
+  val date: Date?
+)
+
+data class Detail(
+  val label: String,
+  val value: String
+)
