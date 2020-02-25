@@ -6,6 +6,7 @@ package com.twilio.verify.domain.factor
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
@@ -15,8 +16,10 @@ import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkProvider
 
-internal class FactorFacade(private val pushFactory: PushFactory) {
-
+internal class FactorFacade(
+  private val pushFactory: PushFactory,
+  private val factorProvider: FactorProvider
+) {
   fun createFactor(
     factorInput: FactorInput,
     success: (Factor) -> Unit,
@@ -42,6 +45,25 @@ internal class FactorFacade(private val pushFactory: PushFactory) {
             verifyFactorInput.sid, verifyFactorInput.verificationCode, success, error
         )
       }
+    }
+  }
+
+  fun getFactor(
+    factorSid: String,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    try {
+      factorProvider.get(factorSid)
+          ?.let { success(it) } ?: run {
+        error(
+            TwilioVerifyException(
+                NoSuchElementException("Factor cannot be found"), StorageError
+            )
+        )
+      }
+    } catch (e: TwilioVerifyException) {
+      error(e)
     }
   }
 
@@ -78,7 +100,7 @@ internal class FactorFacade(private val pushFactory: PushFactory) {
       val factorAPIClient = FactorAPIClient(networking, appContext, auth)
       val repository = FactorRepository(appContext, factorAPIClient)
       val pushFactory = PushFactory(repository)
-      return FactorFacade(pushFactory)
+      return FactorFacade(pushFactory, repository)
     }
   }
 }
