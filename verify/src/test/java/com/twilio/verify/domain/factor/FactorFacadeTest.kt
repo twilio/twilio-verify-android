@@ -12,6 +12,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
@@ -136,7 +137,7 @@ class FactorFacadeTest {
     factorFacade.getFactor(sid, {
       fail()
     }, { exception ->
-      assertTrue(exception.cause is NoSuchElementException)
+      assertTrue(exception.cause is StorageException)
       assertEquals(StorageError.message, exception.localizedMessage)
     })
   }

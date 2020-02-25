@@ -8,6 +8,7 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
+import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.PushFactorInput
@@ -55,13 +56,9 @@ internal class FactorFacade(
   ) {
     try {
       factorProvider.get(factorSid)
-          ?.let { success(it) } ?: run {
-        error(
-            TwilioVerifyException(
-                NoSuchElementException("Factor cannot be found"), StorageError
-            )
-        )
-      }
+          ?.let { success(it) } ?: throw TwilioVerifyException(
+          StorageException("Factor not found"), StorageError
+      )
     } catch (e: TwilioVerifyException) {
       error(e)
     }
