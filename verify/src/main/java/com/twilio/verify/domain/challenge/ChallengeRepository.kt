@@ -8,6 +8,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeStatus.Expired
 import com.twilio.verify.models.Factor
 
 internal class ChallengeRepository(
@@ -24,7 +25,14 @@ internal class ChallengeRepository(
     try {
       apiClient.get(sid, factor, { response ->
         val challenge = challengeMapper.fromApi(response)
-            .also { toFactorChallenge(it).factor = factor }
+            .also {
+              if (it.factorSid != factor.sid) {
+                throw TwilioVerifyException(
+                    IllegalArgumentException("Wrong factor for challenge"), InputError
+                )
+              }
+              toFactorChallenge(it).factor = factor
+            }
         success(challenge)
       }, error)
     } catch (e: TwilioVerifyException) {
@@ -39,6 +47,11 @@ internal class ChallengeRepository(
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
+      if (challenge.status == Expired) {
+        throw TwilioVerifyException(
+            IllegalArgumentException("Expired challenge can not be updated"), InputError
+        )
+      }
       toFactorChallenge(challenge).let { factorChallenge ->
         apiClient.update(factorChallenge, authPayload, {
           get(factorChallenge, success, error)

@@ -13,7 +13,8 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeStatus
+import com.twilio.verify.models.ChallengeStatus.Expired
+import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -35,14 +36,15 @@ class ChallengeRepositoryTest {
   @Test
   fun `Get challenge with valid response should return a challenge`() {
     val sid = "sid123"
+    val factorSid = "factorSid123"
     val factor: Factor = mock()
     val challenge: FactorChallenge = mock()
     val response = JSONObject().apply {
-      put(sidKey, "sid123")
-      put(factorSidKey, "factorSid123")
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, Pending.name)
     }
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
@@ -50,6 +52,8 @@ class ChallengeRepositoryTest {
       }
     }
     whenever(challengeMapper.fromApi(response)).thenReturn(challenge)
+    whenever(factor.sid).thenReturn(factorSid)
+    whenever(challenge.factorSid).thenReturn(factorSid)
     challengeRepository.get(sid, factor, {
       assertEquals(challenge, it)
       verify(challenge).factor = factor
@@ -76,11 +80,11 @@ class ChallengeRepositoryTest {
     val sid = "sid123"
     val factor: Factor = mock()
     val response = JSONObject().apply {
-      put(sidKey, "sid123")
+      put(sidKey, sid)
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, Pending.name)
     }
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(JSONObject) -> Unit>().apply {
@@ -97,21 +101,49 @@ class ChallengeRepositoryTest {
   @Test
   fun `Invalid challenge should call error`() {
     val sid = "sid123"
+    val factorSid = "factorSid123"
     val factor: Factor = mock()
     val challenge: Challenge = mock()
     val response = JSONObject().apply {
-      put(sidKey, "sid123")
-      put(factorSidKey, "factorSid123")
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, Pending.name)
     }
-    val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(response)
       }
     }
+    whenever(factor.sid).thenReturn(factorSid)
+    whenever(challenge.factorSid).thenReturn(factorSid)
+    whenever(challengeMapper.fromApi(response)).thenReturn(challenge)
+    challengeRepository.get(sid, factor, { fail() }, { exception ->
+      assertTrue(exception.cause is IllegalArgumentException)
+    })
+  }
+
+  @Test
+  fun `Wrong factor for challenge should call error`() {
+    val sid = "sid123"
+    val factorSid = "factorSid123"
+    val factor: Factor = mock()
+    val challenge: Challenge = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+      put(createdDateKey, "2020-02-19T16:39:57-08:00")
+      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(statusKey, Pending.name)
+    }
+    argumentCaptor<(JSONObject) -> Unit>().apply {
+      whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    whenever(factor.sid).thenReturn("factorSid234")
+    whenever(challenge.factorSid).thenReturn(factorSid)
     whenever(challengeMapper.fromApi(response)).thenReturn(challenge)
     challengeRepository.get(sid, factor, { fail() }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
@@ -121,16 +153,17 @@ class ChallengeRepositoryTest {
   @Test
   fun `Update challenge with valid response should return updated challenge`() {
     val sid = "sid123"
+    val factorSid = "factorSid123"
     val payload = "payload123"
     val factor: Factor = mock()
     val challenge: FactorChallenge = mock()
     val updatedChallenge: FactorChallenge = mock()
     val response = JSONObject().apply {
-      put(sidKey, "sid123")
-      put(factorSidKey, "factorSid123")
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, Pending.name)
     }
     argumentCaptor<() -> Unit>().apply {
       whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
@@ -142,7 +175,10 @@ class ChallengeRepositoryTest {
         firstValue.invoke(response)
       }
     }
+    whenever(factor.sid).thenReturn(factorSid)
+    whenever(updatedChallenge.factorSid).thenReturn(factorSid)
     whenever(challenge.factor).thenReturn(factor)
+    whenever(challenge.status).thenReturn(Pending)
     whenever(challenge.sid).thenReturn(sid)
     whenever(challengeMapper.fromApi(response)).thenReturn(updatedChallenge)
     challengeRepository.update(challenge, payload, {
@@ -152,9 +188,25 @@ class ChallengeRepositoryTest {
   }
 
   @Test
-  fun `Update challenge with invalid factor should call error`() {
+  fun `Update challenge with no factor should call error`() {
     val payload = "payload123"
     val challenge: FactorChallenge = mock()
+    whenever(challenge.status).thenReturn(Pending)
+    argumentCaptor<() -> Unit>().apply {
+      whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    challengeRepository.update(
+        challenge, payload, { fail() },
+        { exception -> assertTrue(exception.cause is IllegalArgumentException) })
+  }
+
+  @Test
+  fun `Update expired challenge should call error`() {
+    val payload = "payload123"
+    val challenge: FactorChallenge = mock()
+    whenever(challenge.status).thenReturn(Expired)
     argumentCaptor<() -> Unit>().apply {
       whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
         firstValue.invoke()
