@@ -29,6 +29,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.net.URL
+import java.util.Date
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -43,7 +44,9 @@ class ChallengeAPIClientTest {
   private lateinit var context: Context
 
   private val factorChallenge =
-    FactorChallenge("sid", linkedMapOf(), "", "factorSid", Pending).apply {
+    FactorChallenge(
+        "sid", mock(), "", "factorSid", Pending, Date(), Date(), Date(), "", "", ""
+    ).apply {
       factor =
         PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid")
     }
@@ -99,7 +102,9 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Update a challenge with null factor should call error`() {
-    val challenge = FactorChallenge("sid", linkedMapOf(), "", "factorSid", Pending)
+    val challenge = FactorChallenge(
+        "sid", mock(), "", "factorSid", Pending, Date(), Date(), Date(), "", "", ""
+    )
     challengeAPIClient.update(challenge, "authPayload", {
       fail()
     }, { exception ->

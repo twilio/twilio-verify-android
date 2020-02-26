@@ -12,7 +12,7 @@ interface Models.Challenge {
 interface Models.ChallengeDetails {
     message: String
     custom: List<Detail>
-    date: Date
+    date: Date?
 }
 interface Models.ChallengeDetails.Detail {
     label: String
