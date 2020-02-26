@@ -6,14 +6,18 @@ package com.twilio.verify.domain.factor
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,7 +29,8 @@ import org.robolectric.annotation.Config
 class FactorFacadeTest {
 
   private val pushFactory: PushFactory = mock()
-  private val factorFacade = FactorFacade(pushFactory)
+  private val factorProvider: FactorProvider = mock()
+  private val factorFacade = FactorFacade(pushFactory, factorProvider)
 
   @Test
   fun `Create a factor should call success`() {
@@ -110,6 +115,44 @@ class FactorFacadeTest {
       fail()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
+    })
+  }
+
+  @Test
+  fun `Get a factor with factor already stored should return expected factor`() {
+    val sid = "sid"
+    val expectedFactor: Factor = mock()
+    whenever(factorProvider.get(sid)).thenReturn(expectedFactor)
+    factorFacade.getFactor(sid, { factor ->
+      assertEquals(expectedFactor, factor)
+    }, {
+      fail()
+    })
+  }
+
+  @Test
+  fun `Get a factor with no factor stored should return error`() {
+    val sid = "sid"
+    whenever(factorProvider.get(sid)).thenReturn(null)
+    factorFacade.getFactor(sid, {
+      fail()
+    }, { exception ->
+      assertTrue(exception.cause is StorageException)
+      assertEquals(StorageError.message, exception.localizedMessage)
+    })
+  }
+
+  @Test
+  fun `Get a factor with exception should return error`() {
+    val sid = "sid"
+    val expectedException: TwilioVerifyException = mock()
+    given(factorProvider.get(sid)).willAnswer {
+      throw expectedException
+    }
+    factorFacade.getFactor(sid, {
+      fail()
+    }, { exception ->
+      assertEquals(expectedException, exception)
     })
   }
 }
