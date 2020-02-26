@@ -7,6 +7,7 @@ import android.content.Context
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.api.FactorAPIClient
+import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.PushFactorInput
@@ -49,6 +50,7 @@ internal class FactorFacade(private val pushFactory: PushFactory) {
     private lateinit var appContext: Context
     private lateinit var auth: Authorization
     private lateinit var networking: NetworkProvider
+    private lateinit var keyStore: KeyStorage
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networking = networkProvider }
 
@@ -57,6 +59,9 @@ internal class FactorFacade(private val pushFactory: PushFactory) {
 
     fun authorization(authorization: Authorization) =
       apply { this.auth = authorization }
+
+    fun keyStorage(keyStorage: KeyStorage) =
+      apply { this.keyStore = keyStorage }
 
     @Throws(TwilioVerifyException::class)
     fun build(): FactorFacade {
@@ -72,12 +77,19 @@ internal class FactorFacade(private val pushFactory: PushFactory) {
       }
       if (!this::networking.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for network provider"), InitializationError
+            IllegalArgumentException("Illegal value for network provider"),
+            InitializationError
+        )
+      }
+      if (!this::keyStore.isInitialized) {
+        throw TwilioVerifyException(
+            IllegalArgumentException("Illegal value for key storage"),
+            InitializationError
         )
       }
       val factorAPIClient = FactorAPIClient(networking, appContext, auth)
       val repository = FactorRepository(appContext, factorAPIClient)
-      val pushFactory = PushFactory(repository)
+      val pushFactory = PushFactory(repository, keyStore)
       return FactorFacade(pushFactory)
     }
   }
