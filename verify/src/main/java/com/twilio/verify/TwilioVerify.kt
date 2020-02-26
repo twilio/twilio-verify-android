@@ -4,6 +4,8 @@
 package com.twilio.verify
 
 import android.content.Context
+import com.twilio.verify.data.KeyStorage
+import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
@@ -30,6 +32,7 @@ interface TwilioVerify {
     private var context: Context,
     private var authorization: Authorization
   ) {
+    private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
@@ -40,6 +43,7 @@ interface TwilioVerify {
           .context(context)
           .authorization(authorization)
           .networkProvider(networkProvider)
+          .keyStorage(keyStorage)
           .build()
       return TwilioVerifyManager(factorFacade)
     }

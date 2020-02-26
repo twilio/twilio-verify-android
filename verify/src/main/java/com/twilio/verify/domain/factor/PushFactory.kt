@@ -8,7 +8,6 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.data.KeyStorage
-import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -22,7 +21,7 @@ internal const val publicKeyKey = "public_key"
 
 internal class PushFactory(
   private val factorProvider: FactorProvider,
-  private val keyStorage: KeyStorage = KeyStoreAdapter()
+  private val keyStorage: KeyStorage
 ) {
   fun create(
     jwt: String,
