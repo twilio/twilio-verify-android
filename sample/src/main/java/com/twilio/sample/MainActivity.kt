@@ -4,16 +4,16 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.iid.FirebaseInstanceId
-import com.twilio.verify.TwilioVerify
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.networking.Authorization
 import com.twilio.verify.sample.R
 import kotlinx.android.synthetic.main.activity_main.createFactor
 import kotlinx.android.synthetic.main.activity_main.createFactorCoroutines
 import kotlinx.android.synthetic.main.activity_main.result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -23,14 +23,14 @@ import kotlin.coroutines.resumeWithException
 class MainActivity : AppCompatActivity() {
 
   private lateinit var token: String
-  private lateinit var twilioVerify: TwilioVerify
+  private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
+  private lateinit var subscription: ReceiveChannel<VerifiedFactor>
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
-    twilioVerify = TwilioVerify.Builder(applicationContext, Authorization("test", "test"))
-        .build()
-
+    twilioVerifyAdapter = TwilioVerifyAdapter(applicationContext)
+    subscription = EventBus.asChannel()
     FirebaseInstanceId.getInstance()
         .instanceId.addOnCompleteListener(OnCompleteListener { task ->
       if (!task.isSuccessful) {
@@ -43,12 +43,12 @@ class MainActivity : AppCompatActivity() {
         token = it
       }
     })
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
-        "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
-        "ZpY2Vfc2lkIjoiSVNiYjc4MjNhYTVkY2NlOTA0NDNmODU2NDA2YWJkNzAwMCIsImVudGl0eV9pZCI6IjEiLCJmYW" +
-        "N0b3IiOiJwdXNoIn19LCJpc3MiOiJlYjgyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYiIsIm5iZiI6MTU3NT" +
-        "YwMzcxOCwiZXhwIjoxNTc1NjA3MzE4LCJzdWIiOiJBQzZjY2IyY2RjZDgwMzYzYTI1OTI2NmU3NzZhZjAwMDAwIn" +
-        "0.QWrQhpdrJTtXXFwDX9LL4wCy43SWhjS-w5p9C6bcsTk"
+    val jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYjgyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZ" +
+        "jI0YjZmYi0xNTc1NjAzNzE4IiwiaXNzIjoiZWI4MjEyZGZjOTUzMzliMmNmYjIyNThjM2YyNGI2ZmIiLCJuYmYiO" +
+        "jE1ODI3NTkyNTAsImV4cCI6MzE2NTUxODUwMCwic3ViIjoiQUM1MTNhZjAzZjMyMjhmMWU4NTU4Y2ViYmEwMWRjM" +
+        "GIzZSIsImdyYW50cyI6eyJhdXRoeSI6eyJzZXJ2aWNlX3NpZCI6IklTYmI5ZTcxMTUxM2IzMDNkMmU5MzM0NDQ1O" +
+        "DQ4ZjcyYmEiLCJlbnRpdHlfaWQiOiJZRWQ3ZmJmODRhMTExNjRkMDM2YmM1NjBlMTFjMmE5NjJjIiwiZmFjdG9yI" +
+        "joicHVzaCJ9fX0.-E3toPdlHmCOman0OfBp5qhPxwFvbim2q7dl1xQcjHc"
     val name = "name"
     createFactor.setOnClickListener {
       startCreateFactor { createFactor(jwt, name) }
@@ -56,6 +56,11 @@ class MainActivity : AppCompatActivity() {
     createFactorCoroutines.setOnClickListener {
       startCreateFactor { createFactorUsingCoroutine(jwt, name) }
     }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    subscription.cancel()
   }
 
   private fun startCreateFactor(createFactorMethod: () -> Unit) {
@@ -71,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     jwt: String,
     name: String
   ) {
-    twilioVerify.createFactor(PushFactorInput(name, token, jwt), ::onSuccess, ::onError)
+    twilioVerifyAdapter.createFactor(PushFactorInput(name, token, jwt), ::onSuccess, ::onError)
   }
 
   private fun createFactorUsingCoroutine(
@@ -82,6 +87,11 @@ class MainActivity : AppCompatActivity() {
       try {
         val factor = createFactor(name, token, jwt)
         onSuccess(factor)
+        subscription.consumeEach { event ->
+          if (event.factorSid == factor.sid) {
+            onSuccess(factor)
+          }
+        }
       } catch (e: Exception) {
         onError(e)
       }
@@ -94,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     jwt: String
   ): Factor = withContext(Dispatchers.IO) {
     return@withContext suspendCancellableCoroutine<Factor> { cont ->
-      twilioVerify.createFactor(PushFactorInput(friendlyName, pushToken, jwt), { factor ->
+      twilioVerifyAdapter.createFactor(PushFactorInput(friendlyName, pushToken, jwt), { factor ->
         cont.resume(factor)
       }, { exception ->
         cont.resumeWithException(exception)
@@ -103,7 +113,7 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun onSuccess(factor: Factor) {
-    result.text = factor.sid
+    result.text = "Factor sid: ${factor.sid}\nStatus: ${factor.status}"
   }
 
   private fun onError(exception: Exception) {

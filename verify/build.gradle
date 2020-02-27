@@ -21,13 +21,18 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
     debug {
+      buildConfigField "String", 'BASE_URL', "\"https://authy.dev.twilio.com/v1/\""
+    }
+    stage {
       buildConfigField "String", 'BASE_URL', "\"https://authy.stage.twilio.com/v1/\""
+      matchingFallbacks = ['debug']
     }
   }
   testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
+  implementation project(path: ':security')
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
@@ -39,5 +44,4 @@ dependencies {
   testImplementation 'org.robolectric:robolectric:4.3.1'
   testImplementation 'androidx.test:core:1.2.0'
   testImplementation "org.mockito:mockito-inline:2.28.2"
-  implementation project(path: ':security')
 }
