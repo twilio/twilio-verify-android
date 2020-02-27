@@ -25,12 +25,11 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.security.KeyStore.PrivateKeyEntry
+import java.security.KeyPair
 import java.security.PrivateKey
 import java.security.Provider
 import java.security.PublicKey
 import java.security.Security
-import java.security.cert.Certificate
 
 @RunWith(RobolectricTestRunner::class)
 class ECSignerTest {
@@ -64,14 +63,12 @@ class ECSignerTest {
     addProvider(provider)
     signatureMockInput = SignatureMockInput()
     signatureMockOutput = SignatureMockOutput()
-    val entry: PrivateKeyEntry = mock()
+    val keyPair: KeyPair = mock()
     val privateKey: PrivateKey = mock()
-    val certificate: Certificate = mock()
     val publicKey: PublicKey = mock()
-    whenever(entry.privateKey).thenReturn(privateKey)
-    whenever(entry.certificate).thenReturn(certificate)
-    whenever(certificate.publicKey).thenReturn(publicKey)
-    ecSigner = ECSigner(entry, signatureAlgorithm)
+    whenever(keyPair.private).thenReturn(privateKey)
+    whenever(keyPair.public).thenReturn(publicKey)
+    ecSigner = ECSigner(keyPair, signatureAlgorithm)
   }
 
   @After
@@ -85,7 +82,7 @@ class ECSignerTest {
     val expectedSignature = "signature"
     signatureMockInput.signature = expectedSignature
     val signature = ecSigner.sign(data)
-    assertEquals(ecSigner.entry.privateKey, signatureMockOutput.privateKey)
+    assertEquals(ecSigner.keyPair.private, signatureMockOutput.privateKey)
     assertTrue(signatureMockOutput.initialized)
     assertTrue(data.contentEquals(signatureMockOutput.updatedData!!))
     assertTrue(expectedSignature.toByteArray().contentEquals(signature))
@@ -107,12 +104,10 @@ class ECSignerTest {
 
   @Test
   fun `Get PublicKey should return expected key`() {
-    val certificate: Certificate = mock()
-    whenever(ecSigner.entry.certificate).thenReturn(certificate)
     val publicKey: PublicKey = mock()
-    whenever(ecSigner.entry.certificate.publicKey).thenReturn(publicKey)
+    whenever(ecSigner.keyPair.public).thenReturn(publicKey)
     val expectedPublicKey = "publicKey"
-    whenever(ecSigner.entry.certificate.publicKey.encoded).thenReturn(
+    whenever(ecSigner.keyPair.public.encoded).thenReturn(
         expectedPublicKey.toByteArray()
     )
 
@@ -121,12 +116,10 @@ class ECSignerTest {
 
   @Test(expected = KeyException::class)
   fun `Error getting PublicKey should throw exception`() {
-    val certificate: Certificate = mock()
-    whenever(ecSigner.entry.certificate).thenReturn(certificate)
     val publicKey: PublicKey = mock()
-    whenever(ecSigner.entry.certificate.publicKey).thenReturn(publicKey)
+    whenever(ecSigner.keyPair.public).thenReturn(publicKey)
     val exception: KeyException = mock()
-    given(ecSigner.entry.certificate.publicKey).willAnswer {
+    given(ecSigner.keyPair.public).willAnswer {
       throw KeyException(exception)
     }
     ecSigner.getPublic()
@@ -139,7 +132,7 @@ class ECSignerTest {
     val expectedResult = true
     signatureMockInput.result = expectedResult
     val result = ecSigner.verify(data, signature)
-    assertEquals(ecSigner.entry.certificate.publicKey, signatureMockOutput.publicKey)
+    assertEquals(ecSigner.keyPair.public, signatureMockOutput.publicKey)
     assertTrue(signatureMockOutput.initialized)
     assertTrue(data.contentEquals(signatureMockOutput.updatedData!!))
     assertEquals(expectedResult, result)

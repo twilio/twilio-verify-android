@@ -15,7 +15,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.security.KeyStore
-import java.security.KeyStore.SecretKeyEntry
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -50,11 +49,8 @@ class AESGCMNoPaddingEncrypterTests {
     val encrypter = androidKeyManager.encrypter(template)
     assertTrue(encrypter is AESEncrypter)
     assertTrue(keyStore.containsAlias(alias))
-    assertNotNull((encrypter as? AESEncrypter)?.entry)
-    assertEquals(
-        (keyStore.getEntry(alias, null) as? SecretKeyEntry)?.secretKey,
-        (encrypter as AESEncrypter).entry.secretKey
-    )
+    assertNotNull((encrypter as? AESEncrypter)?.key)
+    assertEquals(keyStore.getKey(alias, null), (encrypter as AESEncrypter).key)
   }
 
   @Test
@@ -64,8 +60,8 @@ class AESGCMNoPaddingEncrypterTests {
     val encrypter = androidKeyManager.encrypter(template)
     assertTrue(encrypter is AESEncrypter)
     assertTrue(keyStore.containsAlias(alias))
-    assertNotNull((encrypter as? AESEncrypter)?.entry)
-    assertEquals(key, (encrypter as AESEncrypter).entry.secretKey)
+    assertNotNull((encrypter as? AESEncrypter)?.key)
+    assertEquals(key, (encrypter as AESEncrypter).key)
   }
 
   @Test

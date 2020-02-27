@@ -46,12 +46,10 @@ class ECP256SignerTests {
     val signer = androidKeyManager.signer(template)
     assertTrue(signer is ECSigner)
     assertTrue(keyStore.containsAlias(alias))
-    assertNotNull((signer as? ECSigner)?.entry)
+    assertNotNull((signer as? ECSigner)?.keyPair)
     assertTrue(
-        (keyStore.getEntry(
-            alias, null
-        ) as? KeyStore.PrivateKeyEntry)?.certificate?.publicKey?.encoded?.contentEquals(
-            (signer as ECSigner).entry.certificate.publicKey.encoded
+        keyStore.getCertificate(alias)?.publicKey?.encoded?.contentEquals(
+            (signer as ECSigner).keyPair.public.encoded
         ) == true
     )
   }
@@ -63,10 +61,10 @@ class ECP256SignerTests {
     val signer = androidKeyManager.signer(template)
     assertTrue(signer is ECSigner)
     assertTrue(keyStore.containsAlias(alias))
-    assertNotNull((signer as? ECSigner)?.entry)
+    assertNotNull((signer as? ECSigner)?.keyPair)
     assertTrue(
         keyPair.public.encoded?.contentEquals(
-            (signer as ECSigner).entry.certificate.publicKey.encoded
+            (signer as ECSigner).keyPair.public.encoded
         ) == true
     )
   }

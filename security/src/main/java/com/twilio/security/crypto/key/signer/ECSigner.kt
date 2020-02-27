@@ -4,11 +4,11 @@
 package com.twilio.security.crypto.key.signer
 
 import com.twilio.security.crypto.KeyException
-import java.security.KeyStore.PrivateKeyEntry
+import java.security.KeyPair
 import java.security.Signature
 
 class ECSigner(
-  internal val entry: PrivateKeyEntry,
+  internal val keyPair: KeyPair,
   private val signatureAlgorithm: String
 ) : Signer {
   @Throws(KeyException::class)
@@ -16,7 +16,7 @@ class ECSigner(
     return try {
       Signature.getInstance(signatureAlgorithm)
           .run {
-            initSign(entry.privateKey)
+            initSign(keyPair.private)
             update(data)
             sign()
           }
@@ -33,7 +33,7 @@ class ECSigner(
     return try {
       Signature.getInstance(signatureAlgorithm)
           .run {
-            initVerify(entry.certificate)
+            initVerify(keyPair.public)
             update(data)
             verify(signature)
           }
@@ -45,7 +45,7 @@ class ECSigner(
   @Throws(KeyException::class)
   override fun getPublic(): ByteArray {
     return try {
-      entry.certificate.publicKey.encoded
+      keyPair.public.encoded
     } catch (e: Exception) {
       throw KeyException(e)
     }
