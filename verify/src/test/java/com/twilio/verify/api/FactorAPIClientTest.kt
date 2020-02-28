@@ -112,13 +112,18 @@ class FactorAPIClientTest {
     val factorTypeMock = Push
     val pushToken = "ABCD"
     val publicKey = "12345"
+    val sdkVersion = "1.0"
     val expectedBody = mapOf(
         friendlyName to friendlyNameMock, factorType to factorTypeMock.factorTypeName,
         binding to JSONObject().apply {
-          put(pushTokenKey, pushToken)
           put(publicKeyKey, publicKey)
-          put(typeKey, fcmPushType)
-          put(applicationKey, context.applicationInfo.loadLabel(context.packageManager))
+          put(algKey, defaultAlg)
+        }.toString(),
+        config to JSONObject().apply {
+          put(sdkVersionKey, sdkVersion)
+          put(appIdKey, "${bundleId}|${context.applicationInfo.loadLabel(context.packageManager)}")
+          put(notificationPlatformKey, fcmPushType)
+          put(notificationTokenKey, pushToken)
         }.toString()
     )
     val factorPayload =

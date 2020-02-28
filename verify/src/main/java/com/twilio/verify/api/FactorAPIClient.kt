@@ -37,6 +37,14 @@ internal const val fcmPushType = "fcm"
 internal const val friendlyName = "FriendlyName"
 internal const val factorType = "FactorType"
 internal const val binding = "Binding"
+internal const val config = "Config"
+internal const val sdkVersionKey = "sdk_version"
+internal const val appIdKey = "app_id"
+internal const val notificationPlatformKey = "notification_platform"
+internal const val notificationTokenKey = "notification_token"
+internal const val algKey = "alg"
+internal const val bundleId = "com.authy.authy"
+internal const val defaultAlg = "ES256"
 
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -109,17 +117,25 @@ internal class FactorAPIClient(
     mapOf(
         friendlyName to factorPayload.friendlyName,
         factorType to factorPayload.type.factorTypeName,
-        binding to binding(factorPayload, context)
+        binding to binding(factorPayload),
+        config to config(factorPayload, context)
     )
 
   private fun binding(
+    factorPayload: FactorPayload
+  ): String = JSONObject().apply {
+    put(publicKeyKey, factorPayload.binding[publicKeyKey])
+    put(algKey, defaultAlg)
+  }.toString()
+
+  private fun config(
     factorPayload: FactorPayload,
     context: Context
   ): String = JSONObject().apply {
-    put(pushTokenKey, factorPayload.binding[pushTokenKey])
-    put(publicKeyKey, factorPayload.binding[publicKeyKey])
-    put(typeKey, fcmPushType)
-    put(applicationKey, context.applicationInfo.packageName)
+    put(sdkVersionKey, BuildConfig.VERSION_NAME)
+    put(appIdKey, "${bundleId}|${context.applicationInfo.packageName}")
+    put(notificationPlatformKey, fcmPushType)
+    put(notificationTokenKey, factorPayload.binding[pushTokenKey])
   }.toString()
 
   private fun verifyFactorBody(authPayload: String): Map<String, String?> =
