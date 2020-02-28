@@ -8,13 +8,8 @@ import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.publicKeyKey
 import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.Authorization
+import com.twilio.verify.networking.*
 import com.twilio.verify.networking.HttpMethod.Post
-import com.twilio.verify.networking.NetworkAdapter
-import com.twilio.verify.networking.NetworkException
-import com.twilio.verify.networking.NetworkProvider
-import com.twilio.verify.networking.Request
-import com.twilio.verify.networking.RequestHelper
 import org.json.JSONObject
 
 /*
@@ -43,7 +38,6 @@ internal const val appIdKey = "app_id"
 internal const val notificationPlatformKey = "notification_platform"
 internal const val notificationTokenKey = "notification_token"
 internal const val algKey = "alg"
-internal const val bundleId = "com.authy.authy"
 internal const val defaultAlg = "ES256"
 
 internal class FactorAPIClient(
@@ -133,7 +127,7 @@ internal class FactorAPIClient(
     context: Context
   ): String = JSONObject().apply {
     put(sdkVersionKey, BuildConfig.VERSION_NAME)
-    put(appIdKey, "${bundleId}|${context.applicationInfo.packageName}")
+    put(appIdKey, "${context.applicationInfo.packageName}")
     put(notificationPlatformKey, fcmPushType)
     put(notificationTokenKey, factorPayload.binding[pushTokenKey])
   }.toString()

@@ -2,11 +2,7 @@ package com.twilio.verify.api
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -14,19 +10,9 @@ import com.twilio.verify.domain.factor.publicKeyKey
 import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.Push
-import com.twilio.verify.networking.Authorization
-import com.twilio.verify.networking.AuthorizationHeader
-import com.twilio.verify.networking.HttpMethod
-import com.twilio.verify.networking.MediaTypeHeader
-import com.twilio.verify.networking.MediaTypeValue
-import com.twilio.verify.networking.NetworkException
-import com.twilio.verify.networking.NetworkProvider
-import com.twilio.verify.networking.Request
-import com.twilio.verify.networking.userAgent
+import com.twilio.verify.networking.*
 import org.json.JSONObject
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -121,7 +107,7 @@ class FactorAPIClientTest {
         }.toString(),
         config to JSONObject().apply {
           put(sdkVersionKey, sdkVersion)
-          put(appIdKey, "${bundleId}|${context.applicationInfo.loadLabel(context.packageManager)}")
+          put(appIdKey, "${context.applicationInfo.loadLabel(context.packageManager)}")
           put(notificationPlatformKey, fcmPushType)
           put(notificationTokenKey, pushToken)
         }.toString()
