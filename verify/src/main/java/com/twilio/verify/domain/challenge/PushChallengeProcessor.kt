@@ -41,7 +41,28 @@ internal class PushChallengeProcessor(
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
-      onSuccess()
+      fun updateChallenge(challenge: Challenge) {
+        try {
+          val factorChallenge = challenge as? FactorChallenge ?: throw TwilioVerifyException(
+              IllegalArgumentException("Invalid challenge"),
+              InputError
+          )
+          val authPayload = generateSignature(factorChallenge, status)
+          challengeProvider.update(challenge, authPayload, { updatedChallenge ->
+            if (updatedChallenge.status != status) {
+              throw TwilioVerifyException(
+                  IllegalStateException("Challenge was not updated"),
+                  InputError
+              )
+            }
+            onSuccess()
+          }, onError)
+        } catch (e: TwilioVerifyException) {
+          onError(e)
+        }
+      }
+
+      get(sid, factor, ::updateChallenge, error)
     }
   }
 
@@ -52,9 +73,10 @@ internal class PushChallengeProcessor(
     val factor = challenge.factor as? PushFactor ?: throw TwilioVerifyException(
         IllegalArgumentException("Wrong factor for challenge"), InputError
     )
-    val keyPairAlias = factor.keyPairAlias ?: throw TwilioVerifyException(
-        IllegalStateException("Key pair not set"), KeyStorageError
-    )
+    val keyPairAlias = factor.keyPairAlias?.takeIf { it.isNotBlank() }
+        ?: throw TwilioVerifyException(
+            IllegalStateException("Key pair not set"), KeyStorageError
+        )
     val payload = "${factor.accountSid}${factor.serviceSid}${factor.entitySid}${factor.sid}" +
         "${challenge.sid}${challenge.createdDate}${challenge.updatedDate}$status" +
         "${challenge.details}${challenge.hiddenDetails}"
