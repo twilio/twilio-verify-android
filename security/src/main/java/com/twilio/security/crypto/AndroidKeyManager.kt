@@ -11,11 +11,12 @@ import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.EncrypterTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
+import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
-import java.security.KeyStore.PrivateKeyEntry
-import java.security.KeyStore.SecretKeyEntry
+import java.security.PrivateKey
 import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
 
 class AndroidKeyManager(
   private val keyStore: KeyStore,
@@ -25,53 +26,59 @@ class AndroidKeyManager(
   @Throws(KeyException::class)
   override fun signer(template: SignerTemplate): Signer {
     try {
-      val entry = if (!keyStore.containsAlias(template.alias)) {
+      val keyPair = if (!keyStore.containsAlias(template.alias)) {
         if (template.shouldExist) {
           throw IllegalStateException("The alias does not exist")
         }
         createSignerKeyPair(template)
       } else {
-        getPrivateKeyEntry(template.alias)
+        getSignerKeyPair(template.alias)
       }
       return when (template) {
-        is ECP256SignerTemplate -> ECSigner(entry, template.signatureAlgorithm)
+        is ECP256SignerTemplate -> ECSigner(keyPair, template.signatureAlgorithm)
       }
     } catch (e: Exception) {
       throw KeyException(e)
     }
   }
 
-  private fun createSignerKeyPair(template: SignerTemplate): PrivateKeyEntry {
+  private fun createSignerKeyPair(template: SignerTemplate): KeyPair {
     val keyPairGenerator = KeyPairGenerator.getInstance(
         template.algorithm, provider
     )
     keyPairGenerator.initialize(template.keyGenParameterSpec)
     val keyPair = keyPairGenerator.generateKeyPair()
-    return getPrivateKeyEntry(
+    return getSignerKeyPair(
         template.alias
-    ).takeIf { keyPair?.public?.encoded?.contentEquals(it.certificate.publicKey.encoded) == true }
-        ?: run { throw IllegalArgumentException("New private key entry not found") }
+    ).takeIf { keyPair?.public?.encoded?.contentEquals(it.public.encoded) == true }
+        ?: throw IllegalArgumentException("New private key not found")
   }
 
-  private fun getPrivateKeyEntry(alias: String): PrivateKeyEntry {
-    return keyStore.getEntry(alias, null) as? PrivateKeyEntry?
-        ?: run { throw IllegalArgumentException("Private key entry not found") }
+  private fun getSignerKeyPair(alias: String): KeyPair {
+    val privateKey =
+      keyStore.getKey(alias, null) as? PrivateKey ?: throw IllegalArgumentException(
+          "Private key not found"
+      )
+    val certificate = keyStore.getCertificate(alias) ?: throw IllegalArgumentException(
+        "Certificate not found"
+    )
+    return KeyPair(certificate.publicKey, privateKey)
   }
 
   @Throws(KeyException::class)
   override fun encrypter(template: EncrypterTemplate): Encrypter {
     try {
-      val entry = if (!keyStore.containsAlias(template.alias)) {
+      val key = if (!keyStore.containsAlias(template.alias)) {
         if (template.shouldExist) {
           throw IllegalStateException("The alias does not exist")
         }
         createEncrypterKey(template)
       } else {
-        getSecretKeyEntry(template.alias)
+        getEncrypterKey(template.alias)
       }
       return when (template) {
         is AESGCMNoPaddingEncrypterTemplate -> AESEncrypter(
-            entry, template.cipherAlgorithm, template.parameterSpecClass
+            key, template.cipherAlgorithm, template.parameterSpecClass
         )
       }
     } catch (e: Exception) {
@@ -90,23 +97,23 @@ class AndroidKeyManager(
     }
   }
 
-  private fun getSecretKeyEntry(alias: String): SecretKeyEntry {
-    return keyStore.getEntry(
+  private fun getEncrypterKey(alias: String): SecretKey {
+    return keyStore.getKey(
         alias, null
-    ) as? SecretKeyEntry
-        ?: run { throw IllegalArgumentException("Secret key entry not found") }
+    ) as? SecretKey
+        ?: throw IllegalArgumentException("Secret key not found")
   }
 
-  private fun createEncrypterKey(template: EncrypterTemplate): SecretKeyEntry {
+  private fun createEncrypterKey(template: EncrypterTemplate): SecretKey {
     val keyGenerator = KeyGenerator.getInstance(
         template.algorithm, provider
     )
     keyGenerator.init(template.keyGenParameterSpec)
     val key = keyGenerator.generateKey()
-    return getSecretKeyEntry(
+    return getEncrypterKey(
         template.alias
     ).takeIf {
-      key != null && key == it.secretKey
-    } ?: run { throw IllegalArgumentException("New secret key entry not found") }
+      key != null && key == it
+    } ?: throw IllegalArgumentException("New secret key not found")
   }
 }

@@ -32,12 +32,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.security.KeyPair
 import java.security.KeyStore
-import java.security.KeyStore.PrivateKeyEntry
-import java.security.KeyStore.SecretKeyEntry
+import java.security.PrivateKey
 import java.security.Provider
 import java.security.PublicKey
 import java.security.Security
-import java.security.cert.Certificate
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import kotlin.random.Random.Default.nextBytes
@@ -91,26 +89,29 @@ class AndroidKeyManagerTest {
     val algorithm = KeyProperties.KEY_ALGORITHM_EC
     val signatureAlgorithm = "signatureAlgorithm"
     val template: ECP256SignerTemplate = mock()
-    val entry: PrivateKeyEntry = mock()
     val keyPair: KeyPair = mock()
-    val certificate: Certificate = mock()
     val publicKey: PublicKey = mock()
+    val privateKey: PrivateKey = mock()
     val encoded = ByteArray(5).apply { nextBytes(this) }
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.signatureAlgorithm).thenReturn(signatureAlgorithm)
-    whenever(entry.certificate).thenReturn(certificate)
-    whenever(certificate.publicKey).thenReturn(publicKey)
     whenever(keyPair.public).thenReturn(publicKey)
+    whenever(keyPair.private).thenReturn(privateKey)
     whenever(publicKey.encoded).thenReturn(encoded)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = false, entry = entry, key = keyPair
+          containsAlias = false, key = keyPair, newKey = keyPair
       )
     val signer = androidKeyManager.signer(template)
     assertTrue(keyStoreMockOutput.generatedKeyPair)
     assertTrue(signer is ECSigner)
-    assertEquals(keyStoreMockInput.entry, (signer as? ECSigner)?.entry)
+    assertEquals(
+        (keyStoreMockInput.key as? KeyPair)?.public, (signer as? ECSigner)?.keyPair?.public
+    )
+    assertEquals(
+        (keyStoreMockInput.key as? KeyPair)?.private, (signer as? ECSigner)?.keyPair?.private
+    )
   }
 
   @Test
@@ -118,33 +119,45 @@ class AndroidKeyManagerTest {
     val alias = "test"
     val signatureAlgorithm = "signatureAlgorithm"
     val template: ECP256SignerTemplate = mock()
+    val keyPair: KeyPair = mock()
+    val publicKey: PublicKey = mock()
+    val privateKey: PrivateKey = mock()
+    whenever(keyPair.public).thenReturn(publicKey)
+    whenever(keyPair.private).thenReturn(privateKey)
     whenever(template.alias).thenReturn(alias)
     whenever(template.signatureAlgorithm).thenReturn(signatureAlgorithm)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = true, entry = mock<PrivateKeyEntry>(), key = null
+          containsAlias = true, key = keyPair
       )
     val signer = androidKeyManager.signer(template)
     assertFalse(keyStoreMockOutput.generatedKeyPair)
     assertTrue(signer is ECSigner)
-    assertEquals(keyStoreMockInput.entry, (signer as? ECSigner)?.entry)
+    assertEquals(
+        (keyStoreMockInput.key as? KeyPair)?.public, (signer as? ECSigner)?.keyPair?.public
+    )
+    assertEquals(
+        (keyStoreMockInput.key as? KeyPair)?.private, (signer as? ECSigner)?.keyPair?.private
+    )
   }
 
   @Test
-  fun `New entry for EC signer not found`() {
+  fun `New key pair for EC signer not found`() {
     val alias = "test"
     val algorithm = KeyProperties.KEY_ALGORITHM_EC
     val template: ECP256SignerTemplate = mock()
     val keyPair: KeyPair = mock()
     val publicKey: PublicKey = mock()
+    val privateKey: PrivateKey = mock()
     val encoded = ByteArray(5).apply { nextBytes(this) }
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(keyPair.public).thenReturn(publicKey)
+    whenever(keyPair.private).thenReturn(privateKey)
     whenever(publicKey.encoded).thenReturn(encoded)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = false, entry = null, key = keyPair
+          containsAlias = false, key = null
       )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
@@ -156,27 +169,29 @@ class AndroidKeyManagerTest {
   }
 
   @Test
-  fun `Different entry for new EC signer`() {
+  fun `Different key pair for new EC signer`() {
     val alias = "test"
     val algorithm = KeyProperties.KEY_ALGORITHM_EC
     val template: ECP256SignerTemplate = mock()
-    val entry: PrivateKeyEntry = mock()
-    val certificate: Certificate = mock()
-    val keyPair: KeyPair = mock()
+    val keyPair1: KeyPair = mock()
+    val keyPair2: KeyPair = mock()
     val publicKey1: PublicKey = mock()
     val publicKey2: PublicKey = mock()
+    val privateKey1: PrivateKey = mock()
+    val privateKey2: PrivateKey = mock()
     val encoded1 = ByteArray(5).apply { nextBytes(this) }
     val encoded2 = ByteArray(5).apply { nextBytes(this) }
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
-    whenever(entry.certificate).thenReturn(certificate)
-    whenever(certificate.publicKey).thenReturn(publicKey1)
-    whenever(keyPair.public).thenReturn(publicKey2)
+    whenever(keyPair1.public).thenReturn(publicKey1)
+    whenever(keyPair2.public).thenReturn(publicKey2)
+    whenever(keyPair1.private).thenReturn(privateKey1)
+    whenever(keyPair2.private).thenReturn(privateKey2)
     whenever(publicKey1.encoded).thenReturn(encoded1)
     whenever(publicKey2.encoded).thenReturn(encoded2)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = false, entry = null, key = keyPair
+          containsAlias = false, key = keyPair1, newKey = keyPair2
       )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
@@ -188,13 +203,13 @@ class AndroidKeyManagerTest {
   }
 
   @Test
-  fun `Existing entry for EC signer not found`() {
+  fun `Existing key pair for EC signer not found`() {
     val alias = "test"
     val template: ECP256SignerTemplate = mock()
     whenever(template.alias).thenReturn(alias)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = true, entry = null, key = null
+          containsAlias = true, key = null
       )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
@@ -213,7 +228,7 @@ class AndroidKeyManagerTest {
     whenever(template.shouldExist).thenReturn(true)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = false, entry = null, key = null
+          containsAlias = false, key = null
       )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
@@ -225,14 +240,14 @@ class AndroidKeyManagerTest {
   }
 
   @Test
-  fun `Error getting an existing entry for EC signer`() {
+  fun `Error getting an existing key pair for EC signer`() {
     val alias = "test"
     val template: ECP256SignerTemplate = mock()
     val error: RuntimeException = mock()
     whenever(template.alias).thenReturn(alias)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = true, entry = null, key = null, error = error
+          containsAlias = true, key = null, error = error
       )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
@@ -249,21 +264,19 @@ class AndroidKeyManagerTest {
     val algorithm = KeyProperties.KEY_ALGORITHM_AES
     val cipherAlgorithm = "cipherAlgorithm"
     val template: AESGCMNoPaddingEncrypterTemplate = mock()
-    val entry: SecretKeyEntry = mock()
     val key: SecretKey = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
     whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
-    whenever(entry.secretKey).thenReturn(key)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = false, entry = entry, key = key
+          containsAlias = false, key = key, newKey = key
       )
     val encrypter = androidKeyManager.encrypter(template)
     assertTrue(keyStoreMockOutput.generatedKeyPair)
     assertTrue(encrypter is AESEncrypter)
-    assertEquals(keyStoreMockInput.entry, (encrypter as? AESEncrypter)?.entry)
+    assertEquals(keyStoreMockInput.key, (encrypter as? AESEncrypter)?.key)
   }
 
   @Test
@@ -276,12 +289,37 @@ class AndroidKeyManagerTest {
     whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = true, entry = mock<SecretKeyEntry>(), key = null
+          containsAlias = true, key = mock<SecretKey>()
       )
     val encrypter = androidKeyManager.encrypter(template)
     assertFalse(keyStoreMockOutput.generatedKeyPair)
     assertTrue(encrypter is AESEncrypter)
-    assertEquals(keyStoreMockInput.entry, (encrypter as? AESEncrypter)?.entry)
+    assertEquals(keyStoreMockInput.key, (encrypter as? AESEncrypter)?.key)
+  }
+
+  @Test
+  fun `Different key for new AES encrypter`() {
+    val alias = "test"
+    val algorithm = KeyProperties.KEY_ALGORITHM_AES
+    val cipherAlgorithm = "cipherAlgorithm"
+    val template: AESGCMNoPaddingEncrypterTemplate = mock()
+    val key1: SecretKey = mock()
+    val key2: SecretKey = mock()
+    whenever(template.alias).thenReturn(alias)
+    whenever(template.algorithm).thenReturn(algorithm)
+    whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
+    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
+    keyStoreMockInput =
+      KeyStoreMockInput(
+          containsAlias = false, key = key1, newKey = key2
+      )
+    exceptionRule.expect(KeyException::class.java)
+    exceptionRule.expectCause(
+        Matchers.instanceOf(
+            IllegalArgumentException::class.java
+        )
+    )
+    androidKeyManager.encrypter(template)
   }
 
   @Test
@@ -292,7 +330,7 @@ class AndroidKeyManagerTest {
     whenever(template.shouldExist).thenReturn(true)
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = false, entry = null, key = null
+          containsAlias = false, key = null
       )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
@@ -308,7 +346,7 @@ class AndroidKeyManagerTest {
     val alias = "test"
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = true, entry = mock<PrivateKeyEntry>(), key = null
+          containsAlias = true, key = mock<KeyPair>()
       )
     androidKeyManager.delete(alias)
     assertEquals(alias, keyStoreMockOutput.deletedAlias)
@@ -319,7 +357,7 @@ class AndroidKeyManagerTest {
     val alias = "test"
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = false, entry = null, key = null
+          containsAlias = false, key = null
       )
     androidKeyManager.delete(alias)
     assertTrue(keyStoreMockOutput.deletedAlias.isNullOrEmpty())
@@ -331,7 +369,7 @@ class AndroidKeyManagerTest {
     val error: RuntimeException = mock()
     keyStoreMockInput =
       KeyStoreMockInput(
-          containsAlias = true, entry = mock<PrivateKeyEntry>(), key = null,
+          containsAlias = true, key = mock<KeyPair>(),
           error = error
       )
     exceptionRule.expect(KeyException::class.java)

@@ -4,12 +4,12 @@
 package com.twilio.security.crypto.key.encrypter
 
 import com.twilio.security.crypto.KeyException
-import java.security.KeyStore.SecretKeyEntry
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
+import javax.crypto.SecretKey
 
 class AESEncrypter(
-  internal val entry: SecretKeyEntry,
+  internal val key: SecretKey,
   private val cipherAlgorithm: String,
   private val parameterSpecClass: Class<out AlgorithmParameterSpec>
 ) : Encrypter {
@@ -17,7 +17,7 @@ class AESEncrypter(
     return try {
       Cipher.getInstance(cipherAlgorithm)
           .run {
-            init(Cipher.ENCRYPT_MODE, entry.secretKey)
+            init(Cipher.ENCRYPT_MODE, key)
             EncryptedData(parameters.getParameterSpec(parameterSpecClass), doFinal(data))
           }
     } catch (e: Exception) {
@@ -29,7 +29,7 @@ class AESEncrypter(
     return try {
       Cipher.getInstance(cipherAlgorithm)
           .run {
-            init(Cipher.DECRYPT_MODE, entry.secretKey, data.algorithmParameterSpec)
+            init(Cipher.DECRYPT_MODE, key, data.algorithmParameterSpec)
             doFinal(data.encrypted)
           }
     } catch (e: Exception) {

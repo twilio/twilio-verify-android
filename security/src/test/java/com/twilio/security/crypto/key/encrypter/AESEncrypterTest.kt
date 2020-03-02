@@ -25,9 +25,9 @@ import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.security.AlgorithmParameters
-import java.security.KeyStore
 import java.security.Provider
 import java.security.Security
+import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 @RunWith(RobolectricTestRunner::class)
@@ -62,8 +62,8 @@ class AESEncrypterTest {
     addProvider(provider)
     cipherMockInput = CipherMockInput()
     cipherMockOutput = CipherMockOutput()
-    val entry: KeyStore.SecretKeyEntry = mock()
-    AESEncrypter = AESEncrypter(entry, cipherAlgorithm, GCMParameterSpec::class.java)
+    val key: SecretKey = mock()
+    AESEncrypter = AESEncrypter(key, cipherAlgorithm, GCMParameterSpec::class.java)
   }
 
   @After
@@ -84,7 +84,7 @@ class AESEncrypterTest {
     cipherMockInput.encrypted = encrypted
     cipherMockInput.algorithmParameters = algorithmParameters
     val encryptedData = AESEncrypter.encrypt(data)
-    assertEquals(AESEncrypter.entry.secretKey, cipherMockOutput.secretKey)
+    assertEquals(AESEncrypter.key, cipherMockOutput.secretKey)
     assertTrue(cipherMockOutput.cipherInitialized)
     assertEquals(expectedEncryptedData, encryptedData)
   }
@@ -116,7 +116,7 @@ class AESEncrypterTest {
     cipherMockInput.decrypted = data
     cipherMockInput.algorithmParameters = algorithmParameters
     val decrypted = AESEncrypter.decrypt(encryptedData)
-    assertEquals(AESEncrypter.entry.secretKey, cipherMockOutput.secretKey)
+    assertEquals(AESEncrypter.key, cipherMockOutput.secretKey)
     assertTrue(cipherMockOutput.cipherInitialized)
     assertTrue(data.toByteArray().contentEquals(decrypted))
   }

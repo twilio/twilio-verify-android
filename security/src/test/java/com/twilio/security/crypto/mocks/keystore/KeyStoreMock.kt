@@ -1,10 +1,13 @@
 package com.twilio.security.crypto.mocks.keystore
 
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.security.Key
+import java.security.KeyPair
 import java.security.KeyStore
 import java.security.KeyStoreSpi
 import java.security.Provider
@@ -13,6 +16,7 @@ import java.security.cert.Certificate
 import java.util.Date
 import java.util.Enumeration
 import java.util.IdentityHashMap
+import javax.crypto.SecretKey
 
 lateinit var keyStoreMockInput: KeyStoreMockInput
 lateinit var keyStoreMockOutput: KeyStoreMockOutput
@@ -28,8 +32,17 @@ class KeyStoreMock : KeyStoreSpi() {
     throw NotImplementedError()
   }
 
-  override fun engineGetCertificate(alias: String?): Certificate {
-    throw NotImplementedError()
+  override fun engineGetCertificate(alias: String?): Certificate? {
+    if (keyStoreMockInput.error != null) {
+      throw keyStoreMockInput.error!!
+    }
+    if (keyStoreMockInput.key is KeyPair) {
+      val certificate: Certificate = mock()
+      val publicKey = (keyStoreMockInput.key as? KeyPair)?.public
+      whenever(certificate.publicKey).thenReturn(publicKey)
+      return certificate
+    }
+    return null
   }
 
   override fun engineGetCreationDate(alias: String?): Date {
@@ -104,18 +117,22 @@ class KeyStoreMock : KeyStoreSpi() {
   override fun engineGetKey(
     alias: String?,
     password: CharArray?
-  ): Key {
-    throw NotImplementedError()
+  ): Key? {
+    if (keyStoreMockInput.error != null) {
+      throw keyStoreMockInput.error!!
+    }
+    return when (keyStoreMockInput.key) {
+      is SecretKey -> keyStoreMockInput.key as? SecretKey
+      is KeyPair -> (keyStoreMockInput.key as? KeyPair)?.private
+      else -> null
+    }
   }
 
   override fun engineGetEntry(
     alias: String?,
     protParam: KeyStore.ProtectionParameter?
   ): KeyStore.Entry? {
-    if (keyStoreMockInput.error != null) {
-      throw keyStoreMockInput.error!!
-    }
-    return keyStoreMockInput.entry
+    throw NotImplementedError()
   }
 }
 

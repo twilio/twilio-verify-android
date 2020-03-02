@@ -34,6 +34,6 @@ class KeyGeneratorMock : KeyGeneratorSpi() {
 
   override fun engineGenerateKey(): SecretKey? {
     keyStoreMockOutput.generatedKeyPair = true
-    return keyStoreMockInput.key as? SecretKey
+    return keyStoreMockInput.newKey as? SecretKey
   }
 }
