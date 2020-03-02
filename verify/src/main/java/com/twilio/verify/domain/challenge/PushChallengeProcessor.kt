@@ -25,7 +25,11 @@ internal class PushChallengeProcessor(
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
-
+      challengeProvider.get(sid, factor, { challenge ->
+        onSuccess(challenge)
+      }, { exception ->
+        onError(exception)
+      })
     }
   }
 
