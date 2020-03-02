@@ -9,6 +9,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
@@ -31,6 +32,7 @@ class FactorFacadeTest {
   private val pushFactory: PushFactory = mock()
   private val factorProvider: FactorProvider = mock()
   private val factorFacade = FactorFacade(pushFactory, factorProvider)
+  private val idlingResource = IdlingResource()
 
   @Test
   fun `Create a factor should call success`() {
@@ -46,11 +48,15 @@ class FactorFacadeTest {
         firstValue.invoke(expectedFactor)
       }
     }
+    idlingResource.startOperation()
     factorFacade.createFactor(factorInput, { factor ->
       assertEquals(expectedFactor, factor)
+      idlingResource.operationFinished()
     }, {
       fail()
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -67,11 +73,15 @@ class FactorFacadeTest {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
+    idlingResource.startOperation()
     factorFacade.createFactor(factorInput, {
       fail()
+      idlingResource.operationFinished()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -89,11 +99,15 @@ class FactorFacadeTest {
         firstValue.invoke(expectedFactor)
       }
     }
+    idlingResource.startOperation()
     factorFacade.verifyFactor(verifyFactorInput, { factor ->
       assertEquals(expectedFactor, factor)
+      idlingResource.operationFinished()
     }, {
       fail()
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -111,11 +125,15 @@ class FactorFacadeTest {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
+    idlingResource.startOperation()
     factorFacade.verifyFactor(verifyFactorInput, {
       fail()
+      idlingResource.operationFinished()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -123,23 +141,31 @@ class FactorFacadeTest {
     val sid = "sid"
     val expectedFactor: Factor = mock()
     whenever(factorProvider.get(sid)).thenReturn(expectedFactor)
+    idlingResource.startOperation()
     factorFacade.getFactor(sid, { factor ->
       assertEquals(expectedFactor, factor)
+      idlingResource.operationFinished()
     }, {
       fail()
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
   fun `Get a factor with no factor stored should return error`() {
     val sid = "sid"
     whenever(factorProvider.get(sid)).thenReturn(null)
+    idlingResource.startOperation()
     factorFacade.getFactor(sid, {
       fail()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is StorageException)
       assertEquals(StorageError.message, exception.localizedMessage)
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -149,10 +175,14 @@ class FactorFacadeTest {
     given(factorProvider.get(sid)).willAnswer {
       throw expectedException
     }
+    idlingResource.startOperation()
     factorFacade.getFactor(sid, {
       fail()
+      idlingResource.operationFinished()
     }, { exception ->
       assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 }

@@ -8,8 +8,10 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
@@ -26,7 +28,9 @@ import org.robolectric.annotation.Config
 class TwilioVerifyManagerTest {
 
   private val factorFacade: FactorFacade = mock()
-  private val twilioVerifyManager = TwilioVerifyManager(factorFacade)
+  private val challengeFacade: ChallengeFacade = mock()
+  private val twilioVerifyManager = TwilioVerifyManager(factorFacade, challengeFacade)
+  private val idlingResource = IdlingResource()
 
   @Test
   fun `Create a factor should call success`() {
@@ -37,11 +41,15 @@ class TwilioVerifyManagerTest {
         firstValue.invoke(expectedFactor)
       }
     }
+    idlingResource.startOperation()
     twilioVerifyManager.createFactor(factorInput, { factor ->
       assertEquals(expectedFactor, factor)
+      idlingResource.operationFinished()
     }, {
       fail()
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -53,11 +61,15 @@ class TwilioVerifyManagerTest {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
+    idlingResource.startOperation()
     twilioVerifyManager.createFactor(factorInput, {
       fail()
+      idlingResource.operationFinished()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -69,11 +81,15 @@ class TwilioVerifyManagerTest {
         firstValue.invoke(expectedFactor)
       }
     }
+    idlingResource.startOperation()
     twilioVerifyManager.verifyFactor(verifyFactorInput, { factor ->
       assertEquals(expectedFactor, factor)
+      idlingResource.operationFinished()
     }, {
       fail()
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -85,10 +101,14 @@ class TwilioVerifyManagerTest {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
+    idlingResource.startOperation()
     twilioVerifyManager.verifyFactor(verifyFactorInput, {
       fail()
+      idlingResource.operationFinished()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
     })
+    idlingResource.waitForIdle()
   }
 }

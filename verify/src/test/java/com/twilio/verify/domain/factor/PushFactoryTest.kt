@@ -3,7 +3,6 @@
  */
 package com.twilio.verify.domain.factor
 
-import android.os.Looper.getMainLooper
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
@@ -12,6 +11,7 @@ import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
@@ -28,9 +28,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows
 import org.robolectric.annotation.Config
-import java.util.concurrent.atomic.AtomicInteger
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -39,7 +37,7 @@ class PushFactoryTest {
   private val factorProvider: FactorProvider = mock()
   private val keyStorage: KeyStorage = mock()
   private val pushFactory = PushFactory(factorProvider, keyStorage)
-  private val counter = AtomicInteger(0)
+  private val idlingResource = IdlingResource()
 
   @Test
   fun `Create factor with valid JWT should call success lambda`() {
@@ -68,7 +66,7 @@ class PushFactoryTest {
         firstValue.invoke(pushFactor)
       }
     }
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       verify(factorProvider).create(check { pushFactor ->
         assertEquals(binding, pushFactor.binding)
@@ -81,12 +79,12 @@ class PushFactoryTest {
         assertNotNull(factor)
         assertEquals(alias, factor?.keyPairAlias)
       })
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -94,16 +92,16 @@ class PushFactoryTest {
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
       assertEquals(InputError.message, exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -111,16 +109,16 @@ class PushFactoryTest {
     val jwt = "test.test"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
       assertEquals(InputError.message, exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -132,16 +130,16 @@ class PushFactoryTest {
         "SJn0FC-S2I"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
       assertEquals(InputError.message, exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -153,16 +151,16 @@ class PushFactoryTest {
         "I2NmU3NzZhZjAwMDAwIn0.yZxVAvTZwdJP1jLyj4hMFYObd74fKXpEgddDt5B_-1w"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
       assertEquals(InputError.message, exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -175,16 +173,16 @@ class PushFactoryTest {
         "SiDT4l_Sv-J8Z7R2HRIu82o8"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
       assertEquals(InputError.message, exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -197,16 +195,16 @@ class PushFactoryTest {
         "d1m_Nwd6AosfEmRiKoPAJlEQ"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
       assertEquals(InputError.message, exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -219,16 +217,16 @@ class PushFactoryTest {
         ".IgV1ZeL81-nIR9kPovM6IqZCA-bNHizTVgSTkV6AXew"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
       assertEquals(InputError.message, exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -244,16 +242,16 @@ class PushFactoryTest {
     given(keyStorage.create(any())).willAnswer {
       throw TwilioVerifyException(IllegalStateException(), KeyStorageError)
     }
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalStateException)
       assertEquals(KeyStorageError.message, exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -280,16 +278,16 @@ class PushFactoryTest {
         firstValue.invoke(expectedException)
       }
     }
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertEquals(expectedException, exception)
       verify(keyStorage).delete(alias)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -317,16 +315,16 @@ class PushFactoryTest {
         firstValue.invoke(pushFactor)
       }
     }
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalStateException)
       verify(keyStorage).delete(alias)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -349,7 +347,7 @@ class PushFactoryTest {
         firstValue.invoke(factor)
       }
     }
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.verify(sid, verificationCode, {
       assertEquals(serviceSid, it.serviceSid)
       assertEquals(friendlyName, it.friendlyName)
@@ -359,12 +357,12 @@ class PushFactoryTest {
       assertEquals(entitySid, it.entitySid)
       assertEquals(sid, it.sid)
       verify(keyStorage).sign(keyPairAlias, verificationCode)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -380,15 +378,15 @@ class PushFactoryTest {
     val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(null)
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.verify(sid, verificationCode, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is StorageException)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -412,15 +410,15 @@ class PushFactoryTest {
         firstValue.invoke(expectedException)
       }
     }
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.verify(sid, verificationCode, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertEquals(expectedException, exception)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -436,32 +434,14 @@ class PushFactoryTest {
     val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entitySid, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     pushFactory.verify(sid, verificationCode, {
       fail()
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalStateException)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
-}
-
-fun AtomicInteger.waitForEmpty(
-  waitFor: Long = 100,
-  times: Int = 5
-) {
-  for (i in 0..times) {
-    if (get() > 0) {
-      Thread.sleep(waitFor)
-      Shadows.shadowOf(getMainLooper())
-          .idle()
-    } else {
-      break
-    }
-  }
-  Shadows.shadowOf(getMainLooper())
-      .idle()
-  assertTrue(get() == 0)
 }
