@@ -17,12 +17,12 @@ android {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-      buildConfigField "String", 'ACCOUNT_SID', "\"AC513af03f3228f1e8558cebba01dc0b3e\""
-      buildConfigField "String", 'AUTH_TOKEN', "\"3254e591c750bcd4fb4fe72a6ed9d5c9\""
+      buildConfigField "String", 'ACCOUNT_SID', "\"your account sid\""
+      buildConfigField "String", 'AUTH_TOKEN', "\"your auth token\""
     }
     debug {
-      buildConfigField "String", 'ACCOUNT_SID', "\"AC513af03f3228f1e8558cebba01dc0b3e\""
-      buildConfigField "String", 'AUTH_TOKEN', "\"3254e591c750bcd4fb4fe72a6ed9d5c9\""
+      buildConfigField "String", 'ACCOUNT_SID', "\"your account sid\""
+      buildConfigField "String", 'AUTH_TOKEN', "\"your auth token\""
     }
   }
 }
