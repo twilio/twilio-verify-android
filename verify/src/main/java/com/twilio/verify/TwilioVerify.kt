@@ -11,6 +11,7 @@ import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
+import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkAdapter
@@ -26,6 +27,12 @@ interface TwilioVerify {
   fun verifyFactor(
     verifyFactorInput: VerifyFactorInput,
     success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
+  fun updateChallenge(
+    updateChallengeInput: UpdateChallengeInput,
+    success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
 
