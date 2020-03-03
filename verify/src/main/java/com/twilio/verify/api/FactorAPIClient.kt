@@ -1,7 +1,6 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
@@ -27,9 +26,9 @@ internal const val factorSidPath = "{FactorSid}"
 internal const val authPayloadParam = "AuthPayload"
 
 internal const val createFactorURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors"
+  "Services/$serviceSidPath/Entities/$entitySidPath/Factors"
 internal const val verifyFactorURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath"
+  "Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath"
 
 internal const val applicationKey = "application"
 internal const val typeKey = "type"
@@ -41,7 +40,8 @@ internal const val binding = "Binding"
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
-  private val authorization: Authorization
+  private val authorization: Authorization,
+  private val baseUrl: String
 ) {
 
   fun create(
@@ -91,13 +91,13 @@ internal class FactorAPIClient(
   }
 
   private fun createFactorURL(factorPayload: FactorPayload): String =
-    createFactorURL.replace(serviceSidPath, factorPayload.serviceSid, true)
+    "$baseUrl$createFactorURL".replace(serviceSidPath, factorPayload.serviceSid, true)
         .replace(
             entitySidPath, factorPayload.entitySid, true
         )
 
   private fun verifyFactorURL(factor: Factor): String =
-    verifyFactorURL.replace(serviceSidPath, factor.serviceSid, true)
+    "$baseUrl$verifyFactorURL".replace(serviceSidPath, factor.serviceSid, true)
         .replace(
             entitySidPath, factor.entitySid, true
         ).replace(factorSidPath, factor.sid)

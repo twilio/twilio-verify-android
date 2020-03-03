@@ -5,6 +5,7 @@ package com.twilio.verify
 
 import com.twilio.verify.api.APIResponses
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
 import org.junit.After
 import org.junit.Assert
@@ -16,8 +17,8 @@ open class BaseFactorTest : BaseServerTest() {
 
   @Before
   override fun before() {
-    createFactor()
     super.before()
+    createFactor()
   }
 
   @After
@@ -28,8 +29,7 @@ open class BaseFactorTest : BaseServerTest() {
     super.tearDown()
   }
 
-  private fun createFactor() {
-    setupTwilioVerify()
+  protected fun createFactor(onSuccess: (Factor) -> Unit = {}) {
     val friendlyName = "friendlyName"
     val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
         "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
@@ -42,12 +42,12 @@ open class BaseFactorTest : BaseServerTest() {
     idlingResource.increment()
     twilioVerify.createFactor(factorInput, {
       factor = it as PushFactor
+      onSuccess(it)
       idlingResource.decrement()
     }, { e ->
       Assert.fail(e.message)
       idlingResource.decrement()
     })
     idlingResource.waitForResource()
-    mockWebServer.takeRequest()
   }
 }
