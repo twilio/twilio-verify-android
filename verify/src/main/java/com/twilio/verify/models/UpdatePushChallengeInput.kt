@@ -6,5 +6,5 @@ package com.twilio.verify.models
 class UpdatePushChallengeInput(
   override val factorSid: String,
   override val challengeSid: String,
-  override val status: ChallengeStatus
+  val status: ChallengeStatus
 ) : UpdateChallengeInput

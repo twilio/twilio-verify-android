@@ -5,12 +5,16 @@ package com.twilio.verify.domain
 
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.VerifyFactorInput
 
-internal class TwilioVerifyManager(private val factorFacade: FactorFacade) : TwilioVerify {
+internal class TwilioVerifyManager(
+  private val factorFacade: FactorFacade,
+  private val challengeFacade: ChallengeFacade
+) : TwilioVerify {
   override fun createFactor(
     factorInput: FactorInput,
     success: (Factor) -> Unit,

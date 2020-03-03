@@ -17,7 +17,6 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.serviceSidKey
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
-import com.twilio.verify.domain.factor.waitForEmpty
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
@@ -44,7 +43,6 @@ import java.security.Security
 import java.security.cert.Certificate
 import java.util.Date
 import java.util.Enumeration
-import java.util.concurrent.atomic.AtomicInteger
 
 @RunWith(RobolectricTestRunner::class)
 @Config(shadows = [TestKeystore::class])
@@ -55,7 +53,7 @@ class TwilioVerifyTest {
   private lateinit var twilioVerify: TwilioVerify
   private lateinit var provider: Provider
   private val providerName = "AndroidKeyStore"
-  private val counter = AtomicInteger(0)
+  private val idlingResource = IdlingResource()
 
   @Before
   fun setup() {
@@ -96,16 +94,16 @@ class TwilioVerifyTest {
         "YwMzcxOCwiZXhwIjoxNTc1NjA3MzE4LCJzdWIiOiJBQzZjY2IyY2RjZDgwMzYzYTI1OTI2NmU3NzZhZjAwMDAwIn" +
         "0.QWrQhpdrJTtXXFwDX9LL4wCy43SWhjS-w5p9C6bcsTk"
     val factorInput = PushFactorInput("friendly name", "pushToken", jwt)
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     twilioVerify.createFactor(factorInput, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
       assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -131,7 +129,7 @@ class TwilioVerifyTest {
         firstValue.invoke(jsonObject.toString())
       }
     }
-    counter.incrementAndGet()
+    idlingResource.startOperation()
     twilioVerify.createFactor(factorInput, { createdFactor ->
       val verifyFactorInput = VerifyPushFactorInput(sid, verificationCode)
       argumentCaptor<(String) -> Unit>().apply {
@@ -139,20 +137,20 @@ class TwilioVerifyTest {
           firstValue.invoke(jsonObject.toString())
         }
       }
-      counter.incrementAndGet()
+      idlingResource.startOperation()
       twilioVerify.verifyFactor(verifyFactorInput, { factor ->
         assertEquals(jsonObject.getString(sidKey), factor.sid)
-        counter.decrementAndGet()
+        idlingResource.operationFinished()
       }, { exception ->
         fail(exception.message)
-        counter.decrementAndGet()
+        idlingResource.operationFinished()
       })
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
-      counter.decrementAndGet()
+      idlingResource.operationFinished()
     })
-    counter.waitForEmpty()
+    idlingResource.waitForIdle()
   }
 }
 

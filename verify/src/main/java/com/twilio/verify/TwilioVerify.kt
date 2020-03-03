@@ -7,6 +7,7 @@ import android.content.Context
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.TwilioVerifyManager
+import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
@@ -45,7 +46,14 @@ interface TwilioVerify {
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .build()
-      return TwilioVerifyManager(factorFacade)
+      val challengeFacade = ChallengeFacade.Builder()
+          .context(context)
+          .authorization(authorization)
+          .networkProvider(networkProvider)
+          .keyStorage(keyStorage)
+          .factorFacade(factorFacade)
+          .build()
+      return TwilioVerifyManager(factorFacade, challengeFacade)
     }
   }
 }
