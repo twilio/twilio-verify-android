@@ -14,8 +14,10 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -146,6 +148,50 @@ class TwilioVerifyManagerTest {
     }
     idlingResource.startOperation()
     twilioVerifyManager.getChallenge(sid, factorSid, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update a challenge should call success`() {
+    val factorSid = "factorSid"
+    val challengeSid = "challengeSid"
+    val status = Approved
+    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
+    argumentCaptor<() -> Unit>().apply {
+      whenever(challengeFacade.updateChallenge(eq(updateChallengeInput), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.updateChallenge(updateChallengeInput, {
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error updating a challenge should call error`() {
+    val factorSid = "factorSid"
+    val challengeSid = "challengeSid"
+    val status = Approved
+    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(challengeFacade.updateChallenge(eq(updateChallengeInput), any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.updateChallenge(updateChallengeInput, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
