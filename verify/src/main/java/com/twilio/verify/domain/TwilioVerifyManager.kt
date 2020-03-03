@@ -6,7 +6,6 @@ package com.twilio.verify.domain
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.domain.challenge.ChallengeFacade
-import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
