@@ -1,7 +1,6 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.challenge.models.FactorChallenge
@@ -21,14 +20,15 @@ import org.json.JSONObject
  */
 internal const val challengeSidPath = "{ChallengeSid}"
 internal const val updateChallengeURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
+  "Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
 internal const val getChallengeURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
+  "Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
 
 internal class ChallengeAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
-  private val authorization: Authorization
+  private val authorization: Authorization,
+  private val baseUrl: String
 ) {
 
   fun update(
@@ -82,7 +82,7 @@ internal class ChallengeAPIClient(
 
   private fun updateChallengeURL(challenge: FactorChallenge) =
     challenge.factor?.let { factor ->
-      updateChallengeURL.replace(serviceSidPath, factor.serviceSid, true)
+      "$baseUrl$updateChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
           .replace(
               entitySidPath, factor.entitySid, true
           )
@@ -102,7 +102,7 @@ internal class ChallengeAPIClient(
   private fun getChallengeURL(
     challengeSid: String,
     factor: Factor
-  ) = getChallengeURL.replace(serviceSidPath, factor.serviceSid, true)
+  ) = "$baseUrl$getChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
       .replace(
           entitySidPath, factor.entitySid, true
       )

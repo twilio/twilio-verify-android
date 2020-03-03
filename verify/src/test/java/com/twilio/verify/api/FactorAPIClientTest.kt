@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -45,13 +46,14 @@ class FactorAPIClientTest {
   private lateinit var networkProvider: NetworkProvider
   private lateinit var authorization: Authorization
   private lateinit var context: Context
+  private val baseUrl = BuildConfig.BASE_URL
 
   @Before
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
     authorization = Authorization("accountSid", "authToken")
-    factorAPIClient = FactorAPIClient(networkProvider, context, authorization)
+    factorAPIClient = FactorAPIClient(networkProvider, context, authorization, baseUrl)
   }
 
   @Test
@@ -104,7 +106,7 @@ class FactorAPIClientTest {
   fun `Create factor request should match to the expected params`() {
     val serviceSid = "serviceSid"
     val entitySid = "entitySid"
-    val expectedURL = createFactorURL.replace(serviceSidPath, serviceSid, true)
+    val expectedURL = "$baseUrl$createFactorURL".replace(serviceSidPath, serviceSid, true)
         .replace(
             entitySidPath, entitySid, true
         )
@@ -201,7 +203,7 @@ class FactorAPIClientTest {
     val serviceSidMock = "serviceSid"
     val entitySidMock = "entitySid"
     val authPayloadMock = "authPayload"
-    val expectedURL = verifyFactorURL.replace(serviceSidPath, serviceSidMock, true)
+    val expectedURL = "$baseUrl$verifyFactorURL".replace(serviceSidPath, serviceSidMock, true)
         .replace(
             entitySidPath, entitySidMock, true
         )

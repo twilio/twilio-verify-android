@@ -9,15 +9,14 @@ import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.data.provider
 import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.networking.Authorization
-import com.twilio.verify.networking.NetworkAdapter
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.tls.internal.TlsUtil.localhost
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import java.net.HttpURLConnection
-import java.net.URL
 import java.security.KeyStore
+import javax.net.ssl.HttpsURLConnection
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -29,14 +28,29 @@ open class BaseServerTest {
   lateinit var context: Context
   lateinit var twilioVerify: TwilioVerify
   lateinit var mockWebServer: MockWebServer
-  lateinit var httpsURLConnection: HttpURLConnection
   lateinit var sharedPreferences: SharedPreferences
   lateinit var keyStore: KeyStore
   protected val idlingResource = CountingIdlingResource(this.javaClass.simpleName)
 
   @Before
   open fun before() {
-    setupTwilioVerify()
+    val sslSocketFactory = localhost().sslSocketFactory()
+    HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory)
+    mockWebServer = MockWebServer()
+    mockWebServer.useHttps(sslSocketFactory, false)
+    mockWebServer.start()
+    sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
+        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+    context = InstrumentationRegistry.getInstrumentation()
+        .targetContext
+    keyStore = KeyStore.getInstance(provider)
+        .apply {
+          load(null)
+        }
+    authorization = Authorization("accountSid", "authToken")
+    twilioVerify = Builder(context, authorization)
+        .baseUrl(mockWebServer.url("/").toString())
+        .build()
   }
 
   @After
@@ -62,25 +76,6 @@ open class BaseServerTest {
       mockResponse.setBody(fileContent)
     }
     mockWebServer.enqueue(mockResponse)
-  }
-
-  protected fun setupTwilioVerify() {
-    mockWebServer = MockWebServer()
-    mockWebServer.start()
-    httpsURLConnection =
-      URL(mockWebServer.url("/").toString()).openConnection() as HttpURLConnection
-    sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
-        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-    context = InstrumentationRegistry.getInstrumentation()
-        .targetContext
-    keyStore = KeyStore.getInstance(provider)
-        .apply {
-          load(null)
-        }
-    authorization = Authorization("accountSid", "authToken")
-    twilioVerify = Builder(context, authorization)
-        .networkProvider(NetworkAdapter(httpsURLConnection))
-        .build()
   }
 }
 

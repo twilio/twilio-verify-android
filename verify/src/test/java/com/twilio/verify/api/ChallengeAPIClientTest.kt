@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -42,6 +43,7 @@ class ChallengeAPIClientTest {
   private lateinit var networkProvider: NetworkProvider
   private lateinit var authorization: Authorization
   private lateinit var context: Context
+  private val baseUrl = BuildConfig.BASE_URL
 
   private val factorChallenge =
     FactorChallenge(
@@ -56,7 +58,8 @@ class ChallengeAPIClientTest {
     context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
     authorization = Authorization("accountSid", "authToken")
-    challengeAPIClient = ChallengeAPIClient(networkProvider, context, authorization)
+    challengeAPIClient =
+      ChallengeAPIClient(networkProvider, context, authorization, baseUrl)
   }
 
   @Test
@@ -117,7 +120,9 @@ class ChallengeAPIClientTest {
   @Test
   fun `Update challenge request should match to the expected params`() {
     val expectedURL =
-      updateChallengeURL.replace(serviceSidPath, factorChallenge.factor!!.serviceSid, true)
+      "$baseUrl$updateChallengeURL".replace(
+          serviceSidPath, factorChallenge.factor!!.serviceSid, true
+      )
           .replace(
               entitySidPath, factorChallenge.factor!!.entitySid, true
           )
@@ -199,7 +204,7 @@ class ChallengeAPIClientTest {
     val factor =
       PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid")
     val expectedURL =
-      getChallengeURL.replace(serviceSidPath, factor.serviceSid, true)
+      "$baseUrl$getChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
           .replace(
               entitySidPath, factor.entitySid, true
           )

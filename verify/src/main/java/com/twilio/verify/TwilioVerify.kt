@@ -42,8 +42,13 @@ interface TwilioVerify {
   ) {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
+    private var baseUrl: String = BuildConfig.BASE_URL
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
+
+    internal fun baseUrl(baseUrl: String) = apply {
+      this.baseUrl = baseUrl
+    }
 
     @Throws(TwilioVerifyException::class)
     fun build(): TwilioVerify {
@@ -52,6 +57,7 @@ interface TwilioVerify {
           .authorization(authorization)
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
+          .baseUrl(baseUrl)
           .build()
       val challengeFacade = ChallengeFacade.Builder()
           .context(context)
@@ -59,6 +65,7 @@ interface TwilioVerify {
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .factorFacade(factorFacade)
+          .baseUrl(baseUrl)
           .build()
       return TwilioVerifyManager(factorFacade, challengeFacade)
     }

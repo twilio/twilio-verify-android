@@ -7,6 +7,7 @@ import android.content.Context
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
+import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.sample.BuildConfig
@@ -31,5 +32,13 @@ class TwilioVerifyAdapter(
     error: (Exception) -> Unit
   ) {
     twilioVerify.verifyFactor(verifyFactorInput, success, error)
+  }
+
+  fun updateChallenge(
+    updateChallengeInput: UpdateChallengeInput,
+    success: () -> Unit,
+    error: (Exception) -> Unit
+  ) {
+    twilioVerify.updateChallenge(updateChallengeInput, success, error)
   }
 }
