@@ -6,7 +6,9 @@ package com.twilio.verify.domain
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.domain.challenge.ChallengeFacade
+import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.FactorFacade
+import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.VerifyFactorInput
@@ -29,5 +31,14 @@ internal class TwilioVerifyManager(
     error: (TwilioVerifyException) -> Unit
   ) {
     factorFacade.verifyFactor(verifyFactorInput, success, error)
+  }
+
+  override fun getChallenge(
+    challengeSid: String,
+    factorSid: String,
+    success: (Challenge) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    challengeFacade.getChallenge(challengeSid, factorSid, success, error)
   }
 }

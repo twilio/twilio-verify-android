@@ -10,6 +10,16 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.SignerTemplate
+import com.twilio.verify.domain.challenge.createdDateKey
+import com.twilio.verify.domain.challenge.dateKey
+import com.twilio.verify.domain.challenge.detailsKey
+import com.twilio.verify.domain.challenge.expirationDateKey
+import com.twilio.verify.domain.challenge.fieldsKey
+import com.twilio.verify.domain.challenge.hiddenDetailsKey
+import com.twilio.verify.domain.challenge.labelKey
+import com.twilio.verify.domain.challenge.messageKey
+import com.twilio.verify.domain.challenge.updatedDateKey
+import com.twilio.verify.domain.challenge.valueKey
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.entitySidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
@@ -17,6 +27,7 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.serviceSidKey
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
+import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
@@ -145,6 +156,50 @@ class TwilioVerifyTest {
         fail(exception.message)
         idlingResource.operationFinished()
       })
+      idlingResource.operationFinished()
+    }, { exception ->
+      fail(exception.message)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get challenge should call success`() {
+    val factorSid = "factorSid"
+    val challengeSid = "challengeSid"
+    val status = Approved
+
+    val jsonObject = JSONObject().apply {
+      put(com.twilio.verify.domain.challenge.sidKey, challengeSid)
+      put(sidKey, factorSid)
+      put(createdDateKey, "2020-02-19T16:39:57-08:00")
+      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(com.twilio.verify.domain.challenge.statusKey, status.name)
+      put(detailsKey, JSONObject().apply {
+        put(messageKey, "message123")
+        put(fieldsKey, JSONObject().apply {
+          put(labelKey, "label123")
+          put(valueKey, "value123")
+        })
+        put(dateKey, "2020-02-19T16:39:57-08:00")
+      }).toString()
+      put(hiddenDetailsKey, JSONObject().apply {
+        put("key1", "value1")
+      }.toString())
+      put(expirationDateKey, "2020-02-27T08:50:57-08:00")
+    }
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        firstValue.invoke(jsonObject.toString())
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerify.getChallenge(challengeSid, factorSid, { challenge ->
+      assertEquals(jsonObject.getString(com.twilio.verify.domain.challenge.sidKey), challenge.sid)
+      assertEquals(
+          jsonObject.getString(com.twilio.verify.domain.challenge.statusKey), challenge.status.name
+      )
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)

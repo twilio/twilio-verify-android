@@ -9,6 +9,7 @@ import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
+import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.VerifyFactorInput
@@ -26,6 +27,13 @@ interface TwilioVerify {
   fun verifyFactor(
     verifyFactorInput: VerifyFactorInput,
     success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
+  fun getChallenge(
+    challengeSid: String,
+    factorSid: String,
+    success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
 
