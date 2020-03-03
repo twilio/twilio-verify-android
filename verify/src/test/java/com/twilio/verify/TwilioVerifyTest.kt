@@ -193,10 +193,8 @@ class TwilioVerifyTest {
     }
     idlingResource.startOperation()
     twilioVerify.getChallenge(challengeSid, factorSid, { challenge ->
-      assertEquals(jsonObject.getString(com.twilio.verify.domain.challenge.sidKey), challenge.sid)
-      assertEquals(
-          jsonObject.getString(com.twilio.verify.domain.challenge.statusKey), challenge.status.name
-      )
+      assertEquals(challengeSid, challenge.sid)
+      assertEquals(status.name, challenge.status.name)
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
