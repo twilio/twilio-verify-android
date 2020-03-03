@@ -31,38 +31,20 @@ open class BaseServerTest {
   lateinit var mockWebServer: MockWebServer
   lateinit var httpsURLConnection: HttpURLConnection
   lateinit var sharedPreferences: SharedPreferences
-  var keyPairAlias: String? = null
   lateinit var keyStore: KeyStore
+  protected val idlingResource = CountingIdlingResource(this.javaClass.simpleName)
 
   @Before
   open fun before() {
-    mockWebServer = MockWebServer()
-    mockWebServer.start()
-    httpsURLConnection =
-      URL(mockWebServer.url("/").toString()).openConnection() as HttpURLConnection
-    sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
-        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-    context = InstrumentationRegistry.getInstrumentation()
-        .targetContext
-    authorization = Authorization("accountSid", "authToken")
-    twilioVerify = Builder(context, authorization)
-        .networkProvider(NetworkAdapter(httpsURLConnection))
-        .build()
-    keyStore = KeyStore.getInstance(provider)
-        .apply {
-          load(null)
-        }
+    setupTwilioVerify()
   }
 
   @After
-  fun tearDown() {
+  open fun tearDown() {
     mockWebServer.shutdown()
     sharedPreferences.edit()
         .clear()
         .apply()
-    keyPairAlias?.let { alias ->
-      keyStore.deleteEntry(alias)
-    }
     keyStore.aliases()
         .toList()
         .forEach {
@@ -80,6 +62,25 @@ open class BaseServerTest {
       mockResponse.setBody(fileContent)
     }
     mockWebServer.enqueue(mockResponse)
+  }
+
+  protected fun setupTwilioVerify() {
+    mockWebServer = MockWebServer()
+    mockWebServer.start()
+    httpsURLConnection =
+      URL(mockWebServer.url("/").toString()).openConnection() as HttpURLConnection
+    sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
+        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+    context = InstrumentationRegistry.getInstrumentation()
+        .targetContext
+    keyStore = KeyStore.getInstance(provider)
+        .apply {
+          load(null)
+        }
+    authorization = Authorization("accountSid", "authToken")
+    twilioVerify = Builder(context, authorization)
+        .networkProvider(NetworkAdapter(httpsURLConnection))
+        .build()
   }
 }
 

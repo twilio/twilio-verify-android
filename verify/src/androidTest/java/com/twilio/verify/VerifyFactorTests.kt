@@ -1,6 +1,5 @@
 package com.twilio.verify
 
-import androidx.test.espresso.idling.CountingIdlingResource
 import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
@@ -19,36 +18,7 @@ import java.net.URL
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-class VerifyFactorTests : BaseServerTest() {
-
-  private val idlingResource = CountingIdlingResource("VerifyFactorTests")
-
-  override fun before() {
-    createFactor()
-    super.before()
-  }
-
-  private fun createFactor() {
-    super.before()
-    val friendlyName = "friendlyName"
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJqdGkiOiJlYj" +
-        "gyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYi0xNTc1NjAzNzE4IiwiZ3JhbnRzIjp7ImF1dGh5Ijp7InNlcn" +
-        "ZpY2Vfc2lkIjoiSVNiYjc4MjNhYTVkY2NlOTA0NDNmODU2NDA2YWJkNzAwMCIsImVudGl0eV9pZCI6IjEiLCJmYW" +
-        "N0b3IiOiJwdXNoIn19LCJpc3MiOiJlYjgyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZjI0YjZmYiIsIm5iZiI6MTU3NT" +
-        "YwMzcxOCwiZXhwIjoxNTc1NjA3MzE4LCJzdWIiOiJBQzZjY2IyY2RjZDgwMzYzYTI1OTI2NmU3NzZhZjAwMDAwIn" +
-        "0.QWrQhpdrJTtXXFwDX9LL4wCy43SWhjS-w5p9C6bcsTk"
-    val factorInput = PushFactorInput(friendlyName, "pushToken", jwt)
-    enqueueMockResponse(200, APIResponses.createValidFactorResponse())
-    idlingResource.increment()
-    twilioVerify.createFactor(factorInput, {
-      keyPairAlias = (it as PushFactor).keyPairAlias
-      idlingResource.decrement()
-    }, { e ->
-      fail(e.message)
-      idlingResource.decrement()
-    })
-    idlingResource.waitForResource()
-  }
+class VerifyFactorTests : BaseFactorTest() {
 
   @Test
   fun testVerifyFactorWithValidAPIResponseShouldReturnFactor() {
@@ -127,7 +97,7 @@ class VerifyFactorTests : BaseServerTest() {
     enqueueMockResponse(200, APIResponses.verifyValidFactorResponse())
     idlingResource.increment()
     twilioVerify.createFactor(factorInput, {
-      keyPairAlias = (it as PushFactor).keyPairAlias
+      factor = it as PushFactor
       idlingResource.decrement()
       val verifyInput = VerifyPushFactorInput(sid, verificationCode)
       idlingResource.increment()
