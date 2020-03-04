@@ -81,7 +81,7 @@ open class BaseServerTest {
 
 fun CountingIdlingResource.waitForResource(
   waitFor: Long = 100,
-  times: Int = 10
+  times: Int = 20
 ) {
   for (i in 0..times) {
     if (!isIdleNow) {
