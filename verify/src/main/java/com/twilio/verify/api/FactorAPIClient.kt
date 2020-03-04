@@ -1,14 +1,20 @@
 package com.twilio.verify.api
 
 import android.content.Context
+import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.publicKeyKey
 import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.*
+import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.NetworkAdapter
+import com.twilio.verify.networking.NetworkException
+import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.RequestHelper
 import org.json.JSONObject
 
 /*
@@ -25,8 +31,6 @@ internal const val createFactorURL =
 internal const val verifyFactorURL =
   "Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath"
 
-internal const val applicationKey = "application"
-internal const val typeKey = "type"
 internal const val fcmPushType = "fcm"
 internal const val friendlyName = "FriendlyName"
 internal const val factorType = "FactorType"
