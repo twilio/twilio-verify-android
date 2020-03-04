@@ -162,6 +162,48 @@ class TwilioVerifyTest {
   }
 
   @Test
+  fun `Get challenge should call success`() {
+    val factorSid = "factorSid"
+    val challengeSid = "challengeSid"
+    val status = Approved
+    createFactor(factorSid, Verified)
+    val jsonObject = JSONObject().apply {
+      put(com.twilio.verify.domain.challenge.sidKey, challengeSid)
+      put(factorSidKey, factorSid)
+      put(createdDateKey, "2020-02-19T16:39:57-08:00")
+      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(com.twilio.verify.domain.challenge.statusKey, status.name)
+      put(detailsKey, JSONObject().apply {
+        put(messageKey, "message123")
+        put(fieldsKey, JSONObject().apply {
+          put(labelKey, "label123")
+          put(valueKey, "value123")
+        })
+        put(dateKey, "2020-02-19T16:39:57-08:00")
+      }).toString()
+      put(hiddenDetailsKey, JSONObject().apply {
+        put("key1", "value1")
+      }.toString())
+      put(expirationDateKey, "2020-02-27T08:50:57-08:00")
+    }
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        firstValue.invoke(jsonObject.toString())
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerify.getChallenge(challengeSid, factorSid, { challenge ->
+      assertEquals(challengeSid, challenge.sid)
+      assertEquals(status.name, challenge.status.name)
+      idlingResource.operationFinished()
+    }, { exception ->
+      fail(exception.message)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
   fun `Update challenge should call success`() {
     val factorSid = "factorSid"
     createFactor(factorSid, Verified)

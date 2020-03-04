@@ -5,6 +5,7 @@ package com.twilio.sample
 
 import android.content.Context
 import com.twilio.verify.TwilioVerify
+import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.UpdateChallengeInput
@@ -32,6 +33,15 @@ class TwilioVerifyAdapter(
     error: (Exception) -> Unit
   ) {
     twilioVerify.verifyFactor(verifyFactorInput, success, error)
+  }
+
+  fun getChallenge(
+    challengeSid: String,
+    factorSid: String,
+    success: (Challenge) -> Unit,
+    error: (Exception) -> Unit
+  ) {
+    twilioVerify.getChallenge(challengeSid, factorSid, success, error)
   }
 
   fun updateChallenge(
