@@ -21,14 +21,12 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.text.ParseException
-import java.text.SimpleDateFormat
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class ChallengeMapperTest {
 
   private val challengeMapper = ChallengeMapper()
-  private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
 
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()
@@ -61,8 +59,8 @@ class ChallengeMapperTest {
     assertEquals(jsonObject.getString(factorSidKey), challenge.factorSid)
     assertEquals(jsonObject.getString(createdDateKey), challenge.createdDate)
     assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
-    assertEquals(dateFormatter.parse(jsonObject.getString(createdDateKey)), challenge.createdAt)
-    assertEquals(dateFormatter.parse(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
+    assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
+    assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
     assertEquals(jsonObject.getString(statusKey), challenge.status.name)
     assertEquals(jsonObject.getString(detailsKey), challenge.details)
     val details = JSONObject(jsonObject.getString(detailsKey))
@@ -76,10 +74,10 @@ class ChallengeMapperTest {
         details.getJSONArray(fieldsKey).getJSONObject(0).getString(valueKey),
         challenge.challengeDetails.fields[0].value
     )
-    assertEquals(dateFormatter.parse(details.getString(dateKey)), challenge.challengeDetails.date)
+    assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
     assertEquals(
-        dateFormatter.parse(jsonObject.getString(expirationDateKey)), challenge.expirationDate
+        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
     )
   }
 
@@ -105,17 +103,17 @@ class ChallengeMapperTest {
     assertEquals(jsonObject.getString(factorSidKey), challenge.factorSid)
     assertEquals(jsonObject.getString(createdDateKey), challenge.createdDate)
     assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
-    assertEquals(dateFormatter.parse(jsonObject.getString(createdDateKey)), challenge.createdAt)
-    assertEquals(dateFormatter.parse(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
+    assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
+    assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
     assertEquals(jsonObject.getString(statusKey), challenge.status.name)
     assertEquals(jsonObject.getString(detailsKey), challenge.details)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
     assertTrue(challenge.challengeDetails.fields.isEmpty())
-    assertEquals(dateFormatter.parse(details.getString(dateKey)), challenge.challengeDetails.date)
+    assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
     assertEquals(
-        dateFormatter.parse(jsonObject.getString(expirationDateKey)), challenge.expirationDate
+        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
     )
   }
 
@@ -146,8 +144,8 @@ class ChallengeMapperTest {
     assertEquals(jsonObject.getString(factorSidKey), challenge.factorSid)
     assertEquals(jsonObject.getString(createdDateKey), challenge.createdDate)
     assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
-    assertEquals(dateFormatter.parse(jsonObject.getString(createdDateKey)), challenge.createdAt)
-    assertEquals(dateFormatter.parse(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
+    assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
+    assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
     assertEquals(jsonObject.getString(statusKey), challenge.status.name)
     assertEquals(jsonObject.getString(detailsKey), challenge.details)
     val details = JSONObject(jsonObject.getString(detailsKey))
@@ -164,7 +162,7 @@ class ChallengeMapperTest {
     assertNull(challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
     assertEquals(
-        dateFormatter.parse(jsonObject.getString(expirationDateKey)), challenge.expirationDate
+        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
     )
   }
 
@@ -244,7 +242,7 @@ class ChallengeMapperTest {
   }
 
   @Test
-  fun `Map a response from API with invalid created date should return a challenge`() {
+  fun `Map a response from API with invalid created date should throw an error`() {
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
       put(factorSidKey, "factorSid123")
@@ -273,7 +271,7 @@ class ChallengeMapperTest {
   }
 
   @Test
-  fun `Map a response from API with invalid details date should return a challenge`() {
+  fun `Map a response from API with invalid details date should throw an error`() {
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
       put(factorSidKey, "factorSid123")
