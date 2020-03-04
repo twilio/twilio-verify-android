@@ -1,6 +1,5 @@
 package com.twilio.verify
 
-import androidx.test.espresso.idling.CountingIdlingResource
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
@@ -12,6 +11,7 @@ import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.networking.NetworkException
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -26,7 +26,15 @@ import java.security.KeyStore
 
 class CreateFactorTests : BaseServerTest() {
 
-  private val idlingResource = CountingIdlingResource("VerifyFactorTests")
+  internal var keyPairAlias: String? = null
+
+  @After
+  override fun tearDown() {
+    keyPairAlias?.let { alias ->
+      keyStore.deleteEntry(alias)
+    }
+    super.tearDown()
+  }
 
   @Test
   fun testCreateFactorWithValidJWTAndValidAPIResponseShouldReturnFactor() {

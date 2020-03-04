@@ -8,8 +8,13 @@ import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.publicKeyKey
 import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.*
+import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.NetworkAdapter
+import com.twilio.verify.networking.NetworkException
+import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.RequestHelper
 import org.json.JSONObject
 
 /*
@@ -22,12 +27,10 @@ internal const val factorSidPath = "{FactorSid}"
 internal const val authPayloadParam = "AuthPayload"
 
 internal const val createFactorURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors"
+  "Services/$serviceSidPath/Entities/$entitySidPath/Factors"
 internal const val verifyFactorURL =
-  "${BuildConfig.BASE_URL}Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath"
+  "Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath"
 
-internal const val applicationKey = "application"
-internal const val typeKey = "type"
 internal const val fcmPushType = "fcm"
 internal const val friendlyName = "FriendlyName"
 internal const val factorType = "FactorType"
@@ -43,7 +46,8 @@ internal const val defaultAlg = "ES256"
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
-  private val authorization: Authorization
+  private val authorization: Authorization,
+  private val baseUrl: String
 ) {
 
   fun create(
@@ -93,13 +97,13 @@ internal class FactorAPIClient(
   }
 
   private fun createFactorURL(factorPayload: FactorPayload): String =
-    createFactorURL.replace(serviceSidPath, factorPayload.serviceSid, true)
+    "$baseUrl$createFactorURL".replace(serviceSidPath, factorPayload.serviceSid, true)
         .replace(
             entitySidPath, factorPayload.entitySid, true
         )
 
   private fun verifyFactorURL(factor: Factor): String =
-    verifyFactorURL.replace(serviceSidPath, factor.serviceSid, true)
+    "$baseUrl$verifyFactorURL".replace(serviceSidPath, factor.serviceSid, true)
         .replace(
             entitySidPath, factor.entitySid, true
         ).replace(factorSidPath, factor.sid)

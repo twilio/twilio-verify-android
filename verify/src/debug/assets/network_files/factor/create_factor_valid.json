@@ -1,6 +1,6 @@
 {
   "account_sid": "accountSid",
-  "sid": "sid",
+  "sid": "factorSid",
   "friendly_name": "friendlyName",
   "entity_sid": "entitySid",
   "type": "Push",

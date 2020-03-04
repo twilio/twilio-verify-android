@@ -15,6 +15,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.util.Date
 
 internal const val sidKey = "sid"
 internal const val messageKey = "message"
@@ -24,13 +25,15 @@ internal const val dateKey = "date"
 internal const val labelKey = "label"
 internal const val valueKey = "value"
 internal const val hiddenDetailsKey = "hidden_details"
-internal const val factorSidKey = "value"
+internal const val factorSidKey = "factor_sid"
 internal const val statusKey = "status"
 internal const val createdDateKey = "date_created"
 internal const val updatedDateKey = "date_updated"
 internal const val expirationDateKey = "expiration_date"
-internal const val dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX"
-internal val dateFormatter = SimpleDateFormat(dateFormat)
+internal const val dateFormatTimeZone = "yyyy-MM-dd'T'HH:mm:ssZ"
+internal val dateFormatterTimeZone = SimpleDateFormat(dateFormatTimeZone)
+private const val dateFormatUTC = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+private val dateFormatterUTC = SimpleDateFormat(dateFormatUTC)
 
 internal class ChallengeMapper {
   @Throws(TwilioVerifyException::class)
@@ -42,9 +45,9 @@ internal class ChallengeMapper {
       return FactorChallenge(
           sid = jsonObject.getString(sidKey), details = details, createdDate = createdDate,
           updatedDate = updatedDate, factorSid = jsonObject.getString(factorSidKey),
-          expirationDate = dateFormatter.parse(jsonObject.getString(expirationDateKey)),
-          createdAt = dateFormatter.parse(createdDate),
-          updatedAt = dateFormatter.parse(updatedDate),
+          expirationDate = fromRFC3339Date(jsonObject.getString(expirationDateKey)),
+          createdAt = fromRFC3339Date(createdDate),
+          updatedAt = fromRFC3339Date(updatedDate),
           challengeDetails = toChallengeDetails(details),
           hiddenDetails = jsonObject.getString(hiddenDetailsKey),
           status = ChallengeStatus.values().find { it.name == jsonObject.getString(statusKey) }
@@ -76,7 +79,26 @@ internal class ChallengeMapper {
         } ?: listOf<Detail>()
     val date = detailsJson.optString(dateKey)
         ?.takeIf { it.isNotEmpty() }
-        ?.let { dateFormatter.parse(it) }
+        ?.let { fromRFC3339Date(it) }
     return ChallengeDetails(message, fields, date)
+  }
+}
+
+internal fun fromRFC3339Date(date: String): Date {
+  try {
+    if (date.endsWith("Z")) {
+      return dateFormatterUTC.parse(date)
+    }
+    val firstPart: String = date.substring(0, date.lastIndexOf('-'))
+    var secondPart: String = date.substring(date.lastIndexOf('-'))
+
+    secondPart = (secondPart.substring(0, secondPart.indexOf(':'))
+        + secondPart.substring(secondPart.indexOf(':') + 1))
+    val dateString = firstPart + secondPart
+    return dateFormatterTimeZone.parse(dateString)
+  } catch (e: ParseException) {
+    throw e
+  } catch (e: Exception) {
+    throw ParseException(e.message, 0)
   }
 }

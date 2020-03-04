@@ -70,6 +70,7 @@ internal class FactorFacade(
     private lateinit var auth: Authorization
     private lateinit var networking: NetworkProvider
     private lateinit var keyStore: KeyStorage
+    private lateinit var url: String
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networking = networkProvider }
 
@@ -81,6 +82,8 @@ internal class FactorFacade(
 
     fun keyStorage(keyStorage: KeyStorage) =
       apply { this.keyStore = keyStorage }
+
+    fun baseUrl(url: String) = apply { this.url = url }
 
     @Throws(TwilioVerifyException::class)
     fun build(): FactorFacade {
@@ -106,7 +109,14 @@ internal class FactorFacade(
             InitializationError
         )
       }
-      val factorAPIClient = FactorAPIClient(networking, appContext, auth)
+      if (!this::url.isInitialized) {
+        throw TwilioVerifyException(
+            IllegalArgumentException("Illegal value for base url"),
+            InitializationError
+        )
+      }
+      val factorAPIClient =
+        FactorAPIClient(networking, appContext, auth, url)
       val repository = FactorRepository(appContext, factorAPIClient)
       val pushFactory = PushFactory(repository, keyStore)
       return FactorFacade(pushFactory, repository)

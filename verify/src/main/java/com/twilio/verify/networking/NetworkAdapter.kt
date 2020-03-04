@@ -10,49 +10,45 @@ import javax.net.ssl.HttpsURLConnection
  * Copyright (c) 2020, Twilio Inc.
  */
 
-class NetworkAdapter(private var urlConnection: HttpURLConnection? = null) : NetworkProvider {
+class NetworkAdapter : NetworkProvider {
 
   override fun execute(
     request: Request,
     success: (response: String) -> Unit,
     error: (NetworkException) -> Unit
   ) {
+    var httpUrlConnection: HttpURLConnection? = null
     try {
-      if (urlConnection == null) {
-        urlConnection = request.url.openConnection() as HttpsURLConnection
+      httpUrlConnection = request.url.openConnection() as HttpsURLConnection
+      httpUrlConnection.requestMethod = request.httpMethod.method
+      for ((key, value) in request.headers) {
+        httpUrlConnection.setRequestProperty(key, value)
       }
-      urlConnection?.let { httpUrlConnection ->
-        httpUrlConnection.requestMethod = request.httpMethod.method
-        for ((key, value) in request.headers) {
-          httpUrlConnection.setRequestProperty(key, value)
-        }
-        if (request.getParams()?.isNotEmpty() == true) {
-          httpUrlConnection.doOutput = true
-          val os: OutputStream = httpUrlConnection.outputStream
-          val writer = BufferedWriter(
-              OutputStreamWriter(os, "UTF-8")
-          )
-          writer.write(request.getParams())
-          writer.flush()
-          writer.close()
-          os.close()
-        }
-        val responseCode = httpUrlConnection.responseCode
-        if (responseCode < 300) {
-          val response = httpUrlConnection.inputStream.bufferedReader()
-              .use { it.readText() }
-          success(response)
-        } else {
-          val errorResponse = httpUrlConnection.errorStream.bufferedReader()
-              .use { it.readText() }
-          error(NetworkException(responseCode, errorResponse))
-        }
-      } ?: run { (error(NetworkException(IllegalArgumentException()))) }
+      if (request.getParams()?.isNotEmpty() == true) {
+        httpUrlConnection.doOutput = true
+        val os: OutputStream = httpUrlConnection.outputStream
+        val writer = BufferedWriter(
+            OutputStreamWriter(os, "UTF-8")
+        )
+        writer.write(request.getParams())
+        writer.flush()
+        writer.close()
+        os.close()
+      }
+      val responseCode = httpUrlConnection.responseCode
+      if (responseCode < 300) {
+        val response = httpUrlConnection.inputStream.bufferedReader()
+            .use { it.readText() }
+        success(response)
+      } else {
+        val errorResponse = httpUrlConnection.errorStream.bufferedReader()
+            .use { it.readText() }
+        error(NetworkException(responseCode, errorResponse))
+      }
     } catch (e: Exception) {
       error(NetworkException(e))
     } finally {
-      urlConnection?.disconnect()
-      urlConnection = null
+      httpUrlConnection?.disconnect()
     }
   }
 }

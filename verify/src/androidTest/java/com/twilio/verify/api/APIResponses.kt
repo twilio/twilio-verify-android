@@ -15,6 +15,10 @@ object APIResponses {
 
   fun verifyInvalidFactorResponse() = getJson("network_files/factor/verify_factor_invalid.json")
 
+  fun getValidPendingChallengeResponse() = getJson("network_files/challenge/get_challenge_pending_valid.json")
+
+  fun getValidApprovedChallengeResponse() = getJson("network_files/challenge/get_challenge_approved_valid.json")
+
   private fun getJson(path: String): String =
     String(
         InstrumentationRegistry.getInstrumentation().targetContext.assets.open(path).readBytes()

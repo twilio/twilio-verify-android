@@ -46,13 +46,14 @@ class FactorAPIClientTest {
   private lateinit var networkProvider: NetworkProvider
   private lateinit var authorization: Authorization
   private lateinit var context: Context
+  private val baseUrl = BuildConfig.BASE_URL
 
   @Before
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
     authorization = Authorization("accountSid", "authToken")
-    factorAPIClient = FactorAPIClient(networkProvider, context, authorization)
+    factorAPIClient = FactorAPIClient(networkProvider, context, authorization, baseUrl)
   }
 
   @Test
@@ -106,7 +107,7 @@ class FactorAPIClientTest {
   fun `Create factor request should match to the expected params`() {
     val serviceSid = "serviceSid"
     val entitySid = "entitySid"
-    val expectedURL = createFactorURL.replace(serviceSidPath, serviceSid, true)
+    val expectedURL = "$baseUrl$createFactorURL".replace(serviceSidPath, serviceSid, true)
         .replace(
             entitySidPath, entitySid, true
         )
@@ -207,7 +208,7 @@ class FactorAPIClientTest {
     val serviceSidMock = "serviceSid"
     val entitySidMock = "entitySid"
     val authPayloadMock = "authPayload"
-    val expectedURL = verifyFactorURL.replace(serviceSidPath, serviceSidMock, true)
+    val expectedURL = "$baseUrl$verifyFactorURL".replace(serviceSidPath, serviceSidMock, true)
         .replace(
             entitySidPath, entitySidMock, true
         )
