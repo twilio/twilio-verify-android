@@ -29,7 +29,7 @@ internal const val statusKey = "status"
 internal const val createdDateKey = "date_created"
 internal const val updatedDateKey = "date_updated"
 internal const val expirationDateKey = "expiration_date"
-internal const val dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX"
+internal const val dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
 internal val dateFormatter = SimpleDateFormat(dateFormat)
 
 internal class ChallengeMapper {
