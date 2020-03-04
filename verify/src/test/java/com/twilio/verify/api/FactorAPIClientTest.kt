@@ -91,7 +91,8 @@ class FactorAPIClientTest {
 
   @Test
   fun `Error creating a factor should call error`() {
-    val factorPayload = FactorPayload("factor name", Push, emptyMap(), "serviceSid", "entitySid")
+    val factorPayload =
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid", "entitySid")
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
       fail()
@@ -117,10 +118,14 @@ class FactorAPIClientTest {
     val expectedBody = mapOf(
         friendlyName to friendlyNameMock, factorType to factorTypeMock.factorTypeName,
         binding to JSONObject().apply {
-          put(pushTokenKey, pushToken)
           put(publicKeyKey, publicKey)
-          put(typeKey, fcmPushType)
-          put(applicationKey, context.applicationInfo.loadLabel(context.packageManager))
+          put(algKey, defaultAlg)
+        }.toString(),
+        config to JSONObject().apply {
+          put(sdkVersionKey, BuildConfig.VERSION_NAME)
+          put(appIdKey, "${context.applicationInfo.loadLabel(context.packageManager)}")
+          put(notificationPlatformKey, fcmPushType)
+          put(notificationTokenKey, pushToken)
         }.toString()
     )
     val factorPayload =
