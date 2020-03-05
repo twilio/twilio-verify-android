@@ -8,7 +8,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeStatus.Expired
+import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
 
 internal class ChallengeRepository(
@@ -47,9 +47,10 @@ internal class ChallengeRepository(
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
-      if (challenge.status == Expired) {
+      if (challenge.status != Pending) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Expired challenge can not be updated"), InputError
+            IllegalArgumentException("Responded or expired challenge can not be updated"),
+            InputError
         )
       }
       toFactorChallenge(challenge).let { factorChallenge ->

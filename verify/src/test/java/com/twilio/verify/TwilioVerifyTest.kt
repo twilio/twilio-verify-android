@@ -172,7 +172,7 @@ class TwilioVerifyTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(com.twilio.verify.domain.challenge.statusKey, status.name)
+      put(com.twilio.verify.domain.challenge.statusKey, status.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONObject().apply {
@@ -194,7 +194,7 @@ class TwilioVerifyTest {
     idlingResource.startOperation()
     twilioVerify.getChallenge(challengeSid, factorSid, { challenge ->
       assertEquals(challengeSid, challenge.sid)
-      assertEquals(status.name, challenge.status.name)
+      assertEquals(status.value, challenge.status.value)
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
@@ -215,7 +215,7 @@ class TwilioVerifyTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(com.twilio.verify.domain.challenge.statusKey, status.name)
+      put(com.twilio.verify.domain.challenge.statusKey, status.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {

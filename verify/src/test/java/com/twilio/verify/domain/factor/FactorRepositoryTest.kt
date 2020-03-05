@@ -232,6 +232,7 @@ class FactorRepositoryTest {
         "accountSid",
         "serviceSid",
         "entitySid",
+        "entityIdentity",
         FactorStatus.Unverified
     )
     val payload = "authPayload"
@@ -271,6 +272,7 @@ class FactorRepositoryTest {
         "accountSid",
         "serviceSid",
         "entitySid",
+        "entityIdentity",
         FactorStatus.Unverified
     )
     val payload = "authPayload"

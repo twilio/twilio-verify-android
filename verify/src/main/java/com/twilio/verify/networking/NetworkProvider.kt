@@ -17,7 +17,7 @@ class NetworkException constructor(
   message: String?,
   cause: Throwable?
 ) : Exception(message, cause) {
-  internal constructor(
+  constructor(
     statusCode: Int,
     errorResponse: String?
   ) : this("Network exception with status code $statusCode and body: $errorResponse", null)

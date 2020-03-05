@@ -16,14 +16,14 @@ internal data class EnrollmentJWT(
 
 internal data class AuthyGrant(
   val serviceSid: String,
-  val entitySid: String,
+  val entity: String,
   val factorType: String
 )
 
 internal const val grantsKey = "grants"
 internal const val authyGrantKey = "authy"
 internal const val serviceSidKey = "service_sid"
-internal const val entitySidKey = "entity_id"
+internal const val entityIdentityKey = "entity_id"
 internal const val factorKey = "factor"
 
 @Throws(TwilioVerifyException::class)
@@ -45,7 +45,7 @@ internal fun toEnrollmentJWT(jwt: String): EnrollmentJWT {
   }
   val authyGrant = try {
     AuthyGrant(
-        authyGrantJson.getString(serviceSidKey), authyGrantJson.getString(entitySidKey),
+        authyGrantJson.getString(serviceSidKey), authyGrantJson.getString(entityIdentityKey),
         authyGrantJson.getString(
             factorKey
         )

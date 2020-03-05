@@ -12,6 +12,9 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.threading.execute
+import org.json.JSONObject
+
+internal const val signatureKey = "signature"
 
 internal class PushChallengeProcessor(
   private val challengeProvider: ChallengeProvider,
@@ -47,7 +50,7 @@ internal class PushChallengeProcessor(
               IllegalArgumentException("Invalid challenge"),
               InputError
           )
-          val authPayload = generateSignature(factorChallenge, status)
+          val authPayload = authPayload(factorChallenge, status)
           challengeProvider.update(challenge, authPayload, { updatedChallenge ->
             if (updatedChallenge.status != status) {
               throw TwilioVerifyException(
@@ -66,9 +69,16 @@ internal class PushChallengeProcessor(
     }
   }
 
-  private fun generateSignature(
-    challenge: FactorChallenge,
+  private fun authPayload(
+    factorChallenge: FactorChallenge,
     status: ChallengeStatus
+  ): String = JSONObject().apply {
+    put(signatureKey, generateSignature(factorChallenge))
+    put(statusKey, status.value)
+  }.toString()
+
+  private fun generateSignature(
+    challenge: FactorChallenge
   ): String {
     val factor = challenge.factor as? PushFactor ?: throw TwilioVerifyException(
         IllegalArgumentException("Wrong factor for challenge"), InputError
@@ -78,7 +88,7 @@ internal class PushChallengeProcessor(
             IllegalStateException("Key pair not set"), KeyStorageError
         )
     val payload = "${factor.accountSid}${factor.serviceSid}${factor.entitySid}${factor.sid}" +
-        "${challenge.sid}${challenge.createdDate}${challenge.updatedDate}$status" +
+        "${challenge.sid}${challenge.createdDate}${challenge.updatedDate}${challenge.status.value}" +
         "${challenge.details}${challenge.hiddenDetails}"
     return keyStorage.sign(keyPairAlias, payload)
   }

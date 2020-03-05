@@ -50,7 +50,7 @@ internal class ChallengeMapper {
           updatedAt = fromRFC3339Date(updatedDate),
           challengeDetails = toChallengeDetails(details),
           hiddenDetails = jsonObject.getString(hiddenDetailsKey),
-          status = ChallengeStatus.values().find { it.name == jsonObject.getString(statusKey) }
+          status = ChallengeStatus.values().find { it.value == jsonObject.getString(statusKey) }
               ?: Expired
       )
     } catch (e: JSONException) {

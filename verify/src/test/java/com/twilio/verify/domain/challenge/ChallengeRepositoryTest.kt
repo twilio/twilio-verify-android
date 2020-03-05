@@ -44,7 +44,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.name)
+      put(statusKey, Pending.value)
     }
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
@@ -84,7 +84,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.name)
+      put(statusKey, Pending.value)
     }
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(JSONObject) -> Unit>().apply {
@@ -109,7 +109,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.name)
+      put(statusKey, Pending.value)
     }
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
@@ -135,7 +135,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.name)
+      put(statusKey, Pending.value)
     }
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
@@ -163,7 +163,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.name)
+      put(statusKey, Pending.value)
     }
     argumentCaptor<() -> Unit>().apply {
       whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {

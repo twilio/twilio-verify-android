@@ -19,6 +19,7 @@ import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Denied
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -87,6 +88,11 @@ class PushChallengeProcessorTest {
     val alias = "alias"
     val signature = "signature"
     val status = Approved
+    val authPayload = JSONObject().apply {
+      put(signatureKey, signature)
+      put(statusKey, status.value)
+    }
+        .toString()
     whenever(challenge.status).thenReturn(Pending)
     whenever(challenge.factor).thenReturn(factor)
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -95,7 +101,7 @@ class PushChallengeProcessorTest {
       }
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
-      whenever(challengeProvider.update(eq(challenge), eq(signature), capture(), any())).then {
+      whenever(challengeProvider.update(eq(challenge), eq(authPayload), capture(), any())).then {
         firstValue.invoke(updatedChallenge)
       }
     }
@@ -119,40 +125,48 @@ class PushChallengeProcessorTest {
     val accountSid = "accountSid"
     val serviceSid = "serviceSid"
     val entitySid = "entitySid"
+    val entityId = "entityId"
     val createdDate = "createdDate"
     val updatedDate = "updatedDate"
     val details = "details"
     val hiddenDetails = "hiddenDetails"
-    val status = Denied
+    val newStatus = Denied
+    val status = Pending
     val factor: PushFactor = mock()
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), hiddenDetails, factorSid, Pending, mock(), mock(), mock(), details,
+        sid, mock(), hiddenDetails, factorSid, status, mock(), mock(), mock(), details,
         createdDate, updatedDate
     ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
     val payload = "${accountSid}${serviceSid}${entitySid}${factorSid}${sid}${createdDate}" +
-        "${updatedDate}$status${details}${hiddenDetails}"
+        "${updatedDate}${status.value}${details}${hiddenDetails}"
     val signature = "signature"
+    val authPayload = JSONObject().apply {
+      put(signatureKey, signature)
+      put(statusKey, newStatus.value)
+    }
+        .toString()
     whenever(factor.sid).thenReturn(factorSid)
     whenever(factor.accountSid).thenReturn(accountSid)
     whenever(factor.serviceSid).thenReturn(serviceSid)
     whenever(factor.entitySid).thenReturn(entitySid)
+    whenever(factor.entityIdentity).thenReturn(entityId)
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(challenge)
       }
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
-      whenever(challengeProvider.update(eq(challenge), eq(signature), capture(), any())).then {
+      whenever(challengeProvider.update(eq(challenge), eq(authPayload), capture(), any())).then {
         firstValue.invoke(updatedChallenge)
       }
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     whenever(keyStorage.sign(eq(alias), any())).thenReturn(signature)
-    whenever(updatedChallenge.status).thenReturn(status)
+    whenever(updatedChallenge.status).thenReturn(newStatus)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, status, {
+    pushChallengeProcessor.update(sid, factor, newStatus, {
       verify(keyStorage).sign(alias, payload)
       idlingResource.operationFinished()
     }, { exception ->
@@ -262,6 +276,12 @@ class PushChallengeProcessorTest {
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
     val signature = "signature"
+    val status = Approved
+    val authPayload = JSONObject().apply {
+      put(signatureKey, signature)
+      put(statusKey, status.value)
+    }
+        .toString()
     whenever(challenge.status).thenReturn(Pending)
     whenever(challenge.factor).thenReturn(factor)
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -270,7 +290,7 @@ class PushChallengeProcessorTest {
       }
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
-      whenever(challengeProvider.update(eq(challenge), eq(signature), capture(), any())).then {
+      whenever(challengeProvider.update(eq(challenge), eq(authPayload), capture(), any())).then {
         firstValue.invoke(updatedChallenge)
       }
     }
@@ -278,7 +298,7 @@ class PushChallengeProcessorTest {
     whenever(keyStorage.sign(eq(alias), any())).thenReturn(signature)
     whenever(updatedChallenge.status).thenReturn(Denied)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
+    pushChallengeProcessor.update(sid, factor, status, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

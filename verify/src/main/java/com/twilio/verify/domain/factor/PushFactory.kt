@@ -43,7 +43,7 @@ internal class PushFactory(
         val publicKey = keyStorage.create(alias)
         val factorBuilder = FactorPayload(
             friendlyName, Push, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey),
-            enrollmentJWT.authyGrant.serviceSid, enrollmentJWT.authyGrant.entitySid
+            enrollmentJWT.authyGrant.serviceSid, enrollmentJWT.authyGrant.entity
         )
 
         fun onFactorCreated(factor: Factor) {
