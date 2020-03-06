@@ -13,11 +13,13 @@ import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Denied
+import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.sample.R
 import kotlinx.android.synthetic.main.activity_main.approveChallenge
+import kotlinx.android.synthetic.main.activity_main.challengeActionsGroup
 import kotlinx.android.synthetic.main.activity_main.challengeGroup
 import kotlinx.android.synthetic.main.activity_main.challengeInfo
 import kotlinx.android.synthetic.main.activity_main.createFactor
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity() {
             challenge.expirationDate.time, System.currentTimeMillis(), MEDIUM, MEDIUM
         )}"
     challengeInfo.text = info
-
+    challengeActionsGroup.visibility = if (challenge.status == Pending) VISIBLE else GONE
     approveChallenge.setOnClickListener {
       updateChallenge(challenge, Approved)
     }
