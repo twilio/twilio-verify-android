@@ -1,123 +1,151 @@
 package com.twilio.sample
 
+import android.content.Context
 import android.os.Bundle
+import android.text.format.DateUtils
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.iid.FirebaseInstanceId
+import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeDetails
+import com.twilio.verify.models.ChallengeStatus
+import com.twilio.verify.models.ChallengeStatus.Approved
+import com.twilio.verify.models.ChallengeStatus.Denied
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.sample.R
+import kotlinx.android.synthetic.main.activity_main.approveChallenge
+import kotlinx.android.synthetic.main.activity_main.challengeGroup
+import kotlinx.android.synthetic.main.activity_main.challengeInfo
 import kotlinx.android.synthetic.main.activity_main.createFactor
-import kotlinx.android.synthetic.main.activity_main.createFactorCoroutines
-import kotlinx.android.synthetic.main.activity_main.result
+import kotlinx.android.synthetic.main.activity_main.denyChallenge
+import kotlinx.android.synthetic.main.activity_main.factorGroup
+import kotlinx.android.synthetic.main.activity_main.factorInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import java.text.DateFormat.MEDIUM
 
 class MainActivity : AppCompatActivity() {
 
   private lateinit var token: String
   private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
-  private lateinit var subscription: ReceiveChannel<VerifiedFactor>
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
-    twilioVerifyAdapter = TwilioVerifyAdapter(applicationContext)
-    subscription = EventBus.asChannel()
-    FirebaseInstanceId.getInstance()
-        .instanceId.addOnCompleteListener(OnCompleteListener { task ->
-      if (!task.isSuccessful) {
-        result.text = task.exception?.message
-        return@OnCompleteListener
-      }
+    twilioVerifyAdapter = TwilioVerifyProvider.instance(applicationContext)
+    getPushToken()
+    subscribeToEvents()
+    createFactor.setOnClickListener {
+      startCreateFactor()
+    }
+  }
 
-      // Get new Instance ID token
-      task.result?.token?.let {
-        token = it
-      }
-    })
+  private fun startCreateFactor() {
     val jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYjgyMTJkZmM5NTMzOWIyY2ZiMjI1OGMzZ" +
         "jI0YjZmYi0xNTc1NjAzNzE4IiwiaXNzIjoiZWI4MjEyZGZjOTUzMzliMmNmYjIyNThjM2YyNGI2ZmIiLCJuYmYiO" +
-        "jE1ODI3NTkyNTAsImV4cCI6MzE2NTUxODUwMCwic3ViIjoiQUM1MTNhZjAzZjMyMjhmMWU4NTU4Y2ViYmEwMWRjM" +
-        "GIzZSIsImdyYW50cyI6eyJhdXRoeSI6eyJzZXJ2aWNlX3NpZCI6IklTYmI5ZTcxMTUxM2IzMDNkMmU5MzM0NDQ1O" +
-        "DQ4ZjcyYmEiLCJlbnRpdHlfaWQiOiJZRWQ3ZmJmODRhMTExNjRkMDM2YmM1NjBlMTFjMmE5NjJjIiwiZmFjdG9yI" +
-        "joicHVzaCJ9fX0.-E3toPdlHmCOman0OfBp5qhPxwFvbim2q7dl1xQcjHc"
+        "jE1ODMzNTU2MTcsImV4cCI6MzE2NjcxMTIzNCwic3ViIjoiQUM1MTNhZjAzZjMyMjhmMWU4NTU4Y2ViYmEwMWRjM" +
+        "GIzZSIsImdyYW50cyI6eyJhdXRoeSI6eyJzZXJ2aWNlX3NpZCI6IklTMGZjNzA0YmQ3MzY2YWQwZWFjZjJmM2Q1Z" +
+        "DE3YmFlN2EiLCJlbnRpdHlfaWQiOiJZRTJmZWI3OTc0YzE3ZWI3ODBiYTM3OGE3NTZhYmE4ZTlmIiwiZmFjdG9yI" +
+        "joicHVzaCJ9fX0.ZxnVDKL56vSHNKd-3AUrc7Zx4N88HEk-eTWRD7gJOBk"
     val name = "name"
-    createFactor.setOnClickListener {
-      startCreateFactor { createFactor(jwt, name) }
-    }
-    createFactorCoroutines.setOnClickListener {
-      startCreateFactor { createFactorUsingCoroutine(jwt, name) }
-    }
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    subscription.cancel()
-  }
-
-  private fun startCreateFactor(createFactorMethod: () -> Unit) {
-    result.text = "Creating factor"
+    factorGroup.visibility = VISIBLE
+    factorInfo.text = "Creating factor"
     if (!this::token.isInitialized) {
-      result.text = "Invalid push token"
+      showError(IllegalArgumentException("Invalid push token"))
     } else {
-      createFactorMethod()
-    }
-  }
-
-  private fun createFactor(
-    jwt: String,
-    name: String
-  ) {
-    twilioVerifyAdapter.createFactor(PushFactorInput(name, token, jwt), ::onSuccess, ::onError)
-  }
-
-  private fun createFactorUsingCoroutine(
-    jwt: String,
-    name: String
-  ) {
-    CoroutineScope(Dispatchers.Main).launch {
-      try {
-        val factor = createFactor(name, token, jwt)
-        onSuccess(factor)
-        subscription.consumeEach { event ->
-          if (event.factorSid == factor.sid) {
-            onSuccess(factor)
-          }
-        }
-      } catch (e: Exception) {
-        onError(e)
-      }
-    }
-  }
-
-  private suspend fun createFactor(
-    friendlyName: String,
-    pushToken: String,
-    jwt: String
-  ): Factor = withContext(Dispatchers.IO) {
-    return@withContext suspendCancellableCoroutine<Factor> { cont ->
-      twilioVerifyAdapter.createFactor(PushFactorInput(friendlyName, pushToken, jwt), { factor ->
-        cont.resume(factor)
-      }, { exception ->
-        cont.resumeWithException(exception)
-      })
+      twilioVerifyAdapter.createFactor(
+          PushFactorInput(name, token, jwt),
+          ::onSuccess,
+          ::showError
+      )
     }
   }
 
   private fun onSuccess(factor: Factor) {
-    result.text = "Factor sid: ${factor.sid}\nStatus: ${factor.status}"
+    val info = "Factor sid:\n${factor.sid}\nStatus: ${factor.status}"
+    factorInfo.text = info
+    challengeGroup.visibility = GONE
   }
 
-  private fun onError(exception: Exception) {
-    exception.printStackTrace()
-    result.text = exception.message
+  private fun getPushToken() {
+    FirebaseInstanceId.getInstance()
+        .instanceId.addOnCompleteListener(OnCompleteListener { task ->
+      if (!task.isSuccessful) {
+        task.exception?.let { ::showError }
+        return@OnCompleteListener
+      }
+      task.result?.token?.let {
+        token = it
+      }
+    })
   }
+
+  private fun subscribeToEvents() {
+    CoroutineScope(Dispatchers.Main).launch {
+      VerifyEventBus.consumeEvent<NewChallenge> {
+        showChallenge(it.challenge)
+      }
+    }
+  }
+
+  private fun showChallenge(challenge: Challenge) {
+    challengeGroup.visibility = VISIBLE
+    val info = "${challenge.challengeDetails.message}\nStatus: ${challenge.status.value}\n" +
+        "${challenge.challengeDetails.toString(this)}Sid:\n ${challenge.sid}\n" +
+        "Expire on: ${DateUtils.formatSameDayTime(
+            challenge.expirationDate.time, System.currentTimeMillis(), MEDIUM, MEDIUM
+        )}"
+    challengeInfo.text = info
+
+    approveChallenge.setOnClickListener {
+      updateChallenge(challenge, Approved)
+    }
+    denyChallenge.setOnClickListener {
+      updateChallenge(challenge, Denied)
+    }
+  }
+
+  private fun updateChallenge(
+    challenge: Challenge,
+    status: ChallengeStatus
+  ) {
+    twilioVerifyAdapter.updateChallenge(
+        UpdatePushChallengeInput(challenge.factorSid, challenge.sid, status),
+        { getChallenge(challenge.sid, challenge.factorSid) },
+        ::showError
+    )
+  }
+
+  private fun getChallenge(
+    challengeSid: String,
+    factorSid: String
+  ) {
+    twilioVerifyAdapter.getChallenge(
+        challengeSid,
+        factorSid,
+        ::showChallenge,
+        ::showError
+    )
+  }
+
+  private fun showError(e: Exception) {
+    e.printStackTrace()
+  }
+}
+
+private fun ChallengeDetails.toString(context: Context): String {
+  return takeIf { it.date != null || it.fields.isNotEmpty() }?.let {
+    "Details:\n${fields.joinToString(
+        "\n"
+    ) {
+      "  ${it.label} = ${it.value}"
+    }}${(date?.let {
+      "  Date = ${DateUtils.formatDateTime(context, it.time, 0)}"
+    } ?: "")}\n"
+  } ?: ""
 }
