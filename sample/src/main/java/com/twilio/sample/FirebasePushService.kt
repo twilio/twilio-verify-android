@@ -37,7 +37,6 @@ class FirebasePushService : FirebaseMessagingService() {
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
     twilioVerifyAdapter = TwilioVerifyProvider.instance(applicationContext)
     val bundle = getBundleFromMessage(remoteMessage)
-    Log.d("push", bundle.toString())
     when (bundle.getString(typeKey)) {
       verifyFactorType -> verifyFactor(bundle)
       challengeType -> newChallenge(bundle)

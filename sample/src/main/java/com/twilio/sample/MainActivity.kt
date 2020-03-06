@@ -56,6 +56,8 @@ class MainActivity : AppCompatActivity() {
         "joicHVzaCJ9fX0.ZxnVDKL56vSHNKd-3AUrc7Zx4N88HEk-eTWRD7gJOBk"
     val name = "name"
     factorGroup.visibility = VISIBLE
+    challengeGroup.visibility = GONE
+    challengeActionsGroup.visibility = GONE
     factorInfo.text = "Creating factor"
     if (!this::token.isInitialized) {
       showError(IllegalArgumentException("Invalid push token"))
@@ -71,7 +73,6 @@ class MainActivity : AppCompatActivity() {
   private fun onSuccess(factor: Factor) {
     val info = "Factor sid:\n${factor.sid}\nStatus: ${factor.status}"
     factorInfo.text = info
-    challengeGroup.visibility = GONE
   }
 
   private fun getPushToken() {
@@ -97,6 +98,7 @@ class MainActivity : AppCompatActivity() {
 
   private fun showChallenge(challenge: Challenge) {
     challengeGroup.visibility = VISIBLE
+    challengeActionsGroup.visibility = if (challenge.status == Pending) VISIBLE else GONE
     val info = "${challenge.challengeDetails.message}\nStatus: ${challenge.status.value}\n" +
         "${challenge.challengeDetails.toString(this)}Sid:\n ${challenge.sid}\n" +
         "Expire on: ${DateUtils.formatSameDayTime(
@@ -106,7 +108,6 @@ class MainActivity : AppCompatActivity() {
             challenge.updatedAt.time, System.currentTimeMillis(), MEDIUM, MEDIUM
         )}"
     challengeInfo.text = info
-    challengeActionsGroup.visibility = if (challenge.status == Pending) VISIBLE else GONE
     approveChallenge.setOnClickListener {
       updateChallenge(challenge, Approved)
     }
