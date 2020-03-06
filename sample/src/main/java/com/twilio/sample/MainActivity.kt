@@ -101,6 +101,9 @@ class MainActivity : AppCompatActivity() {
         "${challenge.challengeDetails.toString(this)}Sid:\n ${challenge.sid}\n" +
         "Expire on: ${DateUtils.formatSameDayTime(
             challenge.expirationDate.time, System.currentTimeMillis(), MEDIUM, MEDIUM
+        )}\n" +
+        "Update at: ${DateUtils.formatSameDayTime(
+            challenge.updatedAt.time, System.currentTimeMillis(), MEDIUM, MEDIUM
         )}"
     challengeInfo.text = info
     challengeActionsGroup.visibility = if (challenge.status == Pending) VISIBLE else GONE
