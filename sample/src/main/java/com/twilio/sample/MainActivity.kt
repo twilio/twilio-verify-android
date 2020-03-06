@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         "Expire on: ${DateUtils.formatSameDayTime(
             challenge.expirationDate.time, System.currentTimeMillis(), MEDIUM, MEDIUM
         )}\n" +
-        "Update at: ${DateUtils.formatSameDayTime(
+        "Updated at: ${DateUtils.formatSameDayTime(
             challenge.updatedAt.time, System.currentTimeMillis(), MEDIUM, MEDIUM
         )}"
     challengeInfo.text = info
