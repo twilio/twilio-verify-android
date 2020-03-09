@@ -2,7 +2,6 @@
   "account_sid": "accountSid",
   "sid": "factorSid",
   "friendly_name": "friendlyName",
-  "entity_sid": "entitySid",
   "type": "Push",
   "date_created": "12357899",
   "date_updated": "976351423",

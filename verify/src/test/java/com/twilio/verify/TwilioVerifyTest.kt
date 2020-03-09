@@ -14,6 +14,7 @@ import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.dateKey
 import com.twilio.verify.domain.challenge.detailsKey
+import com.twilio.verify.domain.challenge.entitySidKey
 import com.twilio.verify.domain.challenge.expirationDateKey
 import com.twilio.verify.domain.challenge.factorSidKey
 import com.twilio.verify.domain.challenge.fieldsKey
@@ -23,7 +24,6 @@ import com.twilio.verify.domain.challenge.messageKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.challenge.valueKey
 import com.twilio.verify.domain.factor.accountSidKey
-import com.twilio.verify.domain.factor.entitySidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.sharedPreferencesName
@@ -110,7 +110,6 @@ class TwilioVerifyTest {
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
-        .put(entitySidKey, "entitySid123")
         .put(statusKey, Unverified.value)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
@@ -172,6 +171,7 @@ class TwilioVerifyTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(entitySidKey, "entitySid")
       put(com.twilio.verify.domain.challenge.statusKey, status.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
@@ -215,6 +215,7 @@ class TwilioVerifyTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(entitySidKey, "entitySid")
       put(com.twilio.verify.domain.challenge.statusKey, status.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
@@ -261,7 +262,6 @@ class TwilioVerifyTest {
         .put(sidKey, factorSid)
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
-        .put(entitySidKey, "entitySid123")
         .put(statusKey, status.value)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {

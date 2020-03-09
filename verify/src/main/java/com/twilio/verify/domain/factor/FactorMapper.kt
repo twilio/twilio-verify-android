@@ -20,7 +20,6 @@ internal const val sidKey = "sid"
 internal const val friendlyNameKey = "friendly_name"
 internal const val accountSidKey = "account_sid"
 internal const val serviceSidKey = "service_sid"
-internal const val entitySidKey = "entity_sid"
 internal const val entityIdentityKey = "entity_identity"
 internal const val keyPairAliasKey = "key_pair"
 
@@ -86,10 +85,9 @@ internal class FactorMapper {
           .put(friendlyNameKey, factor.friendlyName)
           .put(accountSidKey, factor.accountSid)
           .put(serviceSidKey, factor.serviceSid)
-          .put(entitySidKey, (factor as PushFactor).entitySid)
           .put(entityIdentityKey, factor.entityIdentity)
           .put(typeKey, factor.type.factorTypeName)
-          .put(keyPairAliasKey, factor.keyPairAlias)
+          .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias)
           .put(statusKey, factor.status.value).toString()
     }
   }
@@ -107,7 +105,6 @@ internal class FactorMapper {
           accountSid = jsonObject.getString(accountSidKey),
           serviceSid = serviceSid,
           entityIdentity = entityIdentity,
-          entitySid = jsonObject.getString(entitySidKey),
           status = FactorStatus.values().find { it.value == jsonObject.getString(statusKey) }
               ?: Unverified
       )

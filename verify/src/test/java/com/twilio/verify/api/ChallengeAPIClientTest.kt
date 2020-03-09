@@ -47,10 +47,10 @@ class ChallengeAPIClientTest {
 
   private val factorChallenge =
     FactorChallenge(
-        "sid", mock(), "", "factorSid", Pending, Date(), Date(), Date(), "", "", ""
+        "sid", mock(), "", "factorSid", Pending, Date(), Date(), Date(), "", "", "", "entitySid"
     ).apply {
       factor =
-        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityIdentity")
+        PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
     }
 
   @Before
@@ -106,7 +106,7 @@ class ChallengeAPIClientTest {
   @Test
   fun `Update a challenge with null factor should call error`() {
     val challenge = FactorChallenge(
-        "sid", mock(), "", "factorSid", Pending, Date(), Date(), Date(), "", "", ""
+        "sid", mock(), "", "factorSid", Pending, Date(), Date(), Date(), "", "", "", "entitySid"
     )
     challengeAPIClient.update(challenge, "authPayload", {
       fail()
@@ -153,7 +153,7 @@ class ChallengeAPIClientTest {
   @Test
   fun `Get a challenge with a success response should call success`() {
     val factor =
-      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityIdentity")
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
     val response = "{\"key\":\"value\"}"
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
@@ -170,7 +170,7 @@ class ChallengeAPIClientTest {
   @Test
   fun `Get a challenge with an error response should call error`() {
     val factor =
-      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityIdentity")
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
@@ -187,7 +187,7 @@ class ChallengeAPIClientTest {
   @Test
   fun `Error getting a challenge should call error`() {
     val factor =
-      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityIdentity")
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     challengeAPIClient.get("sid", factor, {
       fail()
@@ -202,7 +202,7 @@ class ChallengeAPIClientTest {
   fun `Get challenge request should match to the expected params`() {
     val challengeSid = "sid"
     val factor =
-      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entitySid", "entityIdentity")
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
     val expectedURL =
       "$baseUrl$getChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
           .replace(
