@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">TwilioVerify</string>
   <string name="create_factor">Create factor</string>
-  <string name="create_factor_coroutines">Create factor \nusing coroutines</string>
+  <string name="approve">Approve</string>
+  <string name="deny">Deny</string>
+  <string name="challenge">Challenge</string>
+  <string name="factor">Factor</string>
+  <string name="new_challenge">New challenge</string>
+  <string name="channel_name">Challenges</string>
+  <string name="channel_description">Receive challenges</string>
 </resources>
