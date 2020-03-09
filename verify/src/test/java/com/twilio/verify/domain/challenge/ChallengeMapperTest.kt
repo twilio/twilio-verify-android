@@ -38,7 +38,7 @@ class ChallengeMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, ChallengeStatus.Pending.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {
@@ -61,7 +61,7 @@ class ChallengeMapperTest {
     assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
     assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
     assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
-    assertEquals(jsonObject.getString(statusKey), challenge.status.name)
+    assertEquals(jsonObject.getString(statusKey), challenge.status.value)
     assertEquals(jsonObject.getString(detailsKey), challenge.details)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
@@ -88,7 +88,7 @@ class ChallengeMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, ChallengeStatus.Pending.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(dateKey, "2020-02-19T16:39:57-08:00")
@@ -105,7 +105,7 @@ class ChallengeMapperTest {
     assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
     assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
     assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
-    assertEquals(jsonObject.getString(statusKey), challenge.status.name)
+    assertEquals(jsonObject.getString(statusKey), challenge.status.value)
     assertEquals(jsonObject.getString(detailsKey), challenge.details)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
@@ -124,7 +124,7 @@ class ChallengeMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, ChallengeStatus.Pending.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {
@@ -146,7 +146,7 @@ class ChallengeMapperTest {
     assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
     assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
     assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
-    assertEquals(jsonObject.getString(statusKey), challenge.status.name)
+    assertEquals(jsonObject.getString(statusKey), challenge.status.value)
     assertEquals(jsonObject.getString(detailsKey), challenge.details)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
@@ -172,7 +172,7 @@ class ChallengeMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, ChallengeStatus.Pending.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {
@@ -201,7 +201,7 @@ class ChallengeMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, ChallengeStatus.Pending.value)
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
       }.toString())
@@ -220,7 +220,7 @@ class ChallengeMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, ChallengeStatus.Pending.value)
       put(detailsKey, JSONObject().apply {
         put(fieldsKey, JSONArray().apply {
           put(0, JSONObject().apply {
@@ -248,7 +248,7 @@ class ChallengeMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "19-02-2020")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, ChallengeStatus.Pending.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {
@@ -277,7 +277,7 @@ class ChallengeMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.name)
+      put(statusKey, ChallengeStatus.Pending.value)
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {

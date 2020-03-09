@@ -16,11 +16,11 @@ interface Challenge {
   val expirationDate: Date
 }
 
-enum class ChallengeStatus {
-  Pending,
-  Approved,
-  Denied,
-  Expired
+enum class ChallengeStatus(val value: String) {
+  Pending("pending"),
+  Approved("approved"),
+  Denied("denied"),
+  Expired("expired")
 }
 
 data class ChallengeDetails(

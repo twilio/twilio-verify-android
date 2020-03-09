@@ -9,7 +9,7 @@ interface Factor {
   val friendlyName: String
   val accountSid: String
   val serviceSid: String
-  val entitySid: String
+  val entityIdentity: String
   val type: FactorType
 }
 

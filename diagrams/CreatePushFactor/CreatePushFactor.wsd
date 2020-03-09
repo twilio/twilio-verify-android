@@ -11,19 +11,20 @@ interface Models.Factor {
     friendlyName: String
     accountSid: String
     serviceSid: String
-    entitySid: String
+    entityIdentity: String
     type: FactorType
     status: FactorStatus
 }
 class Domain.Factor.Models.PushFactor implements Models.Factor {
     keyPairAlias: String?
+    entitySid: String
 }
 class Domain.Factor.Models.FactorPayload {
     friendlyName: String
     type: FactorType
     binding: Dictionary
     serviceSid: String
-    entitySid: String
+    entity: String
 }
 class Domain.Factor.FactorMapper {
     fromApi(jsonObject: JSONObject, factorPayload: FactorPayload): Factor

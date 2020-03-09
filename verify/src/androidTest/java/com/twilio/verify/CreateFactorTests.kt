@@ -71,7 +71,7 @@ class CreateFactorTests : BaseServerTest() {
     assertEquals(factor.type, storedFactor.type)
     assertEquals(factor.friendlyName, storedFactor.friendlyName)
     assertEquals(factor.status, storedFactor.status)
-    assertEquals(factor.entitySid, storedFactor.entitySid)
+    assertEquals(factor.entityIdentity, storedFactor.entityIdentity)
     assertEquals(factor.accountSid, storedFactor.accountSid)
     assertEquals(factor.serviceSid, storedFactor.serviceSid)
   }

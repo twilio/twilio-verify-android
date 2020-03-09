@@ -21,15 +21,15 @@ import org.json.JSONObject
  * Copyright (c) 2020, Twilio Inc.
  */
 internal const val serviceSidPath = "{ServiceSid}"
-internal const val entitySidPath = "{EntitySid}"
+internal const val entityPath = "{EntityIdentity}"
 internal const val factorSidPath = "{FactorSid}"
 
 internal const val authPayloadParam = "AuthPayload"
 
 internal const val createFactorURL =
-  "Services/$serviceSidPath/Entities/$entitySidPath/Factors"
+  "Services/$serviceSidPath/Entities/$entityPath/Factors"
 internal const val verifyFactorURL =
-  "Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath"
+  "Services/$serviceSidPath/Entities/$entityPath/Factors/$factorSidPath"
 
 internal const val fcmPushType = "fcm"
 internal const val friendlyName = "FriendlyName"
@@ -99,13 +99,13 @@ internal class FactorAPIClient(
   private fun createFactorURL(factorPayload: FactorPayload): String =
     "$baseUrl$createFactorURL".replace(serviceSidPath, factorPayload.serviceSid, true)
         .replace(
-            entitySidPath, factorPayload.entitySid, true
+            entityPath, factorPayload.entity, true
         )
 
   private fun verifyFactorURL(factor: Factor): String =
     "$baseUrl$verifyFactorURL".replace(serviceSidPath, factor.serviceSid, true)
         .replace(
-            entitySidPath, factor.entitySid, true
+            entityPath, factor.entityIdentity, true
         ).replace(factorSidPath, factor.sid)
 
   private fun createFactorBody(

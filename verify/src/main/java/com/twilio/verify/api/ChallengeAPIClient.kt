@@ -20,9 +20,9 @@ import org.json.JSONObject
  */
 internal const val challengeSidPath = "{ChallengeSid}"
 internal const val updateChallengeURL =
-  "Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
+  "Services/$serviceSidPath/Entities/$entityPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
 internal const val getChallengeURL =
-  "Services/$serviceSidPath/Entities/$entitySidPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
+  "Services/$serviceSidPath/Entities/$entityPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
 
 internal class ChallengeAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -84,12 +84,12 @@ internal class ChallengeAPIClient(
     challenge.factor?.let { factor ->
       "$baseUrl$updateChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
           .replace(
-              entitySidPath, factor.entitySid, true
+              entityPath, factor.entityIdentity, true
           )
           .replace(factorSidPath, factor.sid)
           .replace(challengeSidPath, challenge.sid)
     } ?: run {
-      throw IllegalArgumentException("ServiceSid or EntitySid is null or empty")
+      throw IllegalArgumentException("ServiceSid or EntityIdentity is null or empty")
     }
 
   private fun updateChallengeBody(
@@ -104,7 +104,7 @@ internal class ChallengeAPIClient(
     factor: Factor
   ) = "$baseUrl$getChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
       .replace(
-          entitySidPath, factor.entitySid, true
+          entityPath, factor.entityIdentity, true
       )
       .replace(factorSidPath, factor.sid)
       .replace(challengeSidPath, challengeSid)
