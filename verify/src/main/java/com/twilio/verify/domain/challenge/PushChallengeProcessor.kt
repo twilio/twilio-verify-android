@@ -87,7 +87,7 @@ internal class PushChallengeProcessor(
         ?: throw TwilioVerifyException(
             IllegalStateException("Key pair not set"), KeyStorageError
         )
-    val payload = "${factor.accountSid}${factor.serviceSid}${factor.entitySid}${factor.sid}" +
+    val payload = "${factor.accountSid}${factor.serviceSid}${challenge.entitySid}${factor.sid}" +
         "${challenge.sid}${challenge.createdDate}${challenge.updatedDate}${challenge.status.value}" +
         "${challenge.details}${challenge.hiddenDetails}"
     return keyStorage.sign(keyPairAlias, payload)

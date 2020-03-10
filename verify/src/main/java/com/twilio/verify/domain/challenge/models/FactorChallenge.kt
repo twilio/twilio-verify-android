@@ -18,10 +18,11 @@ internal class FactorChallenge(
   override val createdAt: Date,
   override val updatedAt: Date,
   override val expirationDate: Date,
-  // Original values to generate signature
+    // Original values to generate signature
   internal val details: String,
   internal val createdDate: String,
-  internal val updatedDate: String
+  internal val updatedDate: String,
+  internal val entitySid: String
 ) : Challenge {
   internal var factor: Factor? = null
 }

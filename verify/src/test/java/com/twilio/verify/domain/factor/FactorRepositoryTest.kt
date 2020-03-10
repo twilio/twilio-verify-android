@@ -61,7 +61,6 @@ class FactorRepositoryTest {
         .put(sidKey, sid)
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
-        .put(entitySidKey, "entitySid123")
     val factor = mock<Factor> {
       on(it.sid).thenReturn(sid)
     }
@@ -110,7 +109,6 @@ class FactorRepositoryTest {
         .put(sidKey, sid)
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
-        .put(entitySidKey, "entitySid123")
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.create(eq(factorPayload), capture(), any())).then {
         firstValue.invoke(response)
@@ -135,7 +133,6 @@ class FactorRepositoryTest {
         .put(sidKey, sid)
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
-        .put(entitySidKey, "entitySid123")
     val factor = mock<Factor> {
       on(it.sid).thenReturn(sid)
     }
@@ -231,7 +228,6 @@ class FactorRepositoryTest {
         "friendlyName",
         "accountSid",
         "serviceSid",
-        "entitySid",
         "entityIdentity",
         FactorStatus.Unverified
     )
@@ -241,7 +237,6 @@ class FactorRepositoryTest {
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(serviceSidKey, "serviceSid")
-        .put(entitySidKey, "entitySid123")
         .put(statusKey, FactorStatus.Unverified.value)
 
     val factorToJson = JSONObject().put(sidKey, sid)
@@ -271,7 +266,6 @@ class FactorRepositoryTest {
         "friendlyName",
         "accountSid",
         "serviceSid",
-        "entitySid",
         "entityIdentity",
         FactorStatus.Unverified
     )
@@ -281,7 +275,6 @@ class FactorRepositoryTest {
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(serviceSidKey, "serviceSid")
-        .put(entitySidKey, "entitySid123")
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.verify(eq(factor), eq(payload), capture(), any())).then {
         firstValue.invoke(response)

@@ -27,6 +27,7 @@ internal const val valueKey = "value"
 internal const val hiddenDetailsKey = "hidden_details"
 internal const val factorSidKey = "factor_sid"
 internal const val statusKey = "status"
+internal const val entitySidKey = "entity_sid"
 internal const val createdDateKey = "date_created"
 internal const val updatedDateKey = "date_updated"
 internal const val expirationDateKey = "expiration_date"
@@ -51,7 +52,7 @@ internal class ChallengeMapper {
           challengeDetails = toChallengeDetails(details),
           hiddenDetails = jsonObject.getString(hiddenDetailsKey),
           status = ChallengeStatus.values().find { it.value == jsonObject.getString(statusKey) }
-              ?: Expired
+              ?: Expired, entitySid = jsonObject.getString(entitySidKey)
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)

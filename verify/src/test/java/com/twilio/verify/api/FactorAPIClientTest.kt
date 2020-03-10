@@ -165,7 +165,6 @@ class FactorAPIClientTest {
             "friendlyName",
             "accountSid",
             "serviceSid",
-            "entitySid",
             "entityIdentity",
             Unverified
         ),
@@ -191,7 +190,6 @@ class FactorAPIClientTest {
             "friendlyName",
             "accountSid",
             "serviceSid",
-            "entitySid",
             "entityIdentity",
             Unverified
         ),
@@ -208,7 +206,6 @@ class FactorAPIClientTest {
     val friendlyNameMock = "friendlyName"
     val accountSidMock = "accountSid"
     val serviceSidMock = "serviceSid"
-    val entitySidMock = "entitySid"
     val entityIdentityMock = "entityIdentity"
     val authPayloadMock = "authPayload"
     val expectedURL = "$baseUrl$verifyFactorURL".replace(serviceSidPath, serviceSidMock, true)
@@ -224,7 +221,6 @@ class FactorAPIClientTest {
           friendlyNameMock,
           accountSidMock,
           serviceSidMock,
-          entitySidMock,
           entityIdentityMock,
           Unverified
       )

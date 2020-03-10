@@ -135,7 +135,7 @@ class PushChallengeProcessorTest {
     val factor: PushFactor = mock()
     val challenge: FactorChallenge = FactorChallenge(
         sid, mock(), hiddenDetails, factorSid, status, mock(), mock(), mock(), details,
-        createdDate, updatedDate
+        createdDate, updatedDate, entitySid
     ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
@@ -150,7 +150,6 @@ class PushChallengeProcessorTest {
     whenever(factor.sid).thenReturn(factorSid)
     whenever(factor.accountSid).thenReturn(accountSid)
     whenever(factor.serviceSid).thenReturn(serviceSid)
-    whenever(factor.entitySid).thenReturn(entitySid)
     whenever(factor.entityIdentity).thenReturn(entityId)
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
