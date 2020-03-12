@@ -22,8 +22,8 @@ internal class ChallengeRepository(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      apiClient.get(sid, factor, { response ->
+    apiClient.get(sid, factor, { response ->
+      try {
         val challenge = challengeMapper.fromApi(response)
             .also {
               if (it.factorSid != factor.sid) {
@@ -34,10 +34,10 @@ internal class ChallengeRepository(
               toFactorChallenge(it).factor = factor
             }
         success(challenge)
-      }, error)
-    } catch (e: TwilioVerifyException) {
-      error(e)
-    }
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      }
+    }, error)
   }
 
   override fun update(
