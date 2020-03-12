@@ -17,7 +17,7 @@ class RequestHelperTest {
 
   @Test
   fun `CommonHeaders with Post http method should contain 4 pairs`() {
-    val authorization = Authorization("accountSid", "authToken")
+    val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper = RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val commonHeaders = requestHelper.commonHeaders(Post)
     assertEquals(4, commonHeaders.size)
@@ -29,7 +29,7 @@ class RequestHelperTest {
 
   @Test
   fun `CommonHeaders with Get http method should contain 4 pairs`() {
-    val authorization = Authorization("accountSid", "authToken")
+    val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper = RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val commonHeaders = requestHelper.commonHeaders(Get)
     assertEquals(4, commonHeaders.size)

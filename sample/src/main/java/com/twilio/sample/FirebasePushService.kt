@@ -60,7 +60,7 @@ class FirebasePushService : FirebaseMessagingService() {
       message?.let {
         createNotificationChannel()
         var builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_challenge)
             .setContentTitle(getString(R.string.new_challenge))
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

@@ -17,6 +17,7 @@ import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
+import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.MediaTypeValue
@@ -52,7 +53,7 @@ class FactorAPIClientTest {
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
-    authorization = Authorization("accountSid", "authToken")
+    authorization = BasicAuthorization("accountSid", "authToken")
     factorAPIClient = FactorAPIClient(networkProvider, context, authorization, baseUrl)
   }
 
@@ -65,7 +66,7 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.create(
-        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123"),
+        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123", "jwt"),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
         }, {
@@ -82,7 +83,7 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.create(
-        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123"), {
+        FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123", "jwt"), {
       fail()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
@@ -92,7 +93,7 @@ class FactorAPIClientTest {
   @Test
   fun `Error creating a factor should call error`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid", "entitySid")
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid", "entitySid", "jwt")
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
       fail()
@@ -132,7 +133,7 @@ class FactorAPIClientTest {
       FactorPayload(
           friendlyNameMock, factorTypeMock,
           mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey), serviceSid,
-          entity
+          entity, "jwt"
       )
 
     factorAPIClient.create(factorPayload, {}, {})

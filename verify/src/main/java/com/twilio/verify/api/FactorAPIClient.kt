@@ -9,6 +9,7 @@ import com.twilio.verify.domain.factor.publicKeyKey
 import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authorization
+import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkException
@@ -42,6 +43,7 @@ internal const val notificationPlatformKey = "notification_platform"
 internal const val notificationTokenKey = "notification_token"
 internal const val algKey = "alg"
 internal const val defaultAlg = "ES256"
+internal const val jwtAuthenticationUser = "token"
 
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -56,7 +58,8 @@ internal class FactorAPIClient(
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
-      val requestHelper = RequestHelper(context, authorization)
+      val requestHelper =
+        RequestHelper(context, BasicAuthorization(jwtAuthenticationUser, factorPayload.jwt))
       val request = Request.Builder(
           requestHelper,
           createFactorURL(factorPayload)

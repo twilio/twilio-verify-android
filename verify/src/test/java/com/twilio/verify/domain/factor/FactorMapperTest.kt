@@ -34,7 +34,7 @@ class FactorMapperTest {
   @Test
   fun `Map a valid response from API with factorPayload should return a factor`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123")
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123", "jwt")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -53,7 +53,7 @@ class FactorMapperTest {
   @Test
   fun `Map an incomplete response from API should throw an exception`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123")
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123", "jwt")
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
@@ -74,7 +74,7 @@ class FactorMapperTest {
 
   @Test
   fun `Map a response with invalid serviceSid in payload from API should throw an exception`() {
-    val factorPayload = FactorPayload("factor name", Push, emptyMap(), "", "entitySid123")
+    val factorPayload = FactorPayload("factor name", Push, emptyMap(), "", "entitySid123", "jwt")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -88,7 +88,7 @@ class FactorMapperTest {
   @Test
   fun `Map a response without factor sid from API should throw an exception`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123")
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123", "jwt")
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
@@ -101,7 +101,7 @@ class FactorMapperTest {
   @Test
   fun `Map a response without entity sid from API should throw an exception`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123")
+      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123", "jwt")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")

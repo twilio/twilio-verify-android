@@ -11,20 +11,22 @@ import org.json.JSONObject
 
 internal data class EnrollmentJWT(
   val jwt: String,
-  val authyGrant: AuthyGrant
+  val verifyConfig: VerifyConfig
 )
 
-internal data class AuthyGrant(
+internal data class VerifyConfig(
   val serviceSid: String,
   val entity: String,
   val factorType: String
 )
 
 internal const val grantsKey = "grants"
-internal const val authyGrantKey = "authy"
-internal const val serviceSidKey = "service_sid"
-internal const val entityIdentityKey = "entity_id"
+internal const val authyApiGrantKey = "api"
+internal const val verifyGrantKey = "verify"
+internal const val resourceKey = "res"
+internal const val entityIdentityKey = "identity"
 internal const val factorKey = "factor"
+internal const val servicesPath = "/Services/"
 
 @Throws(TwilioVerifyException::class)
 internal fun toEnrollmentJWT(jwt: String): EnrollmentJWT {
@@ -37,21 +39,37 @@ internal fun toEnrollmentJWT(jwt: String): EnrollmentJWT {
   } catch (e: Exception) {
     throw TwilioVerifyException(IllegalArgumentException("Invalid JWT", e), InputError)
   }
-  val authyGrantJson = try {
+  val authyApiGrantJson = try {
     payloadJson.getJSONObject(grantsKey)
-        .getJSONObject(authyGrantKey)
+        .getJSONObject(authyApiGrantKey)
+        .getJSONArray("authy_v1")
+        .getJSONObject(0)
   } catch (e: JSONException) {
     throw TwilioVerifyException(IllegalArgumentException("Invalid JWT", e), InputError)
   }
-  val authyGrant = try {
-    AuthyGrant(
-        authyGrantJson.getString(serviceSidKey), authyGrantJson.getString(entityIdentityKey),
-        authyGrantJson.getString(
+  val verifyGrantJson = try {
+    payloadJson.getJSONObject(grantsKey)
+        .getJSONObject(verifyGrantKey)
+  } catch (e: JSONException) {
+    throw TwilioVerifyException(IllegalArgumentException("Invalid JWT", e), InputError)
+  }
+  val verifyConfig = try {
+    VerifyConfig(
+        getServiceSid(authyApiGrantJson.getString(resourceKey)),
+        verifyGrantJson.getString(entityIdentityKey),
+        verifyGrantJson.getString(
             factorKey
         )
     )
   } catch (e: JSONException) {
     throw TwilioVerifyException(IllegalArgumentException("Invalid JWT", e), InputError)
   }
-  return EnrollmentJWT(jwt, authyGrant)
+  return EnrollmentJWT(jwt, verifyConfig)
+}
+
+private fun getServiceSid(resource: String): String {
+  return resource.substringAfter(servicesPath, "")
+      .substringBefore('/', "").takeIf { it.isNotEmpty() } ?: throw TwilioVerifyException(
+      IllegalArgumentException("Invalid service Sid"), InputError
+  )
 }

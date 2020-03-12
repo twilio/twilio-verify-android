@@ -21,7 +21,7 @@ class RequestTest {
     val httpMethod = HttpMethod.Post
     val url = "https://twilio.com"
     val tag = "tag"
-    val authorization = Authorization("accountSid", "authToken")
+    val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper =
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val request =
@@ -44,7 +44,7 @@ class RequestTest {
     val acceptType = MediaTypeValue.UrlEncoded
     val tag = "tag"
     val headers = mutableMapOf("Content-Type" to contentType.type, "Accept-Type" to acceptType.type)
-    val authorization = Authorization("accountSid", "authToken")
+    val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper =
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val request =
@@ -65,7 +65,7 @@ class RequestTest {
     val httpMethod = HttpMethod.Post
     val url = "https://twilio.com"
     val tag = "tag"
-    val authorization = Authorization("accountSid", "authToken")
+    val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper =
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val key1 = "Key"
@@ -93,7 +93,7 @@ class RequestTest {
     val httpMethod = HttpMethod.Post
     val url = "https://twilio.com"
     val tag = "tag"
-    val authorization = Authorization("accountSid", "authToken")
+    val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper =
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val key1 = "Key"
@@ -122,7 +122,7 @@ class RequestTest {
     val httpMethod = HttpMethod.Post
     val url = "https://twilio.com"
     val tag = "tag"
-    val authorization = Authorization("accountSid", "authToken")
+    val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper =
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val expectedParams = ""
@@ -143,7 +143,7 @@ class RequestTest {
     val httpMethod = HttpMethod.Post
     val url = ""
     val tag = "tag"
-    val authorization = Authorization("accountSid", "authToken")
+    val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper =
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val key1 = "Key"

@@ -9,6 +9,7 @@ import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.data.provider
 import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.networking.Authorization
+import com.twilio.verify.networking.BasicAuthorization
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.internal.TlsUtil.localhost
@@ -47,7 +48,7 @@ open class BaseServerTest {
         .apply {
           load(null)
         }
-    authorization = Authorization("accountSid", "authToken")
+    authorization = BasicAuthorization("accountSid", "authToken")
     twilioVerify = Builder(context, authorization)
         .baseUrl(mockWebServer.url("/").toString())
         .build()
