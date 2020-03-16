@@ -33,7 +33,7 @@ internal class PushFactory(
     execute(success, error) { onSuccess, onError ->
       try {
         val enrollmentJWT = toEnrollmentJWT(jwt)
-        if (enrollmentJWT.authyGrant.factorType != Push.factorTypeName) {
+        if (enrollmentJWT.verifyConfig.factorType != Push.factorTypeName) {
           throw TwilioVerifyException(
               IllegalArgumentException("Invalid factor type"),
               InputError
@@ -43,7 +43,7 @@ internal class PushFactory(
         val publicKey = keyStorage.create(alias)
         val factorBuilder = FactorPayload(
             friendlyName, Push, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey),
-            enrollmentJWT.authyGrant.serviceSid, enrollmentJWT.authyGrant.entity
+            enrollmentJWT.verifyConfig.serviceSid, enrollmentJWT.verifyConfig.entity, jwt
         )
 
         fun onFactorCreated(factor: Factor) {

@@ -10,5 +10,6 @@ internal data class FactorPayload(
   val type: FactorType,
   val binding: Map<String, Any>,
   val serviceSid: String,
-  val entity: String
+  val entity: String,
+  val jwt: String
 )

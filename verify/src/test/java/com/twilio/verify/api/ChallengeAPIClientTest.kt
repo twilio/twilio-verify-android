@@ -14,6 +14,7 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
+import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.MediaTypeValue
@@ -57,7 +58,7 @@ class ChallengeAPIClientTest {
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
-    authorization = Authorization("accountSid", "authToken")
+    authorization = BasicAuthorization("accountSid", "authToken")
     challengeAPIClient =
       ChallengeAPIClient(networkProvider, context, authorization, baseUrl)
   }

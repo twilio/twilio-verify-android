@@ -2,21 +2,68 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.twilio.sample.MainActivity"
     >
-  <Button
-      android:id="@+id/createFactor"
-      android:layout_width="wrap_content"
+
+  <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/jwtUrlLayout"
+      style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:layout_marginStart="5dp"
       android:layout_marginTop="20dp"
-      android:text="@string/create_factor"
+      android:layout_marginEnd="5dp"
+      android:hint="@string/jwt_url"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.5"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
+      >
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/jwtUrlInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+  </com.google.android.material.textfield.TextInputLayout>
+
+  <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/identityLayout"
+      style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="5dp"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="5dp"
+      android:hint="@string/identity"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.5"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/jwtUrlLayout"
+      >
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/identityInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+  </com.google.android.material.textfield.TextInputLayout>
+
+  <Button
+      android:id="@+id/createFactor"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:text="@string/create_factor"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.5"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/identityLayout"
       />
+
   <androidx.constraintlayout.widget.Group
       android:id="@+id/factorGroup"
       android:layout_width="wrap_content"
@@ -25,18 +72,20 @@
       app:constraint_referenced_ids="factorLabel,factorInfo"
       tools:visibility="visible"
       />
+
   <TextView
       android:id="@+id/factorLabel"
       style="@style/TextAppearance.AppCompat.Subhead"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="20dp"
+      android:layout_marginTop="10dp"
       android:text="@string/factor"
       android:textIsSelectable="true"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/createFactor"
       />
+
   <TextView
       android:id="@+id/factorInfo"
       style="@style/TextAppearance.AppCompat.Medium"
@@ -49,6 +98,7 @@
       app:layout_constraintTop_toBottomOf="@+id/factorLabel"
       tools:text="Factor Info"
       />
+
   <androidx.constraintlayout.widget.Group
       android:id="@+id/challengeGroup"
       android:layout_width="wrap_content"
@@ -60,30 +110,34 @@
       app:layout_constraintTop_toBottomOf="@+id/factorInfo"
       tools:visibility="visible"
       />
+
   <TextView
       android:id="@+id/challengeLabel"
       style="@style/TextAppearance.AppCompat.Subhead"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="30dp"
+      android:layout_marginTop="10dp"
       android:text="@string/challenge"
       android:textIsSelectable="true"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="@+id/challengeGroup"
       />
+
   <TextView
       android:id="@+id/challengeInfo"
       style="@style/TextAppearance.AppCompat.Medium"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
+      android:layout_height="0dp"
       android:layout_marginTop="10dp"
+      android:scrollbars="vertical"
       android:textIsSelectable="true"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/challengeLabel"
       tools:text="Challenge Info"
       />
+
   <androidx.constraintlayout.widget.Group
       android:id="@+id/challengeActionsGroup"
       android:layout_width="wrap_content"
@@ -92,22 +146,24 @@
       app:constraint_referenced_ids="approveChallenge,denyChallenge"
       tools:visibility="visible"
       />
+
   <Button
       android:id="@+id/approveChallenge"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="20dp"
+      android:layout_marginTop="10dp"
       android:text="@string/approve"
       app:layout_constraintEnd_toStartOf="@+id/denyChallenge"
       app:layout_constraintHorizontal_bias="0.5"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/challengeInfo"
       />
+
   <Button
       android:id="@+id/denyChallenge"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="20dp"
+      android:layout_marginTop="10dp"
       android:text="@string/deny"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.5"
