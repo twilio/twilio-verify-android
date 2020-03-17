@@ -22,5 +22,6 @@ internal interface FactorProvider {
   )
 
   fun get(sid: String): Factor?
+  fun getAll(): List<Factor>
   fun update(factor: Factor): Factor?
 }

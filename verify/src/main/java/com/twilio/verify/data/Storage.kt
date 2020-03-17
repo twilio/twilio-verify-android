@@ -16,4 +16,6 @@ internal class Storage(private val sharedPreferences: SharedPreferences) : Stora
   }
 
   override fun get(key: String): String? = sharedPreferences.getString(key, null)
+
+  override fun getAll(): Collection<Any?> = sharedPreferences.all.values
 }

@@ -68,4 +68,10 @@ internal class FactorRepository(
         StorageException("Factor not found"), StorageError
     )
   }
+
+  @Throws(TwilioVerifyException::class)
+  override fun getAll(): List<Factor> =
+    storage.getAll()
+        .filterIsInstance<String>()
+        .mapNotNull { factorMapper.fromStorage(it) }
 }

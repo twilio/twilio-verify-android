@@ -80,4 +80,16 @@ class StorageTest {
         .apply()
     assertNull(storage.get(key))
   }
+
+  @Test
+  fun `Get all with saved factors should return all`() {
+    val factors = mapOf("sid1" to "value1", "sid2" to "value2")
+    factors.forEach { storage.save(it.key, it.value) }
+    assertEquals(factors.size, sharedPreferences.all.size)
+  }
+
+  @Test
+  fun `Get all without any value saved should return 0`() {
+    assertEquals(0, sharedPreferences.all.size)
+  }
 }
