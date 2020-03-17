@@ -46,16 +46,18 @@ class TwilioVerifyAdapter(
     identity: String,
     factorName: String,
     pushToken: String,
-    success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    onSuccess: (Factor) -> Unit,
+    onError: (Exception) -> Unit
   ) {
     CoroutineScope(mainDispatcher).launch {
       try {
         val jwt = getJwt(jwtUrl, identity)
         val factor = createFactor(PushFactorInput(factorName, pushToken, jwt))
-        onFactorCreated(factor, success)
+        onFactorCreated(factor, onSuccess)
       } catch (e: TwilioVerifyException) {
-        error(e)
+        onError(e)
+      } catch (e: Exception) {
+        onError(e)
       }
     }
   }
@@ -137,6 +139,7 @@ class TwilioVerifyAdapter(
                   ?.let { JSONObject(it) }
                   ?.getString("token")
                   ?.let { cont.resume(it) }
+                  ?: cont.resumeWithException(IOException("Invalid response: ${response.code}"))
             }
 
           })
