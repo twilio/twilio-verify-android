@@ -116,6 +116,44 @@ class TwilioVerifyManagerTest {
   }
 
   @Test
+  fun `Get factors should call success`() {
+    val expectedFactors: List<Factor> = mock()
+    argumentCaptor<(List<Factor>) -> Unit>().apply {
+      whenever(factorFacade.getAllFactors(capture(), any())).then {
+        firstValue.invoke(expectedFactors)
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.getAllFactors({ factors ->
+      assertEquals(expectedFactors, factors)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error getting all factors should call error`() {
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorFacade.getAllFactors(any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.getAllFactors({
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
   fun `Get challenge should call success`() {
     val sid = "sid"
     val factorSid = "factorSid"

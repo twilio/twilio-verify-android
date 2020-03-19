@@ -33,6 +33,13 @@ internal class TwilioVerifyManager(
     factorFacade.verifyFactor(verifyFactorInput, success, error)
   }
 
+  override fun getAllFactors(
+    success: (List<Factor>) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    factorFacade.getAllFactors(success, error)
+  }
+
   override fun getChallenge(
     challengeSid: String,
     factorSid: String,
