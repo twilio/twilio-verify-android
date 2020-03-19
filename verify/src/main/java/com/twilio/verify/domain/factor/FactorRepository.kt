@@ -71,7 +71,5 @@ internal class FactorRepository(
 
   @Throws(TwilioVerifyException::class)
   override fun getAll(): List<Factor> =
-    storage.getAll()
-        .filterIsInstance<String>()
-        .mapNotNull { factorMapper.fromStorage(it) }
+    storage.getAll().mapNotNull { factorMapper.fromStorage(it) }
 }
