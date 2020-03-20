@@ -290,4 +290,40 @@ class FactorRepositoryTest {
       fail()
     }, { exception -> assertEquals(expectedException, exception) })
   }
+
+  @Test
+  fun `Get all factors should return expected factors`() {
+    val factor1: Factor = mock()
+    val factor2: Factor = mock()
+    val factorToJson1 = JSONObject().put(sidKey, "sid1")
+        .toString()
+    val factorToJson2 = JSONObject().put(sidKey, "sid2")
+        .toString()
+
+    val factorValues = listOf(factorToJson1, factorToJson2)
+
+    whenever(factorMapper.fromStorage(factorToJson1)).thenReturn(factor1)
+    whenever(factorMapper.fromStorage(factorToJson2)).thenReturn(factor2)
+    whenever(storage.getAll()).thenReturn(factorValues)
+
+    val factors = factorRepository.getAll()
+    assertEquals(factorValues.size, factors.size)
+    assertTrue(factors.contains(factor1))
+    assertTrue(factors.contains(factor2))
+  }
+
+  @Test
+  fun `Get all factors with a null response from mapper should filter not null values`() {
+    val factorToJson1 = JSONObject().toString()
+    val factorToJson2 = JSONObject().toString()
+
+    val factorValues = listOf(factorToJson1, factorToJson2)
+
+    whenever(factorMapper.fromStorage(factorToJson1)).thenReturn(null)
+    whenever(factorMapper.fromStorage(factorToJson2)).thenReturn(null)
+    whenever(storage.getAll()).thenReturn(factorValues)
+
+    val factors = factorRepository.getAll()
+    assertEquals(0, factors.size)
+  }
 }

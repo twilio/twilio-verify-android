@@ -31,6 +31,11 @@ interface TwilioVerify {
     error: (TwilioVerifyException) -> Unit
   )
 
+  fun getAllFactors(
+    success: (List<Factor>) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
   fun getChallenge(
     challengeSid: String,
     factorSid: String,

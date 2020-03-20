@@ -185,4 +185,36 @@ class FactorFacadeTest {
     })
     idlingResource.waitForIdle()
   }
+
+  @Test
+  fun `Get all factors should return factor list`() {
+    val expectedFactorList: List<Factor> = mock()
+    whenever(factorProvider.getAll()).thenReturn(expectedFactorList)
+    idlingResource.startOperation()
+    factorFacade.getAllFactors({ factorList ->
+      assertEquals(expectedFactorList, factorList)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get all factors with exception should return error`() {
+    val expectedException: TwilioVerifyException = mock()
+    given(factorProvider.getAll()).willAnswer {
+      throw expectedException
+    }
+    idlingResource.startOperation()
+    factorFacade.getAllFactors({
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
 }

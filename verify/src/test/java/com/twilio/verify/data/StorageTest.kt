@@ -80,4 +80,34 @@ class StorageTest {
         .apply()
     assertNull(storage.get(key))
   }
+
+  @Test
+  fun `Get all with saved factors should return all`() {
+    val factors = mapOf("sid1" to "value1", "sid2" to "value2")
+    factors.forEach { storage.save(it.key, it.value) }
+    assertEquals(factors.size, sharedPreferences.all.size)
+  }
+
+  @Test
+  fun `Get all without any value saved should return 0`() {
+    assertEquals(0, sharedPreferences.all.size)
+  }
+
+  @Test
+  fun `Get all factors with a list of not only strings should filter`() {
+    val keyValues = mapOf("sid1" to "value1", "sid2" to "value2", "sid3" to 123)
+    keyValues.filter { it.value is String }
+        .forEach {
+          sharedPreferences.edit()
+              .putString(it.key, it.value as String).apply()
+        }
+    keyValues.filter { it.value is Int }
+        .forEach {
+          sharedPreferences.edit()
+              .putInt(it.key, it.value as Int).apply()
+        }
+
+    assertEquals(keyValues.size, sharedPreferences.all.size)
+    assertEquals(keyValues.values.filterIsInstance<String>().size, storage.getAll().size)
+  }
 }
