@@ -65,6 +65,17 @@ internal class FactorFacade(
     }
   }
 
+  fun getAllFactors(
+    success: (List<Factor>) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    try {
+      success(factorProvider.getAll())
+    } catch (e: TwilioVerifyException) {
+      error(e)
+    }
+  }
+
   class Builder {
     private lateinit var appContext: Context
     private lateinit var auth: Authorization
