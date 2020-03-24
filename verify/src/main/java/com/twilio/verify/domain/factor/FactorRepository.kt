@@ -12,6 +12,7 @@ import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.models.Factor
+import org.json.JSONObject
 
 internal const val sharedPreferencesName = "TwilioVerify"
 
@@ -28,14 +29,15 @@ internal class FactorRepository(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    apiClient.create(factorPayload, { response ->
+    fun updateFactor(response: JSONObject) {
       try {
         val factor = update(factorMapper.fromApi(response, factorPayload))
         success(factor)
       } catch (e: TwilioVerifyException) {
         error(e)
       }
-    }, error)
+    }
+    apiClient.create(factorPayload, ::updateFactor, error)
   }
 
   override fun verify(
@@ -44,7 +46,7 @@ internal class FactorRepository(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    apiClient.verify(factor, payload, { response ->
+    fun updateFactor(response: JSONObject) {
       try {
         factor.status = factorMapper.status(response)
         val updatedFactor = update(factor)
@@ -52,7 +54,8 @@ internal class FactorRepository(
       } catch (e: TwilioVerifyException) {
         error(e)
       }
-    }, error)
+    }
+    apiClient.verify(factor, payload, ::updateFactor, error)
   }
 
   @Throws(TwilioVerifyException::class)

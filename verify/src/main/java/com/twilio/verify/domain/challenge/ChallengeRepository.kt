@@ -10,6 +10,7 @@ import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
+import org.json.JSONObject
 
 internal class ChallengeRepository(
   private val apiClient: ChallengeAPIClient,
@@ -22,7 +23,7 @@ internal class ChallengeRepository(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    apiClient.get(sid, factor, { response ->
+    fun toChallenge(response: JSONObject) {
       try {
         val challenge = challengeMapper.fromApi(response)
             .also {
@@ -37,7 +38,8 @@ internal class ChallengeRepository(
       } catch (e: TwilioVerifyException) {
         error(e)
       }
-    }, error)
+    }
+    apiClient.get(sid, factor, ::toChallenge, error)
   }
 
   override fun update(
@@ -46,6 +48,15 @@ internal class ChallengeRepository(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
+    fun getChallenge(factorChallenge: FactorChallenge) {
+      factorChallenge.factor?.let {
+        get(factorChallenge.sid, it, success, error)
+      } ?: error(
+          TwilioVerifyException(
+              IllegalArgumentException("Invalid factor"), InputError
+          )
+      )
+    }
     try {
       if (challenge.status != Pending) {
         throw TwilioVerifyException(
@@ -54,9 +65,7 @@ internal class ChallengeRepository(
         )
       }
       toFactorChallenge(challenge).let { factorChallenge ->
-        apiClient.update(factorChallenge, authPayload, {
-          get(factorChallenge, success, error)
-        }, error)
+        apiClient.update(factorChallenge, authPayload, { getChallenge(factorChallenge) }, error)
       }
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -67,16 +76,4 @@ internal class ChallengeRepository(
     (challenge as? FactorChallenge) ?: throw TwilioVerifyException(
         IllegalArgumentException("Invalid challenge"), InputError
     )
-
-  private fun get(
-    factorChallenge: FactorChallenge,
-    success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
-  ) {
-    factorChallenge.factor?.let {
-      get(factorChallenge.sid, it, success, error)
-    } ?: throw TwilioVerifyException(
-        IllegalArgumentException("Invalid factor"), InputError
-    )
-  }
 }

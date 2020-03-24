@@ -52,13 +52,14 @@ internal class PushChallengeProcessor(
           )
           val authPayload = authPayload(factorChallenge, status)
           challengeProvider.update(challenge, authPayload, { updatedChallenge ->
-            if (updatedChallenge.status != status) {
-              throw TwilioVerifyException(
-                  IllegalStateException("Challenge was not updated"),
-                  InputError
-              )
-            }
-            onSuccess()
+            updatedChallenge.takeIf { updatedChallenge.status == status }?.run {
+              onSuccess()
+            } ?: onError(
+                TwilioVerifyException(
+                    IllegalStateException("Challenge was not updated"),
+                    InputError
+                )
+            )
           }, onError)
         } catch (e: TwilioVerifyException) {
           onError(e)
