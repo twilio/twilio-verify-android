@@ -16,6 +16,7 @@ import org.json.JSONObject
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.TimeZone
 
 internal const val sidKey = "sid"
 internal const val messageKey = "message"
@@ -34,7 +35,8 @@ internal const val expirationDateKey = "expiration_date"
 internal const val dateFormatTimeZone = "yyyy-MM-dd'T'HH:mm:ssZ"
 internal val dateFormatterTimeZone = SimpleDateFormat(dateFormatTimeZone)
 private const val dateFormatUTC = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-private val dateFormatterUTC = SimpleDateFormat(dateFormatUTC)
+private val dateFormatterUTC =
+  SimpleDateFormat(dateFormatUTC).apply { timeZone = TimeZone.getTimeZone("UTC") }
 
 internal class ChallengeMapper {
   @Throws(TwilioVerifyException::class)
