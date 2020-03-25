@@ -32,17 +32,10 @@ internal const val VERIFY_FACTOR_URL =
 internal const val UPDATE_FACTOR_URL =
   "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
 
-internal const val FCM_PUSH_TYPE = "fcm"
 internal const val FRIENDLY_NAME_KEY = "FriendlyName"
 internal const val FACTOR_TYPE_KEY = "FactorType"
 internal const val BINDING_KEY = "Binding"
 internal const val CONFIG_KEY = "Config"
-internal const val SDK_VERSION_KEY = "sdk_version"
-internal const val APP_ID_KEY = "app_id"
-internal const val NOTIFICATION_PLATFORM_KEY = "notification_platform"
-internal const val NOTIFICATION_TOKEN_KEY = "notification_token"
-internal const val ALG_KEY = "alg"
-internal const val DEFAULT_ALG = "ES256"
 internal const val JWT_AUTHENTICATION_USER = "token"
 
 internal class FactorAPIClient(

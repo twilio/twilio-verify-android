@@ -9,7 +9,14 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.domain.factor.ALG_KEY
+import com.twilio.verify.domain.factor.APP_ID_KEY
+import com.twilio.verify.domain.factor.DEFAULT_ALG
+import com.twilio.verify.domain.factor.FCM_PUSH_TYPE
+import com.twilio.verify.domain.factor.NOTIFICATION_PLATFORM_KEY
+import com.twilio.verify.domain.factor.NOTIFICATION_TOKEN_KEY
 import com.twilio.verify.domain.factor.PUBLIC_KEY_KEY
+import com.twilio.verify.domain.factor.SDK_VERSION_KEY
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload

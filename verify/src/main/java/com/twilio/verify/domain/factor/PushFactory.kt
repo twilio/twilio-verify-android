@@ -9,13 +9,6 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
-import com.twilio.verify.api.ALG_KEY
-import com.twilio.verify.api.APP_ID_KEY
-import com.twilio.verify.api.DEFAULT_ALG
-import com.twilio.verify.api.FCM_PUSH_TYPE
-import com.twilio.verify.api.NOTIFICATION_PLATFORM_KEY
-import com.twilio.verify.api.NOTIFICATION_TOKEN_KEY
-import com.twilio.verify.api.SDK_VERSION_KEY
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
@@ -26,6 +19,13 @@ import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.threading.execute
 
 internal const val PUBLIC_KEY_KEY = "public_key"
+internal const val FCM_PUSH_TYPE = "fcm"
+internal const val SDK_VERSION_KEY = "sdk_version"
+internal const val APP_ID_KEY = "app_id"
+internal const val NOTIFICATION_PLATFORM_KEY = "notification_platform"
+internal const val NOTIFICATION_TOKEN_KEY = "notification_token"
+internal const val ALG_KEY = "alg"
+internal const val DEFAULT_ALG = "ES256"
 
 internal class PushFactory(
   private val factorProvider: FactorProvider,
@@ -128,7 +128,8 @@ internal class PushFactory(
   private fun config(
     pushToken: String
   ): Map<String, String> = mapOf(
-      SDK_VERSION_KEY to BuildConfig.VERSION_NAME, APP_ID_KEY to context.applicationInfo.packageName,
+      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+      APP_ID_KEY to context.applicationInfo.packageName,
       NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE, NOTIFICATION_TOKEN_KEY to pushToken
   )
 }

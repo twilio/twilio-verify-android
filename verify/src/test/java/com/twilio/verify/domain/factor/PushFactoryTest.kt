@@ -18,13 +18,6 @@ import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
-import com.twilio.verify.api.ALG_KEY
-import com.twilio.verify.api.APP_ID_KEY
-import com.twilio.verify.api.DEFAULT_ALG
-import com.twilio.verify.api.FCM_PUSH_TYPE
-import com.twilio.verify.api.NOTIFICATION_PLATFORM_KEY
-import com.twilio.verify.api.NOTIFICATION_TOKEN_KEY
-import com.twilio.verify.api.SDK_VERSION_KEY
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.PushFactor
