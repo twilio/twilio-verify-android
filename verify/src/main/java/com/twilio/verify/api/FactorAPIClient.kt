@@ -7,6 +7,8 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
+import com.twilio.verify.domain.factor.publicKeyKey
+import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.BasicAuthorization
@@ -46,7 +48,6 @@ internal const val notificationTokenKey = "notification_token"
 internal const val algKey = "alg"
 internal const val defaultAlg = "ES256"
 internal const val jwtAuthenticationUser = "token"
-internal const val publicKeyKey = "public_key"
 
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -158,7 +159,7 @@ internal class FactorAPIClient(
   private fun binding(
     createFactorPayload: CreateFactorPayload
   ): String = JSONObject().apply {
-    put(publicKeyKey, createFactorPayload.publicKey)
+    put(publicKeyKey, createFactorPayload.binding[publicKeyKey])
     put(algKey, defaultAlg)
   }.toString()
 
@@ -168,7 +169,7 @@ internal class FactorAPIClient(
     put(sdkVersionKey, BuildConfig.VERSION_NAME)
     put(appIdKey, context.applicationInfo.packageName)
     put(notificationPlatformKey, fcmPushType)
-    put(notificationTokenKey, factoryPayload.pushToken)
+    put(notificationTokenKey, factoryPayload.binding[pushTokenKey])
   }.toString()
 
   private fun verifyFactorBody(authPayload: String): Map<String, String?> =

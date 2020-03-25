@@ -9,8 +9,8 @@ import com.twilio.verify.models.FactorType
 internal data class UpdateFactorPayload(
   override val friendlyName: String,
   override val type: FactorType,
-  override val pushToken: String,
   override val serviceSid: String,
   override val entity: String,
+  override val binding: Map<String, Any>,
   val factorSid: String
 ) : FactorPayload

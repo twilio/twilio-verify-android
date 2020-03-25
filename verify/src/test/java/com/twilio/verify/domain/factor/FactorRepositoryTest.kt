@@ -55,7 +55,7 @@ class FactorRepositoryTest {
   fun `Create a factor with a valid factor builder should return a factor`() {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
-        "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123",
+        "factor name", Push, "serviceSid123", "entitySid123", emptyMap(),
         "jwt"
     )
     val response = JSONObject()
@@ -85,8 +85,8 @@ class FactorRepositoryTest {
   @Test
   fun `No response from API creating a factor should call error`() {
     val factorPayload = CreateFactorPayload(
-        "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123",
-        "jwt"
+        "factor name", Push, "serviceSid123", "entitySid123",
+        emptyMap(), "jwt"
     )
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
@@ -105,8 +105,8 @@ class FactorRepositoryTest {
   fun `Error from mapper creating a factor should call error`() {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
-        "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123",
-        "jwt"
+        "factor name", Push, "serviceSid123", "entitySid123",
+        emptyMap(), "jwt"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -130,8 +130,8 @@ class FactorRepositoryTest {
   fun `No factor from storage creating a factor should call error`() {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
-        "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123",
-        "jwt"
+        "factor name", Push, "serviceSid123", "entitySid123",
+        emptyMap(), "jwt"
     )
     val response = JSONObject()
         .put(sidKey, sid)

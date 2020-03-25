@@ -54,6 +54,7 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
     val publicKey = "publicKey123"
+    val binding = mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey)
     var alias: String? = null
     argumentCaptor<String>().apply {
       whenever(keyStorage.create(capture())).then {
@@ -70,8 +71,7 @@ class PushFactoryTest {
     idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       verify(factorProvider).create(check { pushFactor ->
-        assertEquals(publicKey, pushFactor.publicKey)
-        assertEquals(pushToken, pushFactor.pushToken)
+        assertEquals(binding, pushFactor.binding)
         assertEquals(serviceSid, pushFactor.serviceSid)
         assertEquals(entityId, pushFactor.entity)
         assertEquals(friendlyName, pushFactor.friendlyName)

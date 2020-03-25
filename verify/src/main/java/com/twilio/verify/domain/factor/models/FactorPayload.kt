@@ -11,5 +11,5 @@ internal interface FactorPayload {
   val type: FactorType
   val serviceSid: String
   val entity: String
-  val pushToken: String
+  val binding: Map<String, Any>
 }

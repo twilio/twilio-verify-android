@@ -12,6 +12,8 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
+import com.twilio.verify.domain.factor.publicKeyKey
+import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
@@ -66,7 +68,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123", "jwt"
+            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), "jwt"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -85,7 +87,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123", "jwt"
+            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), "jwt"
         ), {
       fail()
     }, { exception ->
@@ -97,7 +99,7 @@ class FactorAPIClientTest {
   fun `Error creating a factor should call error`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", Push, "pushToken", "publicKey", "serviceSid", "entitySid", "jwt"
+          "factor name", Push, "serviceSid", "entitySid", emptyMap(), "jwt"
       )
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
@@ -137,8 +139,8 @@ class FactorAPIClientTest {
     val factorPayload =
       CreateFactorPayload(
           friendlyNameMock, factorTypeMock,
-          pushToken, publicKey, serviceSid,
-          entity, "jwt"
+          serviceSid,
+          entity, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey), "jwt"
       )
 
     factorAPIClient.create(factorPayload, {}, {})
@@ -255,7 +257,8 @@ class FactorAPIClientTest {
     }
     factorAPIClient.update(
         UpdateFactorPayload(
-            "factor name", Push, "pushToken", "serviceSid123", "entitySid123", "factorSid"
+            "factor name", Push, "serviceSid123", "entitySid123",
+            mapOf(pushTokenKey to "pushToken"), "factorSid"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -274,7 +277,8 @@ class FactorAPIClientTest {
     }
     factorAPIClient.update(
         UpdateFactorPayload(
-            "factor name", Push, "pushToken", "serviceSid123", "entitySid123", "factorSid"
+            "factor name", Push, "serviceSid123", "entitySid123",
+            mapOf(pushTokenKey to "pushToken"), "factorSid"
         ), {
       fail()
     }, { exception ->
@@ -298,8 +302,8 @@ class FactorAPIClientTest {
 
     val factorPayload =
       UpdateFactorPayload(
-          friendlyNameMock, factorTypeMock, pushToken, serviceSidMock,
-          entityIdentityMock, sidMock
+          friendlyNameMock, factorTypeMock, serviceSidMock,
+          entityIdentityMock, mapOf(pushTokenKey to pushToken), sidMock
       )
 
     val expectedBody = mapOf(

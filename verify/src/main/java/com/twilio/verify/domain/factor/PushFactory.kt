@@ -16,6 +16,9 @@ import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.threading.execute
 
+internal const val pushTokenKey = "address"
+internal const val publicKeyKey = "public_key"
+
 internal class PushFactory(
   private val factorProvider: FactorProvider,
   private val keyStorage: KeyStorage
@@ -39,8 +42,9 @@ internal class PushFactory(
         val alias = generateKeyPairAlias()
         val publicKey = keyStorage.create(alias)
         val factorBuilder = CreateFactorPayload(
-            friendlyName, Push, pushToken, publicKey,
-            enrollmentJWT.verifyConfig.serviceSid, enrollmentJWT.verifyConfig.entity, jwt
+            friendlyName, Push, enrollmentJWT.verifyConfig.serviceSid,
+            enrollmentJWT.verifyConfig.entity,
+            mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey), jwt
         )
 
         fun onFactorCreated(factor: Factor) {
