@@ -10,6 +10,7 @@ internal data class CreateFactorPayload(
   override val type: FactorType,
   override val serviceSid: String,
   override val entity: String,
-  override val binding: Map<String, Any>,
+  override val config: Map<String, String>,
+  val binding: Map<String, String>,
   val jwt: String
 ) : FactorPayload

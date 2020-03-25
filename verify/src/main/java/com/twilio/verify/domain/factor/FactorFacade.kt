@@ -129,7 +129,7 @@ internal class FactorFacade(
       val factorAPIClient =
         FactorAPIClient(networking, appContext, auth, url)
       val repository = FactorRepository(appContext, factorAPIClient)
-      val pushFactory = PushFactory(repository, keyStore)
+      val pushFactory = PushFactory(repository, keyStore, appContext)
       return FactorFacade(pushFactory, repository)
     }
   }

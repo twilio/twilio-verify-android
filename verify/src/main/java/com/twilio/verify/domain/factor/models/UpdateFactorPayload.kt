@@ -11,6 +11,6 @@ internal data class UpdateFactorPayload(
   override val type: FactorType,
   override val serviceSid: String,
   override val entity: String,
-  override val binding: Map<String, Any>,
+  override val config: Map<String, String>,
   val factorSid: String
 ) : FactorPayload

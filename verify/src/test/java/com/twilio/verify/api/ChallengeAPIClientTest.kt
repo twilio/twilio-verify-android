@@ -122,17 +122,17 @@ class ChallengeAPIClientTest {
   fun `Update challenge request should match to the expected params`() {
     val expectedURL =
       "$baseUrl$updateChallengeURL".replace(
-          serviceSidPath, factorChallenge.factor!!.serviceSid, true
+          SERVICE_SID_PATH, factorChallenge.factor!!.serviceSid, true
       )
           .replace(
-              entityPath, factorChallenge.factor!!.entityIdentity, true
+              ENTITY_PATH, factorChallenge.factor!!.entityIdentity, true
           )
-          .replace(factorSidPath, factorChallenge.factor!!.sid)
+          .replace(FACTOR_SID_PATH, factorChallenge.factor!!.sid)
           .replace(challengeSidPath, factorChallenge.sid)
 
     val authPayload = "authPayload"
     val expectedBody = mapOf(
-        authPayloadParam to authPayload
+        AUTH_PAYLOAD_PARAM to authPayload
     )
 
     challengeAPIClient.update(factorChallenge, authPayload, {}, {})
@@ -205,11 +205,11 @@ class ChallengeAPIClientTest {
     val factor =
       PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
     val expectedURL =
-      "$baseUrl$getChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
+      "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
           .replace(
-              entityPath, factor.entityIdentity, true
+              ENTITY_PATH, factor.entityIdentity, true
           )
-          .replace(factorSidPath, factor.sid)
+          .replace(FACTOR_SID_PATH, factor.sid)
           .replace(challengeSidPath, challengeSid)
 
     challengeAPIClient.get(challengeSid, factor, {}, {})

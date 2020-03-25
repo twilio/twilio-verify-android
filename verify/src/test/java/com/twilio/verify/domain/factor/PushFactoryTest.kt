@@ -3,6 +3,8 @@
  */
 package com.twilio.verify.domain.factor
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
@@ -11,6 +13,7 @@ import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
@@ -36,7 +39,8 @@ class PushFactoryTest {
 
   private val factorProvider: FactorProvider = mock()
   private val keyStorage: KeyStorage = mock()
-  private val pushFactory = PushFactory(factorProvider, keyStorage)
+  private val pushFactory =
+    PushFactory(factorProvider, keyStorage, ApplicationProvider.getApplicationContext())
   private val idlingResource = IdlingResource()
 
   @Test
@@ -54,7 +58,14 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
     val publicKey = "publicKey123"
-    val binding = mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey)
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val expectedConfig = mapOf(
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+        NOTIFICATION_TOKEN_KEY to pushToken
+    )
+    val expectedBinding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
     var alias: String? = null
     argumentCaptor<String>().apply {
       whenever(keyStorage.create(capture())).then {
@@ -71,7 +82,8 @@ class PushFactoryTest {
     idlingResource.startOperation()
     pushFactory.create(jwt, friendlyName, pushToken, {
       verify(factorProvider).create(check { pushFactor ->
-        assertEquals(binding, pushFactor.binding)
+        assertEquals(expectedBinding, pushFactor.binding)
+        assertEquals(expectedConfig, pushFactor.config)
         assertEquals(serviceSid, pushFactor.serviceSid)
         assertEquals(entityId, pushFactor.entity)
         assertEquals(friendlyName, pushFactor.friendlyName)

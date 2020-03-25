@@ -3,6 +3,8 @@
  */
 package com.twilio.verify.domain.factor
 
+import android.content.Context
+import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
@@ -16,12 +18,19 @@ import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.threading.execute
 
-internal const val pushTokenKey = "address"
-internal const val publicKeyKey = "public_key"
+internal const val PUBLIC_KEY_KEY = "public_key"
+internal const val FCM_PUSH_TYPE = "fcm"
+internal const val SDK_VERSION_KEY = "sdk_version"
+internal const val APP_ID_KEY = "app_id"
+internal const val NOTIFICATION_PLATFORM_KEY = "notification_platform"
+internal const val NOTIFICATION_TOKEN_KEY = "notification_token"
+internal const val ALG_KEY = "alg"
+internal const val DEFAULT_ALG = "ES256"
 
 internal class PushFactory(
   private val factorProvider: FactorProvider,
-  private val keyStorage: KeyStorage
+  private val keyStorage: KeyStorage,
+  private val context: Context
 ) {
   fun create(
     jwt: String,
@@ -41,10 +50,11 @@ internal class PushFactory(
         }
         val alias = generateKeyPairAlias()
         val publicKey = keyStorage.create(alias)
+        val binding = binding(publicKey)
+        val config = config(pushToken)
         val factorBuilder = CreateFactorPayload(
             friendlyName, Push, enrollmentJWT.verifyConfig.serviceSid,
-            enrollmentJWT.verifyConfig.entity,
-            mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey), jwt
+            enrollmentJWT.verifyConfig.entity, config, binding, jwt
         )
 
         fun onFactorCreated(factor: Factor) {
@@ -110,4 +120,16 @@ internal class PushFactory(
         .map(charPool::get)
         .joinToString("")
   }
+
+  private fun binding(
+    publicKey: String
+  ): Map<String, String> = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
+
+  private fun config(
+    pushToken: String
+  ): Map<String, String> = mapOf(
+      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+      APP_ID_KEY to context.applicationInfo.packageName,
+      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE, NOTIFICATION_TOKEN_KEY to pushToken
+  )
 }

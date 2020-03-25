@@ -1,14 +1,10 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
-import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
-import com.twilio.verify.domain.factor.publicKeyKey
-import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.BasicAuthorization
@@ -23,31 +19,24 @@ import org.json.JSONObject
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-internal const val serviceSidPath = "{ServiceSid}"
-internal const val entityPath = "{EntityIdentity}"
-internal const val factorSidPath = "{FactorSid}"
+internal const val SERVICE_SID_PATH = "{ServiceSid}"
+internal const val ENTITY_PATH = "{EntityIdentity}"
+internal const val FACTOR_SID_PATH = "{FactorSid}"
 
-internal const val authPayloadParam = "AuthPayload"
+internal const val AUTH_PAYLOAD_PARAM = "AuthPayload"
 
-internal const val createFactorURL =
-  "Services/$serviceSidPath/Entities/$entityPath/Factors"
-internal const val verifyFactorURL =
-  "Services/$serviceSidPath/Entities/$entityPath/Factors/$factorSidPath"
-internal const val updateFactorURL =
-  "Services/$serviceSidPath/Entities/$entityPath/Factors/$factorSidPath"
+internal const val CREATE_FACTOR_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors"
+internal const val VERIFY_FACTOR_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
+internal const val UPDATE_FACTOR_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
 
-internal const val fcmPushType = "fcm"
-internal const val friendlyName = "FriendlyName"
-internal const val factorType = "FactorType"
-internal const val binding = "Binding"
-internal const val config = "Config"
-internal const val sdkVersionKey = "sdk_version"
-internal const val appIdKey = "app_id"
-internal const val notificationPlatformKey = "notification_platform"
-internal const val notificationTokenKey = "notification_token"
-internal const val algKey = "alg"
-internal const val defaultAlg = "ES256"
-internal const val jwtAuthenticationUser = "token"
+internal const val FRIENDLY_NAME_KEY = "FriendlyName"
+internal const val FACTOR_TYPE_KEY = "FactorType"
+internal const val BINDING_KEY = "Binding"
+internal const val CONFIG_KEY = "Config"
+internal const val JWT_AUTHENTICATION_USER = "token"
 
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -63,7 +52,7 @@ internal class FactorAPIClient(
   ) {
     try {
       val requestHelper =
-        RequestHelper(context, BasicAuthorization(jwtAuthenticationUser, createFactorPayload.jwt))
+        RequestHelper(context, BasicAuthorization(JWT_AUTHENTICATION_USER, createFactorPayload.jwt))
       val request = Request.Builder(
           requestHelper,
           createFactorURL(createFactorPayload)
@@ -125,61 +114,45 @@ internal class FactorAPIClient(
   }
 
   private fun createFactorURL(createFactorPayload: CreateFactorPayload): String =
-    "$baseUrl$createFactorURL".replace(serviceSidPath, createFactorPayload.serviceSid, true)
+    "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, createFactorPayload.serviceSid, true)
         .replace(
-            entityPath, createFactorPayload.entity, true
+            ENTITY_PATH, createFactorPayload.entity, true
         )
 
   private fun verifyFactorURL(factor: Factor): String =
-    "$baseUrl$verifyFactorURL".replace(serviceSidPath, factor.serviceSid, true)
+    "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
         .replace(
-            entityPath, factor.entityIdentity, true
-        ).replace(factorSidPath, factor.sid)
+            ENTITY_PATH, factor.entityIdentity, true
+        ).replace(FACTOR_SID_PATH, factor.sid)
 
   private fun updateFactorURL(
     updateFactorPayload: UpdateFactorPayload
   ): String =
-    "$baseUrl$updateFactorURL".replace(serviceSidPath, updateFactorPayload.serviceSid, true)
+    "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, updateFactorPayload.serviceSid, true)
         .replace(
-            entityPath, updateFactorPayload.entity, true
+            ENTITY_PATH, updateFactorPayload.entity, true
         ).replace(
-            factorSidPath, updateFactorPayload.factorSid
+            FACTOR_SID_PATH, updateFactorPayload.factorSid
         )
 
   private fun createFactorBody(
     createFactorPayload: CreateFactorPayload
   ): Map<String, String?> =
     mapOf(
-        friendlyName to createFactorPayload.friendlyName,
-        factorType to createFactorPayload.type.factorTypeName,
-        binding to binding(createFactorPayload),
-        config to config(createFactorPayload)
+        FRIENDLY_NAME_KEY to createFactorPayload.friendlyName,
+        FACTOR_TYPE_KEY to createFactorPayload.type.factorTypeName,
+        BINDING_KEY to JSONObject(createFactorPayload.binding).toString(),
+        CONFIG_KEY to JSONObject(createFactorPayload.config).toString()
     )
 
-  private fun binding(
-    createFactorPayload: CreateFactorPayload
-  ): String = JSONObject().apply {
-    put(publicKeyKey, createFactorPayload.binding[publicKeyKey])
-    put(algKey, defaultAlg)
-  }.toString()
-
-  private fun config(
-    factoryPayload: FactorPayload
-  ): String = JSONObject().apply {
-    put(sdkVersionKey, BuildConfig.VERSION_NAME)
-    put(appIdKey, context.applicationInfo.packageName)
-    put(notificationPlatformKey, fcmPushType)
-    put(notificationTokenKey, factoryPayload.binding[pushTokenKey])
-  }.toString()
-
   private fun verifyFactorBody(authPayload: String): Map<String, String?> =
-    mapOf(authPayloadParam to authPayload)
+    mapOf(AUTH_PAYLOAD_PARAM to authPayload)
 
   private fun updateFactorBody(
     updateFactorPayload: UpdateFactorPayload
   ): Map<String, String?> =
     mapOf(
-        friendlyName to updateFactorPayload.friendlyName,
-        config to config(updateFactorPayload)
+        FRIENDLY_NAME_KEY to updateFactorPayload.friendlyName,
+        CONFIG_KEY to JSONObject(updateFactorPayload.config).toString()
     )
 }

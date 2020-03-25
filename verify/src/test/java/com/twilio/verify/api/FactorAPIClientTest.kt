@@ -9,11 +9,17 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.domain.factor.ALG_KEY
+import com.twilio.verify.domain.factor.APP_ID_KEY
+import com.twilio.verify.domain.factor.DEFAULT_ALG
+import com.twilio.verify.domain.factor.FCM_PUSH_TYPE
+import com.twilio.verify.domain.factor.NOTIFICATION_PLATFORM_KEY
+import com.twilio.verify.domain.factor.NOTIFICATION_TOKEN_KEY
+import com.twilio.verify.domain.factor.PUBLIC_KEY_KEY
+import com.twilio.verify.domain.factor.SDK_VERSION_KEY
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
-import com.twilio.verify.domain.factor.publicKeyKey
-import com.twilio.verify.domain.factor.pushTokenKey
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
@@ -68,7 +74,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), "jwt"
+            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -87,7 +93,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), "jwt"
+            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
         ), {
       fail()
     }, { exception ->
@@ -99,7 +105,7 @@ class FactorAPIClientTest {
   fun `Error creating a factor should call error`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", Push, "serviceSid", "entitySid", emptyMap(), "jwt"
+          "factor name", Push, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwt"
       )
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
@@ -115,32 +121,32 @@ class FactorAPIClientTest {
   fun `Create factor request should match to the expected params`() {
     val serviceSid = "serviceSid"
     val entity = "entityId"
-    val expectedURL = "$baseUrl$createFactorURL".replace(serviceSidPath, serviceSid, true)
+    val expectedURL = "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSid, true)
         .replace(
-            entityPath, entity, true
+            ENTITY_PATH, entity, true
         )
     val friendlyNameMock = "Test"
     val factorTypeMock = Push
     val pushToken = "ABCD"
     val publicKey = "12345"
-    val expectedBody = mapOf(
-        friendlyName to friendlyNameMock, factorType to factorTypeMock.factorTypeName,
-        binding to JSONObject().apply {
-          put(publicKeyKey, publicKey)
-          put(algKey, defaultAlg)
-        }.toString(),
-        config to JSONObject().apply {
-          put(sdkVersionKey, BuildConfig.VERSION_NAME)
-          put(appIdKey, "${context.applicationInfo.loadLabel(context.packageManager)}")
-          put(notificationPlatformKey, fcmPushType)
-          put(notificationTokenKey, pushToken)
-        }.toString()
+    val binding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
+    val config = mapOf(
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+        NOTIFICATION_TOKEN_KEY to pushToken
     )
+    val expectedBody = mapOf(
+        FRIENDLY_NAME_KEY to friendlyNameMock, FACTOR_TYPE_KEY to factorTypeMock.factorTypeName,
+        BINDING_KEY to JSONObject(binding).toString(),
+        CONFIG_KEY to JSONObject(config).toString()
+    )
+
     val factorPayload =
       CreateFactorPayload(
           friendlyNameMock, factorTypeMock,
           serviceSid,
-          entity, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey), "jwt"
+          entity, config, binding, "jwt"
       )
 
     factorAPIClient.create(factorPayload, {}, {})
@@ -216,13 +222,13 @@ class FactorAPIClientTest {
     val serviceSidMock = "serviceSid"
     val entityIdentityMock = "entityIdentity"
     val authPayloadMock = "authPayload"
-    val expectedURL = "$baseUrl$verifyFactorURL".replace(serviceSidPath, serviceSidMock, true)
+    val expectedURL = "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
         .replace(
-            entityPath, entityIdentityMock, true
+            ENTITY_PATH, entityIdentityMock, true
         )
-        .replace(factorSidPath, sidMock)
+        .replace(FACTOR_SID_PATH, sidMock)
 
-    val expectedBody = mapOf(authPayloadParam to authPayloadMock)
+    val expectedBody = mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
     val factor =
       PushFactor(
           sidMock,
@@ -257,8 +263,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.update(
         UpdateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123",
-            mapOf(pushTokenKey to "pushToken"), "factorSid"
+            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), "factorSid"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -278,7 +283,7 @@ class FactorAPIClientTest {
     factorAPIClient.update(
         UpdateFactorPayload(
             "factor name", Push, "serviceSid123", "entitySid123",
-            mapOf(pushTokenKey to "pushToken"), "factorSid"
+            emptyMap(), "factorSid"
         ), {
       fail()
     }, { exception ->
@@ -294,26 +299,28 @@ class FactorAPIClientTest {
     val entityIdentityMock = "entityIdentity"
     val pushToken = "ABCD"
     val factorTypeMock = Push
-    val expectedURL = "$baseUrl$updateFactorURL".replace(serviceSidPath, serviceSidMock, true)
+    val expectedURL = "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
         .replace(
-            entityPath, entityIdentityMock, true
+            ENTITY_PATH, entityIdentityMock, true
         )
-        .replace(factorSidPath, sidMock)
+        .replace(FACTOR_SID_PATH, sidMock)
+
+    val config = mapOf(
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+        NOTIFICATION_TOKEN_KEY to pushToken
+    )
 
     val factorPayload =
       UpdateFactorPayload(
           friendlyNameMock, factorTypeMock, serviceSidMock,
-          entityIdentityMock, mapOf(pushTokenKey to pushToken), sidMock
+          entityIdentityMock, config, sidMock
       )
 
     val expectedBody = mapOf(
-        friendlyName to friendlyNameMock,
-        config to JSONObject().apply {
-          put(sdkVersionKey, BuildConfig.VERSION_NAME)
-          put(appIdKey, "${context.applicationInfo.loadLabel(context.packageManager)}")
-          put(notificationPlatformKey, fcmPushType)
-          put(notificationTokenKey, pushToken)
-        }.toString()
+        FRIENDLY_NAME_KEY to friendlyNameMock,
+        CONFIG_KEY to JSONObject(config).toString()
     )
     factorAPIClient.update(factorPayload, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
