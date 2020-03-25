@@ -20,9 +20,9 @@ import org.json.JSONObject
  */
 internal const val challengeSidPath = "{ChallengeSid}"
 internal const val updateChallengeURL =
-  "Services/$serviceSidPath/Entities/$entityPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
+  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH/Challenges/$challengeSidPath"
 internal const val getChallengeURL =
-  "Services/$serviceSidPath/Entities/$entityPath/Factors/$factorSidPath/Challenges/$challengeSidPath"
+  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH/Challenges/$challengeSidPath"
 
 internal class ChallengeAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -82,11 +82,11 @@ internal class ChallengeAPIClient(
 
   private fun updateChallengeURL(challenge: FactorChallenge) =
     challenge.factor?.let { factor ->
-      "$baseUrl$updateChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
+      "$baseUrl$updateChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
           .replace(
-              entityPath, factor.entityIdentity, true
+              ENTITY_PATH, factor.entityIdentity, true
           )
-          .replace(factorSidPath, factor.sid)
+          .replace(FACTOR_SID_PATH, factor.sid)
           .replace(challengeSidPath, challenge.sid)
     } ?: run {
       throw IllegalArgumentException("ServiceSid or EntityIdentity is null or empty")
@@ -96,17 +96,17 @@ internal class ChallengeAPIClient(
     authPayload: String
   ): Map<String, String?> =
     mapOf(
-        authPayloadParam to authPayload
+        AUTH_PAYLOAD_PARAM to authPayload
     )
 
   private fun getChallengeURL(
     challengeSid: String,
     factor: Factor
-  ) = "$baseUrl$getChallengeURL".replace(serviceSidPath, factor.serviceSid, true)
+  ) = "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
       .replace(
-          entityPath, factor.entityIdentity, true
+          ENTITY_PATH, factor.entityIdentity, true
       )
-      .replace(factorSidPath, factor.sid)
+      .replace(FACTOR_SID_PATH, factor.sid)
       .replace(challengeSidPath, challengeSid)
 
 }
