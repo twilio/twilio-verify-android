@@ -53,7 +53,7 @@ internal class PushFactory(
           }
               ?.let { pushFactor ->
                 pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }?.let {
-                  factorProvider.update(pushFactor)
+                  factorProvider.save(pushFactor)
                   onSuccess(pushFactor)
                 } ?: run {
                   keyStorage.delete(alias)

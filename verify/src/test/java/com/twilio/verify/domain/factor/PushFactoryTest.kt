@@ -76,7 +76,7 @@ class PushFactoryTest {
         assertEquals(entityId, pushFactor.entity)
         assertEquals(friendlyName, pushFactor.friendlyName)
       }, any(), any())
-      verify(factorProvider).update(check {
+      verify(factorProvider).save(check {
         val factor = it as? PushFactor
         assertNotNull(factor)
         assertEquals(alias, factor?.keyPairAlias)
