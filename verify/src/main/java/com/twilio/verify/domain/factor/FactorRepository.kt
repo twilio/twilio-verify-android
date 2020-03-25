@@ -10,7 +10,7 @@ import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.Storage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
 
@@ -25,19 +25,19 @@ internal class FactorRepository(
   private val factorMapper: FactorMapper = FactorMapper()
 ) : FactorProvider {
   override fun create(
-    factorPayload: FactorPayload,
+    createFactorPayload: CreateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     fun updateFactor(response: JSONObject) {
       try {
-        val factor = update(factorMapper.fromApi(response, factorPayload))
+        val factor = update(factorMapper.fromApi(response, createFactorPayload))
         success(factor)
       } catch (e: TwilioVerifyException) {
         error(e)
       }
     }
-    apiClient.create(factorPayload, ::updateFactor, error)
+    apiClient.create(createFactorPayload, ::updateFactor, error)
   }
 
   override fun verify(

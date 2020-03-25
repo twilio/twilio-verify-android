@@ -1,15 +1,15 @@
-/*
- * Copyright (c) 2020, Twilio Inc.
- */
 package com.twilio.verify.domain.factor.models
 
 import com.twilio.verify.models.FactorType
 
-internal data class FactorPayload(
-  val friendlyName: String,
-  val type: FactorType,
-  val binding: Map<String, Any>,
-  val serviceSid: String,
-  val entity: String,
-  val jwt: String
-)
+/*
+ * Copyright (c) 2020, Twilio Inc.
+ */
+
+internal interface FactorPayload {
+  val friendlyName: String
+  val type: FactorType
+  val serviceSid: String
+  val entity: String
+  val pushToken: String
+}

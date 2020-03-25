@@ -5,7 +5,7 @@ package com.twilio.verify.domain.factor
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
@@ -28,16 +28,16 @@ internal class FactorMapper {
   @Throws(TwilioVerifyException::class)
   fun fromApi(
     jsonObject: JSONObject,
-    factorPayload: FactorPayload
+    createFactorPayload: CreateFactorPayload
   ): Factor {
-    val serviceSid = factorPayload.serviceSid
-    val entityIdentity = factorPayload.entity
+    val serviceSid = createFactorPayload.serviceSid
+    val entityIdentity = createFactorPayload.entity
     if (serviceSid.isEmpty() || entityIdentity.isEmpty()) {
       throw TwilioVerifyException(
           IllegalArgumentException("ServiceSid or EntityIdentity is null or empty"), MapperError
       )
     }
-    return when (factorPayload.type) {
+    return when (createFactorPayload.type) {
       Push -> toPushFactor(serviceSid, entityIdentity, jsonObject)
     }
   }

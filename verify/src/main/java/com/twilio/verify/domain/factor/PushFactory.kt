@@ -9,15 +9,12 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.toEnrollmentJWT
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.threading.execute
-
-internal const val pushTokenKey = "address"
-internal const val publicKeyKey = "public_key"
 
 internal class PushFactory(
   private val factorProvider: FactorProvider,
@@ -41,8 +38,8 @@ internal class PushFactory(
         }
         val alias = generateKeyPairAlias()
         val publicKey = keyStorage.create(alias)
-        val factorBuilder = FactorPayload(
-            friendlyName, Push, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey),
+        val factorBuilder = CreateFactorPayload(
+            friendlyName, Push, pushToken, publicKey,
             enrollmentJWT.verifyConfig.serviceSid, enrollmentJWT.verifyConfig.entity, jwt
         )
 

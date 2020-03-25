@@ -17,7 +17,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
@@ -54,8 +54,8 @@ class FactorRepositoryTest {
   @Test
   fun `Create a factor with a valid factor builder should return a factor`() {
     val sid = "sid123"
-    val factorPayload = FactorPayload(
-        "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entitySid123",
+    val factorPayload = CreateFactorPayload(
+        "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123",
         "jwt"
     )
     val response = JSONObject()
@@ -84,8 +84,8 @@ class FactorRepositoryTest {
 
   @Test
   fun `No response from API creating a factor should call error`() {
-    val factorPayload = FactorPayload(
-        "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entitySid123",
+    val factorPayload = CreateFactorPayload(
+        "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123",
         "jwt"
     )
     val expectedException: TwilioVerifyException = mock()
@@ -104,8 +104,8 @@ class FactorRepositoryTest {
   @Test
   fun `Error from mapper creating a factor should call error`() {
     val sid = "sid123"
-    val factorPayload = FactorPayload(
-        "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entitySid123",
+    val factorPayload = CreateFactorPayload(
+        "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123",
         "jwt"
     )
     val response = JSONObject()
@@ -129,8 +129,8 @@ class FactorRepositoryTest {
   @Test
   fun `No factor from storage creating a factor should call error`() {
     val sid = "sid123"
-    val factorPayload = FactorPayload(
-        "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entitySid123",
+    val factorPayload = CreateFactorPayload(
+        "factor name", Push, "pushToken", "publicKey", "serviceSid123", "entitySid123",
         "jwt"
     )
     val response = JSONObject()

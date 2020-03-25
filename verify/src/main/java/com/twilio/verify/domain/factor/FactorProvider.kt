@@ -4,12 +4,12 @@
 package com.twilio.verify.domain.factor
 
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.models.Factor
 
 internal interface FactorProvider {
   fun create(
-    factorPayload: FactorPayload,
+    createFactorPayload: CreateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
