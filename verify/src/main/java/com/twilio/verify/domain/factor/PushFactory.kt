@@ -113,6 +113,15 @@ internal class PushFactory(
     }
   }
 
+  fun update(
+    sid: String,
+    pushToken: String,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    //TODO
+  }
+
   private fun generateKeyPairAlias(): String {
     val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     return (1..15)
