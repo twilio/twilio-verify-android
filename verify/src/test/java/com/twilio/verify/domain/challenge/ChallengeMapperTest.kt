@@ -309,4 +309,32 @@ class ChallengeMapperTest {
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeMapper.fromApi(jsonObject)
   }
+
+  @Test
+  fun `Map a valid response from API with details date should return a challenge`() {
+    val jsonObject = JSONObject().apply {
+      put(sidKey, "sid123")
+      put(factorSidKey, "factorSid123")
+      put(createdDateKey, "2020-02-19T16:39:57-08:00")
+      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(statusKey, ChallengeStatus.Pending.value)
+      put(entitySidKey, "entitySid")
+      put(detailsKey, JSONObject().apply {
+        put(messageKey, "message123")
+        put(fieldsKey, JSONArray().apply {
+          put(0, JSONObject().apply {
+            put(labelKey, "label123")
+            put(valueKey, "value123")
+          })
+        })
+        put(dateKey, "2020-03-24T20:37:26Z")
+      }.toString())
+      put(hiddenDetailsKey, JSONObject().apply {
+        put("key1", "value1")
+      }.toString())
+      put(expirationDateKey, "2020-02-27T08:50:57-08:00")
+    }
+    val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge
+    assertEquals(1585082246000, challenge.challengeDetails.date?.time)
+  }
 }
