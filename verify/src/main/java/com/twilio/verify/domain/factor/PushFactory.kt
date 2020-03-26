@@ -13,6 +13,7 @@ import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.domain.factor.models.toEnrollmentJWT
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
@@ -119,7 +120,23 @@ internal class PushFactory(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    //TODO
+    execute(success, error) { onSuccess, onError ->
+      fun updateFactor(pushFactor: PushFactor) {
+        val updateFactorPayload = UpdateFactorPayload(
+            pushFactor.friendlyName, Push, pushFactor.serviceSid, pushFactor.entityIdentity,
+            config(pushToken), pushFactor.sid
+        )
+        factorProvider.update(updateFactorPayload, onSuccess, onError)
+      }
+      try {
+        val factor = factorProvider.get(sid) as? PushFactor
+        factor?.let(::updateFactor) ?: run {
+          throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
+        }
+      } catch (e: TwilioVerifyException) {
+        onError(e)
+      }
+    }
   }
 
   private fun generateKeyPairAlias(): String {
