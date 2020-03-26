@@ -11,6 +11,7 @@ import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.UpdateChallengeInput
+import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.VerifyFactorInput
 
 internal class TwilioVerifyManager(
@@ -31,6 +32,14 @@ internal class TwilioVerifyManager(
     error: (TwilioVerifyException) -> Unit
   ) {
     factorFacade.verifyFactor(verifyFactorInput, success, error)
+  }
+
+  override fun updateFactor(
+    updateFactorInput: UpdateFactorInput,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    factorFacade.updateFactor(updateFactorInput, success, error)
   }
 
   override fun getAllFactors(

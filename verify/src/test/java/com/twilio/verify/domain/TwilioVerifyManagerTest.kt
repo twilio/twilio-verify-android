@@ -18,6 +18,7 @@ import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.UpdatePushChallengeInput
+import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -66,6 +67,46 @@ class TwilioVerifyManagerTest {
     }
     idlingResource.startOperation()
     twilioVerifyManager.createFactor(factorInput, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update a factor should call success`() {
+    val updatePushFactorInput = UpdatePushFactorInput("sid", "pushToken")
+    val expectedFactor: Factor = mock()
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(factorFacade.updateFactor(eq(updatePushFactorInput), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.updateFactor(updatePushFactorInput, { factor ->
+      assertEquals(expectedFactor, factor)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error updating a factor should call error`() {
+    val updatePushFactorInput = UpdatePushFactorInput("sid", "pushToken")
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorFacade.updateFactor(eq(updatePushFactorInput), any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.updateFactor(updatePushFactorInput, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
