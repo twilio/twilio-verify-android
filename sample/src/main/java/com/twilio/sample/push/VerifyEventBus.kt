@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-package com.twilio.sample
+package com.twilio.sample.push
 
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
@@ -19,6 +19,12 @@ object VerifyEventBus {
   val bus: ConflatedBroadcastChannel<VerifyEvent> = ConflatedBroadcastChannel()
 
   fun send(
+    event: VerifyEvent
+  ) {
+    send(event, Dispatchers.Main)
+  }
+
+  fun send(
     event: VerifyEvent,
     context: CoroutineDispatcher = Dispatchers.Main
   ) {
@@ -29,8 +35,23 @@ object VerifyEventBus {
     }
   }
 
-  suspend inline fun <reified T : VerifyEvent> consumeEvent(crossinline consume: (T) -> Unit) =
-    bus.asFlow().filter { it is T }.map { it as T }.collect { consume(it) }
+  fun consumeEvent(consume: (VerifyEvent) -> Unit) {
+    CoroutineScope(Dispatchers.Main).launch {
+      bus.asFlow()
+          .collect { consume(it) }
+    }
+  }
+
+  inline fun <reified T : VerifyEvent> consumeEvent(
+    context: CoroutineDispatcher = Dispatchers.Main,
+    crossinline consume: (T) -> Unit
+  ) =
+    CoroutineScope(context).launch {
+      bus.asFlow()
+          .filter { it is T }
+          .map { it as T }
+          .collect { consume(it) }
+    }
 }
 
 sealed class VerifyEvent

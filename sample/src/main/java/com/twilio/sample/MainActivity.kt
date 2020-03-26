@@ -12,6 +12,9 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.iid.FirebaseInstanceId
+import com.twilio.sample.model.CreateFactorData
+import com.twilio.sample.push.NewChallenge
+import com.twilio.sample.push.VerifyEventBus
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.ChallengeStatus
@@ -32,9 +35,6 @@ import kotlinx.android.synthetic.main.activity_main.factorGroup
 import kotlinx.android.synthetic.main.activity_main.factorInfo
 import kotlinx.android.synthetic.main.activity_main.identityInput
 import kotlinx.android.synthetic.main.activity_main.jwtUrlInput
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.text.DateFormat.MEDIUM
 
 class MainActivity : AppCompatActivity() {
@@ -75,8 +75,11 @@ class MainActivity : AppCompatActivity() {
     challengeGroup.visibility = GONE
     challengeActionsGroup.visibility = GONE
     factorInfo.text = "Creating factor"
+    val createFactorData = CreateFactorData(
+        jwtUrl, identity, "$identity's factor", token
+    )
     twilioVerifyAdapter.createFactor(
-        jwtUrl, identity, "$identity's factor", token, ::onSuccess
+        createFactorData, ::onSuccess
     ) {
       showError(it)
       factorGroup.visibility = GONE
@@ -102,10 +105,8 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun subscribeToEvents() {
-    CoroutineScope(Dispatchers.Main).launch {
-      VerifyEventBus.consumeEvent<NewChallenge> {
-        showChallenge(it.challenge)
-      }
+    VerifyEventBus.consumeEvent<NewChallenge> {
+      showChallenge(it.challenge)
     }
   }
 
