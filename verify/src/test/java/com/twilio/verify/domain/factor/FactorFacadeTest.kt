@@ -16,6 +16,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -127,6 +128,58 @@ class FactorFacadeTest {
     }
     idlingResource.startOperation()
     factorFacade.verifyFactor(verifyFactorInput, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update a factor should call success`() {
+    val sid = "sid"
+    val pushToken = "pushToken"
+    val updatePushFactorInput = UpdatePushFactorInput(sid, pushToken)
+    val expectedFactor: Factor = mock()
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(
+          pushFactory.update(
+              eq(sid), eq(pushToken), capture(), any()
+          )
+      ).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+    idlingResource.startOperation()
+    factorFacade.updateFactor(updatePushFactorInput, { factor ->
+      assertEquals(expectedFactor, factor)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error updating a factor should call error`() {
+    val sid = "sid"
+    val pushToken = "pushToken"
+    val updatePushFactorInput = UpdatePushFactorInput(sid, pushToken)
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(
+          pushFactory.update(
+              eq(sid), eq(pushToken), any(), capture()
+          )
+      ).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    factorFacade.updateFactor(updatePushFactorInput, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
