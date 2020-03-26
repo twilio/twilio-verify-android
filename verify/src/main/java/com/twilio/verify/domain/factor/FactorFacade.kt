@@ -13,6 +13,8 @@ import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.UpdateFactorInput
+import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.Authorization
@@ -46,6 +48,18 @@ internal class FactorFacade(
         pushFactory.verify(
             verifyFactorInput.sid, verifyFactorInput.verificationCode, success, error
         )
+      }
+    }
+  }
+
+  fun updateFactor(
+    updateFactorInput: UpdateFactorInput,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    when (updateFactorInput) {
+      is UpdatePushFactorInput -> {
+        pushFactory.update(updateFactorInput.sid, updateFactorInput.pushToken, success, error)
       }
     }
   }
@@ -129,7 +143,7 @@ internal class FactorFacade(
       val factorAPIClient =
         FactorAPIClient(networking, appContext, auth, url)
       val repository = FactorRepository(appContext, factorAPIClient)
-      val pushFactory = PushFactory(repository, keyStore)
+      val pushFactory = PushFactory(repository, keyStore, appContext)
       return FactorFacade(pushFactory, repository)
     }
   }

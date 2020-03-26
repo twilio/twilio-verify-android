@@ -10,7 +10,8 @@ import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.Storage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
+import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
 
@@ -25,19 +26,19 @@ internal class FactorRepository(
   private val factorMapper: FactorMapper = FactorMapper()
 ) : FactorProvider {
   override fun create(
-    factorPayload: FactorPayload,
+    createFactorPayload: CreateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     fun updateFactor(response: JSONObject) {
       try {
-        val factor = update(factorMapper.fromApi(response, factorPayload))
+        val factor = save(factorMapper.fromApi(response, createFactorPayload))
         success(factor)
       } catch (e: TwilioVerifyException) {
         error(e)
       }
     }
-    apiClient.create(factorPayload, ::updateFactor, error)
+    apiClient.create(createFactorPayload, ::updateFactor, error)
   }
 
   override fun verify(
@@ -49,13 +50,29 @@ internal class FactorRepository(
     fun updateFactor(response: JSONObject) {
       try {
         factor.status = factorMapper.status(response)
-        val updatedFactor = update(factor)
+        val updatedFactor = save(factor)
         success(updatedFactor)
       } catch (e: TwilioVerifyException) {
         error(e)
       }
     }
     apiClient.verify(factor, payload, ::updateFactor, error)
+  }
+
+  override fun update(
+    updateFactorPayload: UpdateFactorPayload,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    fun updateFactor(response: JSONObject) {
+      try {
+        val updatedFactor = save(factorMapper.fromApi(response, updateFactorPayload))
+        success(updatedFactor)
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      }
+    }
+    apiClient.update(updateFactorPayload, ::updateFactor, error)
   }
 
   @Throws(TwilioVerifyException::class)
@@ -65,7 +82,7 @@ internal class FactorRepository(
     }
 
   @Throws(TwilioVerifyException::class)
-  override fun update(factor: Factor): Factor {
+  override fun save(factor: Factor): Factor {
     storage.save(factor.sid, factorMapper.toJSON(factor))
     return get(factor.sid) ?: throw TwilioVerifyException(
         StorageException("Factor not found"), StorageError

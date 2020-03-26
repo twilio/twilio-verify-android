@@ -6,7 +6,7 @@ package com.twilio.verify.domain.factor
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
@@ -34,7 +34,9 @@ class FactorMapperTest {
   @Test
   fun `Map a valid response from API with factorPayload should return a factor`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entityId123", "jwt")
+      CreateFactorPayload(
+          "factor name", Push, "serviceSid123", "entityId123", emptyMap(), emptyMap(), "jwt"
+      )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -53,7 +55,9 @@ class FactorMapperTest {
   @Test
   fun `Map an incomplete response from API should throw an exception`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123", "jwt")
+      CreateFactorPayload(
+          "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+      )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
@@ -74,7 +78,8 @@ class FactorMapperTest {
 
   @Test
   fun `Map a response with invalid serviceSid in payload from API should throw an exception`() {
-    val factorPayload = FactorPayload("factor name", Push, emptyMap(), "", "entitySid123", "jwt")
+    val factorPayload =
+      CreateFactorPayload("factor name", Push, "", "entitySid123", emptyMap(), emptyMap(), "jwt")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -88,7 +93,9 @@ class FactorMapperTest {
   @Test
   fun `Map a response without factor sid from API should throw an exception`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123", "jwt")
+      CreateFactorPayload(
+          "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+      )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
@@ -101,7 +108,9 @@ class FactorMapperTest {
   @Test
   fun `Map a response without entity sid from API should throw an exception`() {
     val factorPayload =
-      FactorPayload("factor name", Push, emptyMap(), "serviceSid123", "entitySid123", "jwt")
+      CreateFactorPayload(
+          "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+      )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")

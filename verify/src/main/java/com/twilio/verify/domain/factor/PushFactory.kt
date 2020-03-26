@@ -3,25 +3,35 @@
  */
 package com.twilio.verify.domain.factor
 
+import android.content.Context
+import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.domain.factor.models.toEnrollmentJWT
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.threading.execute
 
-internal const val pushTokenKey = "address"
-internal const val publicKeyKey = "public_key"
+internal const val PUBLIC_KEY_KEY = "public_key"
+internal const val FCM_PUSH_TYPE = "fcm"
+internal const val SDK_VERSION_KEY = "sdk_version"
+internal const val APP_ID_KEY = "app_id"
+internal const val NOTIFICATION_PLATFORM_KEY = "notification_platform"
+internal const val NOTIFICATION_TOKEN_KEY = "notification_token"
+internal const val ALG_KEY = "alg"
+internal const val DEFAULT_ALG = "ES256"
 
 internal class PushFactory(
   private val factorProvider: FactorProvider,
-  private val keyStorage: KeyStorage
+  private val keyStorage: KeyStorage,
+  private val context: Context
 ) {
   fun create(
     jwt: String,
@@ -41,9 +51,11 @@ internal class PushFactory(
         }
         val alias = generateKeyPairAlias()
         val publicKey = keyStorage.create(alias)
-        val factorBuilder = FactorPayload(
-            friendlyName, Push, mapOf(pushTokenKey to pushToken, publicKeyKey to publicKey),
-            enrollmentJWT.verifyConfig.serviceSid, enrollmentJWT.verifyConfig.entity, jwt
+        val binding = binding(publicKey)
+        val config = config(pushToken)
+        val factorBuilder = CreateFactorPayload(
+            friendlyName, Push, enrollmentJWT.verifyConfig.serviceSid,
+            enrollmentJWT.verifyConfig.entity, config, binding, jwt
         )
 
         fun onFactorCreated(factor: Factor) {
@@ -52,7 +64,7 @@ internal class PushFactory(
           }
               ?.let { pushFactor ->
                 pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }?.let {
-                  factorProvider.update(pushFactor)
+                  factorProvider.save(pushFactor)
                   onSuccess(pushFactor)
                 } ?: run {
                   keyStorage.delete(alias)
@@ -102,6 +114,31 @@ internal class PushFactory(
     }
   }
 
+  fun update(
+    sid: String,
+    pushToken: String,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    execute(success, error) { onSuccess, onError ->
+      fun updateFactor(pushFactor: PushFactor) {
+        val updateFactorPayload = UpdateFactorPayload(
+            pushFactor.friendlyName, Push, pushFactor.serviceSid, pushFactor.entityIdentity,
+            config(pushToken), pushFactor.sid
+        )
+        factorProvider.update(updateFactorPayload, onSuccess, onError)
+      }
+      try {
+        val factor = factorProvider.get(sid) as? PushFactor
+        factor?.let(::updateFactor) ?: run {
+          throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
+        }
+      } catch (e: TwilioVerifyException) {
+        onError(e)
+      }
+    }
+  }
+
   private fun generateKeyPairAlias(): String {
     val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     return (1..15)
@@ -109,4 +146,16 @@ internal class PushFactory(
         .map(charPool::get)
         .joinToString("")
   }
+
+  private fun binding(
+    publicKey: String
+  ): Map<String, String> = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
+
+  private fun config(
+    pushToken: String
+  ): Map<String, String> = mapOf(
+      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+      APP_ID_KEY to context.applicationInfo.packageName,
+      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE, NOTIFICATION_TOKEN_KEY to pushToken
+  )
 }

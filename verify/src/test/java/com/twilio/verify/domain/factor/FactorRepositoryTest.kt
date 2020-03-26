@@ -7,6 +7,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -17,8 +18,9 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
-import com.twilio.verify.domain.factor.models.FactorPayload
+import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Verified
@@ -54,9 +56,9 @@ class FactorRepositoryTest {
   @Test
   fun `Create a factor with a valid factor builder should return a factor`() {
     val sid = "sid123"
-    val factorPayload = FactorPayload(
-        "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entitySid123",
-        "jwt"
+    val factorPayload = CreateFactorPayload(
+        "factor name", Push, "serviceSid123", "entitySid123", emptyMap(),
+        emptyMap(), "jwt"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -84,9 +86,9 @@ class FactorRepositoryTest {
 
   @Test
   fun `No response from API creating a factor should call error`() {
-    val factorPayload = FactorPayload(
-        "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entitySid123",
-        "jwt"
+    val factorPayload = CreateFactorPayload(
+        "factor name", Push, "serviceSid123", "entitySid123",
+        emptyMap(), emptyMap(), "jwt"
     )
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
@@ -104,9 +106,9 @@ class FactorRepositoryTest {
   @Test
   fun `Error from mapper creating a factor should call error`() {
     val sid = "sid123"
-    val factorPayload = FactorPayload(
-        "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entitySid123",
-        "jwt"
+    val factorPayload = CreateFactorPayload(
+        "factor name", Push, "serviceSid123", "entitySid123",
+        emptyMap(), emptyMap(), "jwt"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -129,9 +131,9 @@ class FactorRepositoryTest {
   @Test
   fun `No factor from storage creating a factor should call error`() {
     val sid = "sid123"
-    val factorPayload = FactorPayload(
-        "factor name", Push, mapOf("publicKey" to "value123"), "serviceSid123", "entitySid123",
-        "jwt"
+    val factorPayload = CreateFactorPayload(
+        "factor name", Push, "serviceSid123", "entitySid123",
+        emptyMap(), emptyMap(), "jwt"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -202,7 +204,7 @@ class FactorRepositoryTest {
     whenever(factorMapper.toJSON(factor)).thenReturn(factorToJson)
     whenever(storage.get(sid)).thenReturn(factorToJson)
     whenever(factorMapper.fromStorage(factorToJson)).thenReturn(factorToUpdate)
-    val updatedFactor = factorRepository.update(factor)
+    val updatedFactor = factorRepository.save(factor)
     assertEquals(factorToUpdate, updatedFactor)
     verify(storage).save(sid, factorToJson)
   }
@@ -221,7 +223,7 @@ class FactorRepositoryTest {
         )
     )
     exceptionRule.expect(ErrorCodeMatcher(StorageError))
-    factorRepository.update(factor)
+    factorRepository.save(factor)
   }
 
   @Test
@@ -325,5 +327,70 @@ class FactorRepositoryTest {
 
     val factors = factorRepository.getAll()
     assertEquals(0, factors.size)
+  }
+
+  @Test
+  fun `Update a factor with valid params should return a factor`() {
+    val sidMock = "sid123"
+    val updateFactorPayload = UpdateFactorPayload(
+        "friendlyName",
+        Push,
+        "serviceSid",
+        "entity",
+        emptyMap(), sidMock
+    )
+    val response = JSONObject()
+        .put(sidKey, sidMock)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(serviceSidKey, "serviceSid")
+        .put(statusKey, FactorStatus.Unverified.value)
+
+    val factorToJson = JSONObject().put(sidKey, sidMock)
+        .toString()
+    argumentCaptor<(JSONObject) -> Unit>().apply {
+      whenever(apiClient.update(eq(updateFactorPayload), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    val expectedFactor: Factor = mock {
+      on { sid } doReturn (sidMock)
+    }
+    whenever(factorMapper.fromApi(response, updateFactorPayload)).thenReturn(expectedFactor)
+    whenever(factorMapper.toJSON(expectedFactor)).thenReturn(factorToJson)
+    whenever(storage.get(sidMock)).thenReturn(factorToJson)
+    whenever(factorMapper.fromStorage(factorToJson)).thenReturn(expectedFactor)
+    factorRepository.update(updateFactorPayload, { factor ->
+      assertEquals(expectedFactor, factor)
+    }, { fail() })
+    verify(storage).save(sidMock, factorToJson)
+  }
+
+  @Test
+  fun `Error from mapper updating a factor should call error`() {
+    val sidMock = "sid123"
+    val updateFactorPayload = UpdateFactorPayload(
+        "friendlyName",
+        Push,
+        "serviceSid",
+        "entity",
+        emptyMap(), sidMock
+    )
+    val response = JSONObject()
+        .put(sidKey, sidMock)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(serviceSidKey, "serviceSid")
+        .put(statusKey, FactorStatus.Unverified.value)
+    argumentCaptor<(JSONObject) -> Unit>().apply {
+      whenever(apiClient.update(eq(updateFactorPayload), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    val expectedException: TwilioVerifyException = mock()
+    whenever(factorMapper.fromApi(response, updateFactorPayload)).thenThrow(expectedException)
+    factorRepository.update(updateFactorPayload, {
+      fail()
+    }, { exception -> assertEquals(expectedException, exception) })
   }
 }
