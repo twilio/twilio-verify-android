@@ -363,7 +363,6 @@ class FactorRepositoryTest {
     factorRepository.update(updateFactorPayload, { factor ->
       assertEquals(expectedFactor, factor)
     }, { fail() })
-    verify(storage).save(sidMock, factorToJson)
   }
 
   @Test

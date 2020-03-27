@@ -66,8 +66,7 @@ internal class FactorRepository(
   ) {
     fun updateFactor(response: JSONObject) {
       try {
-        val updatedFactor = save(factorMapper.fromApi(response, updateFactorPayload))
-        success(updatedFactor)
+        success(factorMapper.fromApi(response, updateFactorPayload))
       } catch (e: TwilioVerifyException) {
         error(e)
       }
