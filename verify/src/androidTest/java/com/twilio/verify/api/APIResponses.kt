@@ -11,6 +11,10 @@ object APIResponses {
 
   fun createInvalidFactorResponse() = getJson("network_files/factor/create_factor_invalid.json")
 
+  fun updateFactorValidResponse() = getJson("network_files/factor/update_factor_valid.json")
+
+  fun updateFactorInvalidResponse() = getJson("network_files/factor/update_factor_invalid.json")
+
   fun verifyValidFactorResponse() = getJson("network_files/factor/verify_factor_valid.json")
 
   fun verifyInvalidFactorResponse() = getJson("network_files/factor/verify_factor_invalid.json")

@@ -37,6 +37,7 @@ import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.UpdatePushChallengeInput
+import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.NetworkProvider
@@ -129,6 +130,32 @@ class TwilioVerifyTest {
     twilioVerify.createFactor(factorInput, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
       assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
+      idlingResource.operationFinished()
+    }, { exception ->
+      fail(exception.message)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update a factor should call success`() {
+    val sid = "sid"
+    createFactor(sid, Unverified)
+    val jsonObject = JSONObject()
+        .put(sidKey, sid)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(statusKey, Verified.value)
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        lastValue.invoke(jsonObject.toString())
+      }
+    }
+    val updatePushFactorInput = UpdatePushFactorInput(sid, "pushToken")
+    idlingResource.startOperation()
+    twilioVerify.updateFactor(updatePushFactorInput, { factor ->
+      assertEquals(jsonObject.getString(sidKey), factor.sid)
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
