@@ -144,6 +144,9 @@ class TwilioVerifyTest {
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
         .put(sidKey, sid)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(statusKey, Verified.value)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
