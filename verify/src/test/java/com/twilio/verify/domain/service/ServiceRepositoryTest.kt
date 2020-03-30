@@ -13,7 +13,6 @@ import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.service.models.Service
 import org.json.JSONObject
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
@@ -33,7 +32,7 @@ class ServiceRepositoryTest {
   private val serviceRepository = ServiceRepository(apiClient, serviceMapper)
 
   @Test
-  fun `Get service with valid response should return a challenge`() {
+  fun `Get service with valid response should return a service`() {
     val serviceSid = "sid123"
     val service: Service = mock()
     val response = JSONObject().apply {
