@@ -53,7 +53,7 @@ class ServiceAPIClientTest {
 
   @Test
   fun `Get a service with a success response should call success`() {
-    val response = "{\"key\":\"value\"}"
+    val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(response)
