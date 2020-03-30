@@ -6,7 +6,7 @@ import java.util.Date
  * Copyright (c) 2020, Twilio Inc.
  */
 
-internal data class Service(
+data class Service(
   val sid: String,
   val createdDate: Date,
   val updatedDate: Date,

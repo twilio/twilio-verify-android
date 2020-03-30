@@ -4,11 +4,14 @@
 package com.twilio.verify
 
 import android.content.Context
+import com.twilio.verify.api.ServiceAPIClient
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
+import com.twilio.verify.domain.service.ServiceRepository
+import com.twilio.verify.domain.service.models.Service
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
@@ -56,6 +59,12 @@ interface TwilioVerify {
     error: (TwilioVerifyException) -> Unit
   )
 
+  fun getService(
+    serviceSid: String,
+    success: (Service) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
   class Builder(
     private var context: Context,
     private var authorization: Authorization
@@ -87,7 +96,13 @@ interface TwilioVerify {
           .factorFacade(factorFacade)
           .baseUrl(baseUrl)
           .build()
-      return TwilioVerifyManager(factorFacade, challengeFacade)
+      val serviceRepository = ServiceRepository(
+          ServiceAPIClient(
+              networkProvider = networkProvider, context = context, authorization = authorization,
+              baseUrl = baseUrl
+          )
+      )
+      return TwilioVerifyManager(factorFacade, challengeFacade, serviceRepository)
     }
   }
 }
