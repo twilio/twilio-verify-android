@@ -20,7 +20,7 @@
       </intent-filter>
     </activity>
     <service
-        android:name="com.twilio.sample.FirebasePushService"
+        android:name="com.twilio.sample.push.FirebasePushService"
         android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />

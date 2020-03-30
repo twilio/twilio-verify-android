@@ -1,4 +1,4 @@
-package com.twilio.sample
+package com.twilio.sample.push
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -10,6 +10,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.twilio.sample.TwilioVerifyAdapter
+import com.twilio.sample.TwilioVerifyProvider
 import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.sample.R
 
@@ -45,7 +47,9 @@ class FirebasePushService : FirebaseMessagingService() {
 
   private fun verifyFactor(bundle: Bundle) {
     val factorSid = bundle.getString(factorSidKey)
-    val verificationCode = bundle.getString(verificationCodeKey)
+    val verificationCode = bundle.getString(
+        verificationCodeKey
+    )
     if (factorSid != null && verificationCode != null) {
       twilioVerifyAdapter.verifyFactor(VerifyPushFactorInput(factorSid, verificationCode))
     }
@@ -59,7 +63,10 @@ class FirebasePushService : FirebaseMessagingService() {
       twilioVerifyAdapter.getChallenge(challengeSid, factorSid)
       message?.let {
         createNotificationChannel()
-        var builder = NotificationCompat.Builder(this, channelId)
+        var builder = NotificationCompat.Builder(
+            this,
+            channelId
+        )
             .setSmallIcon(R.drawable.ic_challenge)
             .setContentTitle(getString(R.string.new_challenge))
             .setContentText(message)
