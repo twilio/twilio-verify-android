@@ -61,16 +61,18 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 
 ## Running the Sample app
 
+### To run the Sample App:
+* Clone the repo
+* Follow the steps from [Firebase configuration](#FirebaseConfiguration)
+* Run the `sample` module
+
+<a name='FirebaseConfiguration'></a>
+
 ### Firebase configuration
 
 In order to run the sample app, you have to create a project and application in Firebase
 * Add a project in Firebase to use cloud messaging for an application ID (you can use `com.twilio.verify.sampleapp`)
 * Move the google-services.json file you downloaded from Firebase console into the root of `sample` directory.
-
-### To run the Sample App:
-* Clone the repo
-* Follow the steps from [Firebase configuration](#FirebaseConfiguration)
-* Run the `sample` module
 
 <a name='SampleBackend'></a>
 
