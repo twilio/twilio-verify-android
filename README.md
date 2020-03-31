@@ -5,7 +5,7 @@
 * [About](#About)
 * [Dependencies](#Dependencies)
 * [Requirements](#Requirements)
-* [Terms](#Terms)
+* [Definitions](#Definitions)
 * [Installation](#Installation)
 * [Running the Sample app](#SampleApp)
 * [Running the sample backend](#SampleBackend)
@@ -33,14 +33,12 @@ None
 
 <a name='Terms'></a>
 
-## Terms
+## Definitions
 
-| Term         | Definition |
-| :----------- | :---------- |
-| Service      | Scope the resources. It contains the configurations for each factor |
-| Entity       | Represents anything that can be authenticated in a developer’s application. Like a User |
-| Factor       | It is an established method for sending authentication Challenges. Like SMS, Phone Call, Push |
-| Challenge    | It is a verification attempt sent to an Entity |
+* `Service`: Scope the resources. It contains the configurations for each factor
+* `Entity`: Represents anything that can be authenticated in a developer’s application. Like a User
+* `Factor`: It is an established method for sending authentication Challenges. Like SMS, Phone Call, Push
+* `Challenge`: It is a verification attempt sent to an Entity |
 
 <a name='Installation'></a>
 
@@ -106,29 +104,12 @@ curl --user <Account Sid>:<Auth token> \
 } 
 '
 ```
-* Copy the service Sid, it is the `sid` field in the response
+* Copy the verify service Sid, it is the `sid` field in the response
 
 ### Running the sample backend
 * Clone this repo: https://github.com/twilio/verify-push-sample-backend
 * Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/sample-backend/README.md)
-    * To run the application, you'll need to gather your Twilio account credentials and configure them in a file named `.env`. To create this file from an example template, do the following in your Terminal:
-    ```cp .env.sample .env```
-    * Open the .env file in your favorite text editor and configure the following values:
-
-        | Config Value               | Description                                                                                 |
-        | :------------------------- | :------------------------------------------------------------------------------------------ |
-        |`TWILIO_ACCOUNT_SID`        | The account Sid from [API credentials](https://www.twilio.com/console/project/settings)     |
-        |`TWILIO_AUTH_TOKEN`         | The auth token from [API credentials](https://www.twilio.com/console/project/settings)      |
-        |`TWILIO_API_KEY`            | Create an API key here: [API Keys](https://www.twilio.com/console/project/api-keys)         |
-        |`TWILIO_API_SECRET`         | Get the API secret from the created API key.                                                |
-        |`TWILIO_VERIFY_SERVICE_SID` | Your verify service                                                                         |
-    * Run the sample backend
-        * If you don’t have yarn, install it following this: [Install yarn](https://classic.yarnpkg.com/en/docs/install#mac-stable)
-        * Install the dependencies in the project folder running: ```yarn install```
-        * Run the sample backend running: ```yarn start```
-        * Open http://localhost:3000/ in your browser to validate the sample app is running
-        * Create a publicly accessible URL using a tool like [ngrok](https://ngrok.com/) to send HTTP/HTTPS traffic to a server running on your localhost:
-        ```ngrok http 3000```
+    * Use your previously created verify service Sid for `TWILIO_VERIFY_SERVICE_SID`
 
 <a name='Usage'></a>
 
