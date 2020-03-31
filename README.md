@@ -9,7 +9,7 @@
 * [Installation](#Installation)
 * [Running the Sample app](#SampleApp)
 * [Running the sample backend](#SampleBackend)
-* [Usage](#Usage)
+* [Using the sample app](#Usage)
 
 <a name='About'></a>
 
@@ -83,32 +83,36 @@ In order to run the sample app, you have to create a project and application in 
 ### Create a Notify service
 You will need a notify service to send push notifications to your app
 * Go to [Push Credentials](https://www.twilio.com/console/notify/credentials)
+* Click the `Add (+)` button 
 * Enter a friendly name
-* Select as type `FCM push credentials`
-* Enter the `FCM Secret`. The value is the app's `Server key`. You can find it in your app's settings, Cloud messaging
+* Select `FCM push credentials` as type
+* Enter the `FCM Secret`. The value is the app's `Server key`. You can find it in your app's Firebase project settings, Cloud messaging
+* Click the `Create` button
 * Go to [Notify Services](https://www.twilio.com/console/notify/services)
 * Create a `Notify service` for the app
-* For `FCM CREDENTIAL SID` select the created FCM credential
+* For `FCM CREDENTIAL SID`, select the created FCM credential
 * Save changes
+* Copy the notify service sid
 
 ### Create a verify service
 * Get your account Sid and Auth Token from [API credentials](https://www.twilio.com/console/project/settings)
 * Create a verify service calling the endpoint:
 ```
-curl --location --request POST 'https://authy.twilio.com/v1/Services' \
+curl --user <Account Sid>:<Auth token> \ 
+--request POST 'https://authy.twilio.com/v1/Services' \
 --form 'FriendlyName=<The service name>' \
 --form 'Push={
   "notify_service_sid": "<The notify service Sid>"
-}
---user <Account Sid>:<Auth token> 
+} 
 '
 ```
+* Copy the service Sid, it is the `sid` field in the response
 
 ### Running the sample backend
 * Clone this repo: https://github.com/twilio/verify-push-sample-backend
-* Run the steps in the README file
+* Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/sample-backend/README.md)
     * To run the application, you'll need to gather your Twilio account credentials and configure them in a file named `.env`. To create this file from an example template, do the following in your Terminal:
-    ```cp .env.example .env```
+    ```cp .env.sample .env```
     * Open the .env file in your favorite text editor and configure the following values:
 
         | Config Value               | Description                                                                                 |
@@ -122,27 +126,27 @@ curl --location --request POST 'https://authy.twilio.com/v1/Services' \
         * If you don’t have yarn, install it following this: [Install yarn](https://classic.yarnpkg.com/en/docs/install#mac-stable)
         * Install the dependencies in the project folder running: ```yarn install```
         * Run the sample backend running: ```yarn start```
+        * Open http://localhost:3000/ in your browser to validate the sample app is running
+        * Create a publicly accessible URL using a tool like [ngrok](https://ngrok.com/) to send HTTP/HTTPS traffic to a server running on your localhost:
+        ```ngrok http 3000```
 
 <a name='Usage'></a>
 
-## Usage
+## Using the sample app
 
 ### Adding a factor
-* Open http://localhost:3000/ in your browser to validate the sample app is running
-* Create a publicly accessible URL using a tool like [ngrok](https://ngrok.com/) to send HTTP/HTTPS traffic to a server running on your localhost
-```ngrok https 3000```
-* Enter the entity identity to use. This value should be an UUID that identifies the user to prevent PII information use
 * Enter the public URL generated in JWT url
+* Enter the entity identity to use. This value should be an UUID that identifies the user to prevent PII information use
 * Press Create factor
 * Copy the factor Sid
 
 ### Sending a challenge
-* Go to Create Push Challenge link
-* Enter the entity identity you used in factor creation
-* Enter the factor Sid you added
-* Enter a message. You will see the message in the push notification and in the challenge view
-* Enter details to the challenge. You will see them in the challenge view. You can add more details using the Add more details button
-* Press Create challenge button
+* Go to [Create Push Challenge](http://localhost:3000/challenge)
+* Enter the entity `identity` you used in factor creation
+* Enter the `Factor Sid` you added
+* Enter a `message`. You will see the message in the push notification and in the challenge view
+* Enter details to the challenge. You will see them in the challenge view. You can add more details using the `Add more Details` button
+* Press `Create challenge` button
 * You will receive a push notification showing the challenge message in your device. 
 * The app will show the challenge info below the factor information, in a `Challenge` section
 * Approve or deny the challenge
