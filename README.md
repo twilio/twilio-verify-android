@@ -53,6 +53,7 @@ In the build.gradle file, add the library
 If you want to receive challenges as push notifications, you should add a firebase configuration to your project
 * Add a project in Firebase to use cloud messaging for an application ID
 * Add the google-services.json file to your project
+
 More info [here](https://firebase.google.com/docs/android/setup#console)
 
 <a name='SampleApp'></a>
