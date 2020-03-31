@@ -27,6 +27,7 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
       buildConfigField "String", 'ACCOUNT_SID', "\"your account sid\""
       buildConfigField "String", 'AUTH_TOKEN', "\"your auth token\""
+      signingConfig signingConfigs.release
     }
     debug {
       buildConfigField "String", 'ACCOUNT_SID', "\"your account sid\""

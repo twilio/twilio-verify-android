@@ -64,7 +64,9 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 ### To run the Sample App:
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
-* Run the `sample` module
+* Get your account Sid and Auth Token from [API credentials](https://www.twilio.com/console/project/settings)
+* Replace the `ACCOUNT_SID` (account Sid) and `AUTH_TOKEN` (Auth Token) values in the sample's build.gradle file with the values for your account, for [release build type](sample/build.gradle#L28)
+* Run the `sample` module using `release` as build variant
 
 <a name='FirebaseConfiguration'></a>
 
