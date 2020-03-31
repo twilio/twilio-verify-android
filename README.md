@@ -5,6 +5,7 @@
 * [About](#About)
 * [Dependencies](#Dependencies)
 * [Requirements](#Requirements)
+* [Terms](#Terms)
 * [Installation](#Installation)
 * [Running the Sample app](#SampleApp)
 * [Running the sample backend](#SampleBackend)
@@ -30,12 +31,20 @@ None
 * Gradle 5.4.1
 * Kotlin 1.3.61
 
+<a name='Terms'></a>
+
+## Terms
+
+| Term         | Definition |
+| :----------- | :---------- |
+| Service      | Scope the resources. It contains the configurations for each factor |
+| Entity       | Represents anything that can be authenticated in a developer’s application. Like a User |
+| Factor       | It is an established method for sending authentication Challenges. Like SMS, Phone Call, Push |
+| Challenge    | It is a verification attempt sent to an Entity |
+
 <a name='Installation'></a>
 
 ## Installation
-
-To install Twilio Verify SDK as part of your app using gradle, simply add the following line to your
-build.gradle file
 
 ### Add library
 In the build.gradle file, add the library
@@ -43,7 +52,7 @@ In the build.gradle file, add the library
 ```implementation "com.twilio:verify:1.0"```
 
 ### Add firebase configuration
-Verify Push needs a firebase project to receive push notifications.
+If you want to receive challenges as push notifications, you should add a firebase configuration to your project
 * Add a project in Firebase to use cloud messaging for an application ID
 * Add the google-services.json file to your project
 More info [here](https://firebase.google.com/docs/android/setup#console)
