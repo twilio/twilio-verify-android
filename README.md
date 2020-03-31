@@ -31,7 +31,7 @@ None
 * Gradle 5.4.1
 * Kotlin 1.3.61
 
-<a name='Terms'></a>
+<a name='Definitions'></a>
 
 ## Definitions
 
