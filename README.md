@@ -76,7 +76,7 @@ In order to run the sample app, you have to create a project and application in 
 
 <a name='SampleBackend'></a>
 
-## Running the Sample app
+## Running the Sample backend
 
 ### Create a Notify service
 You will need a notify service to send push notifications to your app
@@ -106,7 +106,7 @@ curl --user <Account Sid>:<Auth token> \
 ```
 * Copy the verify service Sid, it is the `sid` field in the response
 
-### Running the sample backend
+### To run the sample backend
 * Clone this repo: https://github.com/twilio/verify-push-sample-backend
 * Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/sample-backend/README.md)
     * Use your previously created verify service Sid for `TWILIO_VERIFY_SERVICE_SID`
