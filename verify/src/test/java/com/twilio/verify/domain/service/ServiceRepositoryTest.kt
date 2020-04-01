@@ -11,7 +11,7 @@ import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.sidKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.factor.accountSidKey
-import com.twilio.verify.domain.service.models.Service
+import com.twilio.verify.domain.service.models.FactorService
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -34,7 +34,7 @@ class ServiceRepositoryTest {
   @Test
   fun `Get service with valid response should return a service`() {
     val serviceSid = "sid123"
-    val service: Service = mock()
+    val service: FactorService = mock()
     val response = JSONObject().apply {
       put(sidKey, serviceSid)
       put(accountSidKey, "accountSid")

@@ -8,7 +8,8 @@ import com.twilio.verify.domain.challenge.sidKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
-import com.twilio.verify.domain.service.models.Service
+import com.twilio.verify.domain.service.models.FactorService
+import com.twilio.verify.models.Service
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.ParseException
@@ -27,7 +28,7 @@ internal class ServiceMapper {
       val friendlyName = jsonObject.getString(friendlyNameKey)
       val createdDate = jsonObject.getString(createdDateKey)
       val updatedDate = jsonObject.getString(updatedDateKey)
-      return Service(
+      return FactorService(
           sid = sid, createdDate = fromRFC3339Date(createdDate),
           updatedDate = fromRFC3339Date(updatedDate),
           friendlyName = friendlyName, accountSid = accountSid

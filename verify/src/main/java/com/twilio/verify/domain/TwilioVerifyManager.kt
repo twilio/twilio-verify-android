@@ -7,11 +7,11 @@ import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
-import com.twilio.verify.domain.service.ServiceRepository
-import com.twilio.verify.domain.service.models.Service
+import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
+import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.VerifyFactorInput
@@ -19,7 +19,7 @@ import com.twilio.verify.models.VerifyFactorInput
 internal class TwilioVerifyManager(
   private val factorFacade: FactorFacade,
   private val challengeFacade: ChallengeFacade,
-  private val serviceRepository: ServiceRepository
+  private val serviceFacade: ServiceFacade
 ) : TwilioVerify {
   override fun createFactor(
     factorInput: FactorInput,
@@ -74,6 +74,6 @@ internal class TwilioVerifyManager(
     success: (Service) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    serviceRepository.get(serviceSid, success, error)
+    serviceFacade.getService(serviceSid, success, error)
   }
 }

@@ -13,12 +13,13 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
-import com.twilio.verify.domain.service.ServiceRepository
-import com.twilio.verify.domain.service.models.Service
+import com.twilio.verify.domain.service.ServiceFacade
+import com.twilio.verify.domain.service.models.FactorService
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
@@ -35,9 +36,9 @@ class TwilioVerifyManagerTest {
 
   private val factorFacade: FactorFacade = mock()
   private val challengeFacade: ChallengeFacade = mock()
-  private val serviceRepository: ServiceRepository = mock()
+  private val serviceFacade: ServiceFacade = mock()
   private val twilioVerifyManager =
-    TwilioVerifyManager(factorFacade, challengeFacade, serviceRepository)
+    TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
   private val idlingResource = IdlingResource()
 
   @Test
@@ -287,9 +288,9 @@ class TwilioVerifyManagerTest {
   @Test
   fun `Get service should call success`() {
     val serviceSid = "sid"
-    val expectedService: Service = mock()
+    val expectedService: FactorService = mock()
     argumentCaptor<(Service) -> Unit>().apply {
-      whenever(serviceRepository.get(eq(serviceSid), capture(), any())).then {
+      whenever(serviceFacade.getService(eq(serviceSid), capture(), any())).then {
         firstValue.invoke(expectedService)
       }
     }
@@ -309,7 +310,7 @@ class TwilioVerifyManagerTest {
     val serviceSid = "sid"
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(serviceRepository.get(eq(serviceSid), any(), capture())).then {
+      whenever(serviceFacade.getService(eq(serviceSid), any(), capture())).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
