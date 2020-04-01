@@ -2,7 +2,7 @@ package com.twilio.verify.domain.service
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.api.ServiceAPIClient
-import com.twilio.verify.domain.service.models.Service
+import com.twilio.verify.models.Service
 import org.json.JSONObject
 
 /*
@@ -11,7 +11,7 @@ import org.json.JSONObject
 
 internal class ServiceRepository(
   private val apiClient: ServiceAPIClient,
-  private val serviceMapper: ServiceMapper
+  private val serviceMapper: ServiceMapper = ServiceMapper()
 ) : ServiceProvider {
 
   override fun get(
