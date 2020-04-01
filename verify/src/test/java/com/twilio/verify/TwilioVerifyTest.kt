@@ -283,6 +283,32 @@ class TwilioVerifyTest {
     idlingResource.waitForIdle()
   }
 
+  @Test
+  fun `Get service should call success`() {
+    val serviceSid = "serviceSid"
+    val jsonObject = JSONObject().apply {
+        put(sidKey, serviceSid)
+        put(friendlyNameKey, "friendlyName")
+        put(accountSidKey, "accountSid123")
+        put(createdDateKey, "2020-02-19T16:39:57-08:00")
+        put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+    }
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        lastValue.invoke(jsonObject.toString())
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerify.getService(serviceSid, { service ->
+      assertEquals(jsonObject.getString(sidKey), service.sid)
+      idlingResource.operationFinished()
+    }, { exception ->
+      fail(exception.message)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
   private fun createFactor(
     factorSid: String,
     status: FactorStatus
