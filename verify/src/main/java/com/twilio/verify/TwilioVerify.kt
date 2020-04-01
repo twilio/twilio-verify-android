@@ -9,9 +9,11 @@ import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
+import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
+import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.VerifyFactorInput
@@ -56,6 +58,12 @@ interface TwilioVerify {
     error: (TwilioVerifyException) -> Unit
   )
 
+  fun getService(
+    serviceSid: String,
+    success: (Service) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
   class Builder(
     private var context: Context,
     private var authorization: Authorization
@@ -87,7 +95,13 @@ interface TwilioVerify {
           .factorFacade(factorFacade)
           .baseUrl(baseUrl)
           .build()
-      return TwilioVerifyManager(factorFacade, challengeFacade)
+      val serviceFacade = ServiceFacade.Builder()
+          .context(context)
+          .authorization(authorization)
+          .networkProvider(networkProvider)
+          .baseUrl(baseUrl)
+          .build()
+      return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
     }
   }
 }

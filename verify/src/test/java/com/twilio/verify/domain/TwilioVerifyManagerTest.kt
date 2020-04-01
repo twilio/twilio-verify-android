@@ -13,10 +13,13 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
+import com.twilio.verify.domain.service.ServiceFacade
+import com.twilio.verify.domain.service.models.FactorService
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
@@ -33,7 +36,9 @@ class TwilioVerifyManagerTest {
 
   private val factorFacade: FactorFacade = mock()
   private val challengeFacade: ChallengeFacade = mock()
-  private val twilioVerifyManager = TwilioVerifyManager(factorFacade, challengeFacade)
+  private val serviceFacade: ServiceFacade = mock()
+  private val twilioVerifyManager =
+    TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
   private val idlingResource = IdlingResource()
 
   @Test
@@ -271,6 +276,46 @@ class TwilioVerifyManagerTest {
     }
     idlingResource.startOperation()
     twilioVerifyManager.updateChallenge(updateChallengeInput, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get service should call success`() {
+    val serviceSid = "sid"
+    val expectedService: FactorService = mock()
+    argumentCaptor<(Service) -> Unit>().apply {
+      whenever(serviceFacade.getService(eq(serviceSid), capture(), any())).then {
+        firstValue.invoke(expectedService)
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.getService(serviceSid, { challenge ->
+      assertEquals(expectedService, challenge)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error getting service should call error`() {
+    val serviceSid = "sid"
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(serviceFacade.getService(eq(serviceSid), any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.getService(serviceSid, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
