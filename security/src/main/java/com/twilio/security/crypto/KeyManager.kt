@@ -18,6 +18,8 @@ interface KeyManager {
 
   @Throws(KeyException::class)
   fun delete(alias: String)
+
+  fun contains(alias: String): Boolean
 }
 
 internal const val providerName = "AndroidKeyStore"
