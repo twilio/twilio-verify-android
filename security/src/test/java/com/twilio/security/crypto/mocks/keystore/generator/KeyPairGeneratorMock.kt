@@ -13,6 +13,7 @@ internal const val keyPairGeneratorMockName =
 class KeyPairGeneratorMock : KeyPairGeneratorSpi() {
   override fun generateKeyPair(): KeyPair? {
     keyStoreMockOutput.generatedKeyPair = true
+    keyStoreMockInput.containsAlias = true
     return keyStoreMockInput.newKey as? KeyPair
   }
 

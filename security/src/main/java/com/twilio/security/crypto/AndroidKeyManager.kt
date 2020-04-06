@@ -15,6 +15,8 @@ import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.PrivateKey
+import java.security.cert.Certificate
+import java.util.concurrent.TimeUnit
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
@@ -26,7 +28,7 @@ class AndroidKeyManager(
   @Throws(KeyException::class)
   override fun signer(template: SignerTemplate): Signer {
     try {
-      val keyPair = if (!keyStore.containsAlias(template.alias)) {
+      val keyPair = if (!contains(template.alias)) {
         if (template.shouldExist) {
           throw IllegalStateException("The alias does not exist")
         }
@@ -55,20 +57,33 @@ class AndroidKeyManager(
   }
 
   private fun getSignerKeyPair(alias: String): KeyPair {
-    val privateKey =
-      keyStore.getKey(alias, null) as? PrivateKey ?: throw IllegalArgumentException(
-          "Private key not found"
-      )
-    val certificate = keyStore.getCertificate(alias) ?: throw IllegalArgumentException(
+    val privateKey = retryToGetValue { getPrivateKey(alias) } ?: throw IllegalArgumentException(
+        "Private key not found"
+    )
+    val certificate = retryToGetValue { getCertificate(alias) } ?: throw IllegalArgumentException(
         "Certificate not found"
     )
     return KeyPair(certificate.publicKey, privateKey)
   }
 
+  private fun getCertificate(alias: String): Certificate? {
+    if (!contains(alias)) {
+      throw IllegalArgumentException("alias not found")
+    }
+    return keyStore.getCertificate(alias)
+  }
+
+  private fun getPrivateKey(alias: String): PrivateKey? {
+    if (!contains(alias)) {
+      throw IllegalArgumentException("alias not found")
+    }
+    return keyStore.getKey(alias, null) as? PrivateKey
+  }
+
   @Throws(KeyException::class)
   override fun encrypter(template: EncrypterTemplate): Encrypter {
     try {
-      val key = if (!keyStore.containsAlias(template.alias)) {
+      val key = if (!contains(template.alias)) {
         if (template.shouldExist) {
           throw IllegalStateException("The alias does not exist")
         }
@@ -89,7 +104,7 @@ class AndroidKeyManager(
   @Throws(KeyException::class)
   override fun delete(alias: String) {
     try {
-      if (keyStore.containsAlias(alias)) {
+      if (contains(alias)) {
         keyStore.deleteEntry(alias)
       }
     } catch (e: Exception) {
@@ -97,11 +112,19 @@ class AndroidKeyManager(
     }
   }
 
+  override fun contains(alias: String): Boolean = keyStore.containsAlias(alias)
+
   private fun getEncrypterKey(alias: String): SecretKey {
-    return keyStore.getKey(
-        alias, null
-    ) as? SecretKey
-        ?: throw IllegalArgumentException("Secret key not found")
+    return retryToGetValue { getSecretKey(alias) } ?: throw IllegalArgumentException(
+        "Secret key not found"
+    )
+  }
+
+  private fun getSecretKey(alias: String): SecretKey? {
+    if (!contains(alias)) {
+      throw IllegalArgumentException("alias not found")
+    }
+    return keyStore.getKey(alias, null) as? SecretKey
   }
 
   private fun createEncrypterKey(template: EncrypterTemplate): SecretKey {
@@ -115,5 +138,21 @@ class AndroidKeyManager(
     ).takeIf {
       key != null && key == it
     } ?: throw IllegalArgumentException("New secret key not found")
+  }
+
+  private fun <T> retryToGetValue(
+    times: Int = 3,
+    delayInMillis: Long = 100,
+    block: () -> T?
+  ): T? {
+    repeat(times - 1) {
+      val result = block()
+      if (result == null) {
+        TimeUnit.MILLISECONDS.sleep(delayInMillis)
+      } else {
+        return result
+      }
+    }
+    return block()
   }
 }
