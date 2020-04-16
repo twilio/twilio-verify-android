@@ -19,10 +19,15 @@ import org.json.JSONObject
  * Copyright (c) 2020, Twilio Inc.
  */
 internal const val challengeSidPath = "{ChallengeSid}"
+internal const val statusParameter = "Status"
+internal const val pageSizeParameter = "PageSize"
+internal const val pageTokenParameter = "PageToken"
 internal const val updateChallengeURL =
   "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH/Challenges/$challengeSidPath"
 internal const val getChallengeURL =
   "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH/Challenges/$challengeSidPath"
+internal const val getChallengesURL =
+  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH/Challenges"
 
 internal class ChallengeAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -80,6 +85,40 @@ internal class ChallengeAPIClient(
     }
   }
 
+  fun getAll(
+    factor: Factor,
+    status: String?,
+    pageSize: Int,
+    pageToken: String?,
+    success: (response: JSONObject) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    try {
+      val requestHelper = RequestHelper(context, authorization)
+      var queryParameters = mutableMapOf<String, Any>(pageSizeParameter to pageSize)
+      status?.let {
+        queryParameters.put(statusParameter, it)
+      }
+      pageToken?.let {
+        queryParameters.put(pageTokenParameter, it)
+      }
+      val request = Request.Builder(
+          requestHelper,
+          getChallengesURL(factor)
+      )
+          .httpMethod(Get)
+          .query(queryParameters)
+          .build()
+      networkProvider.execute(request, {
+        success(JSONObject(it))
+      }, { exception ->
+        error(TwilioVerifyException(exception, NetworkError))
+      })
+    } catch (e: Exception) {
+      error(TwilioVerifyException(NetworkException(e), NetworkError))
+    }
+  }
+
   private fun updateChallengeURL(challenge: FactorChallenge) =
     challenge.factor?.let { factor ->
       "$baseUrl$updateChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
@@ -109,4 +148,9 @@ internal class ChallengeAPIClient(
       .replace(FACTOR_SID_PATH, factor.sid)
       .replace(challengeSidPath, challengeSid)
 
+  private fun getChallengesURL(
+    factor: Factor
+  ) = "$baseUrl$getChallengesURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+      .replace(ENTITY_PATH, factor.entityIdentity, true)
+      .replace(FACTOR_SID_PATH, factor.sid)
 }
