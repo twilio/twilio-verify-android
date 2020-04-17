@@ -84,7 +84,6 @@ class RequestTest {
               ).toMutableMap()
           )
           .build()
-
     assertEquals(expectedParams, request.getParams())
   }
 
@@ -157,5 +156,28 @@ class RequestTest {
         .build()
 
     fail()
+  }
+
+  @Test
+  fun `Request queryparams should be appended to URL`() {
+    val httpMethod = HttpMethod.Post
+    val url = "https://twilio.com"
+    val tag = "tag"
+    val authorization = BasicAuthorization("accountSid", "authToken")
+    val requestHelper =
+      RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
+    val key1 = "Key"
+    val value1 = "Value"
+    val key2 = "Twilio"
+    val value2 = "Authy"
+    val expectedURl = "$url?$key1=$value1&$key2=$value2"
+    val request =
+      Request.Builder(requestHelper, url)
+          .httpMethod(httpMethod)
+          .tag(tag)
+          .query(mapOf(key1 to value1, key2 to value2))
+          .build()
+
+    assertEquals(expectedURl, request.url.toString())
   }
 }

@@ -50,11 +50,13 @@ class Request internal constructor(
     private val url: String,
     private var httpMethod: HttpMethod = HttpMethod.Get,
     private var body: Map<String, Any?>? = null,
+    private var query: Map<String, Any?>? = null,
     private var headers: Map<String, String>? = null,
     private var tag: String? = null
   ) {
     fun httpMethod(httpMethod: HttpMethod) = apply { this.httpMethod = httpMethod }
     fun body(body: Map<String, Any?>) = apply { this.body = body }
+    fun query(query: Map<String, Any?>) = apply { this.query = query }
     fun headers(headers: MutableMap<String, String>) = apply {
       this.headers = headers
     }
@@ -64,7 +66,7 @@ class Request internal constructor(
     @Throws(MalformedURLException::class)
     fun build() = Request(
         httpMethod,
-        URL(url),
+        URL(addQueryParams()),
         body,
         headers?.let {
           requestHelper.commonHeaders(httpMethod)
@@ -72,5 +74,17 @@ class Request internal constructor(
         } ?: requestHelper.commonHeaders(httpMethod),
         tag ?: ""
     )
+
+    private fun addQueryParams(): String {
+      val builder = Uri.parse(url)
+          .buildUpon()
+      query?.let {
+        for ((key, value) in it) {
+          builder.appendQueryParameter(key, value.toString())
+        }
+      }
+      return builder.build()
+          .toString()
+    }
   }
 }

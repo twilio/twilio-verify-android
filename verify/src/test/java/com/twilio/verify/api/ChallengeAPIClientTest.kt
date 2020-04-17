@@ -226,4 +226,52 @@ class ChallengeAPIClientTest {
       assertTrue(headers.containsKey(userAgent))
     }
   }
+
+  @Test
+  fun `Get challenges with a success response should call success`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
+    val response = "{\"key\":\"value\"}"
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    challengeAPIClient.getAll(factor, null, 0, null, { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+    }, {
+      fail()
+    })
+  }
+
+  @Test
+  fun `Get challenges with an error response should call error`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
+    val expectedException = NetworkException(500, null)
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    challengeAPIClient.getAll(factor, null, 0, null, {
+      fail()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+    })
+  }
+
+  @Test
+  fun `Error getting challenges should call error`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity")
+    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
+    challengeAPIClient.getAll(factor, null, 0, null, {
+      fail()
+    }, { exception ->
+      assertTrue(exception.cause is NetworkException)
+      assertTrue(exception.cause?.cause is RuntimeException)
+      assertEquals(NetworkError.message, exception.message)
+    })
+  }
 }
