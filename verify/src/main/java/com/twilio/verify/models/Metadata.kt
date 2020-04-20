@@ -1,6 +1,6 @@
 package com.twilio.verify.models
 
-interface MetaData {
+interface Metadata {
   val page: Int
   val pageSize: Int
   val nextPageURL: String?

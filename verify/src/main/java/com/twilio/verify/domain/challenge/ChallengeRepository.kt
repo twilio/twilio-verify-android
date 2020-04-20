@@ -85,13 +85,13 @@ internal class ChallengeRepository(
   ) {
     fun toResponse(response: JSONObject) {
       try {
-        val challengeList = challengeListMapper.fromAPI(response)
+        val challengeList = challengeListMapper.fromApi(response)
         success(challengeList)
       } catch (e: TwilioVerifyException) {
         error(e)
       }
     }
-    apiClient.getAll(factor, status.toString(), pageSize, pageToken, ::toResponse, error)
+    apiClient.getAll(factor, status?.toString(), pageSize, pageToken, ::toResponse, error)
   }
 
   private fun toFactorChallenge(challenge: Challenge) =
