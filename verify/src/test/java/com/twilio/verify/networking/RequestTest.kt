@@ -61,6 +61,33 @@ class RequestTest {
   }
 
   @Test
+  fun `Request params should be queryParams`() {
+    val httpMethod = HttpMethod.Post
+    val url = "https://twilio.com"
+    val tag = "tag"
+    val authorization = BasicAuthorization("accountSid", "authToken")
+    val requestHelper =
+      RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
+    val key1 = "Key"
+    val value1 = "Value"
+    val key2 = "Twilio"
+    val value2 = "Authy"
+    val expectedParams = "$key1=$value1&$key2=$value2"
+    val request =
+      Request.Builder(requestHelper, url)
+          .httpMethod(httpMethod)
+          .tag(tag)
+          .body(mapOf(key1 to value1, key2 to value2))
+          .headers(
+              mapOf(
+                  MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
+              ).toMutableMap()
+          )
+          .build()
+    assertEquals(expectedParams, request.getParams())
+  }
+
+  @Test
   fun `Request params should be jsonParams`() {
     val httpMethod = HttpMethod.Post
     val url = "https://twilio.com"
