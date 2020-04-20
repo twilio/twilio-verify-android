@@ -8,7 +8,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeListInterface
+import com.twilio.verify.models.ChallengeListContract
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
@@ -80,7 +80,7 @@ internal class ChallengeRepository(
     status: ChallengeStatus?,
     pageSize: Int,
     pageToken: String?,
-    success: (ChallengeListInterface) -> Unit,
+    success: (ChallengeListContract) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     fun toResponse(response: JSONObject) {
