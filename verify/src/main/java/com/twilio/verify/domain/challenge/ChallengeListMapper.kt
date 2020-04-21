@@ -3,7 +3,7 @@ package com.twilio.verify.domain.challenge
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.FactorChallengeList
 import com.twilio.verify.models.ChallengeListMetadata
 import org.json.JSONException
 import org.json.JSONObject
@@ -21,7 +21,7 @@ internal class ChallengeListMapper(
 ) {
 
   @Throws(TwilioVerifyException::class)
-  fun fromApi(jsonObject: JSONObject): ChallengeList {
+  fun fromApi(jsonObject: JSONObject): FactorChallengeList {
     try {
       val jsonChallenges = jsonObject.getJSONArray(challengesKey)
       val challenges = ArrayList<Challenge>()
@@ -35,7 +35,7 @@ internal class ChallengeListMapper(
           nextPageURL = meta.getString(nextPageKey),
           key = meta.getString(key)
       )
-      return ChallengeList(challenges, metadata)
+      return FactorChallengeList(challenges, metadata)
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)
     } catch (e: ParseException) {

@@ -15,11 +15,10 @@ import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.text.ParseException
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class ChallengeListMapperTest {
+class FactorChallengeListMapperTest {
 
   private val challengeListMapper = ChallengeListMapper()
 
@@ -31,7 +30,7 @@ class ChallengeListMapperTest {
     val expectedChallenges = JSONArray(
         listOf(
             challengeJSONObject("sid123"),
-            (challengeJSONObject("sid456"))
+            challengeJSONObject("sid456")
         )
     )
     val expectedMetadata = metaJSONObject()
@@ -63,17 +62,19 @@ class ChallengeListMapperTest {
     assertEquals(firstJSONChallenge.getString(entitySidKey), firstChallenge.entitySid)
     assertEquals(firstJSONChallenge.getString(detailsKey), firstChallenge.details)
 
-    val secondJSONChallenge = expectedChallenges.getJSONObject(0)
-    val secondChallenge = challengeList.challenges[0] as FactorChallenge
+    val secondJSONChallenge = expectedChallenges.getJSONObject(1)
+    val secondChallenge = challengeList.challenges[1] as FactorChallenge
     assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
     assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
     assertEquals(secondJSONChallenge.getString(createdDateKey), secondChallenge.createdDate)
     assertEquals(secondJSONChallenge.getString(updatedDateKey), secondChallenge.updatedDate)
     assertEquals(
-        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)),
+        secondChallenge.createdAt
     )
     assertEquals(
-        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)),
+        secondChallenge.updatedAt
     )
     assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
     assertEquals(secondJSONChallenge.getString(entitySidKey), secondChallenge.entitySid)
@@ -95,10 +96,10 @@ class ChallengeListMapperTest {
 
   fun `Map response without metadata should throw an error`() {
     val expectedChallenges = JSONArray(
-      listOf(
-        challengeJSONObject("sid123"),
-        (challengeJSONObject("sid456"))
-      )
+        listOf(
+            challengeJSONObject("sid123"),
+            (challengeJSONObject("sid456"))
+        )
     )
     val jsonObject = JSONObject().apply {
       put(metaKey, expectedChallenges)

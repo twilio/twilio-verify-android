@@ -8,7 +8,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeListContract
+import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
@@ -76,12 +76,12 @@ internal class ChallengeRepository(
   }
 
   override fun getAll(
-    factor: Factor,
-    status: ChallengeStatus?,
-    pageSize: Int,
-    pageToken: String?,
-    success: (ChallengeListContract) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+      factor: Factor,
+      status: ChallengeStatus?,
+      pageSize: Int,
+      pageToken: String?,
+      success: (ChallengeList) -> Unit,
+      error: (TwilioVerifyException) -> Unit
   ) {
     fun toResponse(response: JSONObject) {
       try {

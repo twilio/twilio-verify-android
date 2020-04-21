@@ -5,7 +5,7 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeListContract
+import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.Factor
 
@@ -25,11 +25,11 @@ internal interface ChallengeProvider {
   )
 
   fun getAll(
-    factor: Factor,
-    status: ChallengeStatus?,
-    pageSize: Int,
-    pageToken: String?,
-    success: (ChallengeListContract) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+      factor: Factor,
+      status: ChallengeStatus?,
+      pageSize: Int,
+      pageToken: String?,
+      success: (ChallengeList) -> Unit,
+      error: (TwilioVerifyException) -> Unit
   )
 }

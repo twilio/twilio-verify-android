@@ -1,6 +1,6 @@
 package com.twilio.verify.models
 
-class ChallengeList(
-  override val challenges: ArrayList<Challenge>,
-  override val metadata: Metadata
-) : ChallengeListContract
+interface ChallengeList {
+  val challenges: List<Challenge>
+  val metadata: Metadata
+}
