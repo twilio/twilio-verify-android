@@ -95,7 +95,7 @@ internal class ChallengeAPIClient(
   ) {
     try {
       val requestHelper = RequestHelper(context, authorization)
-      var queryParameters = mutableMapOf<String, Any>(pageSizeParameter to pageSize)
+      val queryParameters = mutableMapOf<String, Any>(pageSizeParameter to pageSize)
       status?.let {
         queryParameters.put(statusParameter, it)
       }

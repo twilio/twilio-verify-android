@@ -8,13 +8,16 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
 
 internal class ChallengeRepository(
   private val apiClient: ChallengeAPIClient,
-  private val challengeMapper: ChallengeMapper = ChallengeMapper()
+  private val challengeMapper: ChallengeMapper = ChallengeMapper(),
+  private val challengeListMapper: ChallengeListMapper = ChallengeListMapper()
 ) : ChallengeProvider {
 
   override fun get(
@@ -70,6 +73,25 @@ internal class ChallengeRepository(
     } catch (e: TwilioVerifyException) {
       error(e)
     }
+  }
+
+  override fun getAll(
+      factor: Factor,
+      status: ChallengeStatus?,
+      pageSize: Int,
+      pageToken: String?,
+      success: (ChallengeList) -> Unit,
+      error: (TwilioVerifyException) -> Unit
+  ) {
+    fun toResponse(response: JSONObject) {
+      try {
+        val challengeList = challengeListMapper.fromApi(response)
+        success(challengeList)
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      }
+    }
+    apiClient.getAll(factor, status?.toString(), pageSize, pageToken, ::toResponse, error)
   }
 
   private fun toFactorChallenge(challenge: Challenge) =
