@@ -59,14 +59,12 @@ internal class ChallengeFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     factorFacade.getFactor(factorSid, { factor ->
-      when (factor) {
-        is PushFactor -> execute(success, error) { onSuccess, onError ->
-          repository.getAll(factor, status, pageSize, pageToken, { list ->
-            onSuccess(list)
-          }, { exception ->
-            onError(exception)
-          })
-        }
+      execute(success, error) { onSuccess, onError ->
+        repository.getAll(factor, status, pageSize, pageToken, { list ->
+          onSuccess(list)
+        }, { exception ->
+          onError(exception)
+        })
       }
     }, error)
   }
