@@ -4,13 +4,10 @@
 package com.twilio.verify
 
 import android.content.Context
-import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
-import com.twilio.verify.domain.challenge.ChallengeProvider
-import com.twilio.verify.domain.challenge.ChallengeRepository
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.models.Challenge
@@ -74,7 +71,6 @@ interface TwilioVerify {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
-    private var challengeProvider = ChallengeRepository(ChallengeAPIClient(networkProvider, context, authorization, baseUrl))
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
 

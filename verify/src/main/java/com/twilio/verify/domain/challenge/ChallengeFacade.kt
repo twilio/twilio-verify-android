@@ -152,7 +152,6 @@ internal class ChallengeFacade(
             InitializationError
         )
       }
-
       val challengeAPIClient =
         ChallengeAPIClient(networking, appContext, auth, url)
       val repository = ChallengeRepository(challengeAPIClient)
