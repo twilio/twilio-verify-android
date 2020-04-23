@@ -79,7 +79,6 @@ interface TwilioVerify {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
-
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
 
