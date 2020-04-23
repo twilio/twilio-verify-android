@@ -4,15 +4,50 @@
 package com.twilio.security.crypto.mocks.cipher
 
 import java.security.AlgorithmParameters
+import java.security.AlgorithmParametersSpi
 import java.security.Key
 import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.CipherSpi
 
 internal const val cipherMockName = "com.twilio.security.crypto.mocks.cipher.CipherMock"
+internal const val algorithmParametersMockName =
+  "com.twilio.security.crypto.mocks.cipher.AlgorithmParametersMock"
 
 lateinit var cipherMockInput: CipherMockInput
 lateinit var cipherMockOutput: CipherMockOutput
+
+class AlgorithmParametersMock : AlgorithmParametersSpi() {
+  override fun engineGetEncoded(): ByteArray {
+    throw NotImplementedError()
+  }
+
+  override fun engineGetEncoded(format: String?): ByteArray {
+    throw NotImplementedError()
+  }
+
+  override fun engineInit(paramSpec: AlgorithmParameterSpec?) {
+    throw NotImplementedError()
+  }
+
+  override fun engineInit(params: ByteArray?) {}
+
+  override fun engineInit(
+    params: ByteArray?,
+    format: String?
+  ) {
+    throw NotImplementedError()
+  }
+
+  override fun engineToString(): String {
+    throw NotImplementedError()
+  }
+
+  override fun <T : AlgorithmParameterSpec?> engineGetParameterSpec(paramSpec: Class<T>?): T {
+    throw NotImplementedError()
+  }
+
+}
 
 class CipherMock : CipherSpi() {
   override fun engineSetMode(mode: String?) {
@@ -44,7 +79,8 @@ class CipherMock : CipherSpi() {
     params: AlgorithmParameters?,
     random: SecureRandom?
   ) {
-    throw NotImplementedError()
+    cipherMockOutput.cipherInitialized = true
+    cipherMockOutput.secretKey = key
   }
 
   override fun engineGetIV(): ByteArray {

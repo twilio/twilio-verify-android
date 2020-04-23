@@ -13,14 +13,14 @@ android {
     versionName "1.0"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }
-    signingConfigs {
-        release {
-            storeFile file("release-key.keystore")
-            storePassword 'verify'
-            keyAlias 'verify'
-            keyPassword 'verify'
-        }
+  signingConfigs {
+    release {
+      storeFile file("release-key.keystore")
+      storePassword 'verify'
+      keyAlias 'verify'
+      keyPassword 'verify'
     }
+  }
   buildTypes {
     release {
       minifyEnabled false

@@ -10,6 +10,8 @@ import com.twilio.security.crypto.key.template.SignerTemplate
 import java.security.KeyStore
 
 interface KeyManager {
+  val provider: String
+
   @Throws(KeyException::class)
   fun signer(template: SignerTemplate): Signer
 

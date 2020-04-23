@@ -22,7 +22,7 @@ import javax.crypto.SecretKey
 
 class AndroidKeyManager(
   private val keyStore: KeyStore,
-  private val provider: String
+  override val provider: String
 ) : KeyManager {
 
   @Throws(KeyException::class)
@@ -92,9 +92,7 @@ class AndroidKeyManager(
         getEncrypterKey(template.alias)
       }
       return when (template) {
-        is AESGCMNoPaddingEncrypterTemplate -> AESEncrypter(
-            key, template.cipherAlgorithm, template.parameterSpecClass
-        )
+        is AESGCMNoPaddingEncrypterTemplate -> AESEncrypter(key, template.cipherAlgorithm)
       }
     } catch (e: Exception) {
       throw KeyException(e)

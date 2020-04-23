@@ -3,11 +3,12 @@
  */
 package com.twilio.security.crypto.key.encrypter
 
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.KeyException
 import com.twilio.security.crypto.mocks.cipher.CipherMockInput
 import com.twilio.security.crypto.mocks.cipher.CipherMockOutput
+import com.twilio.security.crypto.mocks.cipher.algorithmParametersMockName
 import com.twilio.security.crypto.mocks.cipher.cipherMockInput
 import com.twilio.security.crypto.mocks.cipher.cipherMockName
 import com.twilio.security.crypto.mocks.cipher.cipherMockOutput
@@ -28,7 +29,7 @@ import java.security.AlgorithmParameters
 import java.security.Provider
 import java.security.Security
 import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
+import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class AESEncrypterTest {
@@ -48,14 +49,9 @@ class AESEncrypterTest {
         providerName, 1.0, "Fake KeyStore which is used for Robolectric tests"
     ) {
       init {
-        put(
-            "KeyStore.$providerName",
-            keyStoreMockName
-        )
-        put(
-            "Cipher.$cipherAlgorithm",
-            cipherMockName
-        )
+        put("KeyStore.$providerName", keyStoreMockName)
+        put("Cipher.$cipherAlgorithm", cipherMockName)
+        put("AlgorithmParameters.$cipherAlgorithm", algorithmParametersMockName)
       }
     }
     setProviderAsVerified(provider)
@@ -63,7 +59,7 @@ class AESEncrypterTest {
     cipherMockInput = CipherMockInput()
     cipherMockOutput = CipherMockOutput()
     val key: SecretKey = mock()
-    AESEncrypter = AESEncrypter(key, cipherAlgorithm, GCMParameterSpec::class.java)
+    AESEncrypter = AESEncrypter(key, cipherAlgorithm)
   }
 
   @After
@@ -75,12 +71,20 @@ class AESEncrypterTest {
   fun `Encrypt data using algorithm should return encrypted`() {
     val data = "test".toByteArray()
     val encrypted = "encrypted"
-    val algorithmParameters: AlgorithmParameters = mock()
-    val gcmParameterSpec: GCMParameterSpec = mock()
-    whenever(algorithmParameters.getParameterSpec(GCMParameterSpec::class.java)).thenReturn(
-        gcmParameterSpec
+    val provider: Provider = mock {
+      on { name }.doReturn(providerName)
+    }
+    val algorithmParameters: AlgorithmParameters = mock {
+      on { encoded }.doReturn(nextBytes(5))
+      on { algorithm }.doReturn(cipherAlgorithm)
+      on { getProvider() }.doReturn(provider)
+    }
+    val expectedEncryptedData = EncryptedData(
+        AlgorithmParametersSpec(
+            algorithmParameters.encoded, algorithmParameters.provider.name,
+            algorithmParameters.algorithm
+        ), encrypted.toByteArray()
     )
-    val expectedEncryptedData = EncryptedData(gcmParameterSpec, encrypted.toByteArray())
     cipherMockInput.encrypted = encrypted
     cipherMockInput.algorithmParameters = algorithmParameters
     val encryptedData = AESEncrypter.encrypt(data)
@@ -107,15 +111,23 @@ class AESEncrypterTest {
   fun `Decrypt data using algorithm should return encrypted`() {
     val data = "test"
     val encrypted = "encrypted"
-    val algorithmParameters: AlgorithmParameters = mock()
-    val gcmParameterSpec: GCMParameterSpec = mock()
-    whenever(algorithmParameters.getParameterSpec(GCMParameterSpec::class.java)).thenReturn(
-        gcmParameterSpec
+    val provider: Provider = mock {
+      on { name }.doReturn(providerName)
+    }
+    val algorithmParameters: AlgorithmParameters = mock {
+      on { encoded }.doReturn(nextBytes(5))
+      on { algorithm }.doReturn(cipherAlgorithm)
+      on { getProvider() }.doReturn(provider)
+    }
+    val expectedEncryptedData = EncryptedData(
+        AlgorithmParametersSpec(
+            algorithmParameters.encoded, algorithmParameters.provider.name,
+            algorithmParameters.algorithm
+        ), encrypted.toByteArray()
     )
-    val encryptedData = EncryptedData(gcmParameterSpec, encrypted.toByteArray())
     cipherMockInput.decrypted = data
     cipherMockInput.algorithmParameters = algorithmParameters
-    val decrypted = AESEncrypter.decrypt(encryptedData)
+    val decrypted = AESEncrypter.decrypt(expectedEncryptedData)
     assertEquals(AESEncrypter.key, cipherMockOutput.secretKey)
     assertTrue(cipherMockOutput.cipherInitialized)
     assertTrue(data.toByteArray().contentEquals(decrypted))
@@ -123,13 +135,21 @@ class AESEncrypterTest {
 
   @Test
   fun `Error decrypting data should throw exception`() {
-    val algorithmParameters: AlgorithmParameters = mock()
-    val gcmParameterSpec: GCMParameterSpec = mock()
-    whenever(algorithmParameters.getParameterSpec(GCMParameterSpec::class.java)).thenReturn(
-        gcmParameterSpec
-    )
     val encrypted = "encrypted"
-    val encryptedData = EncryptedData(gcmParameterSpec, encrypted.toByteArray())
+    val provider: Provider = mock {
+      on { name }.doReturn(providerName)
+    }
+    val algorithmParameters: AlgorithmParameters = mock {
+      on { encoded }.doReturn(nextBytes(5))
+      on { algorithm }.doReturn(cipherAlgorithm)
+      on { getProvider() }.doReturn(provider)
+    }
+    val expectedEncryptedData = EncryptedData(
+        AlgorithmParametersSpec(
+            algorithmParameters.encoded, algorithmParameters.provider.name,
+            algorithmParameters.algorithm
+        ), encrypted.toByteArray()
+    )
     val error: RuntimeException = mock()
     cipherMockInput.error = error
     exceptionRule.expect(KeyException::class.java)
@@ -138,6 +158,6 @@ class AESEncrypterTest {
             RuntimeException::class.java
         )
     )
-    AESEncrypter.decrypt(encryptedData)
+    AESEncrypter.decrypt(expectedEncryptedData)
   }
 }

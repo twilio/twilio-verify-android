@@ -37,7 +37,6 @@ import java.security.Provider
 import java.security.PublicKey
 import java.security.Security
 import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
@@ -268,7 +267,6 @@ class AndroidKeyManagerTest {
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     keyStoreMockInput =
       KeyStoreMockInput(
           containsAlias = false, key = key, newKey = key
@@ -286,7 +284,6 @@ class AndroidKeyManagerTest {
     val template: AESGCMNoPaddingEncrypterTemplate = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     keyStoreMockInput =
       KeyStoreMockInput(
           containsAlias = true, key = mock<SecretKey>()
@@ -308,7 +305,6 @@ class AndroidKeyManagerTest {
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     keyStoreMockInput =
       KeyStoreMockInput(
           containsAlias = false, key = key1, newKey = key2

@@ -6,18 +6,16 @@ package com.twilio.security.crypto.key.template
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyGenParameterSpec.Builder
 import android.security.keystore.KeyProperties
-import java.security.spec.AlgorithmParameterSpec
-import javax.crypto.spec.GCMParameterSpec
 
 sealed class EncrypterTemplate : Template {
   internal abstract val keyGenParameterSpec: KeyGenParameterSpec
   internal abstract val cipherAlgorithm: String
-  internal abstract val parameterSpecClass: Class<out AlgorithmParameterSpec>
+  abstract fun templateForCreation(): EncrypterTemplate
 }
 
 data class AESGCMNoPaddingEncrypterTemplate(
   override val alias: String,
-  override val shouldExist: Boolean = false
+  override val shouldExist: Boolean = true
 ) : EncrypterTemplate() {
   override val algorithm = KeyProperties.KEY_ALGORITHM_AES
   override val keyGenParameterSpec: KeyGenParameterSpec = Builder(
@@ -28,6 +26,5 @@ data class AESGCMNoPaddingEncrypterTemplate(
       .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
       .build()
   override val cipherAlgorithm = "AES/GCM/NoPadding"
-  override val parameterSpecClass: Class<out AlgorithmParameterSpec> =
-    GCMParameterSpec::class.java
+  override fun templateForCreation(): EncrypterTemplate = copy(shouldExist = false)
 }
