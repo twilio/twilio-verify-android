@@ -12,14 +12,18 @@ import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.threading.execute
 
 internal class ChallengeFacade(
   private val pushChallengeProcessor: PushChallengeProcessor,
-  private val factorFacade: FactorFacade
+  private val factorFacade: FactorFacade,
+  private val repository: ChallengeProvider
 ) {
   fun getChallenge(
     sid: String,
@@ -42,6 +46,27 @@ internal class ChallengeFacade(
     factorFacade.getFactor(updateChallengeInput.factorSid, { factor ->
       when (factor) {
         is PushFactor -> updatePushChallenge(updateChallengeInput, factor, success, error)
+      }
+    }, error)
+  }
+
+  fun getAllChallenges(
+    factorSid: String,
+    status: ChallengeStatus?,
+    pageSize: Int,
+    pageToken: String?,
+    success: (ChallengeList) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    factorFacade.getFactor(factorSid, { factor ->
+      when (factor) {
+        is PushFactor -> execute(success, error) { onSuccess, onError ->
+          repository.getAll(factor, status, pageSize, pageToken, { list ->
+            onSuccess(list)
+          }, { exception ->
+            onError(exception)
+          })
+        }
       }
     }, error)
   }
@@ -74,6 +99,7 @@ internal class ChallengeFacade(
     private lateinit var keyStore: KeyStorage
     private lateinit var factorProvider: FactorFacade
     private lateinit var url: String
+    private lateinit var challengeRepository: ChallengeProvider
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networking = networkProvider }
 
@@ -90,6 +116,9 @@ internal class ChallengeFacade(
       apply { this.factorProvider = factorFacade }
 
     fun baseUrl(url: String) = apply { this.url = url }
+
+    fun challengeProvider(challengeRepository: ChallengeProvider) =
+      apply { this.challengeRepository = challengeRepository }
 
     @Throws(TwilioVerifyException::class)
     fun build(): ChallengeFacade {
@@ -117,7 +146,7 @@ internal class ChallengeFacade(
       }
       if (!this::factorProvider.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for key storage"),
+            IllegalArgumentException("Illegal value for factor provider"),
             InitializationError
         )
       }
@@ -127,11 +156,17 @@ internal class ChallengeFacade(
             InitializationError
         )
       }
+      if (!this::challengeRepository.isInitialized) {
+        throw TwilioVerifyException(
+            IllegalArgumentException("Illegal value for challenge repository"),
+            InitializationError
+        )
+      }
       val challengeAPIClient =
         ChallengeAPIClient(networking, appContext, auth, url)
       val repository = ChallengeRepository(challengeAPIClient)
       val pushChallengeProcessor = PushChallengeProcessor(repository, keyStore)
-      return ChallengeFacade(pushChallengeProcessor, factorProvider)
+      return ChallengeFacade(pushChallengeProcessor, factorProvider, challengeRepository)
     }
   }
 }
