@@ -99,7 +99,6 @@ internal class ChallengeFacade(
     private lateinit var keyStore: KeyStorage
     private lateinit var factorProvider: FactorFacade
     private lateinit var url: String
-    private lateinit var challengeRepository: ChallengeProvider
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networking = networkProvider }
 
@@ -116,9 +115,6 @@ internal class ChallengeFacade(
       apply { this.factorProvider = factorFacade }
 
     fun baseUrl(url: String) = apply { this.url = url }
-
-    fun challengeProvider(challengeRepository: ChallengeProvider) =
-      apply { this.challengeRepository = challengeRepository }
 
     @Throws(TwilioVerifyException::class)
     fun build(): ChallengeFacade {
@@ -156,17 +152,12 @@ internal class ChallengeFacade(
             InitializationError
         )
       }
-      if (!this::challengeRepository.isInitialized) {
-        throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for challenge repository"),
-            InitializationError
-        )
-      }
+
       val challengeAPIClient =
         ChallengeAPIClient(networking, appContext, auth, url)
       val repository = ChallengeRepository(challengeAPIClient)
       val pushChallengeProcessor = PushChallengeProcessor(repository, keyStore)
-      return ChallengeFacade(pushChallengeProcessor, factorProvider, challengeRepository)
+      return ChallengeFacade(pushChallengeProcessor, factorProvider, repository)
     }
   }
 }

@@ -98,7 +98,6 @@ interface TwilioVerify {
           .keyStorage(keyStorage)
           .factorFacade(factorFacade)
           .baseUrl(baseUrl)
-          .challengeProvider(challengeProvider)
           .build()
       val serviceFacade = ServiceFacade.Builder()
           .context(context)
