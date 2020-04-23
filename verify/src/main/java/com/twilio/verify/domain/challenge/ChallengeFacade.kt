@@ -96,7 +96,6 @@ internal class ChallengeFacade(
     private lateinit var keyStore: KeyStorage
     private lateinit var factorProvider: FactorFacade
     private lateinit var url: String
-    private lateinit var challengeRepository: ChallengeProvider
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networking = networkProvider }
 
