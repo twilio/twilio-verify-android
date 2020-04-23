@@ -9,11 +9,12 @@ import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
-import com.twilio.verify.domain.challenge.ChallengeProvider
 import com.twilio.verify.domain.challenge.ChallengeRepository
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.Service
@@ -55,6 +56,12 @@ interface TwilioVerify {
     error: (TwilioVerifyException) -> Unit
   )
 
+  fun getAllChallenges(
+    challengeListInput: ChallengeListInput,
+    success: (ChallengeList) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
   fun updateChallenge(
     updateChallengeInput: UpdateChallengeInput,
     success: () -> Unit,
@@ -74,7 +81,9 @@ interface TwilioVerify {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
-    private var challengeProvider = ChallengeRepository(ChallengeAPIClient(networkProvider, context, authorization, baseUrl))
+    private var challengeProvider =
+      ChallengeRepository(ChallengeAPIClient(networkProvider, context, authorization, baseUrl))
+
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
 
@@ -98,7 +107,6 @@ interface TwilioVerify {
           .keyStorage(keyStorage)
           .factorFacade(factorFacade)
           .baseUrl(baseUrl)
-          .challengeProvider(challengeProvider)
           .build()
       val serviceFacade = ServiceFacade.Builder()
           .context(context)

@@ -13,7 +13,7 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeStatus
+import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.networking.Authorization
@@ -51,22 +51,19 @@ internal class ChallengeFacade(
   }
 
   fun getAllChallenges(
-    factorSid: String,
-    status: ChallengeStatus?,
-    pageSize: Int,
-    pageToken: String?,
+    challengeListInput: ChallengeListInput,
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(factorSid, { factor ->
-      when (factor) {
-        is PushFactor -> execute(success, error) { onSuccess, onError ->
-          repository.getAll(factor, status, pageSize, pageToken, { list ->
-            onSuccess(list)
-          }, { exception ->
-            onError(exception)
-          })
-        }
+    factorFacade.getFactor(challengeListInput.factorSid, { factor ->
+      execute(success, error) { onSuccess, onError ->
+        repository.getAll(
+            factor, challengeListInput.status, challengeListInput.pageSize,
+            challengeListInput.pageToken, { list ->
+          onSuccess(list)
+        }, { exception ->
+          onError(exception)
+        })
       }
     }, error)
   }
@@ -117,9 +114,6 @@ internal class ChallengeFacade(
 
     fun baseUrl(url: String) = apply { this.url = url }
 
-    fun challengeProvider(challengeRepository: ChallengeProvider) =
-      apply { this.challengeRepository = challengeRepository }
-
     @Throws(TwilioVerifyException::class)
     fun build(): ChallengeFacade {
       if (!this::appContext.isInitialized) {
@@ -156,17 +150,11 @@ internal class ChallengeFacade(
             InitializationError
         )
       }
-      if (!this::challengeRepository.isInitialized) {
-        throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for challenge repository"),
-            InitializationError
-        )
-      }
       val challengeAPIClient =
         ChallengeAPIClient(networking, appContext, auth, url)
       val repository = ChallengeRepository(challengeAPIClient)
       val pushChallengeProcessor = PushChallengeProcessor(repository, keyStore)
-      return ChallengeFacade(pushChallengeProcessor, factorProvider, challengeRepository)
+      return ChallengeFacade(pushChallengeProcessor, factorProvider, repository)
     }
   }
 }

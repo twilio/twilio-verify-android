@@ -11,6 +11,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.SignerTemplate
+import com.twilio.verify.domain.challenge.challengesKey
 import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.dateKey
 import com.twilio.verify.domain.challenge.detailsKey
@@ -19,8 +20,13 @@ import com.twilio.verify.domain.challenge.expirationDateKey
 import com.twilio.verify.domain.challenge.factorSidKey
 import com.twilio.verify.domain.challenge.fieldsKey
 import com.twilio.verify.domain.challenge.hiddenDetailsKey
+import com.twilio.verify.domain.challenge.key
 import com.twilio.verify.domain.challenge.labelKey
 import com.twilio.verify.domain.challenge.messageKey
+import com.twilio.verify.domain.challenge.metaKey
+import com.twilio.verify.domain.challenge.nextPageKey
+import com.twilio.verify.domain.challenge.pageKey
+import com.twilio.verify.domain.challenge.pageSizeKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.challenge.valueKey
 import com.twilio.verify.domain.factor.accountSidKey
@@ -32,6 +38,7 @@ import com.twilio.verify.domain.factor.statusKey
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.models.FactorChallengeListInput
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
@@ -287,11 +294,11 @@ class TwilioVerifyTest {
   fun `Get service should call success`() {
     val serviceSid = "serviceSid"
     val jsonObject = JSONObject().apply {
-        put(sidKey, serviceSid)
-        put(friendlyNameKey, "friendlyName")
-        put(accountSidKey, "accountSid123")
-        put(createdDateKey, "2020-02-19T16:39:57-08:00")
-        put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(sidKey, serviceSid)
+      put(friendlyNameKey, "friendlyName")
+      put(accountSidKey, "accountSid123")
+      put(createdDateKey, "2020-02-19T16:39:57-08:00")
+      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
@@ -301,6 +308,48 @@ class TwilioVerifyTest {
     idlingResource.startOperation()
     twilioVerify.getService(serviceSid, { service ->
       assertEquals(jsonObject.getString(sidKey), service.sid)
+      idlingResource.operationFinished()
+    }, { exception ->
+      fail(exception.message)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get all challenges should call success`() {
+    val factorSid = "factorSid123"
+    createFactor(factorSid, Verified)
+    val challengeListInput = FactorChallengeListInput(factorSid, null, 1, null)
+    val expectedChallenges = JSONArray(
+        listOf(
+            challengeJSONObject("sid123", factorSid),
+            challengeJSONObject("sid456", factorSid)
+        )
+    )
+    val expectedMetadata = metaJSONObject()
+    val jsonObject = JSONObject().apply {
+      put(challengesKey, expectedChallenges)
+      put(metaKey, expectedMetadata)
+    }
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        lastValue.invoke(jsonObject.toString())
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerify.getAllChallenges(challengeListInput, { list ->
+      val firstChallenge = list.challenges.first()
+      val secondChallenge = list.challenges.last()
+
+      assertEquals(list.challenges.size, 2)
+      assertEquals(firstChallenge.factorSid, factorSid)
+      assertEquals(firstChallenge.sid, "sid123")
+      assertEquals(secondChallenge.factorSid, factorSid)
+      assertEquals(secondChallenge.sid, "sid456")
+
+      assertEquals(list.metadata.key, expectedMetadata.getString(key))
+      assertEquals(list.metadata.nextPageURL, expectedMetadata.getString(nextPageKey))
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
@@ -346,6 +395,43 @@ class TwilioVerifyTest {
 }
 
 private val keys = mutableMapOf<String, String>()
+
+private fun challengeJSONObject(
+  sid: String,
+  factorSid: String
+): JSONObject {
+  return JSONObject().apply {
+    put(com.twilio.verify.domain.challenge.sidKey, sid)
+    put(factorSidKey, factorSid)
+    put(createdDateKey, "2020-02-19T16:39:57-08:00")
+    put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+    put(com.twilio.verify.domain.challenge.statusKey, ChallengeStatus.Pending.value)
+    put(entitySidKey, "entitySid")
+    put(detailsKey, JSONObject().apply {
+      put(messageKey, "message123")
+      put(fieldsKey, JSONArray().apply {
+        put(0, JSONObject().apply {
+          put(labelKey, "label123")
+          put(valueKey, "value123")
+        })
+      })
+      put(dateKey, "2020-02-19T16:39:57-08:00")
+    }.toString())
+    put(hiddenDetailsKey, JSONObject().apply {
+      put("key1", "value1")
+    }.toString())
+    put(expirationDateKey, "2020-02-27T08:50:57-08:00")
+  }
+}
+
+private fun metaJSONObject(): JSONObject {
+  return JSONObject().apply {
+    put(pageKey, 1)
+    put(pageSizeKey, 10)
+    put(nextPageKey, "next_page")
+    put(key, "key")
+  }
+}
 
 @Implements(com.twilio.security.crypto.AndroidKeyManager::class)
 class TestKeystore {
