@@ -21,6 +21,7 @@ import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.FactorStatus.Unverified
+import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.FactorType.Push
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
@@ -335,5 +336,46 @@ class FactorAPIClientTest {
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
     }
+  }
+
+  @Test
+  fun `Delete a factor with a success response should call success`() {
+    val response = "{\"key\":\"value\"}"
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    factorAPIClient.delete(
+        factor, { jsonObject -> assertEquals(response, jsonObject.toString()) }, { fail() })
+  }
+
+  @Test
+  fun `Delete a factor with an error response should not call success`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedException = NetworkException(500, null)
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    factorAPIClient.delete(
+        factor, { fail() }, { exception -> assertEquals(expectedException, exception.cause) })
+  }
+
+  @Test
+  fun `Delete a factor with an exception should not call success`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedException = RuntimeException()
+    whenever(networkProvider.execute(any(), any(), any())).thenThrow(expectedException)
+    factorAPIClient.delete(
+        factor, { fail() }, { exception -> assertTrue(exception.cause is NetworkException) })
+    factorAPIClient.delete(
+        factor, { fail() },
+        { exception -> assertEquals(expectedException, exception.cause?.cause) })
   }
 }
