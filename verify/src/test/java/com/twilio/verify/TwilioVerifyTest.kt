@@ -35,10 +35,10 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
+import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Pending
-import com.twilio.verify.models.FactorChallengeListInput
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
@@ -320,7 +320,7 @@ class TwilioVerifyTest {
   fun `Get all challenges should call success`() {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
-    val challengeListInput = FactorChallengeListInput(factorSid, null, 1, null)
+    val challengeListInput = ChallengeListInput(factorSid, null, 1, null)
     val expectedChallenges = JSONArray(
         listOf(
             challengeJSONObject("sid123", factorSid),

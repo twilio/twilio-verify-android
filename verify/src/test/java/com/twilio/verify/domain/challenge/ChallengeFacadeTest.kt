@@ -15,9 +15,9 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorChallengeListInput
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdatePushChallengeInput
 import org.junit.Assert.assertEquals
@@ -226,7 +226,7 @@ class ChallengeFacadeTest {
   fun `Get all challenges with valid data should call success`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = FactorChallengeListInput(factorSid, null, pageSize, null)
+    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
     val expectedFactor: PushFactor = mock()
     val expectedChallengeList: ChallengeList = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -256,7 +256,7 @@ class ChallengeFacadeTest {
   fun `Error getting all challenges should call error`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = FactorChallengeListInput(factorSid, null, pageSize, null)
+    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -286,7 +286,7 @@ class ChallengeFacadeTest {
   fun `Error getting the factor when getting all challenges should call error`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = FactorChallengeListInput(factorSid, null, pageSize, null)
+    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
