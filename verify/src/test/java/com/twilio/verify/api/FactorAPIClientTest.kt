@@ -346,7 +346,7 @@ class FactorAPIClientTest {
     val factor =
       PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
     val expectedURL =
-      "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+      "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
           .replace(
               ENTITY_PATH, factor.entityIdentity, true
           )
@@ -388,9 +388,10 @@ class FactorAPIClientTest {
     val expectedException = RuntimeException()
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(expectedException)
     factorAPIClient.delete(
-        factor, { fail() }, { exception -> assertTrue(exception.cause is NetworkException) })
-    factorAPIClient.delete(
         factor, { fail() },
-        { exception -> assertEquals(expectedException, exception.cause?.cause) })
+        { exception ->
+          assertEquals(expectedException, exception.cause?.cause)
+          assertTrue(exception.cause is NetworkException)
+        })
   }
 }
