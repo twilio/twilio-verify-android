@@ -118,7 +118,7 @@ internal class FactorAPIClient(
 
   fun delete(
     factor: Factor,
-    success: (response: JSONObject) -> Unit,
+    success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
@@ -127,7 +127,7 @@ internal class FactorAPIClient(
           .httpMethod(Delete)
           .build()
       networkProvider.execute(request, {
-        success(JSONObject(it))
+        success()
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })

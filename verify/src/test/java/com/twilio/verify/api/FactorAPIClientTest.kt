@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -27,6 +28,7 @@ import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod
+import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkException
@@ -343,13 +345,26 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val factor =
       PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedURL =
+      "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+          .replace(
+              ENTITY_PATH, factor.entityIdentity, true
+          )
+          .replace(FACTOR_SID_PATH, factor.sid)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(response)
       }
     }
     factorAPIClient.delete(
-        factor, { jsonObject -> assertEquals(response, jsonObject.toString()) }, { fail() })
+        factor, {
+      verify(networkProvider).execute(
+          check {
+            assertEquals(URL(expectedURL), it.url)
+            assertEquals(Delete, it.httpMethod)
+          }, any(), any()
+      )
+    }, { fail() })
   }
 
   @Test
