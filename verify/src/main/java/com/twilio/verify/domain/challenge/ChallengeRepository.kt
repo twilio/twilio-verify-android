@@ -91,7 +91,7 @@ internal class ChallengeRepository(
         error(e)
       }
     }
-    apiClient.getAll(factor, status?.toString(), pageSize, pageToken, ::toResponse, error)
+    apiClient.getAll(factor, status?.value, pageSize, pageToken, ::toResponse, error)
   }
 
   private fun toFactorChallenge(challenge: Challenge) =

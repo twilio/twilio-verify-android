@@ -13,4 +13,5 @@ interface StorageProvider {
   fun get(key: String): String?
 
   fun getAll(): Collection<String>
+  fun remove(key: String)
 }

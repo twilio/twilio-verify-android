@@ -8,6 +8,8 @@ import androidx.test.core.app.ApplicationProvider
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -94,20 +96,35 @@ class StorageTest {
   }
 
   @Test
-  fun `Get all factors with a list of not only strings should filter`() {
+  fun `Get all values with a list of not only strings should filter`() {
     val keyValues = mapOf("sid1" to "value1", "sid2" to "value2", "sid3" to 123)
     keyValues.filter { it.value is String }
         .forEach {
           sharedPreferences.edit()
-              .putString(it.key, it.value as String).apply()
+              .putString(it.key, it.value as String)
+              .apply()
         }
     keyValues.filter { it.value is Int }
         .forEach {
           sharedPreferences.edit()
-              .putInt(it.key, it.value as Int).apply()
+              .putInt(it.key, it.value as Int)
+              .apply()
         }
 
     assertEquals(keyValues.size, sharedPreferences.all.size)
     assertEquals(keyValues.values.filterIsInstance<String>().size, storage.getAll().size)
+  }
+
+  @Test
+  fun `Remove a key should remove it from preferences`() {
+    val key = "key123"
+    val value = "value123"
+    sharedPreferences.edit()
+        .putString(key, value)
+        .apply()
+    assertNotNull(storage.get(key))
+    storage.remove(key)
+    assertNull(storage.get(key))
+    assertFalse(sharedPreferences.contains(key))
   }
 }
