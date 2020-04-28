@@ -35,25 +35,17 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
-import com.twilio.verify.models.ChallengeListInput
-import com.twilio.verify.models.ChallengeStatus
+import com.twilio.verify.models.*
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Pending
-import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
-import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.UpdatePushChallengeInput
-import com.twilio.verify.models.UpdatePushFactorInput
-import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.NetworkProvider
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,14 +55,9 @@ import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 import java.io.InputStream
 import java.io.OutputStream
-import java.security.Key
-import java.security.KeyStore
-import java.security.KeyStoreSpi
-import java.security.Provider
-import java.security.Security
+import java.security.*
 import java.security.cert.Certificate
-import java.util.Date
-import java.util.Enumeration
+import java.util.*
 
 @RunWith(RobolectricTestRunner::class)
 @Config(shadows = [TestKeystore::class])
@@ -343,14 +330,14 @@ class TwilioVerifyTest {
       val firstChallenge = list.challenges.first()
       val secondChallenge = list.challenges.last()
 
-      assertEquals(list.challenges.size, expectedChallenges.length())
-      assertEquals(firstChallenge.factorSid, factorSid)
-      assertEquals(firstChallenge.sid, expectedChallenges.getJSONObject(0).getString(sidKey))
-      assertEquals(secondChallenge.factorSid, factorSid)
-      assertEquals(secondChallenge.sid, expectedChallenges.getJSONObject(0).getString(sidKey))
+      assertEquals(expectedChallenges.length(), list.challenges.size)
+      assertEquals(factorSid, firstChallenge.factorSid)
+      assertEquals(expectedChallenges.getJSONObject(0).getString(sidKey), firstChallenge.sid)
+      assertEquals(factorSid, secondChallenge.factorSid)
+      assertEquals(expectedChallenges.getJSONObject(1).getString(sidKey), secondChallenge.sid)
 
-      assertEquals(list.metadata.key, expectedMetadata.getString(key))
-      assertEquals(list.metadata.nextPageURL, expectedMetadata.getString(nextPageKey))
+      assertEquals(expectedMetadata.getString(key), list.metadata.key)
+      assertEquals(expectedMetadata.getString(nextPageKey), list.metadata.nextPageURL)
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
