@@ -31,7 +31,7 @@ android {
     }
     debug {
       buildConfigField "String", 'ACCOUNT_SID', "\"your account sid\""
-      buildConfigField "String", 'AUTH_TOKEN', "\"your  auth token\""
+      buildConfigField "String", 'AUTH_TOKEN', "\"your auth token\""
     }
   }
 }
