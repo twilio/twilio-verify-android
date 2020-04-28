@@ -19,7 +19,12 @@ interface TwilioVerifyAdapter {
     onError: (Exception) -> Unit
   )
 
-  fun verifyFactor(verifyFactorInput: VerifyFactorInput)
+  fun verifyFactor(
+    verifyFactorInput: VerifyFactorInput,
+    onSuccess: (Factor) -> Unit,
+    onError: (TwilioVerifyException) -> Unit
+  )
+
   fun getChallenge(
     challengeSid: String,
     factorSid: String

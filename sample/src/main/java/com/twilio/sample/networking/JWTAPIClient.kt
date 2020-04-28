@@ -25,13 +25,13 @@ class SampleBackendAPIClient(private val okHttpClient: OkHttpClient) {
   fun getJwt(
     url: String,
     identity: String,
-    onSucces: (String) -> Unit,
+    onSuccess: (String) -> Unit,
     onError: (Exception) -> Unit
   ) {
     CoroutineScope(Dispatchers.Main).launch {
       try {
         val jwt: String = getJwt(url, identity)
-        onSucces(jwt)
+        onSuccess(jwt)
       } catch (e: Exception) {
         onError(e)
       }

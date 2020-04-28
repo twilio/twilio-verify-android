@@ -28,7 +28,7 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
   private final SampleBackendAPIClient sampleBackendAPIClient;
 
   public TwilioVerifyJavaAdapter(TwilioVerify twilioVerify,
-                                 SampleBackendAPIClient sampleBackendAPIClient) {
+      SampleBackendAPIClient sampleBackendAPIClient) {
     this.twilioVerify = twilioVerify;
     this.sampleBackendAPIClient = sampleBackendAPIClient;
   }
@@ -45,13 +45,10 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
         }, onError);
   }
 
-  @Override public void verifyFactor(@NotNull VerifyFactorInput verifyFactorInput) {
-    twilioVerify.verifyFactor(verifyFactorInput, new Function1<Factor, Unit>() {
-      @Override public Unit invoke(Factor factor) {
-        VerifyEventBus.INSTANCE.send(new VerifiedFactor(factor));
-        return Unit.INSTANCE;
-      }
-    }, handleError);
+  @Override public void verifyFactor(@NotNull VerifyFactorInput verifyFactorInput,
+      @NotNull Function1<? super Factor, Unit> onSuccess,
+      @NotNull Function1<? super TwilioVerifyException, Unit> onError) {
+    twilioVerify.verifyFactor(verifyFactorInput, onSuccess, onError);
   }
 
   @Override public void updateChallenge(@NotNull UpdateChallengeInput updateChallengeInput,

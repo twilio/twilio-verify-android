@@ -10,7 +10,7 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorType.PUSH
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -38,7 +38,7 @@ internal class FactorMapper {
       )
     }
     return when (factorPayload.type) {
-      Push -> toPushFactor(serviceSid, entityIdentity, jsonObject)
+      PUSH -> toPushFactor(serviceSid, entityIdentity, jsonObject)
     }
   }
 
@@ -68,7 +68,7 @@ internal class FactorMapper {
       )
     }
     return when (jsonObject.getString(typeKey)) {
-      Push.factorTypeName -> toPushFactor(serviceSid, entityIdentity, jsonObject).apply {
+      PUSH.factorTypeName -> toPushFactor(serviceSid, entityIdentity, jsonObject).apply {
         keyPairAlias = jsonObject.optString(keyPairAliasKey)
       }
       else -> throw TwilioVerifyException(
@@ -80,7 +80,7 @@ internal class FactorMapper {
   @Throws(TwilioVerifyException::class)
   fun toJSON(factor: Factor): String {
     return when (factor.type) {
-      Push -> JSONObject()
+      PUSH -> JSONObject()
           .put(sidKey, factor.sid)
           .put(friendlyNameKey, factor.friendlyName)
           .put(accountSidKey, factor.accountSid)

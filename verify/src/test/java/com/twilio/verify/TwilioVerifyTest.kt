@@ -167,8 +167,7 @@ class TwilioVerifyTest {
   @Test
   fun `Verify a factor should call success`() {
     val sid = "sid"
-    val verificationCode = "verificationCode"
-    val verifyFactorInput = VerifyPushFactorInput(sid, verificationCode)
+    val verifyFactorInput = VerifyPushFactorInput(sid)
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
         .put(sidKey, sid)
@@ -287,11 +286,11 @@ class TwilioVerifyTest {
   fun `Get service should call success`() {
     val serviceSid = "serviceSid"
     val jsonObject = JSONObject().apply {
-        put(sidKey, serviceSid)
-        put(friendlyNameKey, "friendlyName")
-        put(accountSidKey, "accountSid123")
-        put(createdDateKey, "2020-02-19T16:39:57-08:00")
-        put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(sidKey, serviceSid)
+      put(friendlyNameKey, "friendlyName")
+      put(accountSidKey, "accountSid123")
+      put(createdDateKey, "2020-02-19T16:39:57-08:00")
+      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {

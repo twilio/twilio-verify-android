@@ -21,7 +21,7 @@ import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.FactorStatus.Unverified
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.BasicAuthorization
@@ -74,7 +74,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -93,7 +93,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
         ), {
       fail()
     }, { exception ->
@@ -105,7 +105,7 @@ class FactorAPIClientTest {
   fun `Error creating a factor should call error`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", Push, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwt"
       )
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
@@ -126,7 +126,7 @@ class FactorAPIClientTest {
             ENTITY_PATH, entity, true
         )
     val friendlyNameMock = "Test"
-    val factorTypeMock = Push
+    val factorTypeMock = PUSH
     val pushToken = "ABCD"
     val publicKey = "12345"
     val binding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
@@ -263,7 +263,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.update(
         UpdateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), "factorSid"
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), "factorSid"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -282,7 +282,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.update(
         UpdateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123",
+            "factor name", PUSH, "serviceSid123", "entitySid123",
             emptyMap(), "factorSid"
         ), {
       fail()
@@ -298,7 +298,7 @@ class FactorAPIClientTest {
     val friendlyNameMock = "Test"
     val entityIdentityMock = "entityIdentity"
     val pushToken = "ABCD"
-    val factorTypeMock = Push
+    val factorTypeMock = PUSH
     val expectedURL = "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
         .replace(
             ENTITY_PATH, entityIdentityMock, true

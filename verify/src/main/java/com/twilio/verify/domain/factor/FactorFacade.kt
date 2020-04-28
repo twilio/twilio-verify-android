@@ -46,7 +46,7 @@ internal class FactorFacade(
     when (verifyFactorInput) {
       is VerifyPushFactorInput -> {
         pushFactory.verify(
-            verifyFactorInput.sid, verifyFactorInput.verificationCode, success, error
+            verifyFactorInput.sid, success, error
         )
       }
     }

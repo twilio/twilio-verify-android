@@ -13,14 +13,14 @@ android {
     versionName "1.0"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }
-    signingConfigs {
-        release {
-            storeFile file("release-key.keystore")
-            storePassword 'verify'
-            keyAlias 'verify'
-            keyPassword 'verify'
-        }
+  signingConfigs {
+    release {
+      storeFile file("release-key.keystore")
+      storePassword 'verify'
+      keyAlias 'verify'
+      keyPassword 'verify'
     }
+  }
   buildTypes {
     release {
       minifyEnabled false
@@ -31,7 +31,7 @@ android {
     }
     debug {
       buildConfigField "String", 'ACCOUNT_SID', "\"your account sid\""
-      buildConfigField "String", 'AUTH_TOKEN', "\"your auth token\""
+      buildConfigField "String", 'AUTH_TOKEN', "\"your  auth token\""
     }
   }
 }
@@ -51,6 +51,10 @@ dependencies {
   implementation 'com.squareup.okhttp3:logging-interceptor:4.4.0'
   implementation 'com.google.android.material:material:1.1.0'
   testImplementation 'junit:junit:4.12'
+  testImplementation 'org.robolectric:robolectric:4.3.1'
+  testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+  testImplementation 'org.mockito:mockito-inline:2.28.2'
+  testImplementation 'androidx.test:core:1.2.0'
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

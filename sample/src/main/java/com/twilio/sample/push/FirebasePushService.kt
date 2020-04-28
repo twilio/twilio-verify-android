@@ -12,7 +12,6 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.twilio.sample.TwilioVerifyAdapter
 import com.twilio.sample.TwilioVerifyProvider
-import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.sample.R
 
 /*
@@ -20,9 +19,7 @@ import com.twilio.verify.sample.R
  */
 
 private const val typeKey = "type"
-private const val verifyFactorType = "verify_factor_push"
 private const val factorSidKey = "factor_sid"
-private const val verificationCodeKey = "verification_code"
 private const val challengeType = "verify_push_challenge"
 private const val challengeSidKey = "challenge_sid"
 private const val messageKey = "message"
@@ -40,18 +37,7 @@ class FirebasePushService : FirebaseMessagingService() {
     twilioVerifyAdapter = TwilioVerifyProvider.instance(applicationContext)
     val bundle = getBundleFromMessage(remoteMessage)
     when (bundle.getString(typeKey)) {
-      verifyFactorType -> verifyFactor(bundle)
       challengeType -> newChallenge(bundle)
-    }
-  }
-
-  private fun verifyFactor(bundle: Bundle) {
-    val factorSid = bundle.getString(factorSidKey)
-    val verificationCode = bundle.getString(
-        verificationCodeKey
-    )
-    if (factorSid != null && verificationCode != null) {
-      twilioVerifyAdapter.verifyFactor(VerifyPushFactorInput(factorSid, verificationCode))
     }
   }
 

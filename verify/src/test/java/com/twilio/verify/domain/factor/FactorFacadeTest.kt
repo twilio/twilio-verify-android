@@ -88,13 +88,12 @@ class FactorFacadeTest {
   @Test
   fun `Verify a factor should call success`() {
     val sid = "sid"
-    val verificationCode = "verificationCode"
-    val verifyFactorInput = VerifyPushFactorInput(sid, verificationCode)
+    val verifyFactorInput = VerifyPushFactorInput(sid)
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(
           pushFactory.verify(
-              eq(sid), eq(verificationCode), capture(), any()
+              eq(sid), capture(), any()
           )
       ).then {
         firstValue.invoke(expectedFactor)
@@ -114,13 +113,12 @@ class FactorFacadeTest {
   @Test
   fun `Error verifying a factor should call error`() {
     val sid = "sid"
-    val verificationCode = "verificationCode"
-    val verifyFactorInput = VerifyPushFactorInput(sid, verificationCode)
+    val verifyFactorInput = VerifyPushFactorInput(sid)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
           pushFactory.verify(
-              eq(sid), eq(verificationCode), any(), capture()
+              eq(sid), any(), capture()
           )
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
