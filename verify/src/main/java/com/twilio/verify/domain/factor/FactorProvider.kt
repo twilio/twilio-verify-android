@@ -28,6 +28,12 @@ internal interface FactorProvider {
     error: (TwilioVerifyException) -> Unit
   )
 
+  fun delete(
+    factor: Factor,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
   fun get(sid: String): Factor?
   fun getAll(): List<Factor>
   fun save(factor: Factor): Factor?

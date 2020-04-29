@@ -8,6 +8,7 @@ import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.BasicAuthorization
+import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkException
@@ -30,6 +31,8 @@ internal const val CREATE_FACTOR_URL =
 internal const val VERIFY_FACTOR_URL =
   "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
 internal const val UPDATE_FACTOR_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
+internal const val DELETE_FACTOR_URL =
   "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
 
 internal const val FRIENDLY_NAME_KEY = "FriendlyName"
@@ -113,6 +116,26 @@ internal class FactorAPIClient(
     }
   }
 
+  fun delete(
+    factor: Factor,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    try {
+      val requestHelper = RequestHelper(context, authorization)
+      val request = Request.Builder(requestHelper, deleteFactorURL(factor))
+          .httpMethod(Delete)
+          .build()
+      networkProvider.execute(request, {
+        success()
+      }, { exception ->
+        error(TwilioVerifyException(exception, NetworkError))
+      })
+    } catch (e: Exception) {
+      error(TwilioVerifyException(NetworkException(e), NetworkError))
+    }
+  }
+
   private fun createFactorURL(createFactorPayload: CreateFactorPayload): String =
     "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, createFactorPayload.serviceSid, true)
         .replace(
@@ -121,6 +144,12 @@ internal class FactorAPIClient(
 
   private fun verifyFactorURL(factor: Factor): String =
     "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+        .replace(
+            ENTITY_PATH, factor.entityIdentity, true
+        ).replace(FACTOR_SID_PATH, factor.sid)
+
+  private fun deleteFactorURL(factor: Factor): String =
+    "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
         .replace(
             ENTITY_PATH, factor.entityIdentity, true
         ).replace(FACTOR_SID_PATH, factor.sid)
