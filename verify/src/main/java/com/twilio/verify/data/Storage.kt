@@ -19,4 +19,10 @@ internal class Storage(private val sharedPreferences: SharedPreferences) : Stora
 
   override fun getAll(): Collection<String> =
     sharedPreferences.all.values.filterIsInstance<String>()
+
+  override fun remove(key: String) {
+    sharedPreferences.edit()
+        .remove(key)
+        .apply()
+  }
 }

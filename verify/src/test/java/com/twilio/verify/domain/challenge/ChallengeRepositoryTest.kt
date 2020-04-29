@@ -4,6 +4,7 @@
 package com.twilio.verify.domain.challenge
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -13,6 +14,7 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeStatus.Expired
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
@@ -31,7 +33,9 @@ class ChallengeRepositoryTest {
 
   private val apiClient: ChallengeAPIClient = mock()
   private val challengeMapper: ChallengeMapper = mock()
-  private val challengeRepository = ChallengeRepository(apiClient, challengeMapper)
+  private val challengeListMapper: ChallengeListMapper = mock()
+  private val challengeRepository =
+    ChallengeRepository(apiClient, challengeMapper, challengeListMapper)
 
   @Test
   fun `Get challenge with valid response should return a challenge`() {
@@ -215,5 +219,49 @@ class ChallengeRepositoryTest {
     challengeRepository.update(
         challenge, payload, { fail() },
         { exception -> assertTrue(exception.cause is IllegalArgumentException) })
+  }
+
+  @Test
+  fun `Get challenges with valid response should return challenge list`() {
+    val factor: Factor = mock()
+    val status = Pending
+    val pageSize = 10
+    val response = JSONObject()
+    val challengeList: ChallengeList = mock()
+    argumentCaptor<(JSONObject) -> Unit>().apply {
+      whenever(
+          apiClient.getAll(
+              eq(factor), eq(status.value), eq(pageSize), anyOrNull(), capture(), any()
+          )
+      ).then {
+        firstValue.invoke(response)
+      }
+    }
+    whenever(challengeListMapper.fromApi(response)).thenReturn(challengeList)
+    challengeRepository.getAll(factor, status, pageSize, null, {
+      assertEquals(challengeList, it)
+    }, { fail() })
+  }
+
+  @Test
+  fun `Get challenges with error from mapper should call error`() {
+    val factor: Factor = mock()
+    val status = Pending
+    val pageSize = 10
+    val response = JSONObject()
+    val expectedException: TwilioVerifyException = mock()
+    argumentCaptor<(JSONObject) -> Unit>().apply {
+      whenever(
+          apiClient.getAll(
+              eq(factor), eq(status.value), eq(pageSize), anyOrNull(), capture(), any()
+          )
+      ).then {
+        firstValue.invoke(response)
+      }
+    }
+    whenever(challengeListMapper.fromApi(response)).thenThrow(expectedException)
+    challengeRepository.getAll(factor, status, pageSize, null, {
+      fail()
+    }, { assertEquals(expectedException, it) })
   }
 }
