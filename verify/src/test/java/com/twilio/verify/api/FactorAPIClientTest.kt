@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -21,11 +22,13 @@ import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.FactorStatus.Unverified
+import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod
+import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkException
@@ -335,5 +338,60 @@ class FactorAPIClientTest {
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
     }
+  }
+
+  @Test
+  fun `Delete a factor with a success response should call success`() {
+    val response = "{\"key\":\"value\"}"
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedURL =
+      "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+          .replace(
+              ENTITY_PATH, factor.entityIdentity, true
+          )
+          .replace(FACTOR_SID_PATH, factor.sid)
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    factorAPIClient.delete(
+        factor, {
+      verify(networkProvider).execute(
+          check {
+            assertEquals(URL(expectedURL), it.url)
+            assertEquals(Delete, it.httpMethod)
+          }, any(), any()
+      )
+    }, { fail() })
+  }
+
+  @Test
+  fun `Delete a factor with an error response should not call success`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedException = NetworkException(500, null)
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    factorAPIClient.delete(
+        factor, { fail() }, { exception -> assertEquals(expectedException, exception.cause) })
+  }
+
+  @Test
+  fun `Delete a factor with an exception should not call success`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedException = RuntimeException()
+    whenever(networkProvider.execute(any(), any(), any())).thenThrow(expectedException)
+    factorAPIClient.delete(
+        factor, { fail() },
+        { exception ->
+          assertEquals(expectedException, exception.cause?.cause)
+          assertTrue(exception.cause is NetworkException)
+        })
   }
 }

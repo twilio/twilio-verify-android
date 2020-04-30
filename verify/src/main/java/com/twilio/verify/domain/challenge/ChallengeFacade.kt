@@ -13,7 +13,7 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeStatus
+import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.networking.Authorization
@@ -51,16 +51,15 @@ internal class ChallengeFacade(
   }
 
   fun getAllChallenges(
-    factorSid: String,
-    status: ChallengeStatus?,
-    pageSize: Int,
-    pageToken: String?,
+    challengeListInput: ChallengeListInput,
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(factorSid, { factor ->
+    factorFacade.getFactor(challengeListInput.factorSid, { factor ->
       execute(success, error) { onSuccess, onError ->
-        repository.getAll(factor, status, pageSize, pageToken, { list ->
+        repository.getAll(
+            factor, challengeListInput.status, challengeListInput.pageSize,
+            challengeListInput.pageToken, { list ->
           onSuccess(list)
         }, { exception ->
           onError(exception)

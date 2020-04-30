@@ -392,4 +392,37 @@ class FactorRepositoryTest {
       fail()
     }, { exception -> assertEquals(expectedException, exception) })
   }
+
+  @Test
+  fun `Delete a factor should remove factor from storage`() {
+    val sid = "sid123"
+    val factor = mock<Factor> {
+      on(it.sid).thenReturn(sid)
+    }
+    argumentCaptor<() -> Unit>().apply {
+      whenever(apiClient.delete(eq(factor), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    factorRepository.delete(factor, {
+      verify(storage).remove(sid)
+    }, { fail() })
+  }
+
+  @Test
+  fun `Error deleting a factor with an API error should call error`() {
+    val sid = "sid123"
+    val factor = mock<Factor> {
+      on(it.sid).thenReturn(sid)
+    }
+    val expectedException: TwilioVerifyException = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(apiClient.delete(eq(factor), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    factorRepository.delete(factor, {
+      fail()
+    }, { assertEquals(expectedException, it) })
+  }
 }

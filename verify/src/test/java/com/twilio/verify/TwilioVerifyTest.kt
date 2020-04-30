@@ -11,6 +11,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.SignerTemplate
+import com.twilio.verify.domain.challenge.challengesKey
 import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.dateKey
 import com.twilio.verify.domain.challenge.detailsKey
@@ -19,8 +20,13 @@ import com.twilio.verify.domain.challenge.expirationDateKey
 import com.twilio.verify.domain.challenge.factorSidKey
 import com.twilio.verify.domain.challenge.fieldsKey
 import com.twilio.verify.domain.challenge.hiddenDetailsKey
+import com.twilio.verify.domain.challenge.key
 import com.twilio.verify.domain.challenge.labelKey
 import com.twilio.verify.domain.challenge.messageKey
+import com.twilio.verify.domain.challenge.metaKey
+import com.twilio.verify.domain.challenge.nextPageKey
+import com.twilio.verify.domain.challenge.pageKey
+import com.twilio.verify.domain.challenge.pageSizeKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.challenge.valueKey
 import com.twilio.verify.domain.factor.accountSidKey
@@ -29,24 +35,17 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
-import com.twilio.verify.models.ChallengeStatus
+import com.twilio.verify.models.*
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Pending
-import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
-import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.UpdatePushChallengeInput
-import com.twilio.verify.models.UpdatePushFactorInput
-import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.NetworkProvider
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,14 +55,9 @@ import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 import java.io.InputStream
 import java.io.OutputStream
-import java.security.Key
-import java.security.KeyStore
-import java.security.KeyStoreSpi
-import java.security.Provider
-import java.security.Security
+import java.security.*
 import java.security.cert.Certificate
-import java.util.Date
-import java.util.Enumeration
+import java.util.*
 
 @RunWith(RobolectricTestRunner::class)
 @Config(shadows = [TestKeystore::class])
@@ -117,14 +111,15 @@ class TwilioVerifyTest {
         lastValue.invoke(jsonObject.toString())
       }
     }
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-        "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
+    val jwt =
+      "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+          "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
+          "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
+          "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
+          "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
+          "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
+          "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
+          "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput = PushFactorInput("friendly name", "pushToken", jwt)
     idlingResource.startOperation()
     twilioVerify.createFactor(factorInput, { factor ->
@@ -308,6 +303,48 @@ class TwilioVerifyTest {
     idlingResource.waitForIdle()
   }
 
+  @Test
+  fun `Get all challenges should call success`() {
+    val factorSid = "factorSid123"
+    createFactor(factorSid, Verified)
+    val challengeListInput = ChallengeListInput(factorSid, null, 1, null)
+    val expectedChallenges = JSONArray(
+        listOf(
+            challengeJSONObject("sid123", factorSid),
+            challengeJSONObject("sid456", factorSid)
+        )
+    )
+    val expectedMetadata = metaJSONObject()
+    val jsonObject = JSONObject().apply {
+      put(challengesKey, expectedChallenges)
+      put(metaKey, expectedMetadata)
+    }
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        lastValue.invoke(jsonObject.toString())
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerify.getAllChallenges(challengeListInput, { list ->
+      val firstChallenge = list.challenges.first()
+      val secondChallenge = list.challenges.last()
+
+      assertEquals(expectedChallenges.length(), list.challenges.size)
+      assertEquals(factorSid, firstChallenge.factorSid)
+      assertEquals(expectedChallenges.getJSONObject(0).getString(sidKey), firstChallenge.sid)
+      assertEquals(factorSid, secondChallenge.factorSid)
+      assertEquals(expectedChallenges.getJSONObject(1).getString(sidKey), secondChallenge.sid)
+
+      assertEquals(expectedMetadata.getString(key), list.metadata.key)
+      assertEquals(expectedMetadata.getString(nextPageKey), list.metadata.nextPageURL)
+      idlingResource.operationFinished()
+    }, { exception ->
+      fail(exception.message)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
   private fun createFactor(
     factorSid: String,
     status: FactorStatus
@@ -322,14 +359,15 @@ class TwilioVerifyTest {
         lastValue.invoke(jsonObject.toString())
       }
     }
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-        "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
+    val jwt =
+      "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+          "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
+          "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
+          "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
+          "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
+          "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
+          "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
+          "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput = PushFactorInput("friendly name", "pushToken", jwt)
     idlingResource.startOperation()
     twilioVerify.createFactor(factorInput, { factor ->
@@ -345,6 +383,43 @@ class TwilioVerifyTest {
 }
 
 private val keys = mutableMapOf<String, String>()
+
+private fun challengeJSONObject(
+  sid: String,
+  factorSid: String
+): JSONObject {
+  return JSONObject().apply {
+    put(sidKey, sid)
+    put(factorSidKey, factorSid)
+    put(createdDateKey, "2020-02-19T16:39:57-08:00")
+    put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+    put(com.twilio.verify.domain.challenge.statusKey, ChallengeStatus.Pending.value)
+    put(entitySidKey, "entitySid")
+    put(detailsKey, JSONObject().apply {
+      put(messageKey, "message123")
+      put(fieldsKey, JSONArray().apply {
+        put(0, JSONObject().apply {
+          put(labelKey, "label123")
+          put(valueKey, "value123")
+        })
+      })
+      put(dateKey, "2020-02-19T16:39:57-08:00")
+    }.toString())
+    put(hiddenDetailsKey, JSONObject().apply {
+      put("key1", "value1")
+    }.toString())
+    put(expirationDateKey, "2020-02-27T08:50:57-08:00")
+  }
+}
+
+private fun metaJSONObject(): JSONObject {
+  return JSONObject().apply {
+    put(pageKey, 1)
+    put(pageSizeKey, 10)
+    put(nextPageKey, "next_page")
+    put(key, "key")
+  }
+}
 
 @Implements(com.twilio.security.crypto.AndroidKeyManager::class)
 class TestKeystore {
