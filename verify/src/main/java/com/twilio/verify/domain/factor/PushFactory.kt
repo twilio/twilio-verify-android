@@ -138,6 +138,29 @@ internal class PushFactory(
     }
   }
 
+  fun delete(
+    sid: String,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    execute(success, error) { onSuccess, onError ->
+      fun deleteFactor(pushFactor: PushFactor) {
+        factorProvider.delete(pushFactor, {
+          pushFactor.keyPairAlias?.let { keyStorage.delete(it) }
+          onSuccess()
+        }, onError)
+      }
+      try {
+        val factor = factorProvider.get(sid) as? PushFactor
+        factor?.let(::deleteFactor) ?: run {
+          throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
+        }
+      } catch (e: TwilioVerifyException) {
+        onError(e)
+      }
+    }
+  }
+
   private fun generateKeyPairAlias(): String {
     val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     return (1..15)
