@@ -72,6 +72,12 @@ interface TwilioVerify {
     error: (TwilioVerifyException) -> Unit
   )
 
+  fun deleteFactor(
+    factorSid: String,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
   class Builder(
     private var context: Context,
     private var authorization: Authorization

@@ -367,4 +367,41 @@ class TwilioVerifyManagerTest {
     idlingResource.waitForIdle()
   }
 
+  @Test
+  fun `Delete factor should call success`() {
+    val factorSid = "factorSid"
+    argumentCaptor<() -> Unit>().apply {
+      whenever(factorFacade.deleteFactor(eq(factorSid), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.deleteFactor(factorSid, {
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error deleting factor should call error`() {
+    val factorSid = "factorSid"
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorFacade.deleteFactor(eq(factorSid), any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.deleteFactor(factorSid, {
+      fail()
+      idlingResource.operationFinished()
+    }, {
+      assertEquals(expectedException, it.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
 }
