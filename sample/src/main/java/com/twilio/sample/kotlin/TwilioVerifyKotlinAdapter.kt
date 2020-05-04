@@ -10,14 +10,14 @@ import com.twilio.sample.networking.OkHttpProvider
 import com.twilio.sample.networking.SampleBackendAPIClient
 import com.twilio.sample.networking.okHttpClient
 import com.twilio.sample.push.NewChallenge
-import com.twilio.sample.push.VerifiedFactor
 import com.twilio.sample.push.VerifyEventBus
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
+import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.VerifyFactorInput
+import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.sample.BuildConfig
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,7 +38,8 @@ class TwilioVerifyKotlinAdapter(
   ).networkProvider(OkHttpProvider(okHttpClient)).build(),
   private val sampleBackendAPIClient: SampleBackendAPIClient = SampleBackendAPIClient(okHttpClient),
   private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
-  private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+  private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+  private val verifyEventBus: VerifyEventBus = VerifyEventBus
 ) : TwilioVerify by twilioVerify, TwilioVerifyAdapter {
 
   override fun createFactor(
@@ -52,7 +53,7 @@ class TwilioVerifyKotlinAdapter(
         val factor = createFactor(
             PushFactorInput(createFactorData.factorName, createFactorData.pushToken, jwt)
         )
-        onFactorCreated(factor, onSuccess)
+        onFactorCreated(factor, onSuccess, onError)
       } catch (e: TwilioVerifyException) {
         onError(e)
       } catch (e: Exception) {
@@ -61,20 +62,12 @@ class TwilioVerifyKotlinAdapter(
     }
   }
 
-  override fun verifyFactor(verifyFactorInput: VerifyFactorInput) {
-    twilioVerify.verifyFactor(verifyFactorInput, { factor ->
-      VerifyEventBus.send(
-          VerifiedFactor(factor)
-      )
-    }, ::handleError)
-  }
-
   override fun getChallenge(
     challengeSid: String,
     factorSid: String
   ) {
     twilioVerify.getChallenge(challengeSid, factorSid, { challenge ->
-      VerifyEventBus.send(
+      verifyEventBus.send(
           NewChallenge(challenge)
       )
     }, ::handleError)
@@ -82,20 +75,12 @@ class TwilioVerifyKotlinAdapter(
 
   private fun onFactorCreated(
     factor: Factor,
-    success: (Factor) -> Unit
+    onSuccess: (Factor) -> Unit,
+    onError: (Exception) -> Unit
   ) {
-    success(factor)
-    waitForFactorVerified(factor, success)
-  }
-
-  private fun waitForFactorVerified(
-    factor: Factor,
-    onFactorVerified: (Factor) -> Unit
-  ) {
-    VerifyEventBus.consumeEvent<VerifiedFactor> { event ->
-      if (event.factor.sid == factor.sid) {
-        onFactorVerified(event.factor)
-      }
+    when (factor.type) {
+      PUSH -> twilioVerify.verifyFactor(VerifyPushFactorInput(factor.sid), onSuccess, onError)
+      else -> onSuccess(factor)
     }
   }
 

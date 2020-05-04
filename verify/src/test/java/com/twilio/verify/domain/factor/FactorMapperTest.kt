@@ -10,7 +10,7 @@ import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorType.PUSH
 import org.hamcrest.Matchers.instanceOf
 import org.json.JSONException
 import org.json.JSONObject
@@ -35,7 +35,7 @@ class FactorMapperTest {
   fun `Map a valid response from API with factorPayload should return a factor`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", Push, "serviceSid123", "entityId123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entityId123", emptyMap(), emptyMap(), "jwt"
       )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
@@ -56,7 +56,7 @@ class FactorMapperTest {
   fun `Map an incomplete response from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
       )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
@@ -79,7 +79,7 @@ class FactorMapperTest {
   @Test
   fun `Map a response with invalid serviceSid in payload from API should throw an exception`() {
     val factorPayload =
-      CreateFactorPayload("factor name", Push, "", "entitySid123", emptyMap(), emptyMap(), "jwt")
+      CreateFactorPayload("factor name", PUSH, "", "entitySid123", emptyMap(), emptyMap(), "jwt")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -94,7 +94,7 @@ class FactorMapperTest {
   fun `Map a response without factor sid from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
       )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
@@ -109,7 +109,7 @@ class FactorMapperTest {
   fun `Map a response without entity sid from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
       )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
@@ -130,11 +130,11 @@ class FactorMapperTest {
         .put(accountSidKey, "accountSid123")
         .put(serviceSidKey, "serviceSid123")
         .put(entityIdentityKey, "entityId123")
-        .put(typeKey, Push.factorTypeName)
+        .put(typeKey, PUSH.factorTypeName)
         .put(keyPairAliasKey, "keyPairAlias123")
         .put(statusKey, Unverified.value)
     val factor = factorMapper.fromStorage(jsonObject.toString()) as PushFactor
-    assertEquals(Push, factor.type)
+    assertEquals(PUSH, factor.type)
     assertEquals(jsonObject.getString(serviceSidKey), factor.serviceSid)
     assertEquals(jsonObject.getString(sidKey), factor.sid)
     assertEquals(jsonObject.getString(friendlyNameKey), factor.friendlyName)
@@ -149,7 +149,7 @@ class FactorMapperTest {
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
-        .put(typeKey, Push.factorTypeName)
+        .put(typeKey, PUSH.factorTypeName)
         .put(keyPairAliasKey, "keyPairAlias123")
         .put(entityIdentityKey, "entityId123")
     exceptionRule.expect(TwilioVerifyException::class.java)
@@ -191,7 +191,7 @@ class FactorMapperTest {
     ).apply { keyPairAlias = "keyPairAlias123" }
     val json = factorMapper.toJSON(factor)
     val jsonObject = JSONObject(json)
-    assertEquals(Push.factorTypeName, jsonObject.getString(typeKey))
+    assertEquals(PUSH.factorTypeName, jsonObject.getString(typeKey))
     assertEquals(factor.serviceSid, jsonObject.getString(serviceSidKey))
     assertEquals(factor.sid, jsonObject.getString(sidKey))
     assertEquals(factor.friendlyName, jsonObject.getString(friendlyNameKey))

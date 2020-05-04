@@ -24,7 +24,7 @@ import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorType.PUSH
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -383,7 +383,6 @@ class PushFactoryTest {
   @Test
   fun `Verify factor with stored factor should call success`() {
     val sid = "sid"
-    val verificationCode = "verificationCode"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entityId = "entityId"
     val friendlyName = "factor name"
@@ -394,22 +393,22 @@ class PushFactoryTest {
     val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    whenever(keyStorage.sign(eq(keyPairAlias), eq(verificationCode))).thenReturn(payload)
+    whenever(keyStorage.sign(eq(keyPairAlias), eq(sid))).thenReturn(payload)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.verify(eq(factor), eq(payload), capture(), any())).then {
         firstValue.invoke(factor)
       }
     }
     idlingResource.startOperation()
-    pushFactory.verify(sid, verificationCode, {
+    pushFactory.verify(sid, {
       assertEquals(serviceSid, it.serviceSid)
       assertEquals(friendlyName, it.friendlyName)
-      assertEquals(Push, it.type)
+      assertEquals(PUSH, it.type)
       assertEquals(status, it.status)
       assertEquals(accountSid, it.accountSid)
       assertEquals(entityId, it.entityIdentity)
       assertEquals(sid, it.sid)
-      verify(keyStorage).sign(keyPairAlias, verificationCode)
+      verify(keyStorage).sign(keyPairAlias, it.sid)
       idlingResource.operationFinished()
     }, {
       fail()
@@ -423,7 +422,7 @@ class PushFactoryTest {
     val sid = "sid"
     whenever(factorProvider.get(sid)).thenReturn(null)
     idlingResource.startOperation()
-    pushFactory.verify(sid, "verificationCode", {
+    pushFactory.verify(sid, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -436,7 +435,6 @@ class PushFactoryTest {
   @Test
   fun `Verify factor with API error should call error`() {
     val sid = "sid"
-    val verificationCode = "verificationCode"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entityId = "entityId"
     val friendlyName = "factor name"
@@ -447,7 +445,7 @@ class PushFactoryTest {
     val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    whenever(keyStorage.sign(eq(keyPairAlias), eq(verificationCode))).thenReturn(payload)
+    whenever(keyStorage.sign(eq(keyPairAlias), eq(sid))).thenReturn(payload)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorProvider.verify(eq(factor), eq(payload), any(), capture())).then {
@@ -455,7 +453,7 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.verify(sid, verificationCode, {
+    pushFactory.verify(sid, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -468,7 +466,6 @@ class PushFactoryTest {
   @Test
   fun `Verify factor with null alias should call error`() {
     val sid = "sid"
-    val verificationCode = "verificationCode"
     val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
     val entityId = "entityId"
     val friendlyName = "factor name"
@@ -479,7 +476,7 @@ class PushFactoryTest {
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
     idlingResource.startOperation()
-    pushFactory.verify(sid, verificationCode, {
+    pushFactory.verify(sid, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -512,12 +509,12 @@ class PushFactoryTest {
         assertEquals(serviceSid, updateFactorPayload.serviceSid)
         assertEquals(friendlyName, updateFactorPayload.friendlyName)
         assertEquals(entityId, updateFactorPayload.entity)
-        assertEquals(Push, updateFactorPayload.type)
+        assertEquals(PUSH, updateFactorPayload.type)
         assertEquals(pushToken, updateFactorPayload.config[NOTIFICATION_TOKEN_KEY])
       }, any(), any())
       assertEquals(serviceSid, it.serviceSid)
       assertEquals(friendlyName, it.friendlyName)
-      assertEquals(Push, it.type)
+      assertEquals(PUSH, it.type)
       assertEquals(status, it.status)
       assertEquals(accountSid, it.accountSid)
       assertEquals(entityId, it.entityIdentity)
@@ -564,6 +561,85 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.update(sid, "pushToken", {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete factor with stored factor should call success and delete factor alias from key storage`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entityId = "entityId"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val alias = "keyPairAlias"
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status).apply {
+      keyPairAlias = alias
+    }
+    whenever(factorProvider.get(sid)).thenReturn(factor)
+    argumentCaptor<() -> Unit>().apply {
+      whenever(factorProvider.delete(eq(factor), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    idlingResource.startOperation()
+    pushFactory.delete(sid, {
+      verify(keyStorage).delete(alias)
+      verify(factorProvider).delete(check { factor ->
+        assertEquals(sid, factor.sid)
+        assertEquals(serviceSid, factor.serviceSid)
+        assertEquals(friendlyName, factor.friendlyName)
+        assertEquals(entityId, factor.entityIdentity)
+        assertEquals(PUSH, factor.type)
+      }, any(), any())
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete factor without stored factor should call error`() {
+    val sid = "sid"
+    whenever(factorProvider.get(sid)).thenReturn(null)
+    idlingResource.startOperation()
+    pushFactory.delete(sid, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      verify(factorProvider, never()).update(any(), any(), any())
+      assertTrue(exception.cause is StorageException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete factor with API error should call error`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entityId = "entityId"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
+    whenever(factorProvider.get(sid)).thenReturn(factor)
+    val expectedException: TwilioVerifyException = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorProvider.delete(eq(factor), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    idlingResource.startOperation()
+    pushFactory.delete(sid, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

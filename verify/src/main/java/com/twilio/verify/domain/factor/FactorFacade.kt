@@ -46,7 +46,7 @@ internal class FactorFacade(
     when (verifyFactorInput) {
       is VerifyPushFactorInput -> {
         pushFactory.verify(
-            verifyFactorInput.sid, verifyFactorInput.verificationCode, success, error
+            verifyFactorInput.sid, success, error
         )
       }
     }
@@ -85,6 +85,18 @@ internal class FactorFacade(
   ) {
     try {
       success(factorProvider.getAll())
+    } catch (e: TwilioVerifyException) {
+      error(e)
+    }
+  }
+
+  fun deleteFactor(
+    factorSid: String,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    try {
+      pushFactory.delete(factorSid, success, error)
     } catch (e: TwilioVerifyException) {
       error(e)
     }

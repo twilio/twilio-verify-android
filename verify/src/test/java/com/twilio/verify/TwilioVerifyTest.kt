@@ -162,8 +162,7 @@ class TwilioVerifyTest {
   @Test
   fun `Verify a factor should call success`() {
     val sid = "sid"
-    val verificationCode = "verificationCode"
-    val verifyFactorInput = VerifyPushFactorInput(sid, verificationCode)
+    val verifyFactorInput = VerifyPushFactorInput(sid)
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
         .put(sidKey, sid)

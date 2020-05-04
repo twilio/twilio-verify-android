@@ -4,8 +4,6 @@ import com.twilio.sample.TwilioVerifyAdapter;
 import com.twilio.sample.model.CreateFactorData;
 import com.twilio.sample.networking.SampleBackendAPIClient;
 import com.twilio.sample.push.NewChallenge;
-import com.twilio.sample.push.VerifiedFactor;
-import com.twilio.sample.push.VerifyEvent;
 import com.twilio.sample.push.VerifyEventBus;
 import com.twilio.verify.TwilioVerify;
 import com.twilio.verify.TwilioVerifyException;
@@ -14,6 +12,7 @@ import com.twilio.verify.models.Factor;
 import com.twilio.verify.models.PushFactorInput;
 import com.twilio.verify.models.UpdateChallengeInput;
 import com.twilio.verify.models.VerifyFactorInput;
+import com.twilio.verify.models.VerifyPushFactorInput;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
@@ -28,7 +27,7 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
   private final SampleBackendAPIClient sampleBackendAPIClient;
 
   public TwilioVerifyJavaAdapter(TwilioVerify twilioVerify,
-                                 SampleBackendAPIClient sampleBackendAPIClient) {
+      SampleBackendAPIClient sampleBackendAPIClient) {
     this.twilioVerify = twilioVerify;
     this.sampleBackendAPIClient = sampleBackendAPIClient;
   }
@@ -45,13 +44,10 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
         }, onError);
   }
 
-  @Override public void verifyFactor(@NotNull VerifyFactorInput verifyFactorInput) {
-    twilioVerify.verifyFactor(verifyFactorInput, new Function1<Factor, Unit>() {
-      @Override public Unit invoke(Factor factor) {
-        VerifyEventBus.INSTANCE.send(new VerifiedFactor(factor));
-        return Unit.INSTANCE;
-      }
-    }, handleError);
+  @Override public void verifyFactor(@NotNull VerifyFactorInput verifyFactorInput,
+      @NotNull Function1<? super Factor, Unit> onSuccess,
+      @NotNull Function1<? super TwilioVerifyException, Unit> onError) {
+    twilioVerify.verifyFactor(verifyFactorInput, onSuccess, onError);
   }
 
   @Override public void updateChallenge(@NotNull UpdateChallengeInput updateChallengeInput,
@@ -91,25 +87,22 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
             createFactorData.getPushToken(), jwt),
         new Function1<Factor, Unit>() {
           @Override public Unit invoke(Factor factor) {
-            onSuccess.invoke(factor);
-            waitForFactorVerified(factor, onSuccess);
+            onFactorCreated(factor, onSuccess, onError);
             return Unit.INSTANCE;
           }
         }, onError);
   }
 
-  private void waitForFactorVerified(final Factor factor,
-      final Function1<? super Factor, Unit> onFactorVerified) {
-    VerifyEventBus.INSTANCE.consumeEvent(new Function1<VerifyEvent, Unit>() {
-      @Override public Unit invoke(VerifyEvent verifyEvent) {
-        if (verifyEvent instanceof VerifiedFactor) {
-          Factor updatedFactor = ((VerifiedFactor) verifyEvent).getFactor();
-          if (updatedFactor.getSid().equals(factor.getSid())) {
-            onFactorVerified.invoke(updatedFactor);
-          }
-        }
-        return Unit.INSTANCE;
-      }
-    });
+  private void onFactorCreated(Factor factor,
+      final Function1<? super Factor, Unit> onSuccess,
+      final Function1<? super Exception, Unit> onError) {
+    switch (factor.getType()) {
+      case PUSH:
+        twilioVerify.verifyFactor(new VerifyPushFactorInput(factor.getSid()), onSuccess, onError);
+        break;
+      default:
+        onSuccess.invoke(factor);
+        break;
+    }
   }
 }

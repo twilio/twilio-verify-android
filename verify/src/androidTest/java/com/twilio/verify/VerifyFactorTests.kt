@@ -17,8 +17,7 @@ class VerifyFactorTests : BaseFactorTest() {
 
   @Test
   fun testVerifyFactorWithValidAPIResponseShouldReturnFactor() {
-    val verificationCode = "verificationCode"
-    val verifyInput = VerifyPushFactorInput(factor!!.sid, verificationCode)
+    val verifyInput = VerifyPushFactorInput(factor!!.sid)
     enqueueMockResponse(200, APIResponses.verifyValidFactorResponse())
     idlingResource.increment()
     twilioVerify.verifyFactor(verifyInput, {
@@ -33,8 +32,7 @@ class VerifyFactorTests : BaseFactorTest() {
 
   @Test
   fun testVerifyFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
-    val verificationCode = "verificationCode"
-    val verifyInput = VerifyPushFactorInput(factor!!.sid, verificationCode)
+    val verifyInput = VerifyPushFactorInput(factor!!.sid)
     val expectedException = TwilioVerifyException(
         NetworkException(null, null),
         NetworkError
@@ -53,8 +51,7 @@ class VerifyFactorTests : BaseFactorTest() {
 
   @Test
   fun testVerifyFactorWithInvalidAPIResponseBodyShouldThrowMapperError() {
-    val verificationCode = "verificationCode"
-    val verifyInput = VerifyPushFactorInput(factor!!.sid, verificationCode)
+    val verifyInput = VerifyPushFactorInput(factor!!.sid)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(null, null),
         MapperError
@@ -73,10 +70,9 @@ class VerifyFactorTests : BaseFactorTest() {
 
   @Test
   fun testVerifyFactorWithCreatedFactorAndValidAPIResponseShouldReturnFactor() {
-    val verificationCode = "verificationCode"
     createFactor {
       factor = it as PushFactor
-      val verifyInput = VerifyPushFactorInput(factor!!.sid, verificationCode)
+      val verifyInput = VerifyPushFactorInput(factor!!.sid)
       enqueueMockResponse(200, APIResponses.verifyValidFactorResponse())
       idlingResource.increment()
       twilioVerify.verifyFactor(verifyInput, { verifiedFactor ->
