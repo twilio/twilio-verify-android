@@ -569,4 +569,83 @@ class PushFactoryTest {
     })
     idlingResource.waitForIdle()
   }
+
+  @Test
+  fun `Delete factor with stored factor should call success and delete factor alias from key storage`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entityId = "entityId"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val alias = "keyPairAlias"
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status).apply {
+      keyPairAlias = alias
+    }
+    whenever(factorProvider.get(sid)).thenReturn(factor)
+    argumentCaptor<() -> Unit>().apply {
+      whenever(factorProvider.delete(eq(factor), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    idlingResource.startOperation()
+    pushFactory.delete(sid, {
+      verify(keyStorage).delete(alias)
+      verify(factorProvider).delete(check { factor ->
+        assertEquals(sid, factor.sid)
+        assertEquals(serviceSid, factor.serviceSid)
+        assertEquals(friendlyName, factor.friendlyName)
+        assertEquals(entityId, factor.entityIdentity)
+        assertEquals(PUSH, factor.type)
+      }, any(), any())
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete factor without stored factor should call error`() {
+    val sid = "sid"
+    whenever(factorProvider.get(sid)).thenReturn(null)
+    idlingResource.startOperation()
+    pushFactory.delete(sid, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      verify(factorProvider, never()).update(any(), any(), any())
+      assertTrue(exception.cause is StorageException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete factor with API error should call error`() {
+    val sid = "sid"
+    val serviceSid = "ISbb7823aa5dcce90443f856406abd7000"
+    val entityId = "entityId"
+    val friendlyName = "factor name"
+    val accountSid = "accountSid"
+    val status = FactorStatus.Unverified
+    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
+    whenever(factorProvider.get(sid)).thenReturn(factor)
+    val expectedException: TwilioVerifyException = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorProvider.delete(eq(factor), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    idlingResource.startOperation()
+    pushFactory.delete(sid, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
 }

@@ -90,6 +90,18 @@ internal class FactorFacade(
     }
   }
 
+  fun deleteFactor(
+    factorSid: String,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    try {
+      pushFactory.delete(factorSid, success, error)
+    } catch (e: TwilioVerifyException) {
+      error(e)
+    }
+  }
+
   class Builder {
     private lateinit var appContext: Context
     private lateinit var auth: Authorization

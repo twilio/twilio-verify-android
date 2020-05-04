@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -18,23 +19,25 @@ import com.twilio.verify.sample.R
  * Copyright (c) 2020, Twilio Inc.
  */
 
-private const val typeKey = "type"
-private const val factorSidKey = "factor_sid"
-private const val challengeType = "verify_push_challenge"
-private const val challengeSidKey = "challenge_sid"
-private const val messageKey = "message"
-private const val channelId = "challenges"
+internal const val typeKey = "type"
+internal const val factorSidKey = "factor_sid"
+internal const val challengeType = "verify_push_challenge"
+internal const val challengeSidKey = "challenge_sid"
+internal const val messageKey = "message"
+internal const val channelId = "challenges"
 
-class FirebasePushService : FirebaseMessagingService() {
+class FirebasePushService() : FirebaseMessagingService() {
 
-  private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
+  @VisibleForTesting
+  lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
 
   override fun onNewToken(token: String) {
     Log.d("newToken", token)
   }
 
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
-    twilioVerifyAdapter = TwilioVerifyProvider.instance(applicationContext)
+    if (!this::twilioVerifyAdapter.isInitialized) twilioVerifyAdapter =
+      TwilioVerifyProvider.instance(applicationContext)
     val bundle = getBundleFromMessage(remoteMessage)
     when (bundle.getString(typeKey)) {
       challengeType -> newChallenge(bundle)
@@ -49,7 +52,7 @@ class FirebasePushService : FirebaseMessagingService() {
       twilioVerifyAdapter.getChallenge(challengeSid, factorSid)
       message?.let {
         createNotificationChannel()
-        var builder = NotificationCompat.Builder(
+        val builder = NotificationCompat.Builder(
             this,
             channelId
         )
