@@ -86,4 +86,12 @@ internal class TwilioVerifyManager(
   ) {
     serviceFacade.getService(serviceSid, success, error)
   }
+
+  override fun deleteFactor(
+    factorSid: String,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    factorFacade.deleteFactor(factorSid, success, error)
+  }
 }

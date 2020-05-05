@@ -4,6 +4,7 @@
 package com.twilio.verify
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -35,17 +36,28 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
-import com.twilio.verify.models.*
+import com.twilio.verify.models.ChallengeListInput
+import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.models.Factor
+import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
+import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.UpdatePushChallengeInput
+import com.twilio.verify.models.UpdatePushFactorInput
+import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.NetworkProvider
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,14 +67,20 @@ import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 import java.io.InputStream
 import java.io.OutputStream
-import java.security.*
+import java.security.Key
+import java.security.KeyStore
+import java.security.KeyStoreSpi
+import java.security.Provider
+import java.security.Security
 import java.security.cert.Certificate
-import java.util.*
+import java.util.Date
+import java.util.Enumeration
 
 @RunWith(RobolectricTestRunner::class)
 @Config(shadows = [TestKeystore::class])
 class TwilioVerifyTest {
 
+  private lateinit var factor: Factor
   private val networkProvider: NetworkProvider = mock()
   private val authorization = BasicAuthorization("accountSid", "authToken")
   private lateinit var twilioVerify: TwilioVerify
@@ -70,6 +88,7 @@ class TwilioVerifyTest {
   private val providerName = "AndroidKeyStore"
   private val idlingResource = IdlingResource()
   private lateinit var context: Context
+  private lateinit var preferences: SharedPreferences
 
   @Before
   fun setup() {
@@ -85,6 +104,7 @@ class TwilioVerifyTest {
       }
     }
     Security.insertProviderAt(provider, 0)
+    preferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
     twilioVerify =
       TwilioVerify.Builder(context, authorization)
           .networkProvider(networkProvider)
@@ -93,8 +113,7 @@ class TwilioVerifyTest {
 
   @After
   fun tearDown() {
-    context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-        .edit()
+    preferences.edit()
         .clear()
         .apply()
   }
@@ -278,6 +297,27 @@ class TwilioVerifyTest {
   }
 
   @Test
+  fun `Get all factors should call success`() {
+    val factors = mutableListOf<Factor>()
+    repeat(3) {
+      createFactor("factor$it", Verified)
+      factors.add(factor)
+    }
+    idlingResource.startOperation()
+    twilioVerify.getAllFactors({
+      assertEquals(factors.size, it.size)
+      for (factor in factors) {
+        assertNotNull(it.firstOrNull { it.sid == factor.sid })
+      }
+      idlingResource.operationFinished()
+    }, { exception ->
+      fail(exception.message)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
   fun `Get service should call success`() {
     val serviceSid = "serviceSid"
     val jsonObject = JSONObject().apply {
@@ -345,6 +385,24 @@ class TwilioVerifyTest {
     idlingResource.waitForIdle()
   }
 
+  @Test
+  fun `Delete factor should call success`() {
+    val factorSid = "factorSid123"
+    createFactor(factorSid, Verified)
+    assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
+    assertTrue(preferences.contains(factorSid))
+    idlingResource.startOperation()
+    twilioVerify.deleteFactor(factorSid, {
+      assertFalse(preferences.contains(factorSid))
+      assertFalse(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
+      idlingResource.operationFinished()
+    }, { exception ->
+      fail(exception.message)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
   private fun createFactor(
     factorSid: String,
     status: FactorStatus
@@ -371,6 +429,7 @@ class TwilioVerifyTest {
     val factorInput = PushFactorInput("friendly name", "pushToken", jwt)
     idlingResource.startOperation()
     twilioVerify.createFactor(factorInput, { factor ->
+      this.factor = factor
       assertEquals(factorSid, factor.sid)
       assertEquals(status, factor.status)
       idlingResource.operationFinished()
@@ -381,8 +440,6 @@ class TwilioVerifyTest {
     idlingResource.waitForIdle()
   }
 }
-
-private val keys = mutableMapOf<String, String>()
 
 private fun challengeJSONObject(
   sid: String,
@@ -420,6 +477,8 @@ private fun metaJSONObject(): JSONObject {
     put(key, "key")
   }
 }
+
+private val keys = mutableMapOf<String, String>()
 
 @Implements(com.twilio.security.crypto.AndroidKeyManager::class)
 class TestKeystore {
