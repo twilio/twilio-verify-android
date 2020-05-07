@@ -14,6 +14,8 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.UpdateChallengeInput
@@ -32,7 +34,8 @@ class ChallengeFacadeTest {
 
   private val pushChallengeProcessor: PushChallengeProcessor = mock()
   private val factorFacade: FactorFacade = mock()
-  private val challengeFacade = ChallengeFacade(pushChallengeProcessor, factorFacade)
+  private val repository: ChallengeRepository = mock()
+  private val challengeFacade = ChallengeFacade(pushChallengeProcessor, factorFacade, repository)
   private val idlingResource = IdlingResource()
 
   @Test
@@ -214,6 +217,88 @@ class ChallengeFacadeTest {
       idlingResource.operationFinished()
     }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get all challenges with valid data should call success`() {
+    val factorSid = "factorSid"
+    val pageSize = 1
+    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
+    val expectedFactor: PushFactor = mock()
+    val expectedChallengeList: ChallengeList = mock()
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+    argumentCaptor<(ChallengeList) -> Unit>().apply {
+      whenever(
+          repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), capture(), any())
+      ).then {
+        firstValue.invoke(expectedChallengeList)
+      }
+    }
+    idlingResource.startOperation()
+    challengeFacade.getAllChallenges(challengeListInput, { list ->
+      assertEquals(expectedChallengeList, list)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error getting all challenges should call error`() {
+    val factorSid = "factorSid"
+    val pageSize = 1
+    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
+    val expectedFactor: PushFactor = mock()
+    val expectedException: Exception = mock()
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(
+          repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), any(), capture())
+      ).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    challengeFacade.getAllChallenges(challengeListInput, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error getting the factor when getting all challenges should call error`() {
+    val factorSid = "factorSid"
+    val pageSize = 1
+    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    challengeFacade.getAllChallenges(challengeListInput, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
       idlingResource.operationFinished()
     })
     idlingResource.waitForIdle()

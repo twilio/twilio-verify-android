@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -21,11 +22,13 @@ import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.FactorStatus.Unverified
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorStatus.Verified
+import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod
+import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkException
@@ -74,7 +77,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -93,7 +96,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
         ), {
       fail()
     }, { exception ->
@@ -105,7 +108,7 @@ class FactorAPIClientTest {
   fun `Error creating a factor should call error`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", Push, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwt"
       )
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
@@ -126,7 +129,7 @@ class FactorAPIClientTest {
             ENTITY_PATH, entity, true
         )
     val friendlyNameMock = "Test"
-    val factorTypeMock = Push
+    val factorTypeMock = PUSH
     val pushToken = "ABCD"
     val publicKey = "12345"
     val binding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
@@ -263,7 +266,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.update(
         UpdateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123", emptyMap(), "factorSid"
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), "factorSid"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -282,7 +285,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.update(
         UpdateFactorPayload(
-            "factor name", Push, "serviceSid123", "entitySid123",
+            "factor name", PUSH, "serviceSid123", "entitySid123",
             emptyMap(), "factorSid"
         ), {
       fail()
@@ -298,7 +301,7 @@ class FactorAPIClientTest {
     val friendlyNameMock = "Test"
     val entityIdentityMock = "entityIdentity"
     val pushToken = "ABCD"
-    val factorTypeMock = Push
+    val factorTypeMock = PUSH
     val expectedURL = "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
         .replace(
             ENTITY_PATH, entityIdentityMock, true
@@ -335,5 +338,60 @@ class FactorAPIClientTest {
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
     }
+  }
+
+  @Test
+  fun `Delete a factor with a success response should call success`() {
+    val response = "{\"key\":\"value\"}"
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedURL =
+      "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+          .replace(
+              ENTITY_PATH, factor.entityIdentity, true
+          )
+          .replace(FACTOR_SID_PATH, factor.sid)
+    argumentCaptor<(String) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        firstValue.invoke(response)
+      }
+    }
+    factorAPIClient.delete(
+        factor, {
+      verify(networkProvider).execute(
+          check {
+            assertEquals(URL(expectedURL), it.url)
+            assertEquals(Delete, it.httpMethod)
+          }, any(), any()
+      )
+    }, { fail() })
+  }
+
+  @Test
+  fun `Delete a factor with an error response should not call success`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedException = NetworkException(500, null)
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    factorAPIClient.delete(
+        factor, { fail() }, { exception -> assertEquals(expectedException, exception.cause) })
+  }
+
+  @Test
+  fun `Delete a factor with an exception should not call success`() {
+    val factor =
+      PushFactor("sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", Verified)
+    val expectedException = RuntimeException()
+    whenever(networkProvider.execute(any(), any(), any())).thenThrow(expectedException)
+    factorAPIClient.delete(
+        factor, { fail() },
+        { exception ->
+          assertEquals(expectedException, exception.cause?.cause)
+          assertTrue(exception.cause is NetworkException)
+        })
   }
 }

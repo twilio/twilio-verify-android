@@ -7,7 +7,7 @@ import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorType.PUSH
 
 internal class PushFactor(
   override val sid: String,
@@ -17,7 +17,7 @@ internal class PushFactor(
   override val entityIdentity: String,
   override var status: FactorStatus = Unverified
 ) : Factor {
-  override val type: FactorType = Push
+  override val type: FactorType = PUSH
 
   var keyPairAlias: String? = null
 }

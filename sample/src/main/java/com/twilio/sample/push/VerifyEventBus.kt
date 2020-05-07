@@ -4,7 +4,6 @@
 package com.twilio.sample.push
 
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.Factor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,5 +54,4 @@ object VerifyEventBus {
 }
 
 sealed class VerifyEvent
-class VerifiedFactor(val factor: Factor) : VerifyEvent()
 class NewChallenge(val challenge: Challenge) : VerifyEvent()

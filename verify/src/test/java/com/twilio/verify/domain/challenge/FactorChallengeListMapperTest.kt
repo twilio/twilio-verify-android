@@ -162,5 +162,4 @@ class FactorChallengeListMapperTest {
       put(key, "key")
     }
   }
-
 }

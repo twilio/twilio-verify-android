@@ -8,7 +8,7 @@ import com.twilio.verify.data.provider
 import com.twilio.verify.domain.factor.FactorMapper
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.networking.NetworkException
 import org.junit.After
@@ -53,7 +53,7 @@ class CreateFactorTests : BaseServerTest() {
     twilioVerify.createFactor(factorInput, {
       assertEquals(friendlyName, it.friendlyName)
       assertTrue(it is PushFactor)
-      assertEquals(Push, it.type)
+      assertEquals(PUSH, it.type)
       keyPairAlias = (it as PushFactor).keyPairAlias
       assertNotNull(keyPairAlias)
       checkFactorWasStored(it)

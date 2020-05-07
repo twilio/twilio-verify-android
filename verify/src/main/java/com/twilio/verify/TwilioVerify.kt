@@ -11,6 +11,8 @@ import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.Service
@@ -52,6 +54,12 @@ interface TwilioVerify {
     error: (TwilioVerifyException) -> Unit
   )
 
+  fun getAllChallenges(
+    challengeListInput: ChallengeListInput,
+    success: (ChallengeList) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
   fun updateChallenge(
     updateChallengeInput: UpdateChallengeInput,
     success: () -> Unit,
@@ -61,6 +69,12 @@ interface TwilioVerify {
   fun getService(
     serviceSid: String,
     success: (Service) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
+  fun deleteFactor(
+    factorSid: String,
+    success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
 

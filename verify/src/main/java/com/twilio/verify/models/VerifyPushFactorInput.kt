@@ -5,6 +5,5 @@ package com.twilio.verify.models
  */
 
 class VerifyPushFactorInput(
-  override val sid: String,
-  val verificationCode: String
+  override val sid: String
 ) : VerifyFactorInput

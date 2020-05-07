@@ -16,6 +16,8 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.domain.service.models.FactorService
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
@@ -123,7 +125,7 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Verify a factor should call success`() {
-    val verifyFactorInput = VerifyPushFactorInput("sid", "verificationCode")
+    val verifyFactorInput = VerifyPushFactorInput("sid")
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorFacade.verifyFactor(eq(verifyFactorInput), capture(), any())).then {
@@ -143,7 +145,7 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error verifying a factor should call error`() {
-    val verifyFactorInput = VerifyPushFactorInput("sid", "verificationCode")
+    val verifyFactorInput = VerifyPushFactorInput("sid")
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.verifyFactor(eq(verifyFactorInput), any(), capture())).then {
@@ -320,6 +322,84 @@ class TwilioVerifyManagerTest {
       idlingResource.operationFinished()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get all challenges should call success`() {
+    val challengeListInput = ChallengeListInput("factorSid", null, 1, null)
+    val expectedChallengeList: ChallengeList = mock()
+    argumentCaptor<(ChallengeList) -> Unit>().apply {
+      whenever(challengeFacade.getAllChallenges(any(), capture(), any())).then {
+        firstValue.invoke(expectedChallengeList)
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.getAllChallenges(challengeListInput, { list ->
+      assertEquals(expectedChallengeList, list)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error getting all challenges should call error`() {
+    val challengeListInput = ChallengeListInput("factorSid", null, 1, null)
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(challengeFacade.getAllChallenges(any(), any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.getAllChallenges(challengeListInput, { list ->
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete factor should call success`() {
+    val factorSid = "factorSid"
+    argumentCaptor<() -> Unit>().apply {
+      whenever(factorFacade.deleteFactor(eq(factorSid), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.deleteFactor(factorSid, {
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Error deleting factor should call error`() {
+    val factorSid = "factorSid"
+    val expectedException: Exception = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(factorFacade.deleteFactor(eq(factorSid), any(), capture())).then {
+        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.deleteFactor(factorSid, {
+      fail()
+      idlingResource.operationFinished()
+    }, {
+      assertEquals(expectedException, it.cause)
       idlingResource.operationFinished()
     })
     idlingResource.waitForIdle()

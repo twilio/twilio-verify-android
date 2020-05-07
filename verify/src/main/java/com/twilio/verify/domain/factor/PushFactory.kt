@@ -16,7 +16,7 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.domain.factor.models.toEnrollmentJWT
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.threading.execute
 
 internal const val PUBLIC_KEY_KEY = "public_key"
@@ -43,7 +43,7 @@ internal class PushFactory(
     execute(success, error) { onSuccess, onError ->
       try {
         val enrollmentJWT = toEnrollmentJWT(jwt)
-        if (enrollmentJWT.verifyConfig.factorType != Push.factorTypeName) {
+        if (enrollmentJWT.verifyConfig.factorType != PUSH.factorTypeName) {
           throw TwilioVerifyException(
               IllegalArgumentException("Invalid factor type"),
               InputError
@@ -54,7 +54,7 @@ internal class PushFactory(
         val binding = binding(publicKey)
         val config = config(pushToken)
         val factorBuilder = CreateFactorPayload(
-            friendlyName, Push, enrollmentJWT.verifyConfig.serviceSid,
+            friendlyName, PUSH, enrollmentJWT.verifyConfig.serviceSid,
             enrollmentJWT.verifyConfig.entity, config, binding, jwt
         )
 
@@ -89,14 +89,13 @@ internal class PushFactory(
 
   fun verify(
     sid: String,
-    verificationCode: String,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
       fun verifyFactor(pushFactor: PushFactor) {
         pushFactor.keyPairAlias?.let { keyPairAlias ->
-          val payload = keyStorage.sign(keyPairAlias, verificationCode)
+          val payload = keyStorage.sign(keyPairAlias, sid)
           factorProvider.verify(pushFactor, payload, onSuccess, onError)
         } ?: run {
           onError(TwilioVerifyException(IllegalStateException("Alias not found"), KeyStorageError))
@@ -123,7 +122,7 @@ internal class PushFactory(
     execute(success, error) { onSuccess, onError ->
       fun updateFactor(pushFactor: PushFactor) {
         val updateFactorPayload = UpdateFactorPayload(
-            pushFactor.friendlyName, Push, pushFactor.serviceSid, pushFactor.entityIdentity,
+            pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.entityIdentity,
             config(pushToken), pushFactor.sid
         )
         factorProvider.update(updateFactorPayload, onSuccess, onError)
@@ -131,6 +130,29 @@ internal class PushFactory(
       try {
         val factor = factorProvider.get(sid) as? PushFactor
         factor?.let(::updateFactor) ?: run {
+          throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
+        }
+      } catch (e: TwilioVerifyException) {
+        onError(e)
+      }
+    }
+  }
+
+  fun delete(
+    sid: String,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    execute(success, error) { onSuccess, onError ->
+      fun deleteFactor(pushFactor: PushFactor) {
+        factorProvider.delete(pushFactor, {
+          pushFactor.keyPairAlias?.let { keyStorage.delete(it) }
+          onSuccess()
+        }, onError)
+      }
+      try {
+        val factor = factorProvider.get(sid) as? PushFactor
+        factor?.let(::deleteFactor) ?: run {
           throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
         }
       } catch (e: TwilioVerifyException) {

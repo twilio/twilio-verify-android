@@ -74,6 +74,18 @@ internal class FactorRepository(
     apiClient.update(updateFactorPayload, ::updateFactor, error)
   }
 
+  override fun delete(
+    factor: Factor,
+    success: () -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    fun deleteFactor() {
+      storage.remove(factor.sid)
+      success()
+    }
+    apiClient.delete(factor, ::deleteFactor, error)
+  }
+
   @Throws(TwilioVerifyException::class)
   override fun get(sid: String): Factor? =
     storage.get(sid)?.let {

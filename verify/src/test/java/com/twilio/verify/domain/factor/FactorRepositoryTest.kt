@@ -24,7 +24,7 @@ import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Verified
-import com.twilio.verify.models.FactorType.Push
+import com.twilio.verify.models.FactorType.PUSH
 import org.hamcrest.Matchers.instanceOf
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -57,7 +57,7 @@ class FactorRepositoryTest {
   fun `Create a factor with a valid factor builder should return a factor`() {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
-        "factor name", Push, "serviceSid123", "entitySid123", emptyMap(),
+        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(),
         emptyMap(), "jwt"
     )
     val response = JSONObject()
@@ -87,7 +87,7 @@ class FactorRepositoryTest {
   @Test
   fun `No response from API creating a factor should call error`() {
     val factorPayload = CreateFactorPayload(
-        "factor name", Push, "serviceSid123", "entitySid123",
+        "factor name", PUSH, "serviceSid123", "entitySid123",
         emptyMap(), emptyMap(), "jwt"
     )
     val expectedException: TwilioVerifyException = mock()
@@ -107,7 +107,7 @@ class FactorRepositoryTest {
   fun `Error from mapper creating a factor should call error`() {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
-        "factor name", Push, "serviceSid123", "entitySid123",
+        "factor name", PUSH, "serviceSid123", "entitySid123",
         emptyMap(), emptyMap(), "jwt"
     )
     val response = JSONObject()
@@ -132,7 +132,7 @@ class FactorRepositoryTest {
   fun `No factor from storage creating a factor should call error`() {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
-        "factor name", Push, "serviceSid123", "entitySid123",
+        "factor name", PUSH, "serviceSid123", "entitySid123",
         emptyMap(), emptyMap(), "jwt"
     )
     val response = JSONObject()
@@ -334,7 +334,7 @@ class FactorRepositoryTest {
     val sidMock = "sid123"
     val updateFactorPayload = UpdateFactorPayload(
         "friendlyName",
-        Push,
+        PUSH,
         "serviceSid",
         "entity",
         emptyMap(), sidMock
@@ -370,7 +370,7 @@ class FactorRepositoryTest {
     val sidMock = "sid123"
     val updateFactorPayload = UpdateFactorPayload(
         "friendlyName",
-        Push,
+        PUSH,
         "serviceSid",
         "entity",
         emptyMap(), sidMock
@@ -391,5 +391,38 @@ class FactorRepositoryTest {
     factorRepository.update(updateFactorPayload, {
       fail()
     }, { exception -> assertEquals(expectedException, exception) })
+  }
+
+  @Test
+  fun `Delete a factor should remove factor from storage`() {
+    val sid = "sid123"
+    val factor = mock<Factor> {
+      on(it.sid).thenReturn(sid)
+    }
+    argumentCaptor<() -> Unit>().apply {
+      whenever(apiClient.delete(eq(factor), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    factorRepository.delete(factor, {
+      verify(storage).remove(sid)
+    }, { fail() })
+  }
+
+  @Test
+  fun `Error deleting a factor with an API error should call error`() {
+    val sid = "sid123"
+    val factor = mock<Factor> {
+      on(it.sid).thenReturn(sid)
+    }
+    val expectedException: TwilioVerifyException = mock()
+    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
+      whenever(apiClient.delete(eq(factor), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    factorRepository.delete(factor, {
+      fail()
+    }, { assertEquals(expectedException, it) })
   }
 }
