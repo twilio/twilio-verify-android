@@ -4,25 +4,27 @@
 package com.twilio.security.storage
 
 import com.twilio.security.storage.key.SecretKeyProvider
-import java.io.Serializable
 import kotlin.reflect.KClass
 
 interface EncryptedStorage {
   val secretKeyProvider: SecretKeyProvider
+  val serializer: Serializer
   @Throws(StorageException::class)
-  fun <T : Serializable> put(
+  fun <T : Any> put(
     key: String,
     value: T
   )
 
   @Throws(StorageException::class)
-  fun <T : Serializable> get(
+  fun <T : Any> get(
     key: String,
     kClass: KClass<T>
   ): T
 
   @Throws(StorageException::class)
-  fun <T : Serializable> getAll(kClass: KClass<T>): Map<String, T>
+  fun <T : Any> getAll(
+    kClass: KClass<T>
+  ): Map<String, T>
 
   fun contains(key: String): Boolean
   fun remove(key: String)

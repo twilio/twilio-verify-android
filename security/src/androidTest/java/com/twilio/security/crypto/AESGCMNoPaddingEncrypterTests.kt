@@ -48,7 +48,7 @@ class AESGCMNoPaddingEncrypterTests {
 
   @Test
   fun testEncrypter_withNonExistingKey_shouldReturnEncrypterForNewKey() {
-    val template = AESGCMNoPaddingEncrypterTemplate(alias)
+    val template = AESGCMNoPaddingEncrypterTemplate(alias).templateForCreation()
     val encrypter = androidKeyManager.encrypter(template)
     assertTrue(encrypter is AESEncrypter)
     assertTrue(keyStore.containsAlias(alias))
@@ -70,7 +70,7 @@ class AESGCMNoPaddingEncrypterTests {
   @Test
   fun testEncrypt_withEncrypter_shouldReturnEncryptedData() {
     val data = "message".toByteArray()
-    val template = AESGCMNoPaddingEncrypterTemplate(alias)
+    val template = AESGCMNoPaddingEncrypterTemplate(alias).templateForCreation()
     val encrypter = androidKeyManager.encrypter(template)
     val encryptedData = encrypter.encrypt(data)
     val decrypted = encrypter.decrypt(encryptedData)
@@ -80,7 +80,7 @@ class AESGCMNoPaddingEncrypterTests {
   @Test
   fun testDecrypt_withEncrypter_shouldReturnData() {
     val data = "message".toByteArray()
-    val template = AESGCMNoPaddingEncrypterTemplate(alias)
+    val template = AESGCMNoPaddingEncrypterTemplate(alias).templateForCreation()
     val key = createKey(template)
     val encryptedData = Cipher.getInstance(template.cipherAlgorithm)
         .run {
@@ -99,19 +99,21 @@ class AESGCMNoPaddingEncrypterTests {
   @Test
   fun testEncrypt_withSameInput_shouldReturnDifferentEncryptedDataForEachEncrypt() {
     val data = "message".toByteArray()
-    val template = AESGCMNoPaddingEncrypterTemplate(alias)
+    val template = AESGCMNoPaddingEncrypterTemplate(alias).templateForCreation()
     val encrypter = androidKeyManager.encrypter(template)
     val encryptedData1 = encrypter.encrypt(data)
     val encryptedData2 = encrypter.encrypt(data)
     assertNotEquals(encryptedData1, encryptedData2)
     val algorithmParametersSpec1 = AlgorithmParameters.getInstance(
-        encryptedData1.algorithmParameters.algorithm, encryptedData1.algorithmParameters.provider
+        encryptedData1.algorithmParameters.algorithm,
+        encryptedData1.algorithmParameters.provider
     )
         .apply {
           init(encryptedData1.algorithmParameters.encoded)
         }.getParameterSpec(GCMParameterSpec::class.java) as GCMParameterSpec
     val algorithmParametersSpec2 = AlgorithmParameters.getInstance(
-        encryptedData2.algorithmParameters.algorithm, encryptedData2.algorithmParameters.provider
+        encryptedData2.algorithmParameters.algorithm,
+        encryptedData2.algorithmParameters.provider
     )
         .apply {
           init(encryptedData2.algorithmParameters.encoded)
@@ -122,7 +124,7 @@ class AESGCMNoPaddingEncrypterTests {
 
   @Test
   fun testDelete_withExistingKeyPair_shouldDeleteAlias() {
-    val template = AESGCMNoPaddingEncrypterTemplate(alias)
+    val template = AESGCMNoPaddingEncrypterTemplate(alias).templateForCreation()
     createKey(template)
     assertTrue(keyStore.containsAlias(alias))
     androidKeyManager.delete(alias)

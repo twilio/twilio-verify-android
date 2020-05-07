@@ -22,8 +22,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.io.ByteArrayOutputStream
-import java.io.ObjectOutputStream
+import kotlin.reflect.KClass
 
 @RunWith(RobolectricTestRunner::class)
 class EncryptedPreferencesTest {
@@ -33,11 +32,12 @@ class EncryptedPreferencesTest {
 
   private val preferences: SharedPreferences = mock()
   private val secretKeyProvider: SecretKeyProvider = mock()
+  private val serializer: Serializer = mock()
   private lateinit var encryptedPreferences: EncryptedPreferences
 
   @Before
   fun setup() {
-    encryptedPreferences = EncryptedPreferences(secretKeyProvider, preferences)
+    encryptedPreferences = EncryptedPreferences(secretKeyProvider, preferences, serializer)
   }
 
   @Test
@@ -46,6 +46,7 @@ class EncryptedPreferencesTest {
     val value = "value"
     val editor: Editor = mock()
     whenever(preferences.edit()).thenReturn(editor)
+    whenever(serializer.toByteArray(value)).thenReturn(value.toByteArray())
     whenever(secretKeyProvider.encrypt(any())).thenReturn(value.toByteArray())
     whenever(editor.putString(eq(key), any())).thenReturn(editor)
     encryptedPreferences.put(key, value)
@@ -60,6 +61,7 @@ class EncryptedPreferencesTest {
     val editor: Editor = mock()
     val exception: RuntimeException = mock()
     whenever(preferences.edit()).thenReturn(editor)
+    whenever(serializer.toByteArray(value)).thenReturn(value.toByteArray())
     whenever(secretKeyProvider.encrypt(any())).thenThrow(exception)
     exceptionRule.expect(StorageException::class.java)
     exceptionRule.expectCause(
@@ -74,10 +76,7 @@ class EncryptedPreferencesTest {
   fun testGet_withValueForKey_shouldReturnValue() {
     val key = "key"
     val originalValue = "value"
-    val outputStream = ByteArrayOutputStream()
-    val objectOutputStream = ObjectOutputStream(outputStream)
-    objectOutputStream.writeObject(originalValue)
-    val rawValue = outputStream.toByteArray()
+    val rawValue = originalValue.toByteArray()
     whenever(preferences.getString(key, null)).thenReturn(
         Base64.encodeToString(
             rawValue,
@@ -85,6 +84,7 @@ class EncryptedPreferencesTest {
         )
     )
     whenever(secretKeyProvider.decrypt(rawValue)).thenReturn(rawValue)
+    whenever(serializer.fromByteArray(rawValue, String::class)).thenReturn(originalValue)
     val value = encryptedPreferences.get(key, String::class)
     assertEquals(originalValue, value)
   }
@@ -105,10 +105,7 @@ class EncryptedPreferencesTest {
   @Test
   fun testGet_withInvalidValueForKey_shouldThrowException() {
     val key = "key"
-    val outputStream = ByteArrayOutputStream()
-    val objectOutputStream = ObjectOutputStream(outputStream)
-    objectOutputStream.writeObject("abc")
-    val rawValue = outputStream.toByteArray()
+    val rawValue = "abc".toByteArray()
     whenever(preferences.getString(key, null)).thenReturn(
         Base64.encodeToString(
             rawValue,
@@ -116,6 +113,7 @@ class EncryptedPreferencesTest {
         )
     )
     whenever(secretKeyProvider.decrypt(any())).thenReturn(rawValue)
+    whenever(serializer.fromByteArray(rawValue, Int::class)).thenReturn(null)
     exceptionRule.expect(StorageException::class.java)
     exceptionRule.expectCause(
         instanceOf(
@@ -129,13 +127,13 @@ class EncryptedPreferencesTest {
   fun testGetAll_withValuesForClass_shouldReturnValuesForClass() {
     val key1 = "key1"
     val originalValue1 = "value1"
-    val rawValue1 = getSerializedValue(originalValue1)
+    val rawValue1 = getSerializedValue(originalValue1, String::class)
     val key2 = "key2"
     val originalValue2 = 5
-    val rawValue2 = getSerializedValue(originalValue2)
+    val rawValue2 = getSerializedValue(originalValue2, String::class)
     val key3 = "key3"
     val originalValue3 = "value3"
-    val rawValue3 = getSerializedValue(originalValue3)
+    val rawValue3 = getSerializedValue(originalValue3, String::class)
 
     val entries = mapOf<String, String>(
         key1 to Base64.encodeToString(
@@ -192,10 +190,15 @@ class EncryptedPreferencesTest {
     verify(editor).apply()
   }
 
-  private fun getSerializedValue(originalValue: Any): ByteArray {
-    val outputStream = ByteArrayOutputStream()
-    val objectOutputStream = ObjectOutputStream(outputStream)
-    objectOutputStream.writeObject(originalValue)
-    return outputStream.toByteArray()
+  private fun <T : Any> getSerializedValue(
+    originalValue: Any,
+    kClass: KClass<T>
+  ): ByteArray {
+    val value = if (kClass.isAssignableFrom(originalValue::class)) originalValue as? T else null
+    whenever(
+        serializer.fromByteArray(originalValue.toString().toByteArray(), kClass)
+    ).thenReturn(value)
+    return originalValue.toString()
+        .toByteArray()
   }
 }

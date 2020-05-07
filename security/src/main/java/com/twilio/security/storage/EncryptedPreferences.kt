@@ -4,37 +4,31 @@ import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Base64.DEFAULT
 import com.twilio.security.storage.key.SecretKeyProvider
-import java.io.*
 import kotlin.reflect.KClass
 
 class EncryptedPreferences(
   override val secretKeyProvider: SecretKeyProvider,
-  private val preferences: SharedPreferences
+  private val preferences: SharedPreferences,
+  override val serializer: Serializer = DefaultSerializer()
 ) : EncryptedStorage {
   @Throws(StorageException::class)
-  override fun <T : Serializable> put(
+  override fun <T : Any> put(
     key: String,
     value: T
   ) {
-    var objectOutputStream: ObjectOutputStream? = null
     try {
-      val outputStream = ByteArrayOutputStream()
-      objectOutputStream = ObjectOutputStream(outputStream)
-      objectOutputStream.writeObject(value)
-      val rawValue = outputStream.toByteArray()
+      val rawValue = toByteArray(value)
       val encrypted = secretKeyProvider.encrypt(rawValue)
       preferences.edit()
           .putString(key, Base64.encodeToString(encrypted, DEFAULT))
           .apply()
     } catch (e: Exception) {
       throw StorageException(e)
-    } finally {
-      objectOutputStream?.close()
     }
   }
 
   @Throws(StorageException::class)
-  override fun <T : Serializable> get(
+  override fun <T : Any> get(
     key: String,
     kClass: KClass<T>
   ): T {
@@ -48,12 +42,23 @@ class EncryptedPreferences(
   }
 
   @Throws(StorageException::class)
-  override fun <T : Serializable> getAll(kClass: KClass<T>): Map<String, T> =
-    preferences.all.filterValues { it is String }.mapNotNull { entry ->
-      getValue(
-          entry.key, kClass
-      )?.let { entry.key to it }
-    }.toMap()
+  override fun <T : Any> getAll(
+    kClass: KClass<T>
+  ): Map<String, T> = try {
+    preferences.all.filterValues { it is String }
+        .mapNotNull { entry ->
+          try {
+            getValue(
+                entry.key, kClass
+            )?.let { entry.key to it }
+          } catch (e: Exception) {
+            null
+          }
+        }
+        .toMap()
+  } catch (e: Exception) {
+    throw StorageException(e)
+  }
 
   override fun contains(key: String): Boolean = preferences.contains(key)
 
@@ -69,29 +74,20 @@ class EncryptedPreferences(
         .apply()
   }
 
-  private fun <T : Serializable> getValue(
+  private fun <T : Any> getValue(
     key: String,
     kClass: KClass<T>
   ): T? {
-    var objectInputStream: ObjectInputStream? = null
-    try {
-      return preferences.getString(key, null)
-          ?.let {
-            secretKeyProvider.decrypt(Base64.decode(it, DEFAULT))
-                .let { decryptedData ->
-                  val inputStream = ByteArrayInputStream(decryptedData)
-                  objectInputStream = ObjectInputStream(inputStream)
-                  val value = objectInputStream?.readObject()
-                  if (!kClass.javaObjectType.isInstance(value)) {
-                    return null
-                  }
-                  value as? T ?: throw IllegalArgumentException(
-                      "Illegal decrypted data"
-                  )
-                }
-          } ?: throw IllegalArgumentException("key not found")
-    } finally {
-      objectInputStream?.close()
-    }
+    val value = preferences.getString(key, null) ?: throw IllegalArgumentException("key not found")
+    return fromByteArray(secretKeyProvider.decrypt(Base64.decode(value, DEFAULT)), kClass)
   }
+
+  private fun <T : Any> toByteArray(
+    value: T
+  ): ByteArray = serializer.toByteArray(value)
+
+  private fun <T : Any> fromByteArray(
+    data: ByteArray,
+    kClass: KClass<T>
+  ): T? = serializer.fromByteArray(data, kClass)
 }

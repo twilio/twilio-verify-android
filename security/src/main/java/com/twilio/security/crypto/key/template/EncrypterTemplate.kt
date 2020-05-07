@@ -24,6 +24,7 @@ data class AESGCMNoPaddingEncrypterTemplate(
   )
       .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
       .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+      .setKeySize(256)
       .build()
   override val cipherAlgorithm = "AES/GCM/NoPadding"
   override fun templateForCreation(): EncrypterTemplate = copy(shouldExist = false)

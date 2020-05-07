@@ -10,13 +10,15 @@ import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.security.crypto.providerName
 import com.twilio.security.storage.key.SecretKeyEncrypter
+import org.json.JSONException
+import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.io.Serializable
 import java.security.KeyStore
+import kotlin.reflect.KClass
 
 class EncryptedPreferencesTests {
 
@@ -45,7 +47,11 @@ class EncryptedPreferencesTests {
           androidKeyManager
       )
     secretKeyEncrypter.create()
-    encryptedPreferences = EncryptedPreferences(secretKeyEncrypter, sharedPreferences)
+    encryptedPreferences = EncryptedPreferences(
+        secretKeyEncrypter, sharedPreferences, TestObjectSerializer(
+        DefaultSerializer()
+    )
+    )
   }
 
   @After
@@ -100,11 +106,6 @@ class EncryptedPreferencesTests {
 
   @Test
   fun testPutAndGet_objectValue_shouldGetObjectValue() {
-    data class TestObject(
-      val name: String,
-      val age: Int
-    ) : Serializable
-
     val key = "value"
     val expectedValue = TestObject("name", 33)
     encryptedPreferences.put(key, expectedValue)
@@ -115,39 +116,91 @@ class EncryptedPreferencesTests {
 
   @Test
   fun testPutAndGet_multipleValues_shouldGetValues() {
-    data class TestObject(
-      val name: String,
-      val age: Int
-    ) : Serializable
-
     val expectedValues = arrayListOf(TestObject("name", 33), true, 1, 1.23434, "test")
     expectedValues.forEachIndexed { index, expectedValue ->
       val key = "key$index"
       encryptedPreferences.put(key, expectedValue)
       assertTrue(sharedPreferences.contains(key))
-      val value = encryptedPreferences.get(key, Serializable::class)
+      val value = encryptedPreferences.get(key, expectedValue::class)
       assertEquals(expectedValue, value)
     }
   }
 
   @Test
   fun testPutAndGetAll_multipleValues_shouldGetValues() {
-    data class TestObject(
-      val name: String,
-      val age: Int
-    ) : Serializable
-
-    val expectedValues = arrayListOf(TestObject("name", 33), true, 1, 1.23434, "test")
+    val expectedValues =
+      arrayListOf(TestObject("name", 33), true, 1, TestObject("name1", 346), 1.23434, "test")
     expectedValues.forEachIndexed { index, expectedValue ->
       val key = "key$index"
       encryptedPreferences.put(key, expectedValue)
       assertTrue(sharedPreferences.contains(key))
     }
-    val values = encryptedPreferences.getAll(Serializable::class)
+    val values =
+      encryptedPreferences.getAll(TestObject::class)
     values.forEach {
       val index = it.key.replace("key", "")
           .toInt()
-      assertEquals(expectedValues[index], it.value)
+      if (expectedValues[index] is TestObject) {
+        assertEquals(expectedValues[index], it.value)
+      }
     }
   }
+
+  @Test
+  fun testPutAndGetAll_multipleIntValues_shouldGetValues() {
+    val expectedValues =
+      arrayListOf(20, true, 15, TestObject("name1", 346), 1.23434, "1")
+    expectedValues.forEachIndexed { index, expectedValue ->
+      val key = "key$index"
+      encryptedPreferences.put(key, expectedValue)
+      assertTrue(sharedPreferences.contains(key))
+    }
+    val values =
+      encryptedPreferences.getAll(Int::class)
+    values.forEach {
+      val index = it.key.replace("key", "")
+          .toInt()
+      if (expectedValues[index] is Int) {
+        assertEquals(expectedValues[index], it.value)
+      }
+    }
+  }
+}
+
+data class TestObject(
+  val name: String,
+  val age: Int
+)
+
+class TestObjectSerializer(private val defaultSerializer: DefaultSerializer) :
+    Serializer by defaultSerializer {
+  override fun <T : Any> toByteArray(value: T): ByteArray {
+    return when (value) {
+      is TestObject -> testObjectToByteArray(value)
+      else -> defaultSerializer.toByteArray(value)
+    }
+  }
+
+  override fun <T : Any> fromByteArray(
+    data: ByteArray,
+    kClass: KClass<T>
+  ): T? {
+    return when {
+      kClass.isAssignableFrom(TestObject::class) -> testObjectFromString(String(data)) as? T
+      else -> defaultSerializer.fromByteArray(data, kClass)
+    }
+  }
+
+  private fun testObjectFromString(string: String): TestObject? = try {
+    JSONObject(string)
+  } catch (e: JSONException) {
+    null
+  }?.let {
+    TestObject(it.getString("name"), it.getInt("age"))
+  }
+
+  private fun testObjectToByteArray(testObject: TestObject): ByteArray = JSONObject().apply {
+    put("name", testObject.name)
+    put("age", testObject.age)
+  }.toString().toByteArray()
 }
