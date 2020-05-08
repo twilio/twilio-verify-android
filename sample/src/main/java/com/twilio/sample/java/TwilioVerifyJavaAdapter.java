@@ -10,6 +10,7 @@ import com.twilio.verify.TwilioVerify;
 import com.twilio.verify.TwilioVerifyException;
 import com.twilio.verify.models.Challenge;
 import com.twilio.verify.models.Factor;
+import com.twilio.verify.models.FactorInput;
 import com.twilio.verify.models.PushFactorInput;
 import com.twilio.verify.models.UpdateChallengeInput;
 import com.twilio.verify.models.VerifyFactorInput;
@@ -84,11 +85,18 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
       EnrollmentResponse enrollmentResponse,
       final Function1<? super Factor, Unit> onSuccess,
       final Function1<? super Exception, Unit> onError) {
-    twilioVerify.createFactor(
-        new PushFactorInput(createFactorData.getFactorName(), enrollmentResponse.getServiceSid(),
-            enrollmentResponse.getIdentity(),
-            enrollmentResponse.getFactorType(),
-            createFactorData.getPushToken(), enrollmentResponse.getToken()),
+    FactorInput factorInput;
+    switch (enrollmentResponse.getFactorType()) {
+      case PUSH:
+        factorInput = new PushFactorInput(createFactorData.getFactorName(),
+            enrollmentResponse.getServiceSid(),
+            enrollmentResponse.getIdentity(), createFactorData.getPushToken(),
+            enrollmentResponse.getToken());
+        break;
+      default:
+        throw new IllegalStateException("Unexpected value: " + enrollmentResponse.getFactorType());
+    }
+    twilioVerify.createFactor(factorInput,
         new Function1<Factor, Unit>() {
           @Override public Unit invoke(Factor factor) {
             onFactorCreated(factor, onSuccess, onError);

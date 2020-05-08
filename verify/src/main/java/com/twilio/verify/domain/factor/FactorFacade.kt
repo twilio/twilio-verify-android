@@ -33,7 +33,7 @@ internal class FactorFacade(
       is PushFactorInput -> {
         pushFactory.create(
             factorInput.jwt, factorInput.friendlyName, factorInput.pushToken,
-            factorInput.serviceSid, factorInput.identity, factorInput.factorType, success, error
+            factorInput.serviceSid, factorInput.identity, success, error
         )
       }
     }

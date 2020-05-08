@@ -38,7 +38,6 @@ internal class PushFactory(
     pushToken: String,
     serviceSid: String,
     identity: String,
-    factorType: FactorType,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
@@ -49,7 +48,7 @@ internal class PushFactory(
         val binding = binding(publicKey)
         val config = config(pushToken)
         val factorBuilder = CreateFactorPayload(
-            friendlyName, factorType, serviceSid,
+            friendlyName, PUSH, serviceSid,
             identity, config, binding, jwt
         )
 

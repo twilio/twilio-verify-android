@@ -6,7 +6,6 @@ package com.twilio.verify
 import com.twilio.verify.api.APIResponses
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.PushFactorInput
 import org.junit.After
 import org.junit.Assert
@@ -41,7 +40,7 @@ open class BaseFactorTest : BaseServerTest() {
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", PUSH, "pushToken", jwt)
+      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwt)
     enqueueMockResponse(200, APIResponses.createValidFactorResponse())
     idlingResource.increment()
     twilioVerify.createFactor(factorInput, {

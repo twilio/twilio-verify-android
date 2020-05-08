@@ -1,6 +1,5 @@
 package com.twilio.verify
 
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.api.APIResponses
@@ -48,7 +47,7 @@ class CreateFactorTests : BaseServerTest() {
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", PUSH, "pushToken", jwt)
+      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwt)
     enqueueMockResponse(200, APIResponses.createValidFactorResponse())
     idlingResource.increment()
     twilioVerify.createFactor(factorInput, {
@@ -103,7 +102,7 @@ class CreateFactorTests : BaseServerTest() {
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", PUSH, "pushToken", jwt)
+      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwt)
     val expectedException = TwilioVerifyException(
         NetworkException(null, null),
         NetworkError
@@ -133,7 +132,7 @@ class CreateFactorTests : BaseServerTest() {
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", PUSH, "pushToken", jwt)
+      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwt)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(null, null),
         MapperError

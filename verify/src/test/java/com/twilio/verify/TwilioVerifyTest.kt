@@ -44,7 +44,6 @@ import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
-import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.models.UpdatePushFactorInput
@@ -141,7 +140,7 @@ class TwilioVerifyTest {
           "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
           "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput("friendly name", "serviceSid", "identity", PUSH, "pushToken", jwt)
+      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", jwt)
     idlingResource.startOperation()
     twilioVerify.createFactor(factorInput, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
@@ -429,7 +428,7 @@ class TwilioVerifyTest {
           "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
           "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput("friendly name", "serviceSid", "identity", PUSH, "pushToken", jwt)
+      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", jwt)
     idlingResource.startOperation()
     twilioVerify.createFactor(factorInput, { factor ->
       this.factor = factor

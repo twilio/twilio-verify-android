@@ -15,7 +15,6 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
@@ -39,14 +38,13 @@ class FactorFacadeTest {
   @Test
   fun `Create a factor should call success`() {
     val factorInput =
-      PushFactorInput("friendly name", "serviceSid", "identity", PUSH, "pushToken", "jwt")
+      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwt")
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(
           pushFactory.create(
               eq(factorInput.jwt), eq(factorInput.friendlyName), eq(factorInput.pushToken),
-              eq(factorInput.serviceSid), eq(factorInput.identity), eq(factorInput.factorType),
-              capture(), any()
+              eq(factorInput.serviceSid), eq(factorInput.identity), capture(), any()
           )
       ).then {
         firstValue.invoke(expectedFactor)
@@ -66,14 +64,13 @@ class FactorFacadeTest {
   @Test
   fun `Error creating a factor should call error`() {
     val factorInput =
-      PushFactorInput("friendly name", "serviceSid", "identity", PUSH, "pushToken", "jwt")
+      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwt")
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
           pushFactory.create(
               eq(factorInput.jwt), eq(factorInput.friendlyName), eq(factorInput.pushToken),
-              eq(factorInput.serviceSid), eq(factorInput.identity), eq(factorInput.factorType),
-              any(), capture()
+              eq(factorInput.serviceSid), eq(factorInput.identity), any(), capture()
           )
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
