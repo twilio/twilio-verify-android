@@ -45,7 +45,8 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Create a factor should call success`() {
-    val factorInput = PushFactorInput("name", "pushToken", "jwt")
+    val factorInput =
+      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwt")
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorFacade.createFactor(eq(factorInput), capture(), any())).then {
@@ -65,7 +66,8 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error creating a factor should call error`() {
-    val factorInput = PushFactorInput("name", "pushToken", "jwt")
+    val factorInput =
+      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwt")
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.createFactor(eq(factorInput), any(), capture())).then {
