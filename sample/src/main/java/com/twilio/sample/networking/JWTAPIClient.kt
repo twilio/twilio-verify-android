@@ -47,7 +47,7 @@ class SampleBackendAPIClient(private val okHttpClient: OkHttpClient) {
   ): EnrollmentResponse = withContext(dispatcher) {
     return@withContext suspendCancellableCoroutine<EnrollmentResponse> { cont ->
       val request = Request.Builder()
-          .url("$url/auth")
+          .url("$url/enroll")
           .post(Builder().add("identity", identity).build())
           .build()
       okHttpClient.newCall(request)
