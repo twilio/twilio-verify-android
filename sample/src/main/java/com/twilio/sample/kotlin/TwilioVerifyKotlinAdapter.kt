@@ -49,9 +49,14 @@ class TwilioVerifyKotlinAdapter(
   ) {
     CoroutineScope(mainDispatcher).launch {
       try {
-        val jwt = sampleBackendAPIClient.getJwt(createFactorData.jwtUrl, createFactorData.identity)
+        val enrollmentResponse =
+          sampleBackendAPIClient.enrollment(createFactorData.jwtUrl, createFactorData.identity)
         val factor = createFactor(
-            PushFactorInput(createFactorData.factorName, createFactorData.pushToken, jwt)
+            PushFactorInput(
+                createFactorData.factorName, enrollmentResponse.serviceSid,
+                enrollmentResponse.identity, enrollmentResponse.factorType,
+                createFactorData.pushToken, enrollmentResponse.token
+            )
         )
         onFactorCreated(factor, onSuccess, onError)
       } catch (e: TwilioVerifyException) {

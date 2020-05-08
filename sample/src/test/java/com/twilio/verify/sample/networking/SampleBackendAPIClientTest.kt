@@ -29,14 +29,20 @@ class SampleBackendAPIClientTest {
   private val sampleBackendAPIClient = SampleBackendAPIClient(okHttpClient)
 
   @Test
-  fun `Get JWT with success response should return JWT token`() {
+  fun `Enrollment with success response should return enrollment response`() {
     runBlocking {
       val url = "https://twilio.com"
       val identity = "identity"
       val call: Call = mock()
       val tokenValue = "jwtToken"
+      val serviceSidValue = "serviceSidValue"
+      val factorTypeValue = "push"
+      val identityValue = "identityValue"
       val bodyJson = JSONObject().apply {
         put("token", tokenValue)
+        put("serviceSid", serviceSidValue)
+        put("factorType", factorTypeValue)
+        put("identity", identityValue)
       }
       val responseBody: ResponseBody = mock() {
         on { string() } doReturn bodyJson.toString()
@@ -54,13 +60,52 @@ class SampleBackendAPIClientTest {
           lastValue.onResponse(call, response)
         }
       }
-      val token = sampleBackendAPIClient.getJwt(url, identity, Dispatchers.Unconfined)
-      assertEquals(tokenValue, token)
+      val enrollmentResponse = sampleBackendAPIClient.enrollment(url, identity, Dispatchers.Unconfined)
+      assertEquals(tokenValue, enrollmentResponse.token)
+      assertEquals(serviceSidValue, enrollmentResponse.serviceSid)
+      assertEquals(factorTypeValue, enrollmentResponse.factorType.factorTypeName)
+      assertEquals(identityValue, enrollmentResponse.identity)
+    }
+  }
+
+  @Test(expected = IllegalArgumentException::class)
+  fun `Enrollment with success response but with invalid factorType should throw exception`() {
+    runBlocking {
+      val url = "https://twilio.com"
+      val identity = "identity"
+      val call: Call = mock()
+      val tokenValue = "jwtToken"
+      val serviceSidValue = "serviceSidValue"
+      val factorTypeValue = "whatever"
+      val identityValue = "identityValue"
+      val bodyJson = JSONObject().apply {
+        put("token", tokenValue)
+        put("serviceSid", serviceSidValue)
+        put("factorType", factorTypeValue)
+        put("identity", identityValue)
+      }
+      val responseBody: ResponseBody = mock() {
+        on { string() } doReturn bodyJson.toString()
+      }
+      val response = Response.Builder()
+          .body(responseBody)
+          .message("message")
+          .code(200)
+          .protocol(mock())
+          .request(mock())
+          .build()
+      whenever(okHttpClient.newCall(any())).thenReturn(call)
+      argumentCaptor<(Callback)>().apply {
+        whenever(call.enqueue(capture())).then {
+          lastValue.onResponse(call, response)
+        }
+      }
+      sampleBackendAPIClient.enrollment(url, identity, Dispatchers.Unconfined)
     }
   }
 
   @Test(expected = Exception::class)
-  fun `Get JWT with fail response should throw exception`() {
+  fun `Enrollment with fail response should throw exception`() {
     runBlocking {
       val url = "https://twilio.com"
       val identity = "identity"
@@ -72,12 +117,12 @@ class SampleBackendAPIClientTest {
           lastValue.onFailure(call, expectedException)
         }
       }
-      sampleBackendAPIClient.getJwt(url, identity, Dispatchers.Unconfined)
+      sampleBackendAPIClient.enrollment(url, identity, Dispatchers.Unconfined)
     }
   }
 
   @Test(expected = IOException::class)
-  fun `Get JWT with success response but with invalid response code should return throw exception`() {
+  fun `Enrollment with success response but with invalid response code should return throw exception`() {
     runBlocking {
       val url = "https://twilio.com"
       val identity = "identity"
@@ -102,7 +147,7 @@ class SampleBackendAPIClientTest {
           lastValue.onResponse(call, response)
         }
       }
-      sampleBackendAPIClient.getJwt(url, identity, Dispatchers.Unconfined)
+      sampleBackendAPIClient.enrollment(url, identity, Dispatchers.Unconfined)
     }
   }
 }

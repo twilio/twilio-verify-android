@@ -14,6 +14,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.sample.TwilioVerifyAdapter
 import com.twilio.sample.kotlin.TwilioVerifyKotlinAdapter
 import com.twilio.sample.model.CreateFactorData
+import com.twilio.sample.model.EnrollmentResponse
 import com.twilio.sample.networking.SampleBackendAPIClient
 import com.twilio.sample.push.NewChallenge
 import com.twilio.sample.push.VerifyEventBus
@@ -67,7 +68,7 @@ class TwilioVerifyKotlinAdapterTest {
       val createFactorData = CreateFactorData("jwtUrl", "identity", "factorName", "pushToken")
       doAnswer { throw expectedException }
           .whenever(sampleBackendAPIClient)
-          .getJwt(createFactorData.jwtUrl, createFactorData.identity)
+          .enrollment(createFactorData.jwtUrl, createFactorData.identity)
       idlingResource.startOperation()
       twilioVerifyAdapter.createFactor(createFactorData, {
         fail()
@@ -86,8 +87,8 @@ class TwilioVerifyKotlinAdapterTest {
       val expectedException: TwilioVerifyException = mock()
       val createFactorData = CreateFactorData("jwtUrl", "identity", "factorName", "pushToken")
       whenever(
-          sampleBackendAPIClient.getJwt(createFactorData.jwtUrl, createFactorData.identity)
-      ).thenReturn("jwt")
+          sampleBackendAPIClient.enrollment(createFactorData.jwtUrl, createFactorData.identity)
+      ).thenReturn(EnrollmentResponse("jwt", "serviceSid", "identity", PUSH))
       argumentCaptor<(Exception) -> Unit>().apply {
         whenever(twilioVerify.createFactor(any(), any(), capture())).then {
           firstValue.invoke(expectedException)
@@ -114,8 +115,8 @@ class TwilioVerifyKotlinAdapterTest {
       }
       val createFactorData = CreateFactorData("jwtUrl", "identity", "factorName", "pushToken")
       whenever(
-          sampleBackendAPIClient.getJwt(createFactorData.jwtUrl, createFactorData.identity)
-      ).thenReturn("jwt")
+          sampleBackendAPIClient.enrollment(createFactorData.jwtUrl, createFactorData.identity)
+      ).thenReturn(EnrollmentResponse("jwt", "serviceSid", "identity", PUSH))
 
       argumentCaptor<(Factor) -> Unit>().apply {
         whenever(twilioVerify.createFactor(any(), capture(), any())).then {

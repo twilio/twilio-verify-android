@@ -2,6 +2,7 @@ package com.twilio.sample.java;
 
 import com.twilio.sample.TwilioVerifyAdapter;
 import com.twilio.sample.model.CreateFactorData;
+import com.twilio.sample.model.EnrollmentResponse;
 import com.twilio.sample.networking.SampleBackendAPIClient;
 import com.twilio.sample.push.NewChallenge;
 import com.twilio.sample.push.VerifyEventBus;
@@ -35,10 +36,10 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
   @Override public void createFactor(@NotNull final CreateFactorData createFactorData,
       @NotNull final Function1<? super Factor, Unit> onSuccess,
       @NotNull final Function1<? super Exception, Unit> onError) {
-    sampleBackendAPIClient.getJwt(createFactorData.getJwtUrl(), createFactorData.getIdentity(),
-        new Function1<String, Unit>() {
-          @Override public Unit invoke(String jwt) {
-            createFactor(createFactorData, jwt, onSuccess, onError);
+    sampleBackendAPIClient.enrollment(createFactorData.getJwtUrl(), createFactorData.getIdentity(),
+        new Function1<EnrollmentResponse, Unit>() {
+          @Override public Unit invoke(EnrollmentResponse enrollmentResponse) {
+            createFactor(createFactorData, enrollmentResponse, onSuccess, onError);
             return Unit.INSTANCE;
           }
         }, onError);
@@ -79,12 +80,15 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
         }
       };
 
-  private void createFactor(CreateFactorData createFactorData, String jwt,
+  private void createFactor(CreateFactorData createFactorData,
+      EnrollmentResponse enrollmentResponse,
       final Function1<? super Factor, Unit> onSuccess,
       final Function1<? super Exception, Unit> onError) {
     twilioVerify.createFactor(
-        new PushFactorInput(createFactorData.getFactorName(),
-            createFactorData.getPushToken(), jwt),
+        new PushFactorInput(createFactorData.getFactorName(), enrollmentResponse.getServiceSid(),
+            enrollmentResponse.getIdentity(),
+            enrollmentResponse.getFactorType(),
+            createFactorData.getPushToken(), enrollmentResponse.getToken()),
         new Function1<Factor, Unit>() {
           @Override public Unit invoke(Factor factor) {
             onFactorCreated(factor, onSuccess, onError);

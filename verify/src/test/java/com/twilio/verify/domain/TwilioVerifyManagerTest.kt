@@ -20,6 +20,7 @@ import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdatePushChallengeInput
@@ -45,7 +46,8 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Create a factor should call success`() {
-    val factorInput = PushFactorInput("name", "pushToken", "jwt")
+    val factorInput =
+      PushFactorInput("friendly name", "serviceSid", "identity", PUSH, "pushToken", "jwt")
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorFacade.createFactor(eq(factorInput), capture(), any())).then {
@@ -65,7 +67,8 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error creating a factor should call error`() {
-    val factorInput = PushFactorInput("name", "pushToken", "jwt")
+    val factorInput =
+      PushFactorInput("friendly name", "serviceSid", "identity", PUSH, "pushToken", "jwt")
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.createFactor(eq(factorInput), any(), capture())).then {
