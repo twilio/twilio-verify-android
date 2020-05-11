@@ -24,7 +24,7 @@ import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.FactorType.PUSH
-import com.twilio.verify.networking.Authorization
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod
@@ -55,7 +55,7 @@ class FactorAPIClientTest {
 
   private lateinit var factorAPIClient: FactorAPIClient
   private lateinit var networkProvider: NetworkProvider
-  private lateinit var authorization: Authorization
+  private lateinit var authorization: Authentication
   private lateinit var context: Context
   private val baseUrl = BuildConfig.BASE_URL
 

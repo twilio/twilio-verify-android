@@ -1,6 +1,6 @@
 package com.twilio.verify
 
-import com.twilio.verify.models.FactorType
+import com.twilio.verify.api.Action
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -8,11 +8,11 @@ import com.twilio.verify.models.FactorType
 
 interface Authentication {
   fun generateJWE(
-    factorType: FactorType,
-    factorConfig: Any?,
     identity: String,
-    factorSid: String?,
-    challengeSid: String?,
+    factorSid: String? = null,
+    challengeSid: String? = null,
+    serviceSid: String? = null,
+    action: Action,
     success: (token: String) -> Unit,
     error: (Exception) -> Unit
   )

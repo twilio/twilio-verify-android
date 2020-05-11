@@ -12,6 +12,7 @@ import com.twilio.sample.networking.SampleBackendAPIClient
 import com.twilio.sample.networking.okHttpClient
 import com.twilio.sample.push.NewChallenge
 import com.twilio.sample.push.VerifyEventBus
+import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Factor
@@ -19,8 +20,6 @@ import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
-import com.twilio.verify.networking.BasicAuthorization
-import com.twilio.verify.sample.BuildConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +33,9 @@ import kotlin.coroutines.resumeWithException
 class TwilioVerifyKotlinAdapter(
   applicationContext: Context,
   okHttpClient: OkHttpClient = okHttpClient(),
+  authentication: Authentication,
   private val twilioVerify: TwilioVerify = TwilioVerify.Builder(
-      applicationContext, BasicAuthorization(BuildConfig.ACCOUNT_SID, BuildConfig.AUTH_TOKEN)
+      applicationContext, authentication
   ).networkProvider(OkHttpProvider(okHttpClient)).build(),
   private val sampleBackendAPIClient: SampleBackendAPIClient = SampleBackendAPIClient(okHttpClient),
   private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,

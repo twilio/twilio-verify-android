@@ -14,6 +14,7 @@ class TwilioVerifyException(
     StorageError("Exception while storing/loading an entity"),
     InputError("Exception while loading input"),
     KeyStorageError("Exception while storing/loading key pairs"),
-    InitializationError("Exception while initializing")
+    InitializationError("Exception while initializing"),
+    AuthenticationTokenError("Exception while generating token")
   }
 }

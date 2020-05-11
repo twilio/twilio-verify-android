@@ -4,6 +4,7 @@
 package com.twilio.verify.domain.challenge
 
 import android.content.Context
+import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
@@ -16,7 +17,6 @@ import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdatePushChallengeInput
-import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.threading.execute
 
@@ -31,7 +31,7 @@ internal class ChallengeFacade(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(factorSid, { factor ->
+    factorFacade.getFactorBySid(factorSid, { factor ->
       when (factor) {
         is PushFactor -> pushChallengeProcessor.get(sid, factor, success, error)
       }
@@ -43,7 +43,7 @@ internal class ChallengeFacade(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(updateChallengeInput.factorSid, { factor ->
+    factorFacade.getFactorBySid(updateChallengeInput.factorSid, { factor ->
       when (factor) {
         is PushFactor -> updatePushChallenge(updateChallengeInput, factor, success, error)
       }
@@ -55,7 +55,7 @@ internal class ChallengeFacade(
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(challengeListInput.factorSid, { factor ->
+    factorFacade.getFactorBySid(challengeListInput.factorSid, { factor ->
       execute(success, error) { onSuccess, onError ->
         repository.getAll(
             factor, challengeListInput.status, challengeListInput.pageSize,
@@ -91,7 +91,7 @@ internal class ChallengeFacade(
 
   class Builder {
     private lateinit var appContext: Context
-    private lateinit var auth: Authorization
+    private lateinit var auth: Authentication
     private lateinit var networking: NetworkProvider
     private lateinit var keyStore: KeyStorage
     private lateinit var factorProvider: FactorFacade
@@ -102,7 +102,7 @@ internal class ChallengeFacade(
     fun context(context: Context) =
       apply { this.appContext = context }
 
-    fun authorization(authorization: Authorization) =
+    fun authentication(authorization: Authentication) =
       apply { this.auth = authorization }
 
     fun keyStorage(keyStorage: KeyStorage) =

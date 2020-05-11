@@ -12,7 +12,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.ChallengeStatus.Pending
-import com.twilio.verify.networking.Authorization
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod
@@ -42,7 +42,7 @@ import java.util.Date
 class ChallengeAPIClientTest {
   private lateinit var challengeAPIClient: ChallengeAPIClient
   private lateinit var networkProvider: NetworkProvider
-  private lateinit var authorization: Authorization
+  private lateinit var authorization: Authentication
   private lateinit var context: Context
   private val baseUrl = BuildConfig.BASE_URL
 

@@ -9,7 +9,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
-import com.twilio.verify.networking.Authorization
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod.Get
@@ -38,7 +38,7 @@ class ServiceAPIClientTest {
 
   private lateinit var serviceAPIClient: ServiceAPIClient
   private lateinit var networkProvider: NetworkProvider
-  private lateinit var authorization: Authorization
+  private lateinit var authorization: Authentication
   private lateinit var context: Context
   private val baseUrl = BuildConfig.BASE_URL
 

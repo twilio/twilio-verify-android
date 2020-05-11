@@ -13,6 +13,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.twilio.sample.TwilioVerifyAdapter
 import com.twilio.sample.TwilioVerifyProvider
+import com.twilio.sample.storage.LocalStorage
 import com.twilio.verify.sample.R
 
 /*
@@ -30,6 +31,9 @@ class FirebasePushService() : FirebaseMessagingService() {
 
   @VisibleForTesting
   lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
+  private val storage: LocalStorage by lazy {
+    LocalStorage(this)
+  }
 
   override fun onNewToken(token: String) {
     Log.d("newToken", token)
@@ -37,7 +41,7 @@ class FirebasePushService() : FirebaseMessagingService() {
 
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
     if (!this::twilioVerifyAdapter.isInitialized) twilioVerifyAdapter =
-      TwilioVerifyProvider.instance(applicationContext)
+      TwilioVerifyProvider.instance(applicationContext, storage.jwtURL)
     val bundle = getBundleFromMessage(remoteMessage)
     when (bundle.getString(typeKey)) {
       challengeType -> newChallenge(bundle)

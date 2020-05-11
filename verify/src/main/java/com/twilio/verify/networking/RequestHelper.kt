@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
+import com.twilio.verify.Authentication
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.networking.HttpMethod.Get
 import com.twilio.verify.networking.HttpMethod.Post
@@ -20,7 +21,7 @@ internal const val userAgent = "User-Agent"
 
 class RequestHelper internal constructor(
   context: Context,
-  authorization: Authorization
+  authorization: BasicAuthorization
 ) {
 
   private val userAgentHeader = Pair(userAgent, generateUserAgent(context))
@@ -65,6 +66,7 @@ class RequestHelper internal constructor(
 
   fun commonHeaders(httpMethod: HttpMethod?): Map<String, String> {
     var commonHeaders = mapOf(userAgentHeader, authorizationHeader)
+//      var commonHeaders = mapOf(userAgentHeader)
     commonHeaders = when (httpMethod) {
       Post -> commonHeaders.plus(
           mediaTypeHeaders(acceptTypeValue = Json, contentTypeValue = UrlEncoded)

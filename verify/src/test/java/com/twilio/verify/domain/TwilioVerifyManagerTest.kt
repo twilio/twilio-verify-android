@@ -40,7 +40,7 @@ class TwilioVerifyManagerTest {
   private val challengeFacade: ChallengeFacade = mock()
   private val serviceFacade: ServiceFacade = mock()
   private val twilioVerifyManager =
-    TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
+    TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade, authentication)
   private val idlingResource = IdlingResource()
 
   @Test

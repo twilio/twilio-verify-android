@@ -8,7 +8,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.data.provider
 import com.twilio.verify.domain.factor.sharedPreferencesName
-import com.twilio.verify.networking.Authorization
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.BasicAuthorization
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -25,7 +25,7 @@ import javax.net.ssl.HttpsURLConnection
 
 open class BaseServerTest {
 
-  lateinit var authorization: Authorization
+  lateinit var authorization: Authentication
   lateinit var context: Context
   lateinit var twilioVerify: TwilioVerify
   lateinit var mockWebServer: MockWebServer

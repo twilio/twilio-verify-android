@@ -19,7 +19,6 @@ import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.VerifyFactorInput
-import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkProvider
 
@@ -80,7 +79,7 @@ interface TwilioVerify {
 
   class Builder(
     private var context: Context,
-    private var authorization: Authorization
+    private var authentication: Authentication
   ) {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
@@ -96,14 +95,14 @@ interface TwilioVerify {
     fun build(): TwilioVerify {
       val factorFacade = FactorFacade.Builder()
           .context(context)
-          .authorization(authorization)
+          .authentication(authentication)
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .baseUrl(baseUrl)
           .build()
       val challengeFacade = ChallengeFacade.Builder()
           .context(context)
-          .authorization(authorization)
+          .authentication(authentication)
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .factorFacade(factorFacade)
@@ -111,11 +110,12 @@ interface TwilioVerify {
           .build()
       val serviceFacade = ServiceFacade.Builder()
           .context(context)
-          .authorization(authorization)
+          .authentication(authentication)
           .networkProvider(networkProvider)
+          .setFactorFacade(factorFacade)
           .baseUrl(baseUrl)
           .build()
-      return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
+      return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade, authentication)
     }
   }
 }

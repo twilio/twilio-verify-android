@@ -4,6 +4,7 @@
 package com.twilio.verify.domain.factor
 
 import android.content.Context
+import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
@@ -17,7 +18,6 @@ import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
-import com.twilio.verify.networking.Authorization
 import com.twilio.verify.networking.NetworkProvider
 
 internal class FactorFacade(
@@ -65,13 +65,28 @@ internal class FactorFacade(
     }
   }
 
-  fun getFactor(
+  fun getFactorBySid(
     factorSid: String,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
       factorProvider.get(factorSid)
+          ?.let { success(it) } ?: throw TwilioVerifyException(
+          StorageException("Factor not found"), StorageError
+      )
+    } catch (e: TwilioVerifyException) {
+      error(e)
+    }
+  }
+
+  fun getFactorByServiceSid(
+    serviceSid: String,
+    success: (Factor) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  ) {
+    try {
+      factorProvider.getAll().find { it.serviceSid == serviceSid }
           ?.let { success(it) } ?: throw TwilioVerifyException(
           StorageException("Factor not found"), StorageError
       )
@@ -105,7 +120,7 @@ internal class FactorFacade(
 
   class Builder {
     private lateinit var appContext: Context
-    private lateinit var auth: Authorization
+    private lateinit var auth: Authentication
     private lateinit var networking: NetworkProvider
     private lateinit var keyStore: KeyStorage
     private lateinit var url: String
@@ -115,8 +130,8 @@ internal class FactorFacade(
     fun context(context: Context) =
       apply { this.appContext = context }
 
-    fun authorization(authorization: Authorization) =
-      apply { this.auth = authorization }
+    fun authentication(authentication: Authentication) =
+      apply { this.auth = authentication }
 
     fun keyStorage(keyStorage: KeyStorage) =
       apply { this.keyStore = keyStorage }
@@ -132,7 +147,7 @@ internal class FactorFacade(
       }
       if (!this::auth.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for authorization"), InitializationError
+            IllegalArgumentException("Illegal value for authentication"), InitializationError
         )
       }
       if (!this::networking.isInitialized) {

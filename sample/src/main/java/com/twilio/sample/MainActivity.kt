@@ -15,6 +15,7 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.twilio.sample.model.CreateFactorData
 import com.twilio.sample.push.NewChallenge
 import com.twilio.sample.push.VerifyEventBus
+import com.twilio.sample.storage.LocalStorage
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.ChallengeStatus
@@ -41,13 +42,16 @@ class MainActivity : AppCompatActivity() {
 
   private lateinit var token: String
   private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
+  private val storage: LocalStorage by lazy {
+    LocalStorage(this)
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
-    twilioVerifyAdapter = TwilioVerifyProvider.instance(applicationContext)
     getPushToken()
     subscribeToEvents()
+    jwtUrlInput.setText(storage.jwtURL)
     createFactor.setOnClickListener {
       startCreateFactor()
     }
@@ -63,7 +67,12 @@ class MainActivity : AppCompatActivity() {
       identityInput.text.toString().isEmpty() -> showError(
           IllegalArgumentException("Invalid entity identity")
       )
-      else -> createFactor(jwtUrlInput.text.toString(), identityInput.text.toString())
+      else -> {
+        storage.jwtURL = jwtUrlInput.text.toString()
+        twilioVerifyAdapter =
+          TwilioVerifyProvider.instance(applicationContext, storage.jwtURL)
+        createFactor(storage.jwtURL, identityInput.text.toString())
+      }
     }
   }
 

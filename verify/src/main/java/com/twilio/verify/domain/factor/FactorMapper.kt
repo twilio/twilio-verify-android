@@ -17,6 +17,7 @@ import org.json.JSONObject
 internal const val typeKey = "type"
 internal const val statusKey = "status"
 internal const val sidKey = "sid"
+internal const val credentialSidKey = "credential_sid"
 internal const val friendlyNameKey = "friendly_name"
 internal const val accountSidKey = "account_sid"
 internal const val serviceSidKey = "service_sid"
@@ -106,7 +107,8 @@ internal class FactorMapper {
           serviceSid = serviceSid,
           entityIdentity = entityIdentity,
           status = FactorStatus.values().find { it.value == jsonObject.getString(statusKey) }
-              ?: Unverified
+              ?: Unverified,
+          credentialSid = jsonObject.getString(credentialSidKey)
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)

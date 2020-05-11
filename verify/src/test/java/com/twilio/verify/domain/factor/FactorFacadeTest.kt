@@ -195,7 +195,7 @@ class FactorFacadeTest {
     val expectedFactor: Factor = mock()
     whenever(factorProvider.get(sid)).thenReturn(expectedFactor)
     idlingResource.startOperation()
-    factorFacade.getFactor(sid, { factor ->
+    factorFacade.getFactorBySid(sid, { factor ->
       assertEquals(expectedFactor, factor)
       idlingResource.operationFinished()
     }, {
@@ -210,7 +210,7 @@ class FactorFacadeTest {
     val sid = "sid"
     whenever(factorProvider.get(sid)).thenReturn(null)
     idlingResource.startOperation()
-    factorFacade.getFactor(sid, {
+    factorFacade.getFactorBySid(sid, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -229,7 +229,7 @@ class FactorFacadeTest {
       throw expectedException
     }
     idlingResource.startOperation()
-    factorFacade.getFactor(sid, {
+    factorFacade.getFactorBySid(sid, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
