@@ -18,6 +18,7 @@ import com.twilio.sample.model.EnrollmentResponse
 import com.twilio.sample.networking.SampleBackendAPIClient
 import com.twilio.sample.push.NewChallenge
 import com.twilio.sample.push.VerifyEventBus
+import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Challenge
@@ -45,6 +46,7 @@ import org.robolectric.RobolectricTestRunner
 class TwilioVerifyKotlinAdapterTest {
 
   private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
+  private val authentication: Authentication = mock()
   private val twilioVerify: TwilioVerify = mock()
   private val sampleBackendAPIClient: SampleBackendAPIClient = mock()
   private val verifyEventBus: VerifyEventBus = mock()
@@ -55,7 +57,8 @@ class TwilioVerifyKotlinAdapterTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
     twilioVerifyAdapter =
       TwilioVerifyKotlinAdapter(
-          applicationContext = context, twilioVerify = twilioVerify,
+          applicationContext = context, authentication = authentication,
+          twilioVerify = twilioVerify,
           sampleBackendAPIClient = sampleBackendAPIClient, mainDispatcher = Dispatchers.Unconfined,
           dispatcher = Dispatchers.Unconfined, verifyEventBus = verifyEventBus
       )

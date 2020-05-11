@@ -24,7 +24,7 @@ public class TwilioVerifyJavaProvider {
       SampleBackendAPIClient sampleBackendAPIClient = new SampleBackendAPIClient(okHttpClient);
       TwilioVerify twilioVerify = new TwilioVerify.Builder(
           applicationContext,
-          new AuthenticationProvider(url)
+          new AuthenticationProvider(url, okHttpClient())
       ).networkProvider(new OkHttpProvider(okHttpClient)).build();
       twilioVerifyJavaAdapter = new TwilioVerifyJavaAdapter(twilioVerify, sampleBackendAPIClient);
     }
