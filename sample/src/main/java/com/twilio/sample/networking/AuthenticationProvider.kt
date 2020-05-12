@@ -4,9 +4,10 @@ import com.twilio.verify.Authentication
 import com.twilio.verify.api.Action
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.RequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
@@ -36,41 +37,41 @@ class AuthenticationProvider(
     success: (token: String) -> Unit,
     error: (Exception) -> Unit
   ) {
-    val jsonObject = JSONObject().apply {
-      put(identityKey, identity)
-      put(factorSidKey, factorSid)
-      put(challengeSidKey, challengeSid)
-      put(serviceSidKey, serviceSid)
-      put(actionKey, action.value)
-    }
+    val requestBody: RequestBody = FormBody.Builder()
+      .add(identityKey, identity)
+      .add(factorSidKey, factorSid ?: "")
+      .add(challengeSidKey, challengeSid ?: "")
+      .add(serviceSidKey, serviceSid ?: "")
+      .add(actionKey, action.value)
+      .build()
     val request = Request.Builder()
-        .url("$url$authenticationEndpoint")
-        .post(jsonObject.toString().toRequestBody())
-        .build()
+      .url("$url$authenticationEndpoint")
+      .post(requestBody)
+      .build()
 
     okHttpClient.newCall(request)
-        .enqueue(object : Callback {
-          override fun onResponse(
-            call: Call,
-            response: Response
-          ) {
-            try {
-              response.takeIf { it.isSuccessful }
-                  ?.body?.string()
-                  ?.let { JSONObject(it) }
-                  ?.getString(tokenKey)
-                  ?.let { success(it) }
-            } catch (e: Exception) {
-              error(e)
-            }
-          }
-
-          override fun onFailure(
-            call: Call,
-            e: IOException
-          ) {
+      .enqueue(object : Callback {
+        override fun onResponse(
+          call: Call,
+          response: Response
+        ) {
+          try {
+            response.takeIf { it.isSuccessful }
+              ?.body?.string()
+              ?.let { JSONObject(it) }
+              ?.getString(tokenKey)
+              ?.let { success(it) }
+          } catch (e: Exception) {
             error(e)
           }
-        })
+        }
+
+        override fun onFailure(
+          call: Call,
+          e: IOException
+        ) {
+          error(e)
+        }
+      })
   }
 }

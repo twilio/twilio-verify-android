@@ -6,10 +6,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.idling.CountingIdlingResource
 import androidx.test.platform.app.InstrumentationRegistry
 import com.twilio.verify.TwilioVerify.Builder
+import com.twilio.verify.api.Action
 import com.twilio.verify.data.provider
 import com.twilio.verify.domain.factor.sharedPreferencesName
-import com.twilio.verify.networking.Authentication
-import com.twilio.verify.networking.BasicAuthorization
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.internal.TlsUtil.localhost
@@ -25,7 +24,20 @@ import javax.net.ssl.HttpsURLConnection
 
 open class BaseServerTest {
 
-  lateinit var authorization: Authentication
+  private val authentication = object : Authentication {
+    override fun generateJWE(
+      identity: String,
+      factorSid: String?,
+      challengeSid: String?,
+      serviceSid: String?,
+      action: Action,
+      success: (token: String) -> Unit,
+      error: (Exception) -> Unit
+    ) {
+      success("authToken")
+    }
+
+  }
   lateinit var context: Context
   lateinit var twilioVerify: TwilioVerify
   lateinit var mockWebServer: MockWebServer
@@ -41,30 +53,29 @@ open class BaseServerTest {
     mockWebServer.useHttps(sslSocketFactory, false)
     mockWebServer.start()
     sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
-        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+      .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
     context = InstrumentationRegistry.getInstrumentation()
-        .targetContext
+      .targetContext
     keyStore = KeyStore.getInstance(provider)
-        .apply {
-          load(null)
-        }
-    authorization = BasicAuthorization("accountSid", "authToken")
-    twilioVerify = Builder(context, authorization)
-        .baseUrl(mockWebServer.url("/").toString())
-        .build()
+      .apply {
+        load(null)
+      }
+    twilioVerify = Builder(context, authentication)
+      .baseUrl(mockWebServer.url("/").toString())
+      .build()
   }
 
   @After
   open fun tearDown() {
     mockWebServer.shutdown()
     sharedPreferences.edit()
-        .clear()
-        .apply()
+      .clear()
+      .apply()
     keyStore.aliases()
-        .toList()
-        .forEach {
-          keyStore.deleteEntry(it)
-        }
+      .toList()
+      .forEach {
+        keyStore.deleteEntry(it)
+      }
   }
 
   fun enqueueMockResponse(

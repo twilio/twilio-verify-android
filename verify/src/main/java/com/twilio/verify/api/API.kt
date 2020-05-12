@@ -27,17 +27,17 @@ fun generateToken(
   error: (TwilioVerifyException) -> Unit
 ) {
   authentication.generateJWE(
-      identity = identity, factorSid = factorSid,
-      challengeSid = challengeSid, serviceSid = serviceSid, action = action,
-      success = { authToken ->
-        success(authToken)
-      }, error = {
-    error(
+    identity = identity, factorSid = factorSid,
+    challengeSid = challengeSid, serviceSid = serviceSid, action = action,
+    success = { authToken ->
+      success(authToken)
+    }, error = { exception ->
+      error(
         TwilioVerifyException(
-            AuthenticationTokenException("Invalid token"), AuthenticationTokenError
+          AuthenticationTokenException(exception), AuthenticationTokenError
         )
-    )
-  })
+      )
+    })
 }
 
-class AuthenticationTokenException(message: String) : Exception(message)
+class AuthenticationTokenException(exception: Exception) : Exception(exception)

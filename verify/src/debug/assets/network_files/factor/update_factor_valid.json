@@ -7,7 +7,7 @@
   "date_updated": "976351423",
   "url": "https://twilio.com",
   "config": {
-    "user": "test"
+    "credential_sid": "credentialSid"
   },
   "status": "unverified"
 }

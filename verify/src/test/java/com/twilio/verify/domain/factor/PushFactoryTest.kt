@@ -21,6 +21,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.models.Config
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorType.PUSH
@@ -31,10 +32,8 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
 class PushFactoryTest {
 
   private val factorProvider: FactorProvider = mock()
@@ -62,10 +61,10 @@ class PushFactoryTest {
     val publicKey = "publicKey123"
     val context = ApplicationProvider.getApplicationContext<Context>()
     val expectedConfig = mapOf(
-        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
-        NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
-        NOTIFICATION_TOKEN_KEY to pushToken
+      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+      APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+      NOTIFICATION_TOKEN_KEY to pushToken
     )
     val expectedBinding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
     var alias: String? = null
@@ -75,7 +74,8 @@ class PushFactoryTest {
         return@then publicKey
       }
     }
-    val pushFactor = PushFactor("1", friendlyName, "1", serviceSid, entityId)
+    val pushFactor =
+      PushFactor("1", friendlyName, "1", serviceSid, entityId, config = Config("credentialSid"))
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.create(any(), capture(), any())).then {
         firstValue.invoke(pushFactor)
@@ -224,9 +224,19 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
+    val credentialSid = "credentialSid"
     val keyPairAlias = "keyPairAlias"
     val payload = "payload"
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
+    val factor =
+      PushFactor(
+        sid,
+        friendlyName,
+        accountSid,
+        serviceSid,
+        entityId,
+        status,
+        Config("credentialSid")
+      )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
     whenever(keyStorage.sign(eq(keyPairAlias), eq(sid))).thenReturn(payload)
@@ -244,6 +254,7 @@ class PushFactoryTest {
       assertEquals(accountSid, it.accountSid)
       assertEquals(entityId, it.entityIdentity)
       assertEquals(sid, it.sid)
+      assertEquals(credentialSid, it.config.credentialSid)
       verify(keyStorage).sign(keyPairAlias, it.sid)
       idlingResource.operationFinished()
     }, {
@@ -276,9 +287,19 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
+    val credentialSid = "credentialSid"
     val keyPairAlias = "keyPairAlias"
     val payload = "payload"
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
+    val factor =
+      PushFactor(
+        sid,
+        friendlyName,
+        accountSid,
+        serviceSid,
+        entityId,
+        status,
+        Config("credentialSid")
+      )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
     whenever(keyStorage.sign(eq(keyPairAlias), eq(sid))).thenReturn(payload)
@@ -307,8 +328,15 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
+    val credentialSid = "credentialSid"
     val keyPairAlias = null
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
+    val factor =
+      PushFactor(
+        sid, friendlyName, accountSid, serviceSid, entityId, status,
+        Config(
+          credentialSid
+        )
+      )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
     idlingResource.startOperation()
@@ -330,8 +358,18 @@ class PushFactoryTest {
     val entityId = "entityId"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
+    val credentialSid = "credentialSid"
     val status = FactorStatus.Unverified
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
+    val factor =
+      PushFactor(
+        sid,
+        friendlyName,
+        accountSid,
+        serviceSid,
+        entityId,
+        status,
+        Config("credentialSid")
+      )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.update(any(), capture(), any())).then {
@@ -355,6 +393,7 @@ class PushFactoryTest {
       assertEquals(accountSid, it.accountSid)
       assertEquals(entityId, it.entityIdentity)
       assertEquals(sid, it.sid)
+      assertEquals(credentialSid, it.config.credentialSid)
       idlingResource.operationFinished()
     }, {
       fail()
@@ -387,7 +426,17 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
+    val credentialSid = "credentialSid"
+    val factor =
+      PushFactor(
+        sid,
+        friendlyName,
+        accountSid,
+        serviceSid,
+        entityId,
+        status,
+        Config("credentialSid")
+      )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
@@ -414,10 +463,20 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
+    val credentialSid = "credentialSid"
     val alias = "keyPairAlias"
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status).apply {
-      keyPairAlias = alias
-    }
+    val factor =
+      PushFactor(
+        sid,
+        friendlyName,
+        accountSid,
+        serviceSid,
+        entityId,
+        status,
+        Config(credentialSid)
+      ).apply {
+        keyPairAlias = alias
+      }
     whenever(factorProvider.get(sid)).thenReturn(factor)
     argumentCaptor<() -> Unit>().apply {
       whenever(factorProvider.delete(eq(factor), capture(), any())).then {
@@ -466,7 +525,9 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val status = FactorStatus.Unverified
-    val factor = PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status)
+    val credentialSid = "credentialSid"
+    val factor =
+      PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status, Config(credentialSid))
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {

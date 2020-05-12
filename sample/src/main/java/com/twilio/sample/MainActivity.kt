@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
       else -> {
         storage.jwtURL = jwtUrlInput.text.toString()
         twilioVerifyAdapter =
-          TwilioVerifyProvider.instance(applicationContext, storage.jwtURL)
+          TwilioVerifyProvider.instance(applicationContext, jwtUrlInput.text.toString())
         createFactor(storage.jwtURL, identityInput.text.toString())
       }
     }

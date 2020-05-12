@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.Authentication
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
@@ -39,6 +40,7 @@ class TwilioVerifyManagerTest {
   private val factorFacade: FactorFacade = mock()
   private val challengeFacade: ChallengeFacade = mock()
   private val serviceFacade: ServiceFacade = mock()
+  private val authentication: Authentication = mock()
   private val twilioVerifyManager =
     TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade, authentication)
   private val idlingResource = IdlingResource()
