@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
-import com.twilio.verify.Authentication
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.networking.HttpMethod.Get
 import com.twilio.verify.networking.HttpMethod.Post
@@ -32,47 +31,46 @@ class RequestHelper internal constructor(
     val separator = "; "
     val appName = context.applicationInfo.loadLabel(context.packageManager)
     val appVersionName = context.packageManager.getPackageInfo(context.packageName, 0)
-        .versionName
+      .versionName
     val appVersionCode = if (VERSION.SDK_INT >= VERSION_CODES.P) {
       context.packageManager.getPackageInfo(context.packageName, 0)
-          .longVersionCode.toInt()
+        .longVersionCode.toInt()
     } else {
       context.packageManager.getPackageInfo(context.packageName, 0)
-          .versionCode
+        .versionCode
     }
     val osVersion = "$platform ${VERSION.RELEASE} (${VERSION.SDK_INT})"
     val sdkVersionName = BuildConfig.VERSION_NAME
     val sdkVersionCode = BuildConfig.VERSION_CODE
     val device = Build.MODEL
     userAgentBuilder.append(appName)
-        .append(separator)
-        .append(platform)
-        .append(separator)
-        .append(appVersionName)
-        .append(separator)
-        .append(appVersionCode)
-        .append(separator)
-        .append(osVersion)
-        .append(separator)
-        .append(device)
-        .append(separator)
-        .append(sdkName)
-        .append(separator)
-        .append(sdkVersionName)
-        .append(separator)
-        .append(sdkVersionCode)
+      .append(separator)
+      .append(platform)
+      .append(separator)
+      .append(appVersionName)
+      .append(separator)
+      .append(appVersionCode)
+      .append(separator)
+      .append(osVersion)
+      .append(separator)
+      .append(device)
+      .append(separator)
+      .append(sdkName)
+      .append(separator)
+      .append(sdkVersionName)
+      .append(separator)
+      .append(sdkVersionCode)
     return userAgentBuilder.toString()
   }
 
   fun commonHeaders(httpMethod: HttpMethod?): Map<String, String> {
     var commonHeaders = mapOf(userAgentHeader, authorizationHeader)
-//      var commonHeaders = mapOf(userAgentHeader)
     commonHeaders = when (httpMethod) {
       Post -> commonHeaders.plus(
-          mediaTypeHeaders(acceptTypeValue = Json, contentTypeValue = UrlEncoded)
+        mediaTypeHeaders(acceptTypeValue = Json, contentTypeValue = UrlEncoded)
       )
       Get -> commonHeaders.plus(
-          mediaTypeHeaders(acceptTypeValue = UrlEncoded, contentTypeValue = UrlEncoded)
+        mediaTypeHeaders(acceptTypeValue = UrlEncoded, contentTypeValue = UrlEncoded)
       )
       else -> commonHeaders
     }
@@ -84,7 +82,7 @@ class RequestHelper internal constructor(
     contentTypeValue: MediaTypeValue
   ): Map<String, String> =
     mapOf(
-        MediaTypeHeader.Accept.type to acceptTypeValue.type,
-        MediaTypeHeader.ContentType.type to contentTypeValue.type
+      MediaTypeHeader.Accept.type to acceptTypeValue.type,
+      MediaTypeHeader.ContentType.type to contentTypeValue.type
     )
 }

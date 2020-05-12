@@ -225,7 +225,3 @@ internal class FactorAPIClient(
       CONFIG_KEY to JSONObject(updateFactorPayload.config).toString()
     )
 }
-
-fun jwe() {
-
-}
