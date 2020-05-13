@@ -451,15 +451,15 @@ class ChallengeAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorChallenge.factor!!.entityIdentity),
-          factorSid = eq(factorChallenge.factor!!.sid),
-          challengeSid = eq("*"),
-          serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorChallenge.factor!!.entityIdentity),
+              factorSid = eq(factorChallenge.factor!!.sid),
+              challengeSid = eq("*"),
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -485,15 +485,15 @@ class ChallengeAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorChallenge.factor!!.entityIdentity),
-          factorSid = eq(factorChallenge.factor!!.sid),
-          challengeSid = eq("*"),
-          serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorChallenge.factor!!.entityIdentity),
+              factorSid = eq(factorChallenge.factor!!.sid),
+              challengeSid = eq("*"),
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -514,15 +514,15 @@ class ChallengeAPIClientTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorChallenge.factor!!.entityIdentity),
-          factorSid = eq(factorChallenge.factor!!.sid),
-          challengeSid = eq("*"),
-          serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(READ),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorChallenge.factor!!.entityIdentity),
+              factorSid = eq(factorChallenge.factor!!.sid),
+              challengeSid = eq("*"),
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
+              action = eq(READ),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -545,15 +545,15 @@ class ChallengeAPIClientTest {
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorChallenge.factor!!.entityIdentity),
-          factorSid = eq(factorChallenge.factor!!.sid),
-          challengeSid = eq("*"),
-          serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorChallenge.factor!!.entityIdentity),
+              factorSid = eq(factorChallenge.factor!!.sid),
+              challengeSid = eq("*"),
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }

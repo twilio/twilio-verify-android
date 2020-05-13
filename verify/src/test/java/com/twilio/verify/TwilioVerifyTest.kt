@@ -625,15 +625,15 @@ class TwilioVerifyTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(null),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(null),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -669,15 +669,15 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(null),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(null),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -718,15 +718,15 @@ class TwilioVerifyTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq("*"),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq("*"),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -776,21 +776,21 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq("*"),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq("*"),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
     }
     idlingResource.startOperation()
-    twilioVerify.getAllChallenges(challengeListInput, { list ->
+    twilioVerify.getAllChallenges(challengeListInput, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
