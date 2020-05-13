@@ -65,7 +65,7 @@ internal class FactorFacade(
     }
   }
 
-  fun getFactorBySid(
+  fun getFactor(
     factorSid: String,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit

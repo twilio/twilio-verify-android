@@ -69,10 +69,9 @@ internal class ChallengeAPIClient(
     }
     challenge.factor?.let { factor ->
       generateToken(
-          authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-          challengeSid = challenge.sid, serviceSid = factor.serviceSid, action = UPDATE,
-          success = ::updateChallenge,
-          error = error
+          authentication, serviceSid = factor.serviceSid, identity = factor.entityIdentity,
+          factorSid = factor.sid, challengeSid = challenge.sid, action = UPDATE,
+          success = ::updateChallenge, error = error
       )
     } ?: error(
         TwilioVerifyException(
@@ -108,10 +107,9 @@ internal class ChallengeAPIClient(
       }
     }
     generateToken(
-        authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-        challengeSid = sid, serviceSid = factor.serviceSid, action = READ,
-        success = ::getChallenge,
-        error = error
+        authentication, serviceSid = factor.serviceSid, identity = factor.entityIdentity,
+        factorSid = factor.sid, challengeSid = sid, action = READ,
+        success = ::getChallenge, error = error
     )
   }
 
@@ -152,8 +150,8 @@ internal class ChallengeAPIClient(
       }
     }
     generateToken(
-        authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-        challengeSid = "*", serviceSid = factor.serviceSid, action = READ,
+        authentication, serviceSid = factor.serviceSid, identity = factor.entityIdentity,
+        factorSid = factor.sid, challengeSid = "*", action = READ,
         success = ::getAllChallenges, error = error
     )
   }

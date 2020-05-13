@@ -17,17 +17,17 @@ enum class Action(val value: String) {
 
 fun generateToken(
   authentication: Authentication,
+  serviceSid: String,
   identity: String,
   factorSid: String? = null,
   challengeSid: String? = null,
-  serviceSid: String,
   action: Action,
   success: (authToken: String) -> Unit,
   error: (TwilioVerifyException) -> Unit
 ) {
   authentication.generateJWE(
-      identity = identity, factorSid = factorSid,
-      challengeSid = challengeSid, serviceSid = serviceSid, action = action,
+      serviceSid = serviceSid, identity = identity, factorSid = factorSid,
+      challengeSid = challengeSid, action = action,
       success = { authToken ->
         success(authToken)
       }, error = { exception ->

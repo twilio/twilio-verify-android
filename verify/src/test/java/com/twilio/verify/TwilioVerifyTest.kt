@@ -180,10 +180,10 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(sid),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -223,10 +223,10 @@ class TwilioVerifyTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(sid),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(UPDATE),
               success = any(),
               error = capture()
@@ -265,10 +265,10 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(sid),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -305,10 +305,10 @@ class TwilioVerifyTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(sid),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(UPDATE),
               success = any(),
               error = capture()
@@ -364,10 +364,10 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
               challengeSid = eq(challengeSid),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -423,10 +423,10 @@ class TwilioVerifyTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
               challengeSid = eq(challengeSid),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = any(),
               error = capture()
@@ -493,10 +493,10 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
               challengeSid = eq(challengeSid),
-              serviceSid = eq(factorServiceSid),
               action = any(),
               success = capture(),
               error = any()
@@ -560,10 +560,10 @@ class TwilioVerifyTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
               challengeSid = eq(challengeSid),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = any(),
               error = capture()
@@ -626,10 +626,10 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(null),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -670,10 +670,10 @@ class TwilioVerifyTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(null),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = any(),
               error = capture()
@@ -719,10 +719,10 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
               challengeSid = eq("*"),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -777,10 +777,10 @@ class TwilioVerifyTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
               challengeSid = eq("*"),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = any(),
               error = capture()
@@ -811,10 +811,10 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(DELETE),
               success = capture(),
               error = any()
@@ -845,10 +845,10 @@ class TwilioVerifyTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(DELETE),
               success = any(),
               error = capture()

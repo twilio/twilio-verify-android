@@ -29,10 +29,10 @@ class AuthenticationProvider(
 ) : Authentication {
 
   override fun generateJWE(
+    serviceSid: String,
     identity: String,
     factorSid: String?,
     challengeSid: String?,
-    serviceSid: String,
     action: Action,
     success: (token: String) -> Unit,
     error: (Exception) -> Unit

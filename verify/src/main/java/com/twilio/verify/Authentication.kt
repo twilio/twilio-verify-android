@@ -8,10 +8,10 @@ import com.twilio.verify.api.Action
 
 interface Authentication {
   fun generateJWE(
+    serviceSid: String,
     identity: String,
     factorSid: String? = null,
     challengeSid: String? = null,
-    serviceSid: String,
     action: Action,
     success: (token: String) -> Unit,
     error: (Exception) -> Unit
