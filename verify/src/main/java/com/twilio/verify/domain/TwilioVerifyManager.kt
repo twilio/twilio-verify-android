@@ -3,7 +3,6 @@
  */
 package com.twilio.verify.domain
 
-import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.domain.challenge.ChallengeFacade
@@ -22,8 +21,7 @@ import com.twilio.verify.models.VerifyFactorInput
 internal class TwilioVerifyManager(
   private val factorFacade: FactorFacade,
   private val challengeFacade: ChallengeFacade,
-  private val serviceFacade: ServiceFacade,
-  authentication: Authentication
+  private val serviceFacade: ServiceFacade
 ) : TwilioVerify {
   override fun createFactor(
     factorInput: FactorInput,
