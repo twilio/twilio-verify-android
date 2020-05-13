@@ -15,7 +15,7 @@ class BasicAuthorizationTest {
   fun `Authorization should return a pair with key = Authorization & value = Basic auth`() {
     val username = "username"
     val password = "password"
-    val expectedBasicAuthorization = "$BasicAuth YWNjb3VudFNpZDphdXRoVG9rZW4="
+    val expectedBasicAuthorization = "$BasicAuth dXNlcm5hbWU6cGFzc3dvcmQ="
     val authorization = BasicAuthorization(username, password)
     assertEquals(AuthorizationHeader, authorization.header.first)
     assertEquals(expectedBasicAuthorization, authorization.header.second)
