@@ -44,7 +44,7 @@
       android:id="@+id/challengesFragment"
       android:name="com.twilio.verify.sample.view.challenges.list.ChallengesFragment"
       android:label="fragment_challenges"
-      tools:layout="@layout/fragment_challenges">
+      tools:layout="@layout/fragment_factor_challenges">
     <argument
         android:name="factorSid"
         app:argType="string" />

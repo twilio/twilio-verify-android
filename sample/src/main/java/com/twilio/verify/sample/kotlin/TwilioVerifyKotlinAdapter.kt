@@ -11,6 +11,7 @@ import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
 import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
@@ -93,6 +94,21 @@ class TwilioVerifyKotlinAdapter(
     twilioVerify.getAllFactors(success, error)
   }
 
+  override fun updatePushToken(token: String) {
+    twilioVerify.getAllFactors({ factors ->
+      for (factor in factors) {
+        updateFactor(factor, token)
+      }
+    }, ::handleError)
+  }
+
+  private fun updateFactor(
+    factor: Factor,
+    token: String
+  ) {
+    twilioVerify.updateFactor(UpdatePushFactorInput(factor.sid, token), {}, ::handleError)
+  }
+
   private fun onFactorCreated(
     factor: Factor,
     onSuccess: (Factor) -> Unit,
@@ -112,6 +128,10 @@ class TwilioVerifyKotlinAdapter(
         cont.resumeWithException(exception)
       })
     }
+  }
+
+  private fun handleError(exception: TwilioVerifyException) {
+    exception.printStackTrace()
   }
 }
 

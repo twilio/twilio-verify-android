@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.Service
 
 fun Exception.showError(
   content: View
@@ -40,3 +41,5 @@ fun Challenge.string(context: Context?) =
   )}"
 
 fun Factor.string() = "Sid:\n${this.sid}\nName: ${this.friendlyName}\nStatus: ${this.status}"
+
+fun Service.string() = "Sid:\n${this.sid}\nName: ${this.friendlyName}"

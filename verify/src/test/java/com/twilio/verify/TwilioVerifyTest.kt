@@ -628,10 +628,10 @@ class TwilioVerifyTest {
       whenever(
         authentication.generateJWE(
           identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
+          factorSid = eq(null),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -672,10 +672,10 @@ class TwilioVerifyTest {
       whenever(
         authentication.generateJWE(
           identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
+          factorSid = eq(null),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = any(),
           error = capture()
         )

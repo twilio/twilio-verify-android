@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListInput
-import com.twilio.verify.models.Factor
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.R.layout
 import com.twilio.verify.sample.TwilioVerifyAdapter
@@ -19,8 +18,9 @@ import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
 import com.twilio.verify.sample.view.showError
 import com.twilio.verify.sample.view.string
-import kotlinx.android.synthetic.main.fragment_challenges.challenges
-import kotlinx.android.synthetic.main.fragment_challenges.content
+import kotlinx.android.synthetic.main.fragment_factor_challenges.challenges
+import kotlinx.android.synthetic.main.fragment_factor_challenges.content
+import kotlinx.android.synthetic.main.fragment_factor_challenges.serviceInfo
 import kotlinx.android.synthetic.main.view_factor.factorInfo
 import org.koin.android.ext.android.inject
 
@@ -42,22 +42,33 @@ class ChallengesFragment : Fragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(layout.fragment_challenges, container, false)
+    return inflater.inflate(layout.fragment_factor_challenges, container, false)
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    twilioVerifyAdapter.getFactors(::showFactor) {
-      it.showError(content)
-    }
     viewManager = LinearLayoutManager(view?.context)
+    showFactor()
     loadChallenges()
   }
 
-  private fun showFactor(factors: List<Factor>) {
-    factorInfo.text = factors.first { it.sid == factorSid }
-        .string()
-    factorInfo.setTextIsSelectable(true)
+  private fun showFactor() {
+    twilioVerifyAdapter.getFactors({ factors ->
+      val factor = factors.first { it.sid == factorSid }
+      factorInfo.text = factor.string()
+      factorInfo.setTextIsSelectable(true)
+      showService(factor.serviceSid)
+    }) {
+      it.showError(content)
+    }
+  }
+
+  private fun showService(serviceSid: String) {
+    twilioVerifyAdapter.getService(serviceSid, {
+      serviceInfo.text = it.string()
+    }) {
+      it.showError(content)
+    }
   }
 
   private fun loadChallenges() {

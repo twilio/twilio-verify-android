@@ -39,6 +39,7 @@ class FirebasePushService() : FirebaseMessagingService() {
 
   override fun onNewToken(token: String) {
     Log.d("newToken", token)
+    twilioVerifyAdapter.updatePushToken(token)
   }
 
   override fun onMessageReceived(remoteMessage: RemoteMessage) {

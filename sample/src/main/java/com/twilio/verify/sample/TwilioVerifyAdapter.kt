@@ -3,15 +3,14 @@
  */
 package com.twilio.verify.sample
 
-import android.content.Context
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.VerifyFactorInput
-import com.twilio.verify.sample.kotlin.TwilioVerifyKotlinProvider
 import com.twilio.verify.sample.model.CreateFactorData
 
 interface TwilioVerifyAdapter {
@@ -61,5 +60,13 @@ interface TwilioVerifyAdapter {
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
+
+  fun getService(
+    serviceSid: String,
+    success: (Service) -> Unit,
+    error: (TwilioVerifyException) -> Unit
+  )
+
+  fun updatePushToken(token: String)
 }
 

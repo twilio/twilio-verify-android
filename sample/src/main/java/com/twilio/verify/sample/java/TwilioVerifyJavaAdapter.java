@@ -8,7 +8,9 @@ import com.twilio.verify.models.ChallengeListInput;
 import com.twilio.verify.models.Factor;
 import com.twilio.verify.models.FactorInput;
 import com.twilio.verify.models.PushFactorInput;
+import com.twilio.verify.models.Service;
 import com.twilio.verify.models.UpdateChallengeInput;
+import com.twilio.verify.models.UpdatePushFactorInput;
 import com.twilio.verify.models.VerifyFactorInput;
 import com.twilio.verify.models.VerifyPushFactorInput;
 import com.twilio.verify.sample.TwilioVerifyAdapter;
@@ -132,5 +134,31 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
       @NotNull Function1<? super ChallengeList, Unit> success,
       @NotNull Function1<? super TwilioVerifyException, Unit> error) {
     twilioVerify.getAllChallenges(challengeListInput, success, error);
+  }
+
+  @Override public void getService(@NotNull String serviceSid,
+      @NotNull Function1<? super Service, Unit> success,
+      @NotNull Function1<? super TwilioVerifyException, Unit> error) {
+    twilioVerify.getService(serviceSid, success, error);
+  }
+
+  @Override public void updatePushToken(@NotNull final String token) {
+    twilioVerify.getAllFactors(new Function1<List<? extends Factor>, Unit>() {
+      @Override public Unit invoke(List<? extends Factor> factors) {
+        for (Factor factor : factors) {
+          updateFactor(factor, token);
+        }
+        return Unit.INSTANCE;
+      }
+    }, handleError);
+  }
+
+  private void updateFactor(Factor factor, String token) {
+    twilioVerify.updateFactor(new UpdatePushFactorInput(factor.getSid(), token),
+        new Function1<Factor, Unit>() {
+          @Override public Unit invoke(Factor factor) {
+            return Unit.INSTANCE;
+          }
+        }, handleError);
   }
 }
