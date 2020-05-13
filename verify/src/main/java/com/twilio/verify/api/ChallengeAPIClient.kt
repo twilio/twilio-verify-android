@@ -49,16 +49,16 @@ internal class ChallengeAPIClient(
     fun updateChallenge(authToken: String) {
       try {
         val requestHelper = RequestHelper(
-          context,
-          BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
+            context,
+            BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
         )
         val request = Request.Builder(
-          requestHelper,
-          updateChallengeURL(challenge)
+            requestHelper,
+            updateChallengeURL(challenge)
         )
-          .httpMethod(Post)
-          .body(updateChallengeBody(authPayload))
-          .build()
+            .httpMethod(Post)
+            .body(updateChallengeBody(authPayload))
+            .build()
         networkProvider.execute(request, {
           success()
         }, { exception ->
@@ -70,16 +70,16 @@ internal class ChallengeAPIClient(
     }
     challenge.factor?.let { factor ->
       generateToken(
-        authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-        challengeSid = challenge.sid, serviceSid = factor.serviceSid, action = UPDATE,
-        success = ::updateChallenge,
-        error = error
+          authentication, identity = factor.entityIdentity, factorSid = factor.sid,
+          challengeSid = challenge.sid, serviceSid = factor.serviceSid, action = UPDATE,
+          success = ::updateChallenge,
+          error = error
       )
     } ?: error(
-      TwilioVerifyException(
-        NetworkException(IllegalArgumentException("Factor is null")),
-        NetworkError
-      )
+        TwilioVerifyException(
+            NetworkException(IllegalArgumentException("Factor is null")),
+            NetworkError
+        )
     )
   }
 
@@ -94,11 +94,11 @@ internal class ChallengeAPIClient(
         val requestHelper =
           RequestHelper(context, BasicAuthorization(JWT_AUTHENTICATION_USER, authToken))
         val request = Request.Builder(
-          requestHelper,
-          getChallengeURL(sid, factor)
+            requestHelper,
+            getChallengeURL(sid, factor)
         )
-          .httpMethod(Get)
-          .build()
+            .httpMethod(Get)
+            .build()
         networkProvider.execute(request, {
           success(JSONObject(it))
         }, { exception ->
@@ -109,10 +109,10 @@ internal class ChallengeAPIClient(
       }
     }
     generateToken(
-      authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-      challengeSid = sid, serviceSid = factor.serviceSid, action = FETCH,
-      success = ::getChallenge,
-      error = error
+        authentication, identity = factor.entityIdentity, factorSid = factor.sid,
+        challengeSid = sid, serviceSid = factor.serviceSid, action = READ,
+        success = ::getChallenge,
+        error = error
     )
   }
 
@@ -136,12 +136,12 @@ internal class ChallengeAPIClient(
           queryParameters.put(pageTokenParameter, it)
         }
         val request = Request.Builder(
-          requestHelper,
-          getChallengesURL(factor)
+            requestHelper,
+            getChallengesURL(factor)
         )
-          .httpMethod(Get)
-          .query(queryParameters)
-          .build()
+            .httpMethod(Get)
+            .query(queryParameters)
+            .build()
         networkProvider.execute(request, {
           success(JSONObject(it))
         }, { exception ->
@@ -153,21 +153,22 @@ internal class ChallengeAPIClient(
       }
     }
     generateToken(
-      authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-      serviceSid = factor.serviceSid, action = READ,
-      success = ::getAllChallenges,
-      error = error
+        authentication, identity = factor.entityIdentity, factorSid = factor.sid,
+        challengeSid = "*",
+        serviceSid = factor.serviceSid, action = READ,
+        success = ::getAllChallenges,
+        error = error
     )
   }
 
   private fun updateChallengeURL(challenge: FactorChallenge) =
     challenge.factor?.let { factor ->
       "$baseUrl$updateChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(
-          ENTITY_PATH, factor.entityIdentity, true
-        )
-        .replace(FACTOR_SID_PATH, factor.sid)
-        .replace(challengeSidPath, challenge.sid)
+          .replace(
+              ENTITY_PATH, factor.entityIdentity, true
+          )
+          .replace(FACTOR_SID_PATH, factor.sid)
+          .replace(challengeSidPath, challenge.sid)
     } ?: run {
       throw IllegalArgumentException("ServiceSid or EntityIdentity is null or empty")
     }
@@ -176,22 +177,22 @@ internal class ChallengeAPIClient(
     authPayload: String
   ): Map<String, String?> =
     mapOf(
-      AUTH_PAYLOAD_PARAM to authPayload
+        AUTH_PAYLOAD_PARAM to authPayload
     )
 
   private fun getChallengeURL(
     challengeSid: String,
     factor: Factor
   ) = "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-    .replace(
-      ENTITY_PATH, factor.entityIdentity, true
-    )
-    .replace(FACTOR_SID_PATH, factor.sid)
-    .replace(challengeSidPath, challengeSid)
+      .replace(
+          ENTITY_PATH, factor.entityIdentity, true
+      )
+      .replace(FACTOR_SID_PATH, factor.sid)
+      .replace(challengeSidPath, challengeSid)
 
   private fun getChallengesURL(
     factor: Factor
   ) = "$baseUrl$getChallengesURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-    .replace(ENTITY_PATH, factor.entityIdentity, true)
-    .replace(FACTOR_SID_PATH, factor.sid)
+      .replace(ENTITY_PATH, factor.entityIdentity, true)
+      .replace(FACTOR_SID_PATH, factor.sid)
 }

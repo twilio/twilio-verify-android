@@ -1,34 +1,42 @@
 package com.twilio.verify.sample.push
 
+import androidx.test.core.app.ApplicationProvider
 import com.google.firebase.messaging.RemoteMessage
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
-import com.twilio.sample.TwilioVerifyAdapter
-import com.twilio.sample.push.FirebasePushService
-import com.twilio.sample.push.challengeSidKey
-import com.twilio.sample.push.challengeType
-import com.twilio.sample.push.factorSidKey
-import com.twilio.sample.push.typeKey
+import com.twilio.verify.sample.TwilioVerifyAdapter
+import com.twilio.verify.sample.UnitTestApplication
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = UnitTestApplication::class)
 class FirebasePushServiceTest {
 
+  private lateinit var firebasePushService: FirebasePushService
   private val twilioVerifyAdapter: TwilioVerifyAdapter = mock()
-  private val firebasePushService = FirebasePushService()
 
   @Before
   fun setup() {
-    firebasePushService.twilioVerifyAdapter = twilioVerifyAdapter
+    ApplicationProvider.getApplicationContext<UnitTestApplication>()
+        .updateTwilioVerifyDependency(twilioVerifyAdapter)
+    firebasePushService = FirebasePushService()
+  }
+
+  @After
+  fun tearDown() {
+    stopKoin()
   }
 
   @Test
@@ -41,7 +49,7 @@ class FirebasePushServiceTest {
       on { data } doReturn pushData
     }
     firebasePushService.onMessageReceived(remoteMessage)
-    verify(twilioVerifyAdapter).getChallenge(challengeSid, factorSid)
+    verify(twilioVerifyAdapter).showChallenge(challengeSid, factorSid)
   }
 
   @Test
@@ -52,7 +60,7 @@ class FirebasePushServiceTest {
       on { data } doReturn pushData
     }
     firebasePushService.onMessageReceived(remoteMessage)
-    verify(twilioVerifyAdapter, never()).getChallenge(any(), any())
+    verify(twilioVerifyAdapter, never()).showChallenge(any(), any())
   }
 
   @Test
@@ -63,6 +71,6 @@ class FirebasePushServiceTest {
       on { data } doReturn pushData
     }
     firebasePushService.onMessageReceived(remoteMessage)
-    verify(twilioVerifyAdapter, never()).getChallenge(any(), any())
+    verify(twilioVerifyAdapter, never()).showChallenge(any(), any())
   }
 }

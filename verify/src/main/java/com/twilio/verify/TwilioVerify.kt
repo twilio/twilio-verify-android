@@ -115,7 +115,7 @@ interface TwilioVerify {
           .setFactorFacade(factorFacade)
           .baseUrl(baseUrl)
           .build()
-      return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade, authentication)
+      return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
     }
   }
 }

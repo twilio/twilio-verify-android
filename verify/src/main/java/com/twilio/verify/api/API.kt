@@ -21,7 +21,7 @@ fun generateToken(
   identity: String,
   factorSid: String? = null,
   challengeSid: String? = null,
-  serviceSid: String? = null,
+  serviceSid: String,
   action: Action,
   success: (authToken: String) -> Unit,
   error: (TwilioVerifyException) -> Unit

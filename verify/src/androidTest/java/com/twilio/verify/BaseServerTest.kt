@@ -29,7 +29,7 @@ open class BaseServerTest {
       identity: String,
       factorSid: String?,
       challengeSid: String?,
-      serviceSid: String?,
+      serviceSid: String,
       action: Action,
       success: (token: String) -> Unit,
       error: (Exception) -> Unit

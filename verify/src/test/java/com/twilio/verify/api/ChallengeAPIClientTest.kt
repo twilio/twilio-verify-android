@@ -282,7 +282,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -316,7 +316,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -345,7 +345,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = any(),
           error = capture()
         )
@@ -377,7 +377,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -416,7 +416,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -455,7 +455,7 @@ class ChallengeAPIClientTest {
         authentication.generateJWE(
           identity = eq(factorChallenge.factor!!.entityIdentity),
           factorSid = eq(factorChallenge.factor!!.sid),
-          challengeSid = eq(null),
+          challengeSid = eq("*"),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
           action = eq(READ),
           success = capture(),
@@ -489,7 +489,7 @@ class ChallengeAPIClientTest {
         authentication.generateJWE(
           identity = eq(factorChallenge.factor!!.entityIdentity),
           factorSid = eq(factorChallenge.factor!!.sid),
-          challengeSid = eq(null),
+          challengeSid = eq("*"),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
           action = eq(READ),
           success = capture(),
@@ -518,7 +518,7 @@ class ChallengeAPIClientTest {
         authentication.generateJWE(
           identity = eq(factorChallenge.factor!!.entityIdentity),
           factorSid = eq(factorChallenge.factor!!.sid),
-          challengeSid = eq(null),
+          challengeSid = eq("*"),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
           action = eq(READ),
           success = any(),
@@ -549,7 +549,7 @@ class ChallengeAPIClientTest {
         authentication.generateJWE(
           identity = eq(factorChallenge.factor!!.entityIdentity),
           factorSid = eq(factorChallenge.factor!!.sid),
-          challengeSid = eq(null),
+          challengeSid = eq("*"),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
           action = eq(READ),
           success = capture(),
