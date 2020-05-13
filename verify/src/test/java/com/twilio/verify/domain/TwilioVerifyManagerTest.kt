@@ -8,7 +8,6 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.verify.Authentication
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
