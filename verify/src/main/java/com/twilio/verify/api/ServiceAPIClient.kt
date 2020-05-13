@@ -52,10 +52,8 @@ internal class ServiceAPIClient(
       }
     }
     generateToken(
-        authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-        serviceSid = serviceSid, action = READ,
-        success = ::getService,
-        error = error
+        authentication, identity = factor.entityIdentity, serviceSid = serviceSid, action = READ,
+        success = ::getService, error = error
     )
   }
 

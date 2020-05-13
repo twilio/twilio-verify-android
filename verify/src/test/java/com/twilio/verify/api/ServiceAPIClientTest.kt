@@ -78,7 +78,7 @@ class ServiceAPIClientTest {
       whenever(
           authentication.generateJWE(
               identity = eq(identity),
-              factorSid = eq(factorSid),
+              factorSid = eq(null),
               challengeSid = eq(null),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),
@@ -115,7 +115,7 @@ class ServiceAPIClientTest {
       whenever(
           authentication.generateJWE(
               identity = eq(identity),
-              factorSid = eq(factorSid),
+              factorSid = eq(null),
               challengeSid = eq(null),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),
@@ -159,7 +159,7 @@ class ServiceAPIClientTest {
       whenever(
           authentication.generateJWE(
               identity = eq(identity),
-              factorSid = eq(factorSid),
+              factorSid = eq(null),
               challengeSid = eq(null),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),
@@ -196,7 +196,7 @@ class ServiceAPIClientTest {
       whenever(
           authentication.generateJWE(
               identity = eq(identity),
-              factorSid = eq(factorSid),
+              factorSid = eq(null),
               challengeSid = eq(null),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),
@@ -236,7 +236,7 @@ class ServiceAPIClientTest {
       whenever(
           authentication.generateJWE(
               identity = eq(identity),
-              factorSid = eq(factorSid),
+              factorSid = eq(null),
               challengeSid = eq(null),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),

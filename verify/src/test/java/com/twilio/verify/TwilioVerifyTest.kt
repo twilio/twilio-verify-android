@@ -627,7 +627,7 @@ class TwilioVerifyTest {
       whenever(
           authentication.generateJWE(
               identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
+              factorSid = eq(null),
               challengeSid = eq(null),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),
@@ -671,7 +671,7 @@ class TwilioVerifyTest {
       whenever(
           authentication.generateJWE(
               identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
+              factorSid = eq(null),
               challengeSid = eq(null),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),
@@ -721,7 +721,7 @@ class TwilioVerifyTest {
           authentication.generateJWE(
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
-              challengeSid = eq(null),
+              challengeSid = eq("*"),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = capture(),
@@ -779,7 +779,7 @@ class TwilioVerifyTest {
           authentication.generateJWE(
               identity = eq(factorIdentity),
               factorSid = eq(factorSid),
-              challengeSid = eq(null),
+              challengeSid = eq("*"),
               serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = any(),
@@ -790,7 +790,7 @@ class TwilioVerifyTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerify.getAllChallenges(challengeListInput, { list ->
+    twilioVerify.getAllChallenges(challengeListInput, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

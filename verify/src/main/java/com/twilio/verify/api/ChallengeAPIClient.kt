@@ -153,9 +153,8 @@ internal class ChallengeAPIClient(
     }
     generateToken(
         authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-        serviceSid = factor.serviceSid, action = READ,
-        success = ::getAllChallenges,
-        error = error
+        challengeSid = "*", serviceSid = factor.serviceSid, action = READ,
+        success = ::getAllChallenges, error = error
     )
   }
 
