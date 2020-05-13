@@ -53,29 +53,29 @@ open class BaseServerTest {
     mockWebServer.useHttps(sslSocketFactory, false)
     mockWebServer.start()
     sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
-      .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
     context = InstrumentationRegistry.getInstrumentation()
-      .targetContext
+        .targetContext
     keyStore = KeyStore.getInstance(provider)
-      .apply {
-        load(null)
-      }
+        .apply {
+          load(null)
+        }
     twilioVerify = Builder(context, authentication)
-      .baseUrl(mockWebServer.url("/").toString())
-      .build()
+        .baseUrl(mockWebServer.url("/").toString())
+        .build()
   }
 
   @After
   open fun tearDown() {
     mockWebServer.shutdown()
     sharedPreferences.edit()
-      .clear()
-      .apply()
+        .clear()
+        .apply()
     keyStore.aliases()
-      .toList()
-      .forEach {
-        keyStore.deleteEntry(it)
-      }
+        .toList()
+        .forEach {
+          keyStore.deleteEntry(it)
+        }
   }
 
   fun enqueueMockResponse(

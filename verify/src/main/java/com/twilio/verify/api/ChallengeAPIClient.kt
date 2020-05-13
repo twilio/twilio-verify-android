@@ -4,7 +4,6 @@ import android.content.Context
 import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
-import com.twilio.verify.api.Action.FETCH
 import com.twilio.verify.api.Action.READ
 import com.twilio.verify.api.Action.UPDATE
 import com.twilio.verify.domain.challenge.models.FactorChallenge

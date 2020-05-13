@@ -14,7 +14,6 @@ import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
-import com.twilio.verify.api.Action.FETCH
 import com.twilio.verify.api.Action.READ
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.AuthorizationHeader

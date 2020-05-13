@@ -38,9 +38,9 @@ class ServiceFacadeTest {
     val factor: Factor = mock()
     argumentCaptor<(Service) -> Unit>().apply {
       whenever(
-        serviceProvider.get(
-          eq(serviceSid), any(), capture(), any()
-        )
+          serviceProvider.get(
+              eq(serviceSid), any(), capture(), any()
+          )
       ).then {
         firstValue.invoke(expectedService)
       }
@@ -88,9 +88,9 @@ class ServiceFacadeTest {
     val factor: Factor = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
-        serviceProvider.get(
-          eq(serviceSid), any(), any(), capture()
-        )
+          serviceProvider.get(
+              eq(serviceSid), any(), any(), capture()
+          )
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }

@@ -79,14 +79,14 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.create(
-      CreateFactorPayload(
-        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
-      ),
-      { jsonObject ->
-        assertEquals(response, jsonObject.toString())
-      }, {
-        fail()
-      })
+        CreateFactorPayload(
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+        ),
+        { jsonObject ->
+          assertEquals(response, jsonObject.toString())
+        }, {
+      fail()
+    })
   }
 
   @Test
@@ -98,20 +98,20 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.create(
-      CreateFactorPayload(
-        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
-      ), {
-        fail()
-      }, { exception ->
-        assertEquals(expectedException, exception.cause)
-      })
+        CreateFactorPayload(
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+        ), {
+      fail()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+    })
   }
 
   @Test
   fun `Error creating a factor should call error`() {
     val factorPayload =
       CreateFactorPayload(
-        "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwt"
       )
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
@@ -128,31 +128,31 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val entity = "entityId"
     val expectedURL = "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSid, true)
-      .replace(
-        ENTITY_PATH, entity, true
-      )
+        .replace(
+            ENTITY_PATH, entity, true
+        )
     val friendlyNameMock = "Test"
     val factorTypeMock = PUSH
     val pushToken = "ABCD"
     val publicKey = "12345"
     val binding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
     val config = mapOf(
-      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-      APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
-      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
-      NOTIFICATION_TOKEN_KEY to pushToken
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+        NOTIFICATION_TOKEN_KEY to pushToken
     )
     val expectedBody = mapOf(
-      FRIENDLY_NAME_KEY to friendlyNameMock, FACTOR_TYPE_KEY to factorTypeMock.factorTypeName,
-      BINDING_KEY to JSONObject(binding).toString(),
-      CONFIG_KEY to JSONObject(config).toString()
+        FRIENDLY_NAME_KEY to friendlyNameMock, FACTOR_TYPE_KEY to factorTypeMock.factorTypeName,
+        BINDING_KEY to JSONObject(binding).toString(),
+        CONFIG_KEY to JSONObject(config).toString()
     )
 
     val factorPayload =
       CreateFactorPayload(
-        friendlyNameMock, factorTypeMock,
-        serviceSid,
-        entity, config, binding, "jwt"
+          friendlyNameMock, factorTypeMock,
+          serviceSid,
+          entity, config, binding, "jwt"
       )
 
     factorAPIClient.create(factorPayload, {}, {})
@@ -184,38 +184,38 @@ class FactorAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(UPDATE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(UPDATE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
     factorAPIClient.verify(
-      PushFactor(
-        factorSid,
-        "friendlyName",
-        "accountSid",
-        serviceSid,
-        identity,
-        Unverified,
-        config = Config("credentialSid")
-      ),
-      "authyPayload",
-      { jsonObject ->
-        assertEquals(response, jsonObject.toString())
-        idlingResource.operationFinished()
-      }, {
-        fail()
-        idlingResource.operationFinished()
-      })
+        PushFactor(
+            factorSid,
+            "friendlyName",
+            "accountSid",
+            serviceSid,
+            identity,
+            Unverified,
+            config = Config("credentialSid")
+        ),
+        "authyPayload",
+        { jsonObject ->
+          assertEquals(response, jsonObject.toString())
+          idlingResource.operationFinished()
+        }, {
+      fail()
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -227,40 +227,40 @@ class FactorAPIClientTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(UPDATE),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(UPDATE),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
     }
     idlingResource.startOperation()
     factorAPIClient.verify(
-      PushFactor(
-        factorSid,
-        "friendlyName",
-        "accountSid",
-        serviceSid,
-        identity,
-        Unverified,
-        config = Config("credentialSid")
-      ),
-      "authyPayload",
-      {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(TwilioVerifyException::class, exception::class)
-        assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-        assertEquals(expectedException, exception.cause!!.cause)
-        idlingResource.operationFinished()
-      })
+        PushFactor(
+            factorSid,
+            "friendlyName",
+            "accountSid",
+            serviceSid,
+            identity,
+            Unverified,
+            config = Config("credentialSid")
+        ),
+        "authyPayload",
+        {
+          fail()
+          idlingResource.operationFinished()
+        }, { exception ->
+      assertEquals(TwilioVerifyException::class, exception::class)
+      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
+      assertEquals(expectedException, exception.cause!!.cause)
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -277,37 +277,37 @@ class FactorAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(UPDATE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(UPDATE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
     factorAPIClient.verify(
-      PushFactor(
-        factorSid,
-        "friendlyName",
-        "accountSid",
-        serviceSid,
-        identity,
-        Unverified,
-        config = Config("credentialSid")
-      ),
-      "authyPayload", {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(expectedException, exception.cause)
-        idlingResource.operationFinished()
-      })
+        PushFactor(
+            factorSid,
+            "friendlyName",
+            "accountSid",
+            serviceSid,
+            identity,
+            Unverified,
+            config = Config("credentialSid")
+        ),
+        "authyPayload", {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -320,34 +320,34 @@ class FactorAPIClientTest {
     val entityIdentityMock = "entityIdentity"
     val authPayloadMock = "authPayload"
     val expectedURL = "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
-      .replace(
-        ENTITY_PATH, entityIdentityMock, true
-      )
-      .replace(FACTOR_SID_PATH, sidMock)
+        .replace(
+            ENTITY_PATH, entityIdentityMock, true
+        )
+        .replace(FACTOR_SID_PATH, sidMock)
 
     val expectedBody = mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
     val factor =
       PushFactor(
-        sidMock,
-        friendlyNameMock,
-        accountSidMock,
-        serviceSidMock,
-        entityIdentityMock,
-        Unverified,
-        config = Config("credentialSid")
+          sidMock,
+          friendlyNameMock,
+          accountSidMock,
+          serviceSidMock,
+          entityIdentityMock,
+          Unverified,
+          config = Config("credentialSid")
       )
 
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(entityIdentityMock),
-          factorSid = eq(sidMock),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSidMock),
-          action = eq(UPDATE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(entityIdentityMock),
+              factorSid = eq(sidMock),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSidMock),
+              action = eq(UPDATE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -384,31 +384,31 @@ class FactorAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(UPDATE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(UPDATE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
     factorAPIClient.update(
-      UpdateFactorPayload(
-        "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
-      ),
-      { jsonObject ->
-        assertEquals(response, jsonObject.toString())
-        idlingResource.operationFinished()
-      }, {
-        fail()
-        idlingResource.operationFinished()
-      })
+        UpdateFactorPayload(
+            "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
+        ),
+        { jsonObject ->
+          assertEquals(response, jsonObject.toString())
+          idlingResource.operationFinished()
+        }, {
+      fail()
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -420,33 +420,33 @@ class FactorAPIClientTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(UPDATE),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(UPDATE),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
     }
     idlingResource.startOperation()
     factorAPIClient.update(
-      UpdateFactorPayload(
-        "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
-      ),
-      {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(TwilioVerifyException::class, exception::class)
-        assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-        assertEquals(expectedException, exception.cause!!.cause)
-        idlingResource.operationFinished()
-      })
+        UpdateFactorPayload(
+            "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
+        ),
+        {
+          fail()
+          idlingResource.operationFinished()
+        }, { exception ->
+      assertEquals(TwilioVerifyException::class, exception::class)
+      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
+      assertEquals(expectedException, exception.cause!!.cause)
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -463,31 +463,31 @@ class FactorAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(UPDATE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(UPDATE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
     factorAPIClient.update(
-      UpdateFactorPayload(
-        "factor name", PUSH, serviceSid, identity,
-        emptyMap(), factorSid
-      ), {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(expectedException, exception.cause)
-        idlingResource.operationFinished()
-      })
+        UpdateFactorPayload(
+            "factor name", PUSH, serviceSid, identity,
+            emptyMap(), factorSid
+        ), {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -500,39 +500,39 @@ class FactorAPIClientTest {
     val pushToken = "ABCD"
     val factorTypeMock = PUSH
     val expectedURL = "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
-      .replace(
-        ENTITY_PATH, entityIdentityMock, true
-      )
-      .replace(FACTOR_SID_PATH, sidMock)
+        .replace(
+            ENTITY_PATH, entityIdentityMock, true
+        )
+        .replace(FACTOR_SID_PATH, sidMock)
 
     val config = mapOf(
-      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-      APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
-      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
-      NOTIFICATION_TOKEN_KEY to pushToken
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+        NOTIFICATION_TOKEN_KEY to pushToken
     )
 
     val factorPayload =
       UpdateFactorPayload(
-        friendlyNameMock, factorTypeMock, serviceSidMock,
-        entityIdentityMock, config, sidMock
+          friendlyNameMock, factorTypeMock, serviceSidMock,
+          entityIdentityMock, config, sidMock
       )
 
     val expectedBody = mapOf(
-      FRIENDLY_NAME_KEY to friendlyNameMock,
-      CONFIG_KEY to JSONObject(config).toString()
+        FRIENDLY_NAME_KEY to friendlyNameMock,
+        CONFIG_KEY to JSONObject(config).toString()
     )
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(entityIdentityMock),
-          factorSid = eq(sidMock),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSidMock),
-          action = eq(UPDATE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(entityIdentityMock),
+              factorSid = eq(sidMock),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSidMock),
+              action = eq(UPDATE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -564,15 +564,15 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
-        config = Config("credentialSid")
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          config = Config("credentialSid")
       )
     val expectedURL =
       "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(
-          ENTITY_PATH, factor.entityIdentity, true
-        )
-        .replace(FACTOR_SID_PATH, factor.sid)
+          .replace(
+              ENTITY_PATH, factor.entityIdentity, true
+          )
+          .replace(FACTOR_SID_PATH, factor.sid)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(response)
@@ -580,33 +580,33 @@ class FactorAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(DELETE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(DELETE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
     factorAPIClient.delete(
-      factor, {
-        verify(networkProvider).execute(
+        factor, {
+      verify(networkProvider).execute(
           check {
             assertEquals(URL(expectedURL), it.url)
             assertEquals(Delete, it.httpMethod)
           }, any(), any()
-        )
-        idlingResource.operationFinished()
-      }, {
-        fail()
-        idlingResource.operationFinished()
-      })
+      )
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -617,36 +617,36 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
-        config = Config("credentialSid")
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          config = Config("credentialSid")
       )
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(DELETE),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(DELETE),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
     }
     idlingResource.startOperation()
     factorAPIClient.delete(
-      factor, {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(TwilioVerifyException::class, exception::class)
-        assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-        assertEquals(expectedException, exception.cause!!.cause)
-        idlingResource.operationFinished()
-      })
+        factor, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(TwilioVerifyException::class, exception::class)
+      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
+      assertEquals(expectedException, exception.cause!!.cause)
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -657,8 +657,8 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
-        config = Config("credentialSid")
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          config = Config("credentialSid")
       )
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
@@ -668,28 +668,28 @@ class FactorAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(DELETE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(DELETE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
     factorAPIClient.delete(
-      factor, {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(expectedException, exception.cause)
-        idlingResource.operationFinished()
-      })
+        factor, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 
@@ -700,37 +700,37 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
-        config = Config("credentialSid")
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          config = Config("credentialSid")
       )
     val expectedException = RuntimeException()
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(expectedException)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(serviceSid),
-          action = eq(DELETE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(serviceSid),
+              action = eq(DELETE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
     factorAPIClient.delete(
-      factor, {
-        fail()
-        idlingResource.operationFinished()
-      },
-      { exception ->
-        assertEquals(expectedException, exception.cause?.cause)
-        assertTrue(exception.cause is NetworkException)
-        idlingResource.operationFinished()
-      })
+        factor, {
+      fail()
+      idlingResource.operationFinished()
+    },
+        { exception ->
+          assertEquals(expectedException, exception.cause?.cause)
+          assertTrue(exception.cause is NetworkException)
+          idlingResource.operationFinished()
+        })
     idlingResource.waitForIdle()
   }
 }
