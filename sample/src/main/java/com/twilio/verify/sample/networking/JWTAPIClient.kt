@@ -23,7 +23,10 @@ import kotlin.coroutines.resumeWithException
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-class SampleBackendAPIClient(private val okHttpClient: OkHttpClient, private val url: String = BuildConfig.JWT_URL) {
+class SampleBackendAPIClient(
+  private val okHttpClient: OkHttpClient,
+  private val url: String = BuildConfig.JWT_URL
+) {
 
   fun enrollment(
     identity: String,

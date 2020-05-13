@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.fragment_factor_challenges.serviceInfo
 import kotlinx.android.synthetic.main.view_factor.factorInfo
 import org.koin.android.ext.android.inject
 
-class ChallengesFragment : Fragment() {
+class FactorChallengesFragment : Fragment() {
   private lateinit var factorSid: String
   private lateinit var viewAdapter: RecyclerView.Adapter<*>
   private lateinit var viewManager: RecyclerView.LayoutManager
@@ -87,7 +87,7 @@ class ChallengesFragment : Fragment() {
       )
       findNavController().navigate(R.id.action_show_challenge, bundle)
     }
-    challenges.apply {
+    challenges?.apply {
       setHasFixedSize(true)
       layoutManager = viewManager
       adapter = viewAdapter

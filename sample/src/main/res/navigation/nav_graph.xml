@@ -42,7 +42,7 @@
   </fragment>
   <fragment
       android:id="@+id/challengesFragment"
-      android:name="com.twilio.verify.sample.view.challenges.list.ChallengesFragment"
+      android:name="com.twilio.verify.sample.view.challenges.list.FactorChallengesFragment"
       android:label="fragment_challenges"
       tools:layout="@layout/fragment_factor_challenges">
     <argument

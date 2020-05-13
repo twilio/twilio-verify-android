@@ -29,8 +29,7 @@ import java.io.IOException
 class AuthenticationProviderTest {
   private val okHttpClient: OkHttpClient = mock()
   private val url = "https://twilio.com"
-  private val authenticationProvider =
-    AuthenticationProvider(url, okHttpClient)
+  private val authenticationProvider = AuthenticationProvider(url, okHttpClient)
 
   @Test
   fun `Execute request with success response should call success`() {

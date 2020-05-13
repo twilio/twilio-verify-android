@@ -18,8 +18,7 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.IOException
 
-class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) :
-    NetworkProvider {
+class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : NetworkProvider {
   override fun execute(
     request: Request,
     success: (response: String) -> Unit,
