@@ -102,12 +102,12 @@ class TwilioVerifyTest {
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
     provider = object : Provider(
-      providerName, 1.0, "Fake KeyStore which is used for Robolectric tests"
+        providerName, 1.0, "Fake KeyStore which is used for Robolectric tests"
     ) {
       init {
         put(
-          "KeyStore.$providerName",
-          "com.twilio.verify.KeyStoreMock"
+            "KeyStore.$providerName",
+            "com.twilio.verify.KeyStoreMock"
         )
       }
     }
@@ -115,25 +115,25 @@ class TwilioVerifyTest {
     preferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
     twilioVerify =
       TwilioVerify.Builder(context, authentication)
-        .networkProvider(networkProvider)
-        .build()
+          .networkProvider(networkProvider)
+          .build()
   }
 
   @After
   fun tearDown() {
     preferences.edit()
-      .clear()
-      .apply()
+        .clear()
+        .apply()
   }
 
   @Test
   fun `Create a factor should call success`() {
     val jsonObject = JSONObject()
-      .put(sidKey, "sid123")
-      .put(friendlyNameKey, "factor name")
-      .put(accountSidKey, "accountSid123")
-      .put(statusKey, Unverified.value)
-      .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+        .put(sidKey, "sid123")
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(statusKey, Unverified.value)
+        .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
@@ -167,11 +167,11 @@ class TwilioVerifyTest {
     val sid = "sid"
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
-      .put(sidKey, sid)
-      .put(friendlyNameKey, "factor name")
-      .put(accountSidKey, "accountSid123")
-      .put(statusKey, Verified.value)
-      .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+        .put(sidKey, sid)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(statusKey, Verified.value)
+        .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
@@ -179,15 +179,15 @@ class TwilioVerifyTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(sid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(UPDATE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(sid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(UPDATE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -209,11 +209,11 @@ class TwilioVerifyTest {
     val sid = "sid"
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
-      .put(sidKey, sid)
-      .put(friendlyNameKey, "factor name")
-      .put(accountSidKey, "accountSid123")
-      .put(statusKey, Verified.value)
-      .put(credentialSidKey, "credential sid")
+        .put(sidKey, sid)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(statusKey, Verified.value)
+        .put(credentialSidKey, "credential sid")
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
@@ -222,15 +222,15 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(sid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(UPDATE),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(sid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(UPDATE),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -255,8 +255,8 @@ class TwilioVerifyTest {
     val verifyFactorInput = VerifyPushFactorInput(sid)
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
-      .put(sidKey, sid)
-      .put(statusKey, Verified.value)
+        .put(sidKey, sid)
+        .put(statusKey, Verified.value)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
@@ -264,15 +264,15 @@ class TwilioVerifyTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(sid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(UPDATE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(sid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(UPDATE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -294,8 +294,8 @@ class TwilioVerifyTest {
     val verifyFactorInput = VerifyPushFactorInput(sid)
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
-      .put(sidKey, sid)
-      .put(statusKey, Verified.value)
+        .put(sidKey, sid)
+        .put(statusKey, Verified.value)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
@@ -304,15 +304,15 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(sid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(UPDATE),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(sid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(UPDATE),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -363,15 +363,15 @@ class TwilioVerifyTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(challengeSid),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(challengeSid),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -422,15 +422,15 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(challengeSid),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(challengeSid),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -492,15 +492,15 @@ class TwilioVerifyTest {
 
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(challengeSid),
-          serviceSid = eq(factorServiceSid),
-          action = any(),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(challengeSid),
+              serviceSid = eq(factorServiceSid),
+              action = any(),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -559,15 +559,15 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(challengeSid),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(challengeSid),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -625,15 +625,15 @@ class TwilioVerifyTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -669,15 +669,15 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -701,10 +701,10 @@ class TwilioVerifyTest {
     createFactor(factorSid, Verified)
     val challengeListInput = ChallengeListInput(factorSid, null, 1, null)
     val expectedChallenges = JSONArray(
-      listOf(
-        challengeJSONObject("sid123", factorSid),
-        challengeJSONObject("sid456", factorSid)
-      )
+        listOf(
+            challengeJSONObject("sid123", factorSid),
+            challengeJSONObject("sid456", factorSid)
+        )
     )
     val expectedMetadata = metaJSONObject()
     val jsonObject = JSONObject().apply {
@@ -718,15 +718,15 @@ class TwilioVerifyTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -758,10 +758,10 @@ class TwilioVerifyTest {
     createFactor(factorSid, Verified)
     val challengeListInput = ChallengeListInput(factorSid, null, 1, null)
     val expectedChallenges = JSONArray(
-      listOf(
-        challengeJSONObject("sid123", factorSid),
-        challengeJSONObject("sid456", factorSid)
-      )
+        listOf(
+            challengeJSONObject("sid123", factorSid),
+            challengeJSONObject("sid456", factorSid)
+        )
     )
     val expectedMetadata = metaJSONObject()
     val jsonObject = JSONObject().apply {
@@ -776,15 +776,15 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -810,15 +810,15 @@ class TwilioVerifyTest {
     assertTrue(preferences.contains(factorSid))
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(DELETE),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(DELETE),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -844,15 +844,15 @@ class TwilioVerifyTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(factorIdentity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(DELETE),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(factorIdentity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(DELETE),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -875,11 +875,11 @@ class TwilioVerifyTest {
     status: FactorStatus
   ) {
     val jsonObject = JSONObject()
-      .put(sidKey, factorSid)
-      .put(friendlyNameKey, "factor name")
-      .put(accountSidKey, "accountSid123")
-      .put(configKey, JSONObject().put(credentialSidKey, "credential sid"))
-      .put(statusKey, status.value)
+        .put(sidKey, factorSid)
+        .put(friendlyNameKey, "factor name")
+        .put(accountSidKey, "accountSid123")
+        .put(configKey, JSONObject().put(credentialSidKey, "credential sid"))
+        .put(statusKey, status.value)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
@@ -954,7 +954,7 @@ class TestKeystore {
   @Implementation
   fun signer(template: SignerTemplate): Signer {
     keys[template.alias] = template.alias.hashCode()
-      .toString()
+        .toString()
     val mock: Signer = mock()
     whenever(mock.getPublic()).thenReturn(keys[template.alias]?.toByteArray())
     whenever(mock.sign(any())).thenReturn(keys[template.alias]?.toByteArray())

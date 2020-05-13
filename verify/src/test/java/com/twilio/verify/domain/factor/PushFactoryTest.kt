@@ -61,10 +61,10 @@ class PushFactoryTest {
     val publicKey = "publicKey123"
     val context = ApplicationProvider.getApplicationContext<Context>()
     val expectedConfig = mapOf(
-      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-      APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
-      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
-      NOTIFICATION_TOKEN_KEY to pushToken
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+        NOTIFICATION_TOKEN_KEY to pushToken
     )
     val expectedBinding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
     var alias: String? = null
@@ -229,13 +229,13 @@ class PushFactoryTest {
     val payload = "payload"
     val factor =
       PushFactor(
-        sid,
-        friendlyName,
-        accountSid,
-        serviceSid,
-        entityId,
-        status,
-        Config("credentialSid")
+          sid,
+          friendlyName,
+          accountSid,
+          serviceSid,
+          entityId,
+          status,
+          Config("credentialSid")
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -292,13 +292,13 @@ class PushFactoryTest {
     val payload = "payload"
     val factor =
       PushFactor(
-        sid,
-        friendlyName,
-        accountSid,
-        serviceSid,
-        entityId,
-        status,
-        Config("credentialSid")
+          sid,
+          friendlyName,
+          accountSid,
+          serviceSid,
+          entityId,
+          status,
+          Config("credentialSid")
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -332,10 +332,10 @@ class PushFactoryTest {
     val keyPairAlias = null
     val factor =
       PushFactor(
-        sid, friendlyName, accountSid, serviceSid, entityId, status,
-        Config(
-          credentialSid
-        )
+          sid, friendlyName, accountSid, serviceSid, entityId, status,
+          Config(
+              credentialSid
+          )
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -362,13 +362,13 @@ class PushFactoryTest {
     val status = FactorStatus.Unverified
     val factor =
       PushFactor(
-        sid,
-        friendlyName,
-        accountSid,
-        serviceSid,
-        entityId,
-        status,
-        Config("credentialSid")
+          sid,
+          friendlyName,
+          accountSid,
+          serviceSid,
+          entityId,
+          status,
+          Config("credentialSid")
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -429,13 +429,13 @@ class PushFactoryTest {
     val credentialSid = "credentialSid"
     val factor =
       PushFactor(
-        sid,
-        friendlyName,
-        accountSid,
-        serviceSid,
-        entityId,
-        status,
-        Config("credentialSid")
+          sid,
+          friendlyName,
+          accountSid,
+          serviceSid,
+          entityId,
+          status,
+          Config("credentialSid")
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
@@ -467,13 +467,13 @@ class PushFactoryTest {
     val alias = "keyPairAlias"
     val factor =
       PushFactor(
-        sid,
-        friendlyName,
-        accountSid,
-        serviceSid,
-        entityId,
-        status,
-        Config(credentialSid)
+          sid,
+          friendlyName,
+          accountSid,
+          serviceSid,
+          entityId,
+          status,
+          Config(credentialSid)
       ).apply {
         keyPairAlias = alias
       }

@@ -76,15 +76,15 @@ class ServiceAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -113,15 +113,15 @@ class ServiceAPIClientTest {
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = any(),
-          error = capture()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = any(),
+              error = capture()
+          )
       ).then {
         lastValue.invoke(expectedException)
       }
@@ -157,15 +157,15 @@ class ServiceAPIClientTest {
     }
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -194,15 +194,15 @@ class ServiceAPIClientTest {
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
@@ -234,15 +234,15 @@ class ServiceAPIClientTest {
       "$baseUrl$getServiceURL".replace(SERVICE_SID_PATH, factorServiceSid, true)
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
-        authentication.generateJWE(
-          identity = eq(identity),
-          factorSid = eq(factorSid),
-          challengeSid = eq(null),
-          serviceSid = eq(factorServiceSid),
-          action = eq(READ),
-          success = capture(),
-          error = any()
-        )
+          authentication.generateJWE(
+              identity = eq(identity),
+              factorSid = eq(factorSid),
+              challengeSid = eq(null),
+              serviceSid = eq(factorServiceSid),
+              action = eq(READ),
+              success = capture(),
+              error = any()
+          )
       ).then {
         lastValue.invoke("authToken")
       }
