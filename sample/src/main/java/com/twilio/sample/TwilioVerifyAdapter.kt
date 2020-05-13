@@ -45,7 +45,10 @@ interface TwilioVerifyAdapter {
 }
 
 object TwilioVerifyProvider {
-  fun instance(applicationContext: Context, url: String): TwilioVerifyAdapter {
+  fun instance(
+    applicationContext: Context,
+    url: String
+  ): TwilioVerifyAdapter {
     return TwilioVerifyKotlinProvider.getInstance(applicationContext, url)
   }
 }

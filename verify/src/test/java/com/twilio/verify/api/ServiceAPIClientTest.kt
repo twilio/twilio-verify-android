@@ -14,7 +14,7 @@ import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
-import com.twilio.verify.api.Action.FETCH
+import com.twilio.verify.api.Action.READ
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.HttpMethod.Get
@@ -81,7 +81,7 @@ class ServiceAPIClientTest {
           factorSid = eq(factorSid),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -118,7 +118,7 @@ class ServiceAPIClientTest {
           factorSid = eq(factorSid),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = any(),
           error = capture()
         )
@@ -162,7 +162,7 @@ class ServiceAPIClientTest {
           factorSid = eq(factorSid),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -199,7 +199,7 @@ class ServiceAPIClientTest {
           factorSid = eq(factorSid),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -239,7 +239,7 @@ class ServiceAPIClientTest {
           factorSid = eq(factorSid),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )

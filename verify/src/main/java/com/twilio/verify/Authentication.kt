@@ -11,7 +11,7 @@ interface Authentication {
     identity: String,
     factorSid: String? = null,
     challengeSid: String? = null,
-    serviceSid: String? = null,
+    serviceSid: String,
     action: Action,
     success: (token: String) -> Unit,
     error: (Exception) -> Unit

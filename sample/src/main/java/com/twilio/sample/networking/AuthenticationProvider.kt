@@ -32,46 +32,49 @@ class AuthenticationProvider(
     identity: String,
     factorSid: String?,
     challengeSid: String?,
-    serviceSid: String?,
+    serviceSid: String,
     action: Action,
     success: (token: String) -> Unit,
     error: (Exception) -> Unit
   ) {
     val requestBody: RequestBody = FormBody.Builder()
-      .add(identityKey, identity)
-      .add(factorSidKey, factorSid ?: "")
-      .add(challengeSidKey, challengeSid ?: "")
-      .add(serviceSidKey, serviceSid ?: "")
-      .add(actionKey, action.value)
-      .build()
+        .add(identityKey, identity)
+        .add(serviceSidKey, serviceSid)
+        .add(actionKey, action.value)
+        .apply {
+          factorSid?.let { add(factorSidKey, factorSid) }
+          challengeSid?.let { add(challengeSidKey, challengeSid) }
+        }
+
+        .build()
     val request = Request.Builder()
-      .url("$url$authenticationEndpoint")
-      .post(requestBody)
-      .build()
+        .url("$url$authenticationEndpoint")
+        .post(requestBody)
+        .build()
 
     okHttpClient.newCall(request)
-      .enqueue(object : Callback {
-        override fun onResponse(
-          call: Call,
-          response: Response
-        ) {
-          try {
-            response.takeIf { it.isSuccessful }
-              ?.body?.string()
-              ?.let { JSONObject(it) }
-              ?.getString(tokenKey)
-              ?.let { success(it) }
-          } catch (e: Exception) {
+        .enqueue(object : Callback {
+          override fun onResponse(
+            call: Call,
+            response: Response
+          ) {
+            try {
+              response.takeIf { it.isSuccessful }
+                  ?.body?.string()
+                  ?.let { JSONObject(it) }
+                  ?.getString(tokenKey)
+                  ?.let { success(it) }
+            } catch (e: Exception) {
+              error(e)
+            }
+          }
+
+          override fun onFailure(
+            call: Call,
+            e: IOException
+          ) {
             error(e)
           }
-        }
-
-        override fun onFailure(
-          call: Call,
-          e: IOException
-        ) {
-          error(e)
-        }
-      })
+        })
   }
 }

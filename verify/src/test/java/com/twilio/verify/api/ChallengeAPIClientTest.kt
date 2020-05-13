@@ -13,7 +13,6 @@ import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
-import com.twilio.verify.api.Action.FETCH
 import com.twilio.verify.api.Action.READ
 import com.twilio.verify.api.Action.UPDATE
 import com.twilio.verify.domain.challenge.models.FactorChallenge
@@ -282,7 +281,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -316,7 +315,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -345,7 +344,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = any(),
           error = capture()
         )
@@ -377,7 +376,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -416,7 +415,7 @@ class ChallengeAPIClientTest {
           factorSid = eq(factorChallenge.factor!!.sid),
           challengeSid = eq(factorChallenge.sid),
           serviceSid = eq(factorChallenge.factor!!.serviceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )

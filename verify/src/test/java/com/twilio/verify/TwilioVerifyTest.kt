@@ -14,7 +14,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.verify.api.Action.DELETE
-import com.twilio.verify.api.Action.FETCH
 import com.twilio.verify.api.Action.READ
 import com.twilio.verify.api.Action.UPDATE
 import com.twilio.verify.api.AuthenticationTokenException
@@ -369,7 +368,7 @@ class TwilioVerifyTest {
           factorSid = eq(factorSid),
           challengeSid = eq(challengeSid),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -428,7 +427,7 @@ class TwilioVerifyTest {
           factorSid = eq(factorSid),
           challengeSid = eq(challengeSid),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = any(),
           error = capture()
         )
@@ -565,7 +564,7 @@ class TwilioVerifyTest {
           factorSid = eq(factorSid),
           challengeSid = eq(challengeSid),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = any(),
           error = capture()
         )
@@ -631,7 +630,7 @@ class TwilioVerifyTest {
           factorSid = eq(factorSid),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = capture(),
           error = any()
         )
@@ -675,7 +674,7 @@ class TwilioVerifyTest {
           factorSid = eq(factorSid),
           challengeSid = eq(null),
           serviceSid = eq(factorServiceSid),
-          action = eq(FETCH),
+          action = eq(READ),
           success = any(),
           error = capture()
         )

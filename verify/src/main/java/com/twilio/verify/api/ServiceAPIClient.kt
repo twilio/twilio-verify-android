@@ -4,7 +4,7 @@ import android.content.Context
 import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
-import com.twilio.verify.api.Action.FETCH
+import com.twilio.verify.api.Action.READ
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod.Get
@@ -53,7 +53,7 @@ internal class ServiceAPIClient(
     }
     generateToken(
         authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-        serviceSid = serviceSid, action = FETCH,
+        serviceSid = serviceSid, action = READ,
         success = ::getService,
         error = error
     )

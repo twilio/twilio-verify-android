@@ -12,7 +12,6 @@ enum class Action(val value: String) {
   CREATE("create"),
   UPDATE("update"),
   DELETE("delete"),
-  FETCH("fetch"),
   READ("read")
 }
 
@@ -21,23 +20,23 @@ fun generateToken(
   identity: String,
   factorSid: String? = null,
   challengeSid: String? = null,
-  serviceSid: String? = null,
+  serviceSid: String,
   action: Action,
   success: (authToken: String) -> Unit,
   error: (TwilioVerifyException) -> Unit
 ) {
   authentication.generateJWE(
-    identity = identity, factorSid = factorSid,
-    challengeSid = challengeSid, serviceSid = serviceSid, action = action,
-    success = { authToken ->
-      success(authToken)
-    }, error = { exception ->
-      error(
+      identity = identity, factorSid = factorSid,
+      challengeSid = challengeSid, serviceSid = serviceSid, action = action,
+      success = { authToken ->
+        success(authToken)
+      }, error = { exception ->
+    error(
         TwilioVerifyException(
-          AuthenticationTokenException(exception), AuthenticationTokenError
+            AuthenticationTokenException(exception), AuthenticationTokenError
         )
-      )
-    })
+    )
+  })
 }
 
 class AuthenticationTokenException(exception: Exception) : Exception(exception)

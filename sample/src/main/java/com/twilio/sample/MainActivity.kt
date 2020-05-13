@@ -41,9 +41,12 @@ import java.text.DateFormat.MEDIUM
 class MainActivity : AppCompatActivity() {
 
   private lateinit var token: String
-  private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
+
   private val storage: LocalStorage by lazy {
     LocalStorage(this)
+  }
+  private val twilioVerifyAdapter: TwilioVerifyAdapter by lazy {
+    TwilioVerifyProvider.instance(this, storage.jwtURL)
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,8 +72,6 @@ class MainActivity : AppCompatActivity() {
       )
       else -> {
         storage.jwtURL = jwtUrlInput.text.toString()
-        twilioVerifyAdapter =
-          TwilioVerifyProvider.instance(applicationContext, jwtUrlInput.text.toString())
         createFactor(storage.jwtURL, identityInput.text.toString())
       }
     }
