@@ -136,16 +136,9 @@ class EncryptedPreferencesTest {
     val rawValue3 = getSerializedValue(originalValue3, String::class)
 
     val entries = mapOf<String, String>(
-        key1 to Base64.encodeToString(
-            rawValue1,
-            Base64.DEFAULT
-        ), key2 to Base64.encodeToString(
-        rawValue2,
-        Base64.DEFAULT
-    ), key3 to Base64.encodeToString(
-        rawValue3,
-        Base64.DEFAULT
-    )
+        key1 to Base64.encodeToString(rawValue1, Base64.DEFAULT),
+        key2 to Base64.encodeToString(rawValue2, Base64.DEFAULT),
+        key3 to Base64.encodeToString(rawValue3, Base64.DEFAULT)
     )
     entries.forEach { (key, value) ->
       whenever(preferences.getString(key, null)).thenReturn(value)
@@ -196,7 +189,10 @@ class EncryptedPreferencesTest {
   ): ByteArray {
     val value = if (kClass.isAssignableFrom(originalValue::class)) originalValue as? T else null
     whenever(
-        serializer.fromByteArray(originalValue.toString().toByteArray(), kClass)
+        serializer.fromByteArray(
+            originalValue.toString()
+                .toByteArray(), kClass
+        )
     ).thenReturn(value)
     return originalValue.toString()
         .toByteArray()
