@@ -53,6 +53,7 @@ dependencies {
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
   implementation "androidx.paging:paging-runtime:2.1.2"
   implementation 'org.koin:koin-android:2.1.5'
+  implementation 'org.koin:koin-androidx-viewmodel:2.1.5'
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.robolectric:robolectric:4.3.1'
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
@@ -14,18 +15,19 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.iid.FirebaseInstanceId
 import com.twilio.verify.models.Factor
 import com.twilio.verify.sample.R
-import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.view.showError
+import com.twilio.verify.sample.viewmodel.FactorError
+import com.twilio.verify.sample.viewmodel.FactorViewModel
 import kotlinx.android.synthetic.main.fragment_create_factor.content
 import kotlinx.android.synthetic.main.fragment_create_factor.createFactor
 import kotlinx.android.synthetic.main.fragment_create_factor.identityInput
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CreateFactorFragment : Fragment() {
 
   private lateinit var token: String
-  private val twilioVerifyAdapter: TwilioVerifyAdapter by inject()
+  private val factorViewModel: FactorViewModel by viewModel()
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -41,6 +43,13 @@ class CreateFactorFragment : Fragment() {
       startCreateFactor()
     }
     getPushToken()
+    factorViewModel.getFactor()
+        .observe(viewLifecycleOwner, Observer {
+          when (it) {
+            is com.twilio.verify.sample.viewmodel.Factor -> onSuccess(it.factor)
+            is FactorError -> it.exception.showError(content)
+          }
+        })
   }
 
   private fun getPushToken() {
@@ -77,11 +86,7 @@ class CreateFactorFragment : Fragment() {
     val createFactorData = CreateFactorData(
         identity, "$identity's factor", token
     )
-    twilioVerifyAdapter.createFactor(
-        createFactorData, ::onSuccess
-    ) {
-      it.showError(content)
-    }
+    factorViewModel.createFactor(createFactorData)
   }
 
   private fun onSuccess(factor: Factor) {

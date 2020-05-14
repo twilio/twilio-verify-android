@@ -8,20 +8,21 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.twilio.verify.sample.TwilioVerifyAdapter
-import com.twilio.verify.sample.UnitTestApplication
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = UnitTestApplication::class)
 class FirebasePushServiceTest {
 
   private lateinit var firebasePushService: FirebasePushService
@@ -29,8 +30,16 @@ class FirebasePushServiceTest {
 
   @Before
   fun setup() {
-    ApplicationProvider.getApplicationContext<UnitTestApplication>()
-        .updateTwilioVerifyDependency(twilioVerifyAdapter)
+    val appModule = module {
+      single {
+        twilioVerifyAdapter
+      }
+    }
+    startKoin {
+      androidLogger()
+      androidContext(ApplicationProvider.getApplicationContext())
+      modules(appModule)
+    }
     firebasePushService = FirebasePushService()
   }
 

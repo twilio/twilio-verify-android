@@ -6,21 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.sample.R
-import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.view.showError
 import com.twilio.verify.sample.view.string
+import com.twilio.verify.sample.viewmodel.ChallengeError
+import com.twilio.verify.sample.viewmodel.ChallengeViewModel
+import com.twilio.verify.sample.viewmodel.FactorError
+import com.twilio.verify.sample.viewmodel.FactorViewModel
 import kotlinx.android.synthetic.main.fragment_challenge.approveChallenge
 import kotlinx.android.synthetic.main.fragment_challenge.challengeActionsGroup
 import kotlinx.android.synthetic.main.fragment_challenge.challengeInfo
 import kotlinx.android.synthetic.main.fragment_challenge.content
 import kotlinx.android.synthetic.main.fragment_challenge.denyChallenge
 import kotlinx.android.synthetic.main.view_factor.factorInfo
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.DateFormat
 
 const val ARG_CHALLENGE_SID = "challengeSid"
@@ -29,7 +32,8 @@ const val ARG_FACTOR_SID = "factorSid"
 class ChallengeFragment : Fragment() {
   private lateinit var challengeSid: String
   private lateinit var factorSid: String
-  private val twilioVerifyAdapter: TwilioVerifyAdapter by inject()
+  private val factorViewModel: FactorViewModel by viewModel()
+  private val challengeViewModel: ChallengeViewModel by viewModel()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -54,18 +58,27 @@ class ChallengeFragment : Fragment() {
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     if (challengeSid.isNotEmpty() && factorSid.isNotEmpty()) {
-      twilioVerifyAdapter.getFactors(::showFactor) {
-        it.showError(
-            content
-        )
-      }
-      getChallenge(challengeSid, factorSid)
+      factorViewModel.getFactor()
+          .observe(viewLifecycleOwner, Observer {
+            when (it) {
+              is com.twilio.verify.sample.viewmodel.Factor -> showFactor(it.factor)
+              is FactorError -> it.exception.showError(content)
+            }
+          })
+      challengeViewModel.getChallenge()
+          .observe(viewLifecycleOwner, Observer {
+            when (it) {
+              is com.twilio.verify.sample.viewmodel.Challenge -> showChallenge(it.challenge)
+              is ChallengeError -> it.exception.showError(content)
+            }
+          })
+      factorViewModel.loadFactor(factorSid)
+      challengeViewModel.loadChallenge(challengeSid, factorSid)
     }
   }
 
-  private fun showFactor(factors: List<Factor>) {
-    factorInfo.text = factors.first { it.sid == factorSid }
-        .string()
+  private fun showFactor(factor: Factor) {
+    factorInfo.text = factor.string()
   }
 
   private fun showChallenge(challenge: Challenge) {
@@ -94,21 +107,6 @@ class ChallengeFragment : Fragment() {
     challenge: Challenge,
     status: ChallengeStatus
   ) {
-    twilioVerifyAdapter.updateChallenge(
-        UpdatePushChallengeInput(challenge.factorSid, challenge.sid, status),
-        { getChallenge(challenge.sid, challenge.factorSid) },
-        { it.showError(content) }
-    )
-  }
-
-  private fun getChallenge(
-    challengeSid: String,
-    factorSid: String
-  ) {
-    twilioVerifyAdapter.getChallenge(
-        challengeSid,
-        factorSid,
-        ::showChallenge
-    ) { it.showError(content) }
+    challengeViewModel.updateChallenge(challenge, status)
   }
 }
