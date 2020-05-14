@@ -15,9 +15,12 @@ internal class PushFactor(
   override val accountSid: String,
   override val serviceSid: String,
   override val entityIdentity: String,
-  override var status: FactorStatus = Unverified
+  override var status: FactorStatus = Unverified,
+  val config: Config
 ) : Factor {
   override val type: FactorType = PUSH
 
   var keyPairAlias: String? = null
 }
+
+internal data class Config(internal val credentialSid: String)

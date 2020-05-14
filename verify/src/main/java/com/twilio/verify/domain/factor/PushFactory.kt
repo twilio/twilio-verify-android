@@ -14,7 +14,6 @@ import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorType
 import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.threading.execute
 

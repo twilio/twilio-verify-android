@@ -331,7 +331,7 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Get all challenges should call success`() {
-    val challengeListInput = ChallengeListInput("factorSid", null, 1, null)
+    val challengeListInput = ChallengeListInput("factorSid", 1, null, null)
     val expectedChallengeList: ChallengeList = mock()
     argumentCaptor<(ChallengeList) -> Unit>().apply {
       whenever(challengeFacade.getAllChallenges(any(), capture(), any())).then {
@@ -351,7 +351,7 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error getting all challenges should call error`() {
-    val challengeListInput = ChallengeListInput("factorSid", null, 1, null)
+    val challengeListInput = ChallengeListInput("factorSid", 1, null, null)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(challengeFacade.getAllChallenges(any(), any(), capture())).then {

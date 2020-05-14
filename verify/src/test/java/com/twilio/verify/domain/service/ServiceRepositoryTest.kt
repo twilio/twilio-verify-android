@@ -12,6 +12,7 @@ import com.twilio.verify.domain.challenge.sidKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.service.models.FactorService
+import com.twilio.verify.models.Factor
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -35,6 +36,7 @@ class ServiceRepositoryTest {
   fun `Get service with valid response should return a service`() {
     val serviceSid = "sid123"
     val service: FactorService = mock()
+    val factor: Factor = mock()
     val response = JSONObject().apply {
       put(sidKey, serviceSid)
       put(accountSidKey, "accountSid")
@@ -42,26 +44,29 @@ class ServiceRepositoryTest {
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
     }
     argumentCaptor<(JSONObject) -> Unit>().apply {
-      whenever(apiClient.get(eq(serviceSid), capture(), any())).then {
+      whenever(apiClient.get(eq(serviceSid), any(), capture(), any())).then {
         firstValue.invoke(response)
       }
     }
     whenever(serviceMapper.fromApi(response)).thenReturn(service)
-    serviceRepository.get(serviceSid, {
+    serviceRepository.get(serviceSid, factor, {
       assertEquals(service, it)
-    }, { fail() })
+    }, {
+      fail()
+    })
   }
 
   @Test
   fun `No response from API getting a service should call error`() {
     val serviceSid = "sid123"
+    val factor: Factor = mock()
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(apiClient.get(eq(serviceSid), any(), capture())).then {
+      whenever(apiClient.get(eq(serviceSid), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
-    serviceRepository.get(serviceSid, { fail() }, { exception ->
+    serviceRepository.get(serviceSid, factor, { fail() }, { exception ->
       assertEquals(expectedException, exception)
     })
   }
@@ -69,6 +74,7 @@ class ServiceRepositoryTest {
   @Test
   fun `Error from mapper getting a service should call error`() {
     val serviceSid = "sid123"
+    val factor: Factor = mock()
     val response = JSONObject().apply {
       put(sidKey, serviceSid)
       put(accountSidKey, "accountSid")
@@ -77,12 +83,12 @@ class ServiceRepositoryTest {
     }
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(JSONObject) -> Unit>().apply {
-      whenever(apiClient.get(eq(serviceSid), capture(), any())).then {
+      whenever(apiClient.get(eq(serviceSid), any(), capture(), any())).then {
         firstValue.invoke(response)
       }
     }
     whenever(serviceMapper.fromApi(response)).thenThrow(expectedException)
-    serviceRepository.get(serviceSid, { fail() }, { exception ->
+    serviceRepository.get(serviceSid, factor, { fail() }, { exception ->
       assertEquals(expectedException, exception)
     })
   }

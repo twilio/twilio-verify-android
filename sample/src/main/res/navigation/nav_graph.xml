@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/factorsFragment">
+
+  <fragment
+      android:id="@+id/challengeFragment"
+      android:name="com.twilio.verify.sample.view.challenges.update.ChallengeFragment"
+      android:label="ChallengeFragment">
+    <argument
+        android:name="challengeSid"
+        app:argType="string" />
+    <argument
+        android:name="factorSid"
+        app:argType="string" />
+  </fragment>
+  <action
+      android:id="@+id/action_show_challenge"
+      app:destination="@id/challengeFragment" />
+  <fragment
+      android:id="@+id/createFactorFragment"
+      android:name="com.twilio.verify.sample.view.factors.create.CreateFactorFragment"
+      android:label="CreateFactorFragment">
+    <action
+        android:id="@+id/action_show_new_factor"
+        app:popUpTo="@id/createFactorFragment"
+        app:popUpToInclusive="true" />
+  </fragment>
+  <fragment
+      android:id="@+id/factorsFragment"
+      android:name="com.twilio.verify.sample.view.factors.list.FactorsFragment"
+      android:label="fragment_factors"
+      tools:layout="@layout/fragment_factors">
+    <action
+        android:id="@+id/action_create_factor"
+        app:destination="@id/createFactorFragment" />
+    <action
+        android:id="@+id/action_show_challenges"
+        app:destination="@id/challengesFragment" />
+  </fragment>
+  <fragment
+      android:id="@+id/challengesFragment"
+      android:name="com.twilio.verify.sample.view.challenges.list.FactorChallengesFragment"
+      android:label="fragment_challenges"
+      tools:layout="@layout/fragment_factor_challenges">
+    <argument
+        android:name="factorSid"
+        app:argType="string" />
+    <action
+        android:id="@+id/action_challengesFragment_to_challengeFragment"
+        app:destination="@id/challengeFragment" />
+  </fragment>
+</navigation>

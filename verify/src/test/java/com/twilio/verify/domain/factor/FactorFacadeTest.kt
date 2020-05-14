@@ -5,6 +5,7 @@ package com.twilio.verify.domain.factor
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
@@ -230,6 +231,57 @@ class FactorFacadeTest {
     }
     idlingResource.startOperation()
     factorFacade.getFactor(sid, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get a factor by service sid with factor already stored should return expected factor`() {
+    val factorServiceSid = "sid"
+    val expectedFactor: Factor = mock() {
+      on { serviceSid } doReturn factorServiceSid
+    }
+    whenever(factorProvider.getAll()).thenReturn(listOf(expectedFactor))
+    idlingResource.startOperation()
+    factorFacade.getFactorByServiceSid(factorServiceSid, { factor ->
+      assertEquals(expectedFactor, factor)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get a factor by service sid with no factor stored should return error`() {
+    val factorServiceSid = "sid"
+    whenever(factorProvider.getAll()).thenReturn(listOf(mock()))
+    idlingResource.startOperation()
+    factorFacade.getFactorByServiceSid(factorServiceSid, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception.cause is StorageException)
+      assertEquals(StorageError.message, exception.localizedMessage)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get a factor by service sid with exception should return error`() {
+    val expectedException: TwilioVerifyException = mock()
+    given(factorProvider.getAll()).willAnswer {
+      throw expectedException
+    }
+    idlingResource.startOperation()
+    factorFacade.getFactorByServiceSid("sid", {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

@@ -6,10 +6,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.idling.CountingIdlingResource
 import androidx.test.platform.app.InstrumentationRegistry
 import com.twilio.verify.TwilioVerify.Builder
+import com.twilio.verify.api.Action
 import com.twilio.verify.data.provider
 import com.twilio.verify.domain.factor.sharedPreferencesName
-import com.twilio.verify.networking.Authorization
-import com.twilio.verify.networking.BasicAuthorization
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.internal.TlsUtil.localhost
@@ -25,7 +24,20 @@ import javax.net.ssl.HttpsURLConnection
 
 open class BaseServerTest {
 
-  lateinit var authorization: Authorization
+  private val authentication = object : Authentication {
+    override fun generateJWE(
+      serviceSid: String,
+      identity: String,
+      factorSid: String?,
+      challengeSid: String?,
+      action: Action,
+      success: (token: String) -> Unit,
+      error: (Exception) -> Unit
+    ) {
+      success("authToken")
+    }
+
+  }
   lateinit var context: Context
   lateinit var twilioVerify: TwilioVerify
   lateinit var mockWebServer: MockWebServer
@@ -48,8 +60,7 @@ open class BaseServerTest {
         .apply {
           load(null)
         }
-    authorization = BasicAuthorization("accountSid", "authToken")
-    twilioVerify = Builder(context, authorization)
+    twilioVerify = Builder(context, authentication)
         .baseUrl(mockWebServer.url("/").toString())
         .build()
   }

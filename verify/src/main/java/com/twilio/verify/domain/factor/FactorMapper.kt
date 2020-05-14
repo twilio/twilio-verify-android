@@ -5,6 +5,7 @@ package com.twilio.verify.domain.factor
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
@@ -17,6 +18,8 @@ import org.json.JSONObject
 internal const val typeKey = "type"
 internal const val statusKey = "status"
 internal const val sidKey = "sid"
+internal const val configKey = "config"
+internal const val credentialSidKey = "credential_sid"
 internal const val friendlyNameKey = "friendly_name"
 internal const val accountSidKey = "account_sid"
 internal const val serviceSidKey = "service_sid"
@@ -68,7 +71,11 @@ internal class FactorMapper {
       )
     }
     return when (jsonObject.getString(typeKey)) {
-      PUSH.factorTypeName -> toPushFactor(serviceSid, entityIdentity, jsonObject).apply {
+      PUSH.factorTypeName -> toPushFactor(
+          serviceSid,
+          entityIdentity,
+          jsonObject
+      ).apply {
         keyPairAlias = jsonObject.optString(keyPairAliasKey)
       }
       else -> throw TwilioVerifyException(
@@ -88,7 +95,10 @@ internal class FactorMapper {
           .put(entityIdentityKey, factor.entityIdentity)
           .put(typeKey, factor.type.factorTypeName)
           .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias)
-          .put(statusKey, factor.status.value).toString()
+          .put(statusKey, factor.status.value)
+          .put(
+              configKey, JSONObject().put(credentialSidKey, factor.config.credentialSid)
+          ).toString()
     }
   }
 
@@ -106,7 +116,8 @@ internal class FactorMapper {
           serviceSid = serviceSid,
           entityIdentity = entityIdentity,
           status = FactorStatus.values().find { it.value == jsonObject.getString(statusKey) }
-              ?: Unverified
+              ?: Unverified,
+          config = Config(jsonObject.getJSONObject(configKey).getString(credentialSidKey))
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)
