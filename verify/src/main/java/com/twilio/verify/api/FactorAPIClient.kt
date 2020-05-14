@@ -185,13 +185,15 @@ internal class FactorAPIClient(
     "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
         .replace(
             ENTITY_PATH, factor.entityIdentity, true
-        ).replace(FACTOR_SID_PATH, factor.sid)
+        )
+        .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun deleteFactorURL(factor: Factor): String =
     "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
         .replace(
             ENTITY_PATH, factor.entityIdentity, true
-        ).replace(FACTOR_SID_PATH, factor.sid)
+        )
+        .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun updateFactorURL(
     updateFactorPayload: UpdateFactorPayload
@@ -199,7 +201,8 @@ internal class FactorAPIClient(
     "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, updateFactorPayload.serviceSid, true)
         .replace(
             ENTITY_PATH, updateFactorPayload.entity, true
-        ).replace(
+        )
+        .replace(
             FACTOR_SID_PATH, updateFactorPayload.factorSid
         )
 

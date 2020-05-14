@@ -5,7 +5,6 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.sample.networking.SampleBackendAPIClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import okhttp3.Call
@@ -26,12 +25,11 @@ import java.io.IOException
 @RunWith(RobolectricTestRunner::class)
 class SampleBackendAPIClientTest {
   private val okHttpClient: OkHttpClient = mock()
-  private val sampleBackendAPIClient = SampleBackendAPIClient(okHttpClient)
+  private val sampleBackendAPIClient = SampleBackendAPIClient(okHttpClient, "https://twilio.com")
 
   @Test
   fun `Enrollment with success response should return enrollment response`() {
     runBlocking {
-      val url = "https://twilio.com"
       val identity = "identity"
       val call: Call = mock()
       val tokenValue = "jwtToken"
@@ -60,7 +58,7 @@ class SampleBackendAPIClientTest {
           lastValue.onResponse(call, response)
         }
       }
-      val enrollmentResponse = sampleBackendAPIClient.enrollment(url, identity, Dispatchers.Unconfined)
+      val enrollmentResponse = sampleBackendAPIClient.enrollment(identity, Dispatchers.Unconfined)
       assertEquals(tokenValue, enrollmentResponse.token)
       assertEquals(serviceSidValue, enrollmentResponse.serviceSid)
       assertEquals(factorTypeValue, enrollmentResponse.factorType.factorTypeName)
@@ -71,7 +69,6 @@ class SampleBackendAPIClientTest {
   @Test(expected = IllegalArgumentException::class)
   fun `Enrollment with success response but with invalid factorType should throw exception`() {
     runBlocking {
-      val url = "https://twilio.com"
       val identity = "identity"
       val call: Call = mock()
       val tokenValue = "jwtToken"
@@ -100,14 +97,13 @@ class SampleBackendAPIClientTest {
           lastValue.onResponse(call, response)
         }
       }
-      sampleBackendAPIClient.enrollment(url, identity, Dispatchers.Unconfined)
+      sampleBackendAPIClient.enrollment(identity, Dispatchers.Unconfined)
     }
   }
 
   @Test(expected = Exception::class)
   fun `Enrollment with fail response should throw exception`() {
     runBlocking {
-      val url = "https://twilio.com"
       val identity = "identity"
       val call: Call = mock()
       val expectedException: IOException = mock()
@@ -117,14 +113,13 @@ class SampleBackendAPIClientTest {
           lastValue.onFailure(call, expectedException)
         }
       }
-      sampleBackendAPIClient.enrollment(url, identity, Dispatchers.Unconfined)
+      sampleBackendAPIClient.enrollment(identity, Dispatchers.Unconfined)
     }
   }
 
   @Test(expected = IOException::class)
   fun `Enrollment with success response but with invalid response code should return throw exception`() {
     runBlocking {
-      val url = "https://twilio.com"
       val identity = "identity"
       val call: Call = mock()
       val tokenValue = "jwtToken"
@@ -147,7 +142,7 @@ class SampleBackendAPIClientTest {
           lastValue.onResponse(call, response)
         }
       }
-      sampleBackendAPIClient.enrollment(url, identity, Dispatchers.Unconfined)
+      sampleBackendAPIClient.enrollment(identity, Dispatchers.Unconfined)
     }
   }
 }

@@ -7,8 +7,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.sample.networking.AuthenticationProvider
-import com.twilio.sample.networking.authenticationEndpoint
 import com.twilio.verify.api.Action.CREATE
 import okhttp3.Call
 import okhttp3.Callback

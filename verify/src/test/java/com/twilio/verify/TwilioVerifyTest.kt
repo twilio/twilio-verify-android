@@ -699,7 +699,7 @@ class TwilioVerifyTest {
   fun `Get all challenges with auth token successfully generated should call success`() {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
-    val challengeListInput = ChallengeListInput(factorSid, null, 1, null)
+    val challengeListInput = ChallengeListInput(factorSid, 1, null, null)
     val expectedChallenges = JSONArray(
         listOf(
             challengeJSONObject("sid123", factorSid),
@@ -756,7 +756,7 @@ class TwilioVerifyTest {
   fun `Get all challenges with auth token generation failed should call error`() {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
-    val challengeListInput = ChallengeListInput(factorSid, null, 1, null)
+    val challengeListInput = ChallengeListInput(factorSid, 1, null, null)
     val expectedChallenges = JSONArray(
         listOf(
             challengeJSONObject("sid123", factorSid),

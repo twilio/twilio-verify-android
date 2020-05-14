@@ -1,13 +1,15 @@
 <resources>
-    <string name="app_name">TwilioVerify</string>
+  <string name="app_name">TwilioVerify</string>
   <string name="create_factor">Create factor</string>
   <string name="approve">Approve</string>
   <string name="deny">Deny</string>
   <string name="challenge">Challenge</string>
+  <string name="challenges">Challenges</string>
   <string name="factor">Factor</string>
   <string name="new_challenge">New challenge</string>
-  <string name="channel_name">Challenges</string>
+  <string name="channel_name">@string/challenges</string>
   <string name="channel_description">Receive challenges</string>
   <string name="jwt_url">JWT url</string>
   <string name="identity">Entity identity</string>
+  <string name="service">Service</string>
 </resources>

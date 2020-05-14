@@ -226,7 +226,7 @@ class ChallengeFacadeTest {
   fun `Get all challenges with valid data should call success`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
+    val challengeListInput = ChallengeListInput(factorSid, pageSize, null, null)
     val expectedFactor: PushFactor = mock()
     val expectedChallengeList: ChallengeList = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -256,7 +256,7 @@ class ChallengeFacadeTest {
   fun `Error getting all challenges should call error`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
+    val challengeListInput = ChallengeListInput(factorSid, pageSize, null, null)
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -286,7 +286,7 @@ class ChallengeFacadeTest {
   fun `Error getting the factor when getting all challenges should call error`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = ChallengeListInput(factorSid, null, pageSize, null)
+    val challengeListInput = ChallengeListInput(factorSid, pageSize, null, null)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {

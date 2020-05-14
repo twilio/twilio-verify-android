@@ -5,7 +5,6 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.sample.networking.OkHttpProvider
 import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.Request
