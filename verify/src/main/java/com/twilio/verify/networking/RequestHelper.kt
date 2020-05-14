@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import com.twilio.verify.BuildConfig
+import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.HttpMethod.Get
 import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.MediaTypeValue.Json
@@ -66,7 +67,7 @@ class RequestHelper internal constructor(
   fun commonHeaders(httpMethod: HttpMethod?): Map<String, String> {
     var commonHeaders = mapOf(userAgentHeader, authorizationHeader)
     commonHeaders = when (httpMethod) {
-      Post -> commonHeaders.plus(
+      Post, Delete -> commonHeaders.plus(
           mediaTypeHeaders(acceptTypeValue = Json, contentTypeValue = UrlEncoded)
       )
       Get -> commonHeaders.plus(

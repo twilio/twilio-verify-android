@@ -3,7 +3,9 @@
  */
 package com.twilio.verify.sample.networking
 
-import com.twilio.verify.networking.HttpMethod
+import com.twilio.verify.networking.HttpMethod.Delete
+import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.HttpMethod.Put
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
@@ -63,11 +65,20 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
         .headers(headersBuilder.build())
         .tag(request.tag)
     when (request.httpMethod) {
-      HttpMethod.Post, HttpMethod.Put -> {
+      Post, Put -> {
         val body = request.getParams()
         val contentType = request.headers[MediaTypeHeader.ContentType.type]
         if (body != null && contentType != null) {
           requestBuilder.post(
+              body.toRequestBody(contentType.toMediaType())
+          )
+        }
+      }
+      Delete -> {
+        val body = request.getParams()
+        val contentType = request.headers[MediaTypeHeader.ContentType.type]
+        if (body != null && contentType != null) {
+          requestBuilder.delete(
               body.toRequestBody(contentType.toMediaType())
           )
         }
