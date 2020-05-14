@@ -97,13 +97,12 @@ You will need a notify service to send push notifications to your app
 * Get your account Sid and Auth Token from [API credentials](https://www.twilio.com/console/project/settings)
 * Create a verify service calling the endpoint:
 ```
-curl --user <Account Sid>:<Auth token> \ 
---request POST 'https://authy.twilio.com/v1/Services' \
---form 'FriendlyName=<The service name>' \
+curl -X POST https://authy.twilio.com/v1/Services \
+--form 'FriendlyName=Your service name' \
 --form 'Push={
-  "notify_service_sid": "<The notify service Sid>"
-} 
-'
+    "notify_service_sid": "IS00000000000000000000000000000000"
+  }' \
+-u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
 ```
 * Copy the verify service Sid, it is the `sid` field in the response
 
