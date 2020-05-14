@@ -63,7 +63,7 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 ### To run the Sample App:
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
-* Get the JWT generation URL from your backend [Running the Sample backend](#SampleBackend)
+* Get the JWT generation URL from your backend [(Running the Sample backend)](#SampleBackend)
 * Replace the `JWT_URL` (JWT generation URL) in the sample's build.gradle file for [release build type](sample/build.gradle#L29)
 * Run the `sample` module using `release` as build variant
 
