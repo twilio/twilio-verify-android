@@ -8,7 +8,7 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorInput
 import org.junit.After
-import org.junit.Assert
+import org.junit.Assert.fail
 import org.junit.Before
 
 open class BaseFactorTest : BaseServerTest() {
@@ -48,7 +48,7 @@ open class BaseFactorTest : BaseServerTest() {
       onSuccess(it)
       idlingResource.decrement()
     }, { e ->
-      Assert.fail(e.message)
+      fail(e.message)
       idlingResource.decrement()
     })
     idlingResource.waitForResource()

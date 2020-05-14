@@ -2,6 +2,7 @@ package com.twilio.verify.domain.service
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.api.ServiceAPIClient
+import com.twilio.verify.models.Factor
 import com.twilio.verify.models.Service
 import org.json.JSONObject
 
@@ -16,6 +17,7 @@ internal class ServiceRepository(
 
   override fun get(
     serviceSid: String,
+    factor: Factor,
     success: (Service) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
@@ -26,6 +28,6 @@ internal class ServiceRepository(
         error(e)
       }
     }
-    apiClient.get(serviceSid, ::toService, error)
+    apiClient.get(serviceSid, factor, ::toService, error)
   }
 }

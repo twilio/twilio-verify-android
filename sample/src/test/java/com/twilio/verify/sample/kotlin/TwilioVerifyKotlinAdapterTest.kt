@@ -11,13 +11,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.sample.TwilioVerifyAdapter
-import com.twilio.sample.kotlin.TwilioVerifyKotlinAdapter
-import com.twilio.sample.model.CreateFactorData
-import com.twilio.sample.model.EnrollmentResponse
-import com.twilio.sample.networking.SampleBackendAPIClient
-import com.twilio.sample.push.NewChallenge
-import com.twilio.sample.push.VerifyEventBus
+import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Challenge
@@ -28,6 +22,12 @@ import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.UpdatePushChallengeInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.sample.IdlingResource
+import com.twilio.verify.sample.TwilioVerifyAdapter
+import com.twilio.verify.sample.model.CreateFactorData
+import com.twilio.verify.sample.model.EnrollmentResponse
+import com.twilio.verify.sample.networking.SampleBackendAPIClient
+import com.twilio.verify.sample.push.NewChallenge
+import com.twilio.verify.sample.push.VerifyEventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -45,6 +45,7 @@ import org.robolectric.RobolectricTestRunner
 class TwilioVerifyKotlinAdapterTest {
 
   private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
+  private val authentication: Authentication = mock()
   private val twilioVerify: TwilioVerify = mock()
   private val sampleBackendAPIClient: SampleBackendAPIClient = mock()
   private val verifyEventBus: VerifyEventBus = mock()
@@ -55,7 +56,8 @@ class TwilioVerifyKotlinAdapterTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
     twilioVerifyAdapter =
       TwilioVerifyKotlinAdapter(
-          applicationContext = context, twilioVerify = twilioVerify,
+          applicationContext = context, authentication = authentication,
+          twilioVerify = twilioVerify,
           sampleBackendAPIClient = sampleBackendAPIClient, mainDispatcher = Dispatchers.Unconfined,
           dispatcher = Dispatchers.Unconfined, verifyEventBus = verifyEventBus
       )
@@ -65,10 +67,10 @@ class TwilioVerifyKotlinAdapterTest {
   fun `Create factor with invalid JWT should return exception`() {
     runBlocking {
       val expectedException: Exception = mock()
-      val createFactorData = CreateFactorData("jwtUrl", "identity", "factorName", "pushToken")
+      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
       doAnswer { throw expectedException }
           .whenever(sampleBackendAPIClient)
-          .enrollment(createFactorData.jwtUrl, createFactorData.identity)
+          .enrollment(createFactorData.identity)
       idlingResource.startOperation()
       twilioVerifyAdapter.createFactor(createFactorData, {
         fail()
@@ -85,9 +87,9 @@ class TwilioVerifyKotlinAdapterTest {
   fun `Create factor with an error should return exception`() {
     runBlocking {
       val expectedException: TwilioVerifyException = mock()
-      val createFactorData = CreateFactorData("jwtUrl", "identity", "factorName", "pushToken")
+      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
       whenever(
-          sampleBackendAPIClient.enrollment(createFactorData.jwtUrl, createFactorData.identity)
+          sampleBackendAPIClient.enrollment(createFactorData.identity)
       ).thenReturn(EnrollmentResponse("jwt", "serviceSid", "identity", PUSH))
       argumentCaptor<(Exception) -> Unit>().apply {
         whenever(twilioVerify.createFactor(any(), any(), capture())).then {
@@ -113,9 +115,9 @@ class TwilioVerifyKotlinAdapterTest {
         on { type } doReturn PUSH
         on { sid } doReturn "factorSid"
       }
-      val createFactorData = CreateFactorData("jwtUrl", "identity", "factorName", "pushToken")
+      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
       whenever(
-          sampleBackendAPIClient.enrollment(createFactorData.jwtUrl, createFactorData.identity)
+          sampleBackendAPIClient.enrollment(createFactorData.identity)
       ).thenReturn(EnrollmentResponse("jwt", "serviceSid", "identity", PUSH))
 
       argumentCaptor<(Factor) -> Unit>().apply {
@@ -191,21 +193,10 @@ class TwilioVerifyKotlinAdapterTest {
   fun `Get challenge with success response should send NewChallenge event`() {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
-    val expectedChallenge: Challenge = mock()
-    argumentCaptor<(Challenge) -> Unit>().apply {
-      whenever(twilioVerify.getChallenge(eq(challengeSid), eq(factorSid), capture(), any())).then {
-        firstValue.invoke(expectedChallenge)
-      }
-    }
-    twilioVerifyAdapter.getChallenge(challengeSid, factorSid)
-    verify(twilioVerify).getChallenge(check { challenge ->
-      assertEquals(challengeSid, challenge)
-    }, check { factor ->
-      assertEquals(factorSid, factor)
-    }, any(), any())
+    twilioVerifyAdapter.showChallenge(challengeSid, factorSid)
     verify(verifyEventBus).send(check { challengeEvent ->
       assertTrue(challengeEvent is NewChallenge)
-      assertEquals(expectedChallenge, (challengeEvent as NewChallenge).challenge)
+      assertEquals(challengeSid, (challengeEvent as NewChallenge).challengeSid)
     })
   }
 

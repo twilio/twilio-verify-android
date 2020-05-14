@@ -18,6 +18,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
+import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
@@ -36,10 +37,8 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
 class FactorRepositoryTest {
 
   private val apiClient: FactorAPIClient = mock()
@@ -235,7 +234,8 @@ class FactorRepositoryTest {
         "accountSid",
         "serviceSid",
         "entityIdentity",
-        FactorStatus.Unverified
+        FactorStatus.Unverified,
+        Config("credentialSid")
     )
     val payload = "authPayload"
     val response = JSONObject()
@@ -273,7 +273,8 @@ class FactorRepositoryTest {
         "accountSid",
         "serviceSid",
         "entityIdentity",
-        FactorStatus.Unverified
+        FactorStatus.Unverified,
+        Config("credentialSid")
     )
     val payload = "authPayload"
     val response = JSONObject()

@@ -3,7 +3,7 @@
     package="com.twilio.verify.sample">
 
   <application
-      android:name="com.twilio.sample.AppApplication"
+      android:name=".AppApplication"
       android:allowBackup="true"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
@@ -11,7 +11,7 @@
       android:supportsRtl="true"
       android:theme="@style/AppTheme">
     <activity
-        android:name="com.twilio.sample.MainActivity"
+        android:name=".view.MainActivity"
         android:screenOrientation="portrait">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -20,7 +20,7 @@
       </intent-filter>
     </activity>
     <service
-        android:name="com.twilio.sample.push.FirebasePushService"
+        android:name=".push.FirebasePushService"
         android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
