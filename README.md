@@ -25,11 +25,11 @@ None
 <a name='Requirements'></a>
 
 ## Requirements
-* Android Studio 3.4 or higher
+* Android Studio 3.6 or higher
 * Java 1.8.0
 * Android 6.0 (23) SDK or higher
-* Gradle 5.4.1
-* Kotlin 1.3.61
+* Gradle 5.6.4
+* Kotlin 1.3.72
 
 <a name='Definitions'></a>
 
@@ -63,8 +63,8 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 ### To run the Sample App:
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
-* Get your account Sid and Auth Token from [API credentials](https://www.twilio.com/console/project/settings)
-* Replace the `ACCOUNT_SID` (account Sid) and `AUTH_TOKEN` (Auth Token) values in the sample's build.gradle file with the values for your account, for [release build type](sample/build.gradle#L28)
+* Get the JWT generation URL from your backend [Running the Sample backend](#SampleBackend)
+* Replace the `JWT_URL` (JWT generation URL) in the sample's build.gradle file for [release build type](sample/build.gradle#L29)
 * Run the `sample` module using `release` as build variant
 
 <a name='FirebaseConfiguration'></a>
@@ -116,7 +116,7 @@ curl -X POST https://authy.twilio.com/v1/Services \
 ## Using the sample app
 
 ### Adding a factor
-* Enter the public URL generated in JWT url
+* Press Create factor in the factor list (main view)
 * Enter the entity identity to use. This value should be an UUID that identifies the user to prevent PII information use
 * Press Create factor
 * Copy the factor Sid
