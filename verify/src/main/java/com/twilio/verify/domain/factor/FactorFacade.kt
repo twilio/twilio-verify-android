@@ -32,7 +32,8 @@ internal class FactorFacade(
     when (factorInput) {
       is PushFactorInput -> {
         pushFactory.create(
-            factorInput.jwt, factorInput.friendlyName, factorInput.pushToken, success, error
+            factorInput.jwt, factorInput.friendlyName, factorInput.pushToken,
+            factorInput.serviceSid, factorInput.identity, success, error
         )
       }
     }

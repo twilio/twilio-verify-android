@@ -6,6 +6,7 @@ package com.twilio.sample.kotlin
 import android.content.Context
 import com.twilio.sample.TwilioVerifyAdapter
 import com.twilio.sample.model.CreateFactorData
+import com.twilio.sample.model.EnrollmentResponse
 import com.twilio.sample.networking.OkHttpProvider
 import com.twilio.sample.networking.SampleBackendAPIClient
 import com.twilio.sample.networking.okHttpClient
@@ -49,16 +50,28 @@ class TwilioVerifyKotlinAdapter(
   ) {
     CoroutineScope(mainDispatcher).launch {
       try {
-        val jwt = sampleBackendAPIClient.getJwt(createFactorData.jwtUrl, createFactorData.identity)
-        val factor = createFactor(
-            PushFactorInput(createFactorData.factorName, createFactorData.pushToken, jwt)
-        )
+        val enrollmentResponse =
+          sampleBackendAPIClient.enrollment(createFactorData.jwtUrl, createFactorData.identity)
+        val factorInput = getFactorInput(createFactorData, enrollmentResponse)
+        val factor = createFactor(factorInput)
         onFactorCreated(factor, onSuccess, onError)
       } catch (e: TwilioVerifyException) {
         onError(e)
       } catch (e: Exception) {
         onError(e)
       }
+    }
+  }
+
+  private fun getFactorInput(
+    createFactorData: CreateFactorData,
+    enrollmentResponse: EnrollmentResponse
+  ): FactorInput {
+    return when (enrollmentResponse.factorType) {
+      PUSH -> PushFactorInput(
+          createFactorData.factorName, enrollmentResponse.serviceSid,
+          enrollmentResponse.identity, createFactorData.pushToken, enrollmentResponse.token
+      )
     }
   }
 

@@ -17,7 +17,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
@@ -48,16 +47,18 @@ class PushFactoryTest {
   fun `Create factor with valid JWT should call success lambda`() {
     val serviceSid = "ISb3a64ae0d2262a2bad5e9870c448b83a"
     val entityId = "YEbd15653d11489b27c1b6255230301815"
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-        "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
+    val jwt =
+      "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+          "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
+          "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
+          "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
+          "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
+          "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
+          "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
+          "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
+    val identity = "factor identity"
     val publicKey = "publicKey123"
     val context = ApplicationProvider.getApplicationContext<Context>()
     val expectedConfig = mapOf(
@@ -81,12 +82,12 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
+    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
       verify(factorProvider).create(check { pushFactor ->
         assertEquals(expectedBinding, pushFactor.binding)
         assertEquals(expectedConfig, pushFactor.config)
         assertEquals(serviceSid, pushFactor.serviceSid)
-        assertEquals(entityId, pushFactor.entity)
+        assertEquals(identity, pushFactor.entity)
         assertEquals(friendlyName, pushFactor.friendlyName)
       }, any(), any())
       verify(factorProvider).save(check {
@@ -103,196 +104,25 @@ class PushFactoryTest {
   }
 
   @Test
-  fun `Create factor with no payload in JWT should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0"
-    val friendlyName = "factor name"
-    val pushToken = "pushToken123"
-    idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      assertEquals(InputError.message, exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Create factor with invalid JWT should call error lambda`() {
-    val jwt = "test.test"
-    val friendlyName = "factor name"
-    val pushToken = "pushToken123"
-    idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      assertEquals(InputError.message, exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Create factor with no authy api grant in JWT should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9fSwianRpIjoiU0swMDEwY2Q3OWM5ODczNWUwY2Q5YmI0OTYwZW" +
-        "Y2MmZiOC0xNTgzODUxMjY0Iiwic3ViIjoiQUNjODU2M2RhZjg4ZWQyNmYyMjc2MzhmNTczODcyNmZiZCJ9.SMgmA" +
-        "E6N8j8UafDmiB-3x5uK-RZo1u94miScDt_Ld1g"
-    val friendlyName = "factor name"
-    val pushToken = "pushToken123"
-    idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      assertEquals(InputError.message, exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Create factor with no verify grant in JWT should call error lambda`() {
-    val jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImN0eSI6InR3aWxpby1mcGE7dj0xIn0.eyJqdGkiOiJTSz" +
-        "AwZDViMWU4ZDE5OWUwNjcxN2E2MGMzMjIzOWRhYjdjLTE1ODQwMzQ4MzIiLCJncmFudHMiOnsiYXBpIjp7ImF1dG" +
-        "h5X3YxIjpbeyJhY3QiOlsicmVhZCIsImNyZWF0ZSJdLCJyZXMiOiIvU2VydmljZXMvSVMwZmM3MDRiZDczNjZhZD" +
-        "BlYWNmMmYzZDVkMTdiYWU3YS9FbnRpdGllcy85Zjg2ZDA4MTg4NGM3ZDY1OWEyZmVhYTBjNTVhZDAxNWEzYmY0Zj" +
-        "FiMmIwYjgyMmNkMTVkNmMxNWIwZjAwYTA4L0ZhY3RvcnMifV19fSwiaWF0IjoxNTg0MDM0ODMyLCJleHAiOjE1OD" +
-        "QwMzg0MzIsImlzcyI6IlNLMDBkNWIxZThkMTk5ZTA2NzE3YTYwYzMyMjM5ZGFiN2MiLCJzdWIiOiJBQzUxM2FmMD" +
-        "NmMzIyOGYxZTg1NThjZWJiYTAxZGMwYjNlIn0.-dDi8zZZ1qSfUdudW5-_iJBMRjNCpVHR6H8hKfWx3zw"
-    val friendlyName = "factor name"
-    val pushToken = "pushToken123"
-    idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      assertEquals(InputError.message, exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Create factor with no service sid in JWT should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-        "wicmVzIjoiL1NlcnZpY2VzLy9FbnRpdGllcy9ZRWJkMTU2NTNkMTE0ODliMjdjMWI2MjU1MjMwMzAxODE1L0ZhY3" +
-        "RvcnMifV19fSwianRpIjoiU0swMDEwY2Q3OWM5ODczNWUwY2Q5YmI0OTYwZWY2MmZiOC0xNTgzODUxMjY0Iiwic3" +
-        "ViIjoiQUNjODU2M2RhZjg4ZWQyNmYyMjc2MzhmNTczODcyNmZiZCJ9.nP0GmHHkr79_iPbJEOfuRFscKbGZkSUTR" +
-        "B-JfnoWBCU"
-    val friendlyName = "factor name"
-    val pushToken = "pushToken123"
-    idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      assertEquals(InputError.message, exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Create factor with no entity id in JWT should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImZhY3RvciI6InB1c2giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOl" +
-        "t7ImFjdCI6WyJjcmVhdGUiXSwicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OG" +
-        "I4M2EvRW50aXRpZXMvWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aS" +
-        "I6IlNLMDAxMGNkNzljOTg3MzVlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYW" +
-        "Y4OGVkMjZmMjI3NjM4ZjU3Mzg3MjZmYmQifQ.8rJqjYEivNzi3vN8lpAE0FCiuab53IPV7jEzgvA8xOs"
-    val friendlyName = "factor name"
-    val pushToken = "pushToken123"
-    idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      assertEquals(InputError.message, exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Create factor with no factor type in JWT should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsInJlcXVpcmUtYmlvbW" +
-        "V0cmljcyI6dHJ1ZX0sImFwaSI6eyJhdXRoeV92MSI6W3siYWN0IjpbImNyZWF0ZSJdLCJyZXMiOiIvU2VydmljZX" +
-        "MvSVNiM2E2NGFlMGQyMjYyYTJiYWQ1ZTk4NzBjNDQ4YjgzYS9FbnRpdGllcy9ZRWJkMTU2NTNkMTE0ODliMjdjMW" +
-        "I2MjU1MjMwMzAxODE1L0ZhY3RvcnMifV19fSwianRpIjoiU0swMDEwY2Q3OWM5ODczNWUwY2Q5YmI0OTYwZWY2Mm" +
-        "ZiOC0xNTgzODUxMjY0Iiwic3ViIjoiQUNjODU2M2RhZjg4ZWQyNmYyMjc2MzhmNTczODcyNmZiZCJ9.iCz2ewvcV" +
-        "ONSteudnrED4itelvCG5DSU4gW1pCeeHTA"
-    val friendlyName = "factor name"
-    val pushToken = "pushToken123"
-    idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      assertEquals(InputError.message, exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Create factor with not supported factor type in JWT should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InRlc3" +
-        "QiLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-        "g3MjZmYmQifQ.0zBAhOoidU15E3uT52JAN3tXkEPWNnxhJwQu0gcSsVw"
-    val friendlyName = "factor name"
-    val pushToken = "pushToken123"
-    idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      assertEquals(InputError.message, exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
   fun `Keypair not created creating a factor should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-        "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
+    val jwt =
+      "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+          "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
+          "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
+          "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
+          "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
+          "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
+          "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
+          "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
+    val identity = "factor identity"
+    val serviceSid = "factor serviceSid"
     given(keyStorage.create(any())).willAnswer {
       throw TwilioVerifyException(IllegalStateException(), KeyStorageError)
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
+    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -305,16 +135,19 @@ class PushFactoryTest {
 
   @Test
   fun `Error in factor provider creating the factor should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-        "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
+    val jwt =
+      "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+          "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
+          "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
+          "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
+          "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
+          "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
+          "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
+          "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
+    val identity = "factor identity"
+    val serviceSid = "factor serviceSid"
     val publicKey = "publicKey123"
     var alias = ""
     argumentCaptor<String>().apply {
@@ -330,7 +163,7 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
+    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -343,16 +176,19 @@ class PushFactoryTest {
 
   @Test
   fun `Empty keypair in push factor creating a factor should call error lambda`() {
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-        "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
+    val jwt =
+      "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+          "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
+          "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
+          "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
+          "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
+          "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
+          "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
+          "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val friendlyName = "factor name"
     val pushToken = "pushToken123"
+    val identity = "factor identity"
+    val serviceSid = "factor serviceSid"
     val publicKey = "publicKey123"
     var alias = ""
     argumentCaptor<String>().apply {
@@ -369,7 +205,7 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, {
+    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

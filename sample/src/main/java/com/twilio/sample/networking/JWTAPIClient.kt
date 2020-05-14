@@ -1,5 +1,7 @@
 package com.twilio.sample.networking
 
+import com.twilio.sample.model.EnrollmentResponse
+import com.twilio.verify.models.FactorType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,30 +24,30 @@ import kotlin.coroutines.resumeWithException
  */
 class SampleBackendAPIClient(private val okHttpClient: OkHttpClient) {
 
-  fun getJwt(
+  fun enrollment(
     url: String,
     identity: String,
-    onSuccess: (String) -> Unit,
+    onSuccess: (EnrollmentResponse) -> Unit,
     onError: (Exception) -> Unit
   ) {
     CoroutineScope(Dispatchers.Main).launch {
       try {
-        val jwt: String = getJwt(url, identity)
-        onSuccess(jwt)
+        val enrollmentResponse = enrollment(url, identity)
+        onSuccess(enrollmentResponse)
       } catch (e: Exception) {
         onError(e)
       }
     }
   }
 
-  suspend fun getJwt(
+  suspend fun enrollment(
     url: String,
     identity: String,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
-  ): String = withContext(dispatcher) {
-    return@withContext suspendCancellableCoroutine<String> { cont ->
+  ): EnrollmentResponse = withContext(dispatcher) {
+    return@withContext suspendCancellableCoroutine<EnrollmentResponse> { cont ->
       val request = Request.Builder()
-          .url("$url/auth")
+          .url("$url/enroll")
           .post(Builder().add("identity", identity).build())
           .build()
       okHttpClient.newCall(request)
@@ -63,13 +65,22 @@ class SampleBackendAPIClient(private val okHttpClient: OkHttpClient) {
             ) {
               response.takeIf { it.isSuccessful }
                   ?.body?.string()
-                  ?.let { JSONObject(it) }
-                  ?.getString("token")
-                  ?.let { cont.resume(it) }
+                  ?.let { cont.resume(toEnrollmentResponse(JSONObject(it))) }
                   ?: cont.resumeWithException(IOException("Invalid response: ${response.code}"))
             }
-
           })
     }
+  }
+
+  private fun toEnrollmentResponse(jsonResponse: JSONObject): EnrollmentResponse {
+    val token = jsonResponse.getString("token")
+    val serviceSid = jsonResponse.getString("serviceSid")
+    val identity = jsonResponse.getString("identity")
+    val factorType = jsonResponse.getString("factorType")
+    return EnrollmentResponse(
+        token, serviceSid, identity,
+        FactorType.values().associateBy(FactorType::factorTypeName)[factorType]
+            ?: throw IllegalArgumentException("Invalid response")
+    )
   }
 }
