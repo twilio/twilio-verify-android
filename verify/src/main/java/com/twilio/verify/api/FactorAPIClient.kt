@@ -105,8 +105,8 @@ internal class FactorAPIClient(
       }
     }
     generateToken(
-        authentication, identity = factor.entityIdentity, factorSid = factor.sid,
-        serviceSid = factor.serviceSid, action = UPDATE,
+        authentication, serviceSid = factor.serviceSid, identity = factor.entityIdentity,
+        factorSid = factor.sid, action = UPDATE,
         success = ::verifyFactor, error = error
     )
   }
@@ -138,10 +138,9 @@ internal class FactorAPIClient(
       }
     }
     generateToken(
-        authentication, identity = updateFactorPayload.entity,
-        factorSid = updateFactorPayload.factorSid, serviceSid = updateFactorPayload.serviceSid,
-        action = UPDATE,
-        success = ::updateFactor, error = error
+        authentication, serviceSid = updateFactorPayload.serviceSid,
+        identity = updateFactorPayload.entity, factorSid = updateFactorPayload.factorSid,
+        action = UPDATE, success = ::updateFactor, error = error
     )
   }
 
@@ -170,8 +169,8 @@ internal class FactorAPIClient(
       }
     }
     generateToken(
-        authentication, identity = factor.entityIdentity,
-        factorSid = factor.sid, serviceSid = factor.serviceSid, action = DELETE,
+        authentication, serviceSid = factor.serviceSid, identity = factor.entityIdentity,
+        factorSid = factor.sid, action = DELETE,
         success = ::deleteFactor, error = error
     )
   }

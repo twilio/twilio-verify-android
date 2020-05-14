@@ -31,7 +31,7 @@ internal class ChallengeFacade(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactorBySid(factorSid, { factor ->
+    factorFacade.getFactor(factorSid, { factor ->
       when (factor) {
         is PushFactor -> pushChallengeProcessor.get(sid, factor, success, error)
       }
@@ -43,7 +43,7 @@ internal class ChallengeFacade(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactorBySid(updateChallengeInput.factorSid, { factor ->
+    factorFacade.getFactor(updateChallengeInput.factorSid, { factor ->
       when (factor) {
         is PushFactor -> updatePushChallenge(updateChallengeInput, factor, success, error)
       }
@@ -55,7 +55,7 @@ internal class ChallengeFacade(
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactorBySid(challengeListInput.factorSid, { factor ->
+    factorFacade.getFactor(challengeListInput.factorSid, { factor ->
       execute(success, error) { onSuccess, onError ->
         repository.getAll(
             factor, challengeListInput.status, challengeListInput.pageSize,

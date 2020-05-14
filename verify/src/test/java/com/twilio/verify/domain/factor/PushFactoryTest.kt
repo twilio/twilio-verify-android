@@ -20,8 +20,8 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
+import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
-import com.twilio.verify.models.Config
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorType.PUSH
@@ -254,7 +254,7 @@ class PushFactoryTest {
       assertEquals(accountSid, it.accountSid)
       assertEquals(entityId, it.entityIdentity)
       assertEquals(sid, it.sid)
-      assertEquals(credentialSid, it.config.credentialSid)
+      assertEquals(credentialSid, (it as PushFactor).config.credentialSid)
       verify(keyStorage).sign(keyPairAlias, it.sid)
       idlingResource.operationFinished()
     }, {
@@ -393,7 +393,7 @@ class PushFactoryTest {
       assertEquals(accountSid, it.accountSid)
       assertEquals(entityId, it.entityIdentity)
       assertEquals(sid, it.sid)
-      assertEquals(credentialSid, it.config.credentialSid)
+      assertEquals(credentialSid, (it as PushFactor).config.credentialSid)
       idlingResource.operationFinished()
     }, {
       fail()

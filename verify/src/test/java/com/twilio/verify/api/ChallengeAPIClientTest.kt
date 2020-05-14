@@ -16,9 +16,9 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.api.Action.READ
 import com.twilio.verify.api.Action.UPDATE
 import com.twilio.verify.domain.challenge.models.FactorChallenge
+import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.ChallengeStatus.Pending
-import com.twilio.verify.models.Config
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.HttpMethod
 import com.twilio.verify.networking.MediaTypeHeader
@@ -80,10 +80,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -113,10 +113,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -142,10 +142,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(UPDATE),
               success = any(),
               error = capture()
@@ -173,10 +173,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -235,10 +235,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -277,10 +277,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -311,10 +311,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -340,10 +340,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = any(),
               error = capture()
@@ -372,10 +372,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -411,10 +411,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq(factorChallenge.sid),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -452,10 +452,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq("*"),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -486,10 +486,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq("*"),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -515,10 +515,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq("*"),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = any(),
               error = capture()
@@ -546,10 +546,10 @@ class ChallengeAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               identity = eq(factorChallenge.factor!!.entityIdentity),
               factorSid = eq(factorChallenge.factor!!.sid),
               challengeSid = eq("*"),
-              serviceSid = eq(factorChallenge.factor!!.serviceSid),
               action = eq(READ),
               success = capture(),
               error = any()

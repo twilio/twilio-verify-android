@@ -3,7 +3,6 @@
  */
 package com.twilio.verify.domain.factor.models
 
-import com.twilio.verify.models.Config
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
@@ -17,9 +16,11 @@ internal class PushFactor(
   override val serviceSid: String,
   override val entityIdentity: String,
   override var status: FactorStatus = Unverified,
-  override val config: Config
+  val config: Config
 ) : Factor {
   override val type: FactorType = PUSH
 
   var keyPairAlias: String? = null
 }
+
+internal data class Config(internal val credentialSid: String)

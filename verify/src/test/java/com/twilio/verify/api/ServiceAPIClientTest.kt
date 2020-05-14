@@ -77,10 +77,10 @@ class ServiceAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(identity),
               factorSid = eq(null),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -114,10 +114,10 @@ class ServiceAPIClientTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(identity),
               factorSid = eq(null),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = any(),
               error = capture()
@@ -158,10 +158,10 @@ class ServiceAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(identity),
               factorSid = eq(null),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -195,10 +195,10 @@ class ServiceAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(identity),
               factorSid = eq(null),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = capture(),
               error = any()
@@ -235,10 +235,10 @@ class ServiceAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(factorServiceSid),
               identity = eq(identity),
               factorSid = eq(null),
               challengeSid = eq(null),
-              serviceSid = eq(factorServiceSid),
               action = eq(READ),
               success = capture(),
               error = any()

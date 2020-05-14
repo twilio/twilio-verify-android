@@ -24,10 +24,10 @@ import com.twilio.verify.domain.factor.NOTIFICATION_PLATFORM_KEY
 import com.twilio.verify.domain.factor.NOTIFICATION_TOKEN_KEY
 import com.twilio.verify.domain.factor.PUBLIC_KEY_KEY
 import com.twilio.verify.domain.factor.SDK_VERSION_KEY
+import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
-import com.twilio.verify.models.Config
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.FactorType.PUSH
@@ -185,10 +185,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -228,10 +228,10 @@ class FactorAPIClientTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(UPDATE),
               success = any(),
               error = capture()
@@ -278,10 +278,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -340,10 +340,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSidMock),
               identity = eq(entityIdentityMock),
               factorSid = eq(sidMock),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSidMock),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -385,10 +385,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -421,10 +421,10 @@ class FactorAPIClientTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(UPDATE),
               success = any(),
               error = capture()
@@ -464,10 +464,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -525,10 +525,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSidMock),
               identity = eq(entityIdentityMock),
               factorSid = eq(sidMock),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSidMock),
               action = eq(UPDATE),
               success = capture(),
               error = any()
@@ -581,10 +581,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(DELETE),
               success = capture(),
               error = any()
@@ -624,10 +624,10 @@ class FactorAPIClientTest {
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(DELETE),
               success = any(),
               error = capture()
@@ -669,10 +669,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(DELETE),
               success = capture(),
               error = any()
@@ -708,10 +708,10 @@ class FactorAPIClientTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
+              serviceSid = eq(serviceSid),
               identity = eq(identity),
               factorSid = eq(factorSid),
               challengeSid = eq(null),
-              serviceSid = eq(serviceSid),
               action = eq(DELETE),
               success = capture(),
               error = any()

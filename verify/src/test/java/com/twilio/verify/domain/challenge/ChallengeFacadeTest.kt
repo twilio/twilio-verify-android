@@ -45,7 +45,7 @@ class ChallengeFacadeTest {
     val expectedFactor: PushFactor = mock()
     val expectedChallenge: Challenge = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), capture(), any())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
@@ -72,7 +72,7 @@ class ChallengeFacadeTest {
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), capture(), any())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
@@ -98,7 +98,7 @@ class ChallengeFacadeTest {
     val factorSid = "factorSid"
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), any(), capture())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
@@ -121,7 +121,7 @@ class ChallengeFacadeTest {
     val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
     val expectedFactor: PushFactor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), capture(), any())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
@@ -153,7 +153,7 @@ class ChallengeFacadeTest {
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), capture(), any())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
@@ -185,7 +185,7 @@ class ChallengeFacadeTest {
     val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), any(), capture())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
@@ -207,7 +207,7 @@ class ChallengeFacadeTest {
     whenever(updateChallengeInput.factorSid).thenReturn(factorSid)
     val expectedFactor: PushFactor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), capture(), any())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
@@ -230,7 +230,7 @@ class ChallengeFacadeTest {
     val expectedFactor: PushFactor = mock()
     val expectedChallengeList: ChallengeList = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), capture(), any())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
@@ -260,7 +260,7 @@ class ChallengeFacadeTest {
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), capture(), any())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
@@ -289,7 +289,7 @@ class ChallengeFacadeTest {
     val challengeListInput = ChallengeListInput(factorSid, pageSize, null, null)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(factorFacade.getFactorBySid(eq(factorSid), any(), capture())).then {
+      whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }

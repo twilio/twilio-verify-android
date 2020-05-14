@@ -11,10 +11,7 @@ interface Factor {
   val serviceSid: String
   val entityIdentity: String
   val type: FactorType
-  val config: Config
 }
-
-data class Config(val credentialSid: String)
 
 enum class FactorStatus(val value: String) {
   Verified("verified"),
