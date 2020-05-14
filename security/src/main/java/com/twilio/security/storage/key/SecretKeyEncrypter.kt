@@ -1,12 +1,9 @@
 package com.twilio.security.storage.key
 
 import com.twilio.security.crypto.KeyManager
-import com.twilio.security.crypto.key.encrypter.EncryptedData
+import com.twilio.security.crypto.key.encrypter.fromByteArray
+import com.twilio.security.crypto.key.encrypter.toByteArray
 import com.twilio.security.crypto.key.template.EncrypterTemplate
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 
 internal class SecretKeyEncrypter(
   private val template: EncrypterTemplate,
@@ -21,29 +18,12 @@ internal class SecretKeyEncrypter(
     return keyManager.encrypter(template)
         .encrypt(data)
         .let {
-          var objectOutputStream: ObjectOutputStream? = null
-          try {
-            val outputStream = ByteArrayOutputStream()
-            objectOutputStream = ObjectOutputStream(outputStream)
-            objectOutputStream.writeObject(it)
-            outputStream.toByteArray()
-          } finally {
-            objectOutputStream?.close()
-          }
+          toByteArray(it)
         }
   }
 
   override fun decrypt(data: ByteArray): ByteArray {
-    val encryptedData = data.let {
-      var objectInputStream: ObjectInputStream? = null
-      try {
-        val inputStream = ByteArrayInputStream(data)
-        objectInputStream = ObjectInputStream(inputStream)
-        objectInputStream.readObject() as EncryptedData
-      } finally {
-        objectInputStream?.close()
-      }
-    }
+    val encryptedData = fromByteArray(data)
     return keyManager.encrypter(template)
         .decrypt(encryptedData)
   }

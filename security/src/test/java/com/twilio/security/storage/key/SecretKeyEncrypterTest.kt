@@ -11,16 +11,17 @@ import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.encrypter.AlgorithmParametersSpec
 import com.twilio.security.crypto.key.encrypter.EncryptedData
 import com.twilio.security.crypto.key.encrypter.Encrypter
+import com.twilio.security.crypto.key.encrypter.fromByteArray
+import com.twilio.security.crypto.key.encrypter.toByteArray
 import com.twilio.security.crypto.key.template.EncrypterTemplate
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import kotlin.random.Random.Default.nextBytes
 
+@RunWith(RobolectricTestRunner::class)
 class SecretKeyEncrypterTest {
 
   private val keyManager: KeyManager = mock()
@@ -46,9 +47,7 @@ class SecretKeyEncrypterTest {
     whenever(keyManager.encrypter(template)).thenReturn(encrypter)
     whenever(encrypter.encrypt(data)).thenReturn(expectedEncryptedData)
     val encrypted = secretKeyEncrypter.encrypt(data)
-    val inputStream = ByteArrayInputStream(encrypted)
-    val objectInputStream = ObjectInputStream(inputStream)
-    val encryptedData = objectInputStream.readObject() as? EncryptedData
+    val encryptedData = fromByteArray(encrypted)
     assertEquals(expectedEncryptedData, encryptedData)
   }
 
@@ -67,10 +66,7 @@ class SecretKeyEncrypterTest {
     val expectedData = ByteArray(5).apply { nextBytes(this) }
     val encryptedData =
       EncryptedData(AlgorithmParametersSpec(expectedData, "test", "test"), expectedData)
-    val outputStream = ByteArrayOutputStream()
-    val objectOutputStream = ObjectOutputStream(outputStream)
-    objectOutputStream.writeObject(encryptedData)
-    val serializedEncryptedData = outputStream.toByteArray()
+    val serializedEncryptedData = toByteArray(encryptedData)
     val encrypter: Encrypter = mock()
     whenever(keyManager.encrypter(template)).thenReturn(encrypter)
     whenever(encrypter.decrypt(encryptedData)).thenReturn(expectedData)
@@ -83,10 +79,7 @@ class SecretKeyEncrypterTest {
     val expectedData = ByteArray(5).apply { nextBytes(this) }
     val encryptedData =
       EncryptedData(AlgorithmParametersSpec(expectedData, "test", "test"), expectedData)
-    val outputStream = ByteArrayOutputStream()
-    val objectOutputStream = ObjectOutputStream(outputStream)
-    objectOutputStream.writeObject(encryptedData)
-    val serializedEncryptedData = outputStream.toByteArray()
+    val serializedEncryptedData = toByteArray(encryptedData)
     val encrypter: Encrypter = mock()
     val exception: KeyException = mock()
     whenever(keyManager.encrypter(template)).thenReturn(encrypter)
