@@ -12,7 +12,6 @@ import com.twilio.verify.models.PushFactorInput
 import com.twilio.verify.networking.NetworkException
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -60,7 +59,7 @@ class CreateFactorTests : BaseServerTest() {
       checkKeyPairWasCreated(it)
       idlingResource.decrement()
     }, {
-      fail()
+      fail(it.message)
       idlingResource.decrement()
     })
     idlingResource.waitForResource()
@@ -114,7 +113,10 @@ class CreateFactorTests : BaseServerTest() {
       idlingResource.decrement()
     }, { exception ->
       assertEquals(expectedException.message, exception.message)
-      assertFalse(keyStore.aliases().hasMoreElements())
+      assertTrue(
+          keyStore.aliases()
+              .toList()
+              .none { !it.startsWith(context.packageName) })
       idlingResource.decrement()
     })
     idlingResource.waitForResource()
