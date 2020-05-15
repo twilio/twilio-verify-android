@@ -11,7 +11,6 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.twilio.verify.models.Factor
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.R.layout
@@ -28,8 +27,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FactorsFragment : Fragment() {
 
-  private lateinit var viewAdapter: RecyclerView.Adapter<*>
-  private lateinit var viewManager: RecyclerView.LayoutManager
+  private lateinit var viewAdapter: FactorsAdapter
   private val factorsViewModel: FactorsViewModel by viewModel()
 
   override fun onCreateView(
@@ -43,7 +41,19 @@ class FactorsFragment : Fragment() {
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     createFactor.setOnClickListener { findNavController().navigate(R.id.action_create_factor) }
-    viewManager = LinearLayoutManager(view?.context)
+    factors.apply {
+      setHasFixedSize(true)
+      layoutManager = LinearLayoutManager(requireContext())
+      ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete)
+          ?.let {
+            val itemTouchHelper = ItemTouchHelper(
+                SwipeToDeleteCallback(
+                    ::delete, it
+                )
+            )
+            itemTouchHelper.attachToRecyclerView(this)
+          }
+    }
     factorsViewModel.getFactors()
         .observe(viewLifecycleOwner, Observer {
           when (it) {
@@ -55,15 +65,15 @@ class FactorsFragment : Fragment() {
     loadFactors()
   }
 
+  private fun delete(position: Int) {
+    factorsViewModel.deleteFactor(viewAdapter.getItemSid(position))
+  }
+
   private fun loadFactors() {
     factorsViewModel.loadFactors()
   }
 
   private fun showFactors(list: List<Factor>) {
-    fun delete(position: Int) {
-      factorsViewModel.deleteFactor(list[position].sid)
-    }
-
     viewAdapter = FactorsAdapter(list) {
       val bundle = bundleOf(
           ARG_FACTOR_SID to it.sid
@@ -71,18 +81,7 @@ class FactorsFragment : Fragment() {
       findNavController().navigate(R.id.action_show_challenges, bundle)
     }
     factors.apply {
-      setHasFixedSize(true)
-      layoutManager = viewManager
       adapter = viewAdapter
-      ContextCompat.getDrawable(context, R.drawable.ic_delete)
-          ?.let {
-            val itemTouchHelper = ItemTouchHelper(
-                SwipeToDeleteCallback(
-                    ::delete, it
-                )
-            )
-            itemTouchHelper.attachToRecyclerView(this)
-          }
     }
   }
 }
