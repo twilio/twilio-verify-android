@@ -3,7 +3,6 @@
  */
 package com.twilio.verify.domain.factor
 
-import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doReturn
@@ -43,10 +42,7 @@ class FactorRepositoryTest {
   private val apiClient: FactorAPIClient = mock()
   private val storage: StorageProvider = mock()
   private val factorMapper: FactorMapper = mock()
-  private val factorRepository = FactorRepository(
-      ApplicationProvider.getApplicationContext(), apiClient, storage = storage,
-      factorMapper = factorMapper
-  )
+  private val factorRepository = FactorRepository(apiClient, storage, factorMapper)
 
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()

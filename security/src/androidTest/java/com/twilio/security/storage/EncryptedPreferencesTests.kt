@@ -166,7 +166,7 @@ data class TestObject(
   val age: Int
 )
 
-class TestObjectSerializer(private val defaultSerializer: DefaultSerializer) :
+internal class TestObjectSerializer(private val defaultSerializer: DefaultSerializer) :
     Serializer by defaultSerializer {
   override fun <T : Any> toByteArray(value: T): ByteArray {
     return when (value) {
