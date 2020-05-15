@@ -9,6 +9,7 @@ import kotlin.reflect.KClass
 interface EncryptedStorage {
   val secretKeyProvider: SecretKeyProvider
   val serializer: Serializer
+
   @Throws(StorageException::class)
   fun <T : Any> put(
     key: String,
@@ -24,7 +25,7 @@ interface EncryptedStorage {
   @Throws(StorageException::class)
   fun <T : Any> getAll(
     kClass: KClass<T>
-  ): Map<String, T>
+  ): List<T>
 
   fun contains(key: String): Boolean
   fun remove(key: String)

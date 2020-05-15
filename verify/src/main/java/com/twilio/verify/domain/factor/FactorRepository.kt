@@ -15,13 +15,14 @@ import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
 
-internal const val sharedPreferencesName = "TwilioVerify"
+internal const val VERIFY_SUFFIX = "verify"
 
 internal class FactorRepository(
   context: Context,
   private val apiClient: FactorAPIClient,
+  private val storageName: String = "${context.packageName}.$VERIFY_SUFFIX",
   private val storage: StorageProvider = Storage(
-      context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+      context.getSharedPreferences(storageName, Context.MODE_PRIVATE)
   ),
   private val factorMapper: FactorMapper = FactorMapper()
 ) : FactorProvider {
@@ -88,9 +89,10 @@ internal class FactorRepository(
 
   @Throws(TwilioVerifyException::class)
   override fun get(sid: String): Factor? =
-    storage.get(sid)?.let {
-      factorMapper.fromStorage(it)
-    }
+    storage.get(sid)
+        ?.let {
+          factorMapper.fromStorage(it)
+        }
 
   @Throws(TwilioVerifyException::class)
   override fun save(factor: Factor): Factor {
@@ -102,5 +104,6 @@ internal class FactorRepository(
 
   @Throws(TwilioVerifyException::class)
   override fun getAll(): List<Factor> =
-    storage.getAll().mapNotNull { factorMapper.fromStorage(it) }
+    storage.getAll()
+        .mapNotNull { factorMapper.fromStorage(it) }
 }

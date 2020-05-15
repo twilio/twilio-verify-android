@@ -9,7 +9,7 @@ interface Crypto.Key.Signer.Signer {
     verify(data: byte[], signature: byte[]): Boolean
     getPublic(): byte[]
 }
-interface Crypto.Key.Encrypter.Encrypter {
+interface Crypto.Key.Cipher.Cipher {
     encrypt(data: byte[]): byte[]
     decrypt(data: byte[]): byte[]
 }
@@ -17,7 +17,7 @@ class Crypto.Key.Signer.ECSigner implements Crypto.Key.Signer.Signer {
    keyPair : KeyPair
    signatureAlgorithm: String
 }
-class Crypto.Key.Encrypter.AESEncrypter implements Crypto.Key.Encrypter.Encrypter {
+class Crypto.Key.Cipher.AESCipher implements Crypto.Key.Cipher.Cipher {
     key: Key
     val cipherAlgorithm: String
 }
@@ -32,12 +32,12 @@ interface Crypto.Key.Template.SignerTemplate implements Crypto.Key.Template.Temp
 class Crypto.Key.Template.ECP256SignerTemplate implements Crypto.Key.Template.SignerTemplate {
     shouldExist: Boolean
 }
-interface Crypto.Key.Template.EncrypterTemplate extends Crypto.Key.Template.Template{
+interface Crypto.Key.Template.CipherTemplate extends Crypto.Key.Template.Template{
     cipherAlgorithm: String
 }
 interface Crypto.KeyManager {
     signer(template: Crypto.Key.Template.SignerTemplate): Crypto.Key.Signer.Signer
-    encrypter(template: Crypto.Key.Template.EncrypterTemplate): Crypto.Key.Encrypter.Encrypter
+    cipher(template: Crypto.Key.Template.CipherTemplate): Crypto.Key.Cipher.Cipher
     delete(alias: String)
 }
 class Crypto.KeyException {
@@ -50,7 +50,7 @@ class Crypto.AndroidKeyManager implements Crypto.KeyManager {
 
 
 interface Storage.SecretKeyProvider {
-    encrypterTemplate: Crypto.Key.Template.EncrypterTemplate
+    cipherTemplate: Crypto.Key.Template.CipherTemplate
     encrypt(data: byte[]): byte[]
     decrypt(data: byte[]): byte[]
     delete()

@@ -3,7 +3,6 @@
  */
 package com.twilio.verify.domain.factor
 
-import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -45,8 +44,8 @@ class FactorRepositoryTest {
   private val storage: StorageProvider = mock()
   private val factorMapper: FactorMapper = mock()
   private val factorRepository = FactorRepository(
-      ApplicationProvider.getApplicationContext<Context>(), apiClient, storage,
-      factorMapper
+      ApplicationProvider.getApplicationContext(), apiClient, storage = storage,
+      factorMapper = factorMapper
   )
 
   @get:Rule

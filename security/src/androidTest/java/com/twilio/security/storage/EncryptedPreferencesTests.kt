@@ -6,10 +6,10 @@ package com.twilio.security.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
-import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
+import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.security.crypto.providerName
-import com.twilio.security.storage.key.SecretKeyEncrypter
+import com.twilio.security.storage.key.SecretKeyCipher
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.After
@@ -41,14 +41,14 @@ class EncryptedPreferencesTests {
     }
     sharedPreferences =
       context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-    val secretKeyEncrypter =
-      SecretKeyEncrypter(
-          AESGCMNoPaddingEncrypterTemplate(alias, androidKeyManager.contains(alias)),
+    val secretKeyCipher =
+      SecretKeyCipher(
+          AESGCMNoPaddingCipherTemplate(alias, androidKeyManager.contains(alias)),
           androidKeyManager
       )
-    secretKeyEncrypter.create()
+    secretKeyCipher.create()
     encryptedPreferences = EncryptedPreferences(
-        secretKeyEncrypter, sharedPreferences, TestObjectSerializer(
+        secretKeyCipher, sharedPreferences, TestObjectSerializer(
         DefaultSerializer()
     )
     )
@@ -69,7 +69,7 @@ class EncryptedPreferencesTests {
     val key = "value"
     val expectedValue = 123
     encryptedPreferences.put(key, expectedValue)
-    assertTrue(sharedPreferences.contains(key))
+    assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = encryptedPreferences.get(key, Int::class)
     assertEquals(expectedValue, value)
   }
@@ -79,7 +79,7 @@ class EncryptedPreferencesTests {
     val key = "value"
     val expectedValue = true
     encryptedPreferences.put(key, expectedValue)
-    assertTrue(sharedPreferences.contains(key))
+    assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = encryptedPreferences.get(key, Boolean::class)
     assertEquals(expectedValue, value)
   }
@@ -89,7 +89,7 @@ class EncryptedPreferencesTests {
     val key = "value"
     val expectedValue = "sfdsfdgdfguqweuwr"
     encryptedPreferences.put(key, expectedValue)
-    assertTrue(sharedPreferences.contains(key))
+    assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = encryptedPreferences.get(key, String::class)
     assertEquals(expectedValue, value)
   }
@@ -99,7 +99,7 @@ class EncryptedPreferencesTests {
     val key = "value"
     val expectedValue = 1.45657
     encryptedPreferences.put(key, expectedValue)
-    assertTrue(sharedPreferences.contains(key))
+    assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = encryptedPreferences.get(key, Double::class)
     assertEquals(expectedValue, value, 0.0)
   }
@@ -109,7 +109,7 @@ class EncryptedPreferencesTests {
     val key = "value"
     val expectedValue = TestObject("name", 33)
     encryptedPreferences.put(key, expectedValue)
-    assertTrue(sharedPreferences.contains(key))
+    assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = encryptedPreferences.get(key, TestObject::class)
     assertEquals(expectedValue, value)
   }
@@ -120,7 +120,7 @@ class EncryptedPreferencesTests {
     expectedValues.forEachIndexed { index, expectedValue ->
       val key = "key$index"
       encryptedPreferences.put(key, expectedValue)
-      assertTrue(sharedPreferences.contains(key))
+      assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
       val value = encryptedPreferences.get(key, expectedValue::class)
       assertEquals(expectedValue, value)
     }
@@ -133,15 +133,12 @@ class EncryptedPreferencesTests {
     expectedValues.forEachIndexed { index, expectedValue ->
       val key = "key$index"
       encryptedPreferences.put(key, expectedValue)
-      assertTrue(sharedPreferences.contains(key))
+      assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     }
-    val values =
-      encryptedPreferences.getAll(TestObject::class)
-    values.forEach {
-      val index = it.key.replace("key", "")
-          .toInt()
-      if (expectedValues[index] is TestObject) {
-        assertEquals(expectedValues[index], it.value)
+    val values = encryptedPreferences.getAll(TestObject::class)
+    expectedValues.forEach {
+      if (it is TestObject) {
+        assertTrue(values.contains(it))
       }
     }
   }
@@ -153,15 +150,12 @@ class EncryptedPreferencesTests {
     expectedValues.forEachIndexed { index, expectedValue ->
       val key = "key$index"
       encryptedPreferences.put(key, expectedValue)
-      assertTrue(sharedPreferences.contains(key))
+      assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     }
-    val values =
-      encryptedPreferences.getAll(Int::class)
-    values.forEach {
-      val index = it.key.replace("key", "")
-          .toInt()
-      if (expectedValues[index] is Int) {
-        assertEquals(expectedValues[index], it.value)
+    val values = encryptedPreferences.getAll(Int::class)
+    expectedValues.forEach {
+      if (it is Int) {
+        assertTrue(values.contains(it))
       }
     }
   }
@@ -202,5 +196,7 @@ class TestObjectSerializer(private val defaultSerializer: DefaultSerializer) :
   private fun testObjectToByteArray(testObject: TestObject): ByteArray = JSONObject().apply {
     put("name", testObject.name)
     put("age", testObject.age)
-  }.toString().toByteArray()
+  }
+      .toString()
+      .toByteArray()
 }

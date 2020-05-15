@@ -1,6 +1,7 @@
 package com.twilio.verify.api
 
-import androidx.test.platform.app.InstrumentationRegistry
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -25,6 +26,6 @@ object APIResponses {
 
   private fun getJson(path: String): String =
     String(
-        InstrumentationRegistry.getInstrumentation().targetContext.assets.open(path).readBytes()
+        ApplicationProvider.getApplicationContext<Context>().assets.open(path).readBytes()
     )
 }

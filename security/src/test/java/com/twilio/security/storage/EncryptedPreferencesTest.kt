@@ -14,7 +14,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.storage.key.SecretKeyProvider
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -48,9 +47,11 @@ class EncryptedPreferencesTest {
     whenever(preferences.edit()).thenReturn(editor)
     whenever(serializer.toByteArray(value)).thenReturn(value.toByteArray())
     whenever(secretKeyProvider.encrypt(any())).thenReturn(value.toByteArray())
-    whenever(editor.putString(eq(key), any())).thenReturn(editor)
+    whenever(editor.putString(eq(generateKeyDigest(key)), any())).thenReturn(editor)
     encryptedPreferences.put(key, value)
-    verify(editor).putString(key, Base64.encodeToString(value.toByteArray(), Base64.DEFAULT))
+    verify(editor).putString(
+        generateKeyDigest(key), Base64.encodeToString(value.toByteArray(), Base64.DEFAULT)
+    )
     verify(editor).apply()
   }
 
@@ -77,7 +78,7 @@ class EncryptedPreferencesTest {
     val key = "key"
     val originalValue = "value"
     val rawValue = originalValue.toByteArray()
-    whenever(preferences.getString(key, null)).thenReturn(
+    whenever(preferences.getString(generateKeyDigest(key), null)).thenReturn(
         Base64.encodeToString(
             rawValue,
             Base64.DEFAULT
@@ -146,20 +147,18 @@ class EncryptedPreferencesTest {
     whenever(secretKeyProvider.decrypt(rawValue1)).thenReturn(rawValue1)
     whenever(secretKeyProvider.decrypt(rawValue2)).thenReturn(rawValue2)
     whenever(secretKeyProvider.decrypt(rawValue3)).thenReturn(rawValue3)
-    whenever(preferences.all).thenReturn(entries)
+    whenever(preferences.all).thenReturn(entries.toMutableMap())
     val values = encryptedPreferences.getAll(String::class)
-    assertTrue(values.contains(key1))
-    assertTrue(values.contains(key3))
-    assertFalse(values.contains(key2))
-    assertEquals(originalValue1, values[key1])
-    assertEquals(originalValue3, values[key3])
+    assertEquals(2, values.size)
+    assertTrue(values.contains(originalValue1))
+    assertTrue(values.contains(originalValue3))
   }
 
   @Test
   fun testContains_withKey_shouldCallPreferences() {
     val key = "key"
     encryptedPreferences.contains(key)
-    verify(preferences).contains(key)
+    verify(preferences).contains(generateKeyDigest(key))
   }
 
   @Test
@@ -169,7 +168,7 @@ class EncryptedPreferencesTest {
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.remove(any())).thenReturn(editor)
     encryptedPreferences.remove(key)
-    verify(editor).remove(key)
+    verify(editor).remove(generateKeyDigest(key))
     verify(editor).apply()
   }
 

@@ -8,12 +8,12 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.KeyException
 import com.twilio.security.crypto.KeyManager
-import com.twilio.security.crypto.key.encrypter.AlgorithmParametersSpec
-import com.twilio.security.crypto.key.encrypter.EncryptedData
-import com.twilio.security.crypto.key.encrypter.Encrypter
-import com.twilio.security.crypto.key.encrypter.fromByteArray
-import com.twilio.security.crypto.key.encrypter.toByteArray
-import com.twilio.security.crypto.key.template.EncrypterTemplate
+import com.twilio.security.crypto.key.cipher.AlgorithmParametersSpec
+import com.twilio.security.crypto.key.cipher.EncryptedData
+import com.twilio.security.crypto.key.cipher.Cipher
+import com.twilio.security.crypto.key.cipher.fromByteArray
+import com.twilio.security.crypto.key.cipher.toByteArray
+import com.twilio.security.crypto.key.template.CipherTemplate
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -22,31 +22,31 @@ import org.robolectric.RobolectricTestRunner
 import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
-class SecretKeyEncrypterTest {
+class SecretKeyCipherTest {
 
   private val keyManager: KeyManager = mock()
-  private val template: EncrypterTemplate = mock()
-  private lateinit var secretKeyEncrypter: SecretKeyEncrypter
+  private val template: CipherTemplate = mock()
+  private lateinit var secretKeyCipher: SecretKeyCipher
 
   @Before
   fun setup() {
-    secretKeyEncrypter = SecretKeyEncrypter(template, keyManager)
+    secretKeyCipher = SecretKeyCipher(template, keyManager)
   }
 
   @Test
   fun testCreate_shouldCallKeyManager() {
-    secretKeyEncrypter.create()
-    verify(keyManager).encrypter(template.templateForCreation())
+    secretKeyCipher.create()
+    verify(keyManager).cipher(template.templateForCreation())
   }
 
   @Test
   fun testEncrypt_withData_shouldReturnEncrypted() {
     val data = ByteArray(5).apply { nextBytes(this) }
-    val encrypter: Encrypter = mock()
+    val cipher: Cipher = mock()
     val expectedEncryptedData = EncryptedData(AlgorithmParametersSpec(data, "test", "test"), data)
-    whenever(keyManager.encrypter(template)).thenReturn(encrypter)
-    whenever(encrypter.encrypt(data)).thenReturn(expectedEncryptedData)
-    val encrypted = secretKeyEncrypter.encrypt(data)
+    whenever(keyManager.cipher(template)).thenReturn(cipher)
+    whenever(cipher.encrypt(data)).thenReturn(expectedEncryptedData)
+    val encrypted = secretKeyCipher.encrypt(data)
     val encryptedData = fromByteArray(encrypted)
     assertEquals(expectedEncryptedData, encryptedData)
   }
@@ -54,11 +54,11 @@ class SecretKeyEncrypterTest {
   @Test(expected = KeyException::class)
   fun testEncrypt_withErrorEncrypting_shouldThrowError() {
     val data = ByteArray(5).apply { nextBytes(this) }
-    val encrypter: Encrypter = mock()
+    val cipher: Cipher = mock()
     val exception: KeyException = mock()
-    whenever(keyManager.encrypter(template)).thenReturn(encrypter)
-    whenever(encrypter.encrypt(data)).thenThrow(exception)
-    secretKeyEncrypter.encrypt(data)
+    whenever(keyManager.cipher(template)).thenReturn(cipher)
+    whenever(cipher.encrypt(data)).thenThrow(exception)
+    secretKeyCipher.encrypt(data)
   }
 
   @Test
@@ -67,10 +67,10 @@ class SecretKeyEncrypterTest {
     val encryptedData =
       EncryptedData(AlgorithmParametersSpec(expectedData, "test", "test"), expectedData)
     val serializedEncryptedData = toByteArray(encryptedData)
-    val encrypter: Encrypter = mock()
-    whenever(keyManager.encrypter(template)).thenReturn(encrypter)
-    whenever(encrypter.decrypt(encryptedData)).thenReturn(expectedData)
-    val data = secretKeyEncrypter.decrypt(serializedEncryptedData)
+    val cipher: Cipher = mock()
+    whenever(keyManager.cipher(template)).thenReturn(cipher)
+    whenever(cipher.decrypt(encryptedData)).thenReturn(expectedData)
+    val data = secretKeyCipher.decrypt(serializedEncryptedData)
     assertEquals(expectedData, data)
   }
 
@@ -80,18 +80,18 @@ class SecretKeyEncrypterTest {
     val encryptedData =
       EncryptedData(AlgorithmParametersSpec(expectedData, "test", "test"), expectedData)
     val serializedEncryptedData = toByteArray(encryptedData)
-    val encrypter: Encrypter = mock()
+    val cipher: Cipher = mock()
     val exception: KeyException = mock()
-    whenever(keyManager.encrypter(template)).thenReturn(encrypter)
-    whenever(encrypter.decrypt(encryptedData)).thenThrow(exception)
-    secretKeyEncrypter.decrypt(serializedEncryptedData)
+    whenever(keyManager.cipher(template)).thenReturn(cipher)
+    whenever(cipher.decrypt(encryptedData)).thenThrow(exception)
+    secretKeyCipher.decrypt(serializedEncryptedData)
   }
 
   @Test
   fun testDelete_shouldCallKeyManager() {
     val alias = "alias"
     whenever(template.alias).thenReturn(alias)
-    secretKeyEncrypter.delete()
+    secretKeyCipher.delete()
     verify(keyManager).delete(alias)
   }
 }

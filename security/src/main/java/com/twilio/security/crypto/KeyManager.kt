@@ -3,9 +3,9 @@
  */
 package com.twilio.security.crypto
 
-import com.twilio.security.crypto.key.encrypter.Encrypter
+import com.twilio.security.crypto.key.cipher.Cipher
 import com.twilio.security.crypto.key.signer.Signer
-import com.twilio.security.crypto.key.template.EncrypterTemplate
+import com.twilio.security.crypto.key.template.CipherTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
 import java.security.KeyStore
 
@@ -16,7 +16,7 @@ interface KeyManager {
   fun signer(template: SignerTemplate): Signer
 
   @Throws(KeyException::class)
-  fun encrypter(template: EncrypterTemplate): Encrypter
+  fun cipher(template: CipherTemplate): Cipher
 
   @Throws(KeyException::class)
   fun delete(alias: String)
