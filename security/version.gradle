@@ -3,7 +3,7 @@ ext.generateSecurityVersionName = {
 }
 
 ext.generateSecurityVersionCode = {
-    def version = "${versionMajor}.${versionMinor}.${versionPatch}"
+    def version = generateSecurityVersionName()
     def build = version.toString().replace(".", "") as int
     return build * 1000
 }

@@ -48,25 +48,3 @@ dependencies {
   testImplementation 'androidx.test:core:1.2.0'
   testImplementation "org.mockito:mockito-inline:2.28.2"
 }
-
-task sourcesJar(type: Jar) {
-  archiveClassifier.set("sources")
-}
-
-task javadoc(type: Javadoc) {
-  // Excluding all files that are in our internal package
-  exclude "**/internal/**"
-  source = android.sourceSets.main.java.srcDirs
-  classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-  failOnError false
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-  archiveClassifier.set("javadoc")
-  from javadoc.destinationDir
-}
-
-artifacts {
-  archives javadocJar
-  archives sourcesJar
-}

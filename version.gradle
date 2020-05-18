@@ -3,7 +3,7 @@ ext.generateVersionName = {
 }
 
 ext.generateVersionCode = {
-    def version = "${versionMajor}.${versionMinor}.${versionPatch}"
+    def version = generateVersionName()
     def build = version.toString().replace(".", "") as int
     return build * 1000
 }
