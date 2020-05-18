@@ -4,7 +4,7 @@
 package com.twilio.verify.domain.challenge
 
 import android.content.Context
-import com.twilio.verify.Authentication
+import com.twilio.verify.networking.AuthenticationProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
@@ -91,7 +91,6 @@ internal class ChallengeFacade(
 
   class Builder {
     private lateinit var appContext: Context
-    private lateinit var auth: Authentication
     private lateinit var networking: NetworkProvider
     private lateinit var keyStore: KeyStorage
     private lateinit var factorProvider: FactorFacade
@@ -101,9 +100,6 @@ internal class ChallengeFacade(
 
     fun context(context: Context) =
       apply { this.appContext = context }
-
-    fun authentication(authorization: Authentication) =
-      apply { this.auth = authorization }
 
     fun keyStorage(keyStorage: KeyStorage) =
       apply { this.keyStore = keyStorage }
@@ -118,11 +114,6 @@ internal class ChallengeFacade(
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
             IllegalArgumentException("Illegal value for context"), InitializationError
-        )
-      }
-      if (!this::auth.isInitialized) {
-        throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for authorization"), InitializationError
         )
       }
       if (!this::networking.isInitialized) {
@@ -150,7 +141,8 @@ internal class ChallengeFacade(
         )
       }
       val challengeAPIClient =
-        ChallengeAPIClient(networking, appContext, auth, url)
+        ChallengeAPIClient(networking, appContext,
+            AuthenticationProvider(), url)
       val repository = ChallengeRepository(challengeAPIClient)
       val pushChallengeProcessor = PushChallengeProcessor(repository, keyStore)
       return ChallengeFacade(pushChallengeProcessor, factorProvider, repository)

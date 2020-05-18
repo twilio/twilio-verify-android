@@ -340,6 +340,7 @@ class FactorRepositoryTest {
         "entity",
         emptyMap(), sidMock
     )
+    val factor: Factor = mock()
     val response = JSONObject()
         .put(sidKey, sidMock)
         .put(friendlyNameKey, "factor name")
@@ -350,7 +351,7 @@ class FactorRepositoryTest {
     val factorToJson = JSONObject().put(sidKey, sidMock)
         .toString()
     argumentCaptor<(JSONObject) -> Unit>().apply {
-      whenever(apiClient.update(eq(updateFactorPayload), capture(), any())).then {
+      whenever(apiClient.update(eq(factor), eq(updateFactorPayload), capture(), any())).then {
         firstValue.invoke(response)
       }
     }
@@ -361,7 +362,7 @@ class FactorRepositoryTest {
     whenever(factorMapper.toJSON(expectedFactor)).thenReturn(factorToJson)
     whenever(storage.get(sidMock)).thenReturn(factorToJson)
     whenever(factorMapper.fromStorage(factorToJson)).thenReturn(expectedFactor)
-    factorRepository.update(updateFactorPayload, { factor ->
+    factorRepository.update(factor, updateFactorPayload, { factor ->
       assertEquals(expectedFactor, factor)
     }, { fail() })
   }
@@ -376,6 +377,7 @@ class FactorRepositoryTest {
         "entity",
         emptyMap(), sidMock
     )
+    val factor: Factor = mock()
     val response = JSONObject()
         .put(sidKey, sidMock)
         .put(friendlyNameKey, "factor name")
@@ -383,13 +385,13 @@ class FactorRepositoryTest {
         .put(serviceSidKey, "serviceSid")
         .put(statusKey, FactorStatus.Unverified.value)
     argumentCaptor<(JSONObject) -> Unit>().apply {
-      whenever(apiClient.update(eq(updateFactorPayload), capture(), any())).then {
+      whenever(apiClient.update(eq(factor), eq(updateFactorPayload), capture(), any())).then {
         firstValue.invoke(response)
       }
     }
     val expectedException: TwilioVerifyException = mock()
     whenever(factorMapper.fromApi(response, updateFactorPayload)).thenThrow(expectedException)
-    factorRepository.update(updateFactorPayload, {
+    factorRepository.update(factor, updateFactorPayload, {
       fail()
     }, { exception -> assertEquals(expectedException, exception) })
   }

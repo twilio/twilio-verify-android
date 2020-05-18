@@ -60,6 +60,7 @@ internal class FactorRepository(
   }
 
   override fun update(
+    factor: Factor,
     updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
@@ -71,7 +72,7 @@ internal class FactorRepository(
         error(e)
       }
     }
-    apiClient.update(updateFactorPayload, ::updateFactor, error)
+    apiClient.update(factor, updateFactorPayload, ::updateFactor, error)
   }
 
   override fun delete(
@@ -88,9 +89,10 @@ internal class FactorRepository(
 
   @Throws(TwilioVerifyException::class)
   override fun get(sid: String): Factor? =
-    storage.get(sid)?.let {
-      factorMapper.fromStorage(it)
-    }
+    storage.get(sid)
+        ?.let {
+          factorMapper.fromStorage(it)
+        }
 
   @Throws(TwilioVerifyException::class)
   override fun save(factor: Factor): Factor {
@@ -102,5 +104,6 @@ internal class FactorRepository(
 
   @Throws(TwilioVerifyException::class)
   override fun getAll(): List<Factor> =
-    storage.getAll().mapNotNull { factorMapper.fromStorage(it) }
+    storage.getAll()
+        .mapNotNull { factorMapper.fromStorage(it) }
 }

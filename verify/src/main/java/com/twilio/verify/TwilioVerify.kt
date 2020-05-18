@@ -78,8 +78,7 @@ interface TwilioVerify {
   )
 
   class Builder(
-    private var context: Context,
-    private var authentication: Authentication
+    private var context: Context
   ) {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
@@ -95,14 +94,12 @@ interface TwilioVerify {
     fun build(): TwilioVerify {
       val factorFacade = FactorFacade.Builder()
           .context(context)
-          .authentication(authentication)
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .baseUrl(baseUrl)
           .build()
       val challengeFacade = ChallengeFacade.Builder()
           .context(context)
-          .authentication(authentication)
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .factorFacade(factorFacade)
@@ -110,7 +107,6 @@ interface TwilioVerify {
           .build()
       val serviceFacade = ServiceFacade.Builder()
           .context(context)
-          .authentication(authentication)
           .networkProvider(networkProvider)
           .setFactorFacade(factorFacade)
           .baseUrl(baseUrl)
