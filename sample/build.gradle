@@ -9,8 +9,8 @@ android {
     applicationId "com.twilio.verify.sample"
     minSdkVersion 23
     targetSdkVersion 28
-    versionCode 1
-    versionName "1.0"
+    versionCode rootProject.ext.verifyVersionCode
+    versionName "$rootProject.ext.verifyVersionName"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }
   signingConfigs {
@@ -36,7 +36,8 @@ android {
 
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-  implementation project(path: ':verify')
+  debugImplementation project(path: ':verify')
+  releaseImplementation "com.twilio:twilio-verify-android:$rootProject.ext.verifyVersionName"
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
   implementation 'androidx.appcompat:appcompat:1.1.0'
   implementation 'androidx.core:core-ktx:1.2.0'

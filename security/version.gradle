@@ -1,0 +1,11 @@
+ext.generateSecurityVersionName = {
+    return "${versionMajor}.${versionMinor}.${versionPatch}"
+}
+
+ext.generateSecurityVersionCode = {
+    def version = "${versionMajor}.${versionMinor}.${versionPatch}"
+    def build = version.toString().replace(".", "") as int
+    return build * 1000
+}
+
+rootProject.ext.securityVersion = generateSecurityVersionName()
