@@ -18,11 +18,12 @@ class DefaultSerializer : Serializer {
   override fun <T : Any> toByteArray(value: T): ByteArray {
     return when (value) {
       is String -> value.toByteArray()
-      is Int -> value.toString().toByteArray()
-      is Double -> value.toString().toByteArray()
-      is Boolean -> value.toString().toByteArray()
-      is Float -> value.toString().toByteArray()
-      is Long -> value.toString().toByteArray()
+      is Int,
+      is Double,
+      is Boolean,
+      is Float,
+      is Long -> value.toString()
+          .toByteArray()
       else -> throw IllegalArgumentException("Value type not supported")
     }
   }
@@ -45,7 +46,8 @@ class DefaultSerializer : Serializer {
         it.equals("false", ignoreCase = true) || it.equals(
             "true", ignoreCase = true
         )
-      }?.toBoolean() as? T
+      }
+          ?.toBoolean() as? T
       kClass.isAssignableFrom(Float::class) -> String(
           data
       ).toFloat() as? T
