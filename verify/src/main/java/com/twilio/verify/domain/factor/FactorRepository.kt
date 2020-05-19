@@ -60,7 +60,6 @@ internal class FactorRepository(
   }
 
   override fun update(
-    factor: Factor,
     updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
@@ -72,6 +71,10 @@ internal class FactorRepository(
         error(e)
       }
     }
+
+    val factor = get(updateFactorPayload.factorSid) ?: throw TwilioVerifyException(
+        StorageException("Factor not found"), StorageError
+    )
     apiClient.update(factor, updateFactorPayload, ::updateFactor, error)
   }
 

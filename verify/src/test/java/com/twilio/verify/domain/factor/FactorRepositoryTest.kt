@@ -362,9 +362,23 @@ class FactorRepositoryTest {
     whenever(factorMapper.toJSON(expectedFactor)).thenReturn(factorToJson)
     whenever(storage.get(sidMock)).thenReturn(factorToJson)
     whenever(factorMapper.fromStorage(factorToJson)).thenReturn(expectedFactor)
-    factorRepository.update(factor, updateFactorPayload, { factor ->
+    factorRepository.update(updateFactorPayload, { factor ->
       assertEquals(expectedFactor, factor)
     }, { fail() })
+  }
+
+  @Test(expected = TwilioVerifyException::class)
+  fun `Update a factor with null factor should throw exception`() {
+    val sidMock = "sid123"
+    val updateFactorPayload = UpdateFactorPayload(
+        "friendlyName",
+        PUSH,
+        "serviceSid",
+        "entity",
+        emptyMap(), sidMock
+    )
+    whenever(storage.get(sidMock)).thenReturn(null)
+    factorRepository.update(updateFactorPayload, {}, {})
   }
 
   @Test
@@ -377,7 +391,9 @@ class FactorRepositoryTest {
         "entity",
         emptyMap(), sidMock
     )
-    val factor: Factor = mock()
+    val factor: Factor = mock() {
+      on { sid } doReturn sidMock
+    }
     val response = JSONObject()
         .put(sidKey, sidMock)
         .put(friendlyNameKey, "factor name")
@@ -389,9 +405,13 @@ class FactorRepositoryTest {
         firstValue.invoke(response)
       }
     }
+    val factorToJson = JSONObject().put(sidKey, sidMock)
+        .toString()
+    whenever(storage.get(sidMock)).thenReturn(factorToJson)
+    whenever(factorMapper.fromStorage(factorToJson)).thenReturn(mock())
     val expectedException: TwilioVerifyException = mock()
     whenever(factorMapper.fromApi(response, updateFactorPayload)).thenThrow(expectedException)
-    factorRepository.update(factor, updateFactorPayload, {
+    factorRepository.update(updateFactorPayload, {
       fail()
     }, { exception -> assertEquals(expectedException, exception) })
   }

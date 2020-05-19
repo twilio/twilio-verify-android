@@ -372,13 +372,13 @@ class PushFactoryTest {
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorProvider.update(any(), any(), capture(), any())).then {
+      whenever(factorProvider.update(any(), capture(), any())).then {
         firstValue.invoke(factor)
       }
     }
     idlingResource.startOperation()
     pushFactory.update(sid, pushToken, {
-      verify(factorProvider).update(any(), check { updateFactorPayload ->
+      verify(factorProvider).update(check { updateFactorPayload ->
         assertEquals(sid, updateFactorPayload.factorSid)
         assertEquals(serviceSid, updateFactorPayload.serviceSid)
         assertEquals(friendlyName, updateFactorPayload.friendlyName)
@@ -411,7 +411,7 @@ class PushFactoryTest {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
-      verify(factorProvider, never()).update(any(), any(), any(), any())
+      verify(factorProvider, never()).update(any(), any(), any())
       assertTrue(exception.cause is StorageException)
       idlingResource.operationFinished()
     })
@@ -440,7 +440,7 @@ class PushFactoryTest {
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(factorProvider.update(any(), any(), any(), capture())).then {
+      whenever(factorProvider.update(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -510,7 +510,7 @@ class PushFactoryTest {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
-      verify(factorProvider, never()).update(any(), any(), any(), any())
+      verify(factorProvider, never()).update(any(), any(), any())
       assertTrue(exception.cause is StorageException)
       idlingResource.operationFinished()
     })

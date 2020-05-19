@@ -31,10 +31,13 @@ internal class AuthenticationProvider : Authentication {
       put(issKey, factor.accountSid)
       put(subKey, factor.serviceSid)
       put(
-          expKey, (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(
+          expKey, TimeUnit.MILLISECONDS.toSeconds(
+          System.currentTimeMillis()
+      ) + TimeUnit.MINUTES.toSeconds(
           jwtValidFor
-      )) / 1000)
-      put(iatKey, System.currentTimeMillis() / 1000)
+      )
+      )
+      put(iatKey, TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()))
       put(grantsKey, getGrants(factor))
     }
 

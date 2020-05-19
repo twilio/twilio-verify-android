@@ -23,7 +23,6 @@ internal interface FactorProvider {
   )
 
   fun update(
-    factor: Factor,
     updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit

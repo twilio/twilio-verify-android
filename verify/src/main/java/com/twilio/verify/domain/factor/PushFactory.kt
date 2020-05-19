@@ -118,7 +118,7 @@ internal class PushFactory(
             pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.entityIdentity,
             config(pushToken), pushFactor.sid
         )
-        factorProvider.update(pushFactor, updateFactorPayload, onSuccess, onError)
+        factorProvider.update(updateFactorPayload, onSuccess, onError)
       }
       try {
         val factor = factorProvider.get(sid) as? PushFactor
