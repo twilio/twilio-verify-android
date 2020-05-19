@@ -35,12 +35,12 @@ import com.twilio.verify.domain.challenge.pageKey
 import com.twilio.verify.domain.challenge.pageSizeKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.challenge.valueKey
+import com.twilio.verify.domain.factor.VERIFY_SUFFIX
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.configKey
 import com.twilio.verify.domain.factor.credentialSidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.factor.models.PushFactor
-import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
 import com.twilio.verify.models.ChallengeListInput
@@ -112,7 +112,8 @@ class TwilioVerifyTest {
       }
     }
     Security.insertProviderAt(provider, 0)
-    preferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+    preferences =
+      context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
     twilioVerify =
       TwilioVerify.Builder(context, authentication)
           .networkProvider(networkProvider)
@@ -353,7 +354,8 @@ class TwilioVerifyTest {
       }).toString()
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     argumentCaptor<(String) -> Unit>().apply {
@@ -411,7 +413,8 @@ class TwilioVerifyTest {
       }).toString()
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     argumentCaptor<(String) -> Unit>().apply {
@@ -471,12 +474,15 @@ class TwilioVerifyTest {
           })
         })
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
-    }.toString()
+    }
+        .toString()
 
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
@@ -538,12 +544,15 @@ class TwilioVerifyTest {
           })
         })
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
-    }.toString()
+    }
+        .toString()
 
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
@@ -738,9 +747,15 @@ class TwilioVerifyTest {
 
       assertEquals(expectedChallenges.length(), list.challenges.size)
       assertEquals(factorSid, firstChallenge.factorSid)
-      assertEquals(expectedChallenges.getJSONObject(0).getString(sidKey), firstChallenge.sid)
+      assertEquals(
+          expectedChallenges.getJSONObject(0)
+              .getString(sidKey), firstChallenge.sid
+      )
       assertEquals(factorSid, secondChallenge.factorSid)
-      assertEquals(expectedChallenges.getJSONObject(1).getString(sidKey), secondChallenge.sid)
+      assertEquals(
+          expectedChallenges.getJSONObject(1)
+              .getString(sidKey), secondChallenge.sid
+      )
 
       assertEquals(expectedMetadata.getString(key), list.metadata.key)
       assertEquals(expectedMetadata.getString(nextPageKey), list.metadata.nextPageURL)
@@ -930,10 +945,12 @@ private fun challengeJSONObject(
         })
       })
       put(dateKey, "2020-02-19T16:39:57-08:00")
-    }.toString())
+    }
+        .toString())
     put(hiddenDetailsKey, JSONObject().apply {
       put("key1", "value1")
-    }.toString())
+    }
+        .toString())
     put(expirationDateKey, "2020-02-27T08:50:57-08:00")
   }
 }

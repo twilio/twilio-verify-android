@@ -4,11 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.idling.CountingIdlingResource
-import androidx.test.platform.app.InstrumentationRegistry
 import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.api.Action
 import com.twilio.verify.data.provider
-import com.twilio.verify.domain.factor.sharedPreferencesName
+import com.twilio.verify.domain.factor.VERIFY_SUFFIX
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.internal.TlsUtil.localhost
@@ -52,16 +51,18 @@ open class BaseServerTest {
     mockWebServer = MockWebServer()
     mockWebServer.useHttps(sslSocketFactory, false)
     mockWebServer.start()
-    sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
-        .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-    context = InstrumentationRegistry.getInstrumentation()
-        .targetContext
+    context = ApplicationProvider.getApplicationContext()
+    sharedPreferences = context
+        .getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
     keyStore = KeyStore.getInstance(provider)
         .apply {
           load(null)
         }
     twilioVerify = Builder(context, authentication)
-        .baseUrl(mockWebServer.url("/").toString())
+        .baseUrl(
+            mockWebServer.url("/")
+                .toString()
+        )
         .build()
   }
 
