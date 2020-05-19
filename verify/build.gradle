@@ -1,14 +1,15 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: 'publish.gradle'
 android {
   compileSdkVersion 28
 
   defaultConfig {
     minSdkVersion 23
     targetSdkVersion 28
-    versionCode 1
-    versionName "1.0"
+    versionCode generateVersionCode()
+    versionName generateVersionName()
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles 'consumer-rules.pro'
@@ -32,7 +33,8 @@ android {
 }
 
 dependencies {
-  implementation project(path: ':security')
+  debugImplementation project(path: ':security')
+  releaseImplementation "com.twilio:twilio-security-android:$rootProject.ext.securityVersion"
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
