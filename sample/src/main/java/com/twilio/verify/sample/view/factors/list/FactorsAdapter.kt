@@ -38,6 +38,8 @@ class FactorsAdapter(
 
   override fun getItemCount(): Int = factors.size
 
+  fun getItemSid(position: Int): String = factors[position].sid
+
   class FactorViewHolder(view: View) : ViewHolder(view) {
     private var factorInfo: TextView? = null
 
