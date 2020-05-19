@@ -1,4 +1,4 @@
-package com.twilio.security.crypto.key.encrypter
+package com.twilio.security.crypto.key.cipher
 
 import android.util.Base64
 import android.util.Base64.DEFAULT

@@ -4,12 +4,13 @@ import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Base64.DEFAULT
 import com.twilio.security.storage.key.SecretKeyProvider
+import java.security.MessageDigest
 import kotlin.reflect.KClass
 
 class EncryptedPreferences(
   override val secretKeyProvider: SecretKeyProvider,
   private val preferences: SharedPreferences,
-  override val serializer: Serializer = DefaultSerializer()
+  override val serializer: Serializer
 ) : EncryptedStorage {
   @Throws(StorageException::class)
   override fun <T : Any> put(
@@ -20,7 +21,7 @@ class EncryptedPreferences(
       val rawValue = toByteArray(value)
       val encrypted = secretKeyProvider.encrypt(rawValue)
       preferences.edit()
-          .putString(key, Base64.encodeToString(encrypted, DEFAULT))
+          .putString(generateKeyDigest(key), Base64.encodeToString(encrypted, DEFAULT))
           .apply()
     } catch (e: Exception) {
       throw StorageException(e)
@@ -33,7 +34,7 @@ class EncryptedPreferences(
     kClass: KClass<T>
   ): T {
     return try {
-      getValue(key, kClass) ?: throw IllegalArgumentException(
+      getValue(generateKeyDigest(key), kClass) ?: throw IllegalArgumentException(
           "Illegal decrypted data"
       )
     } catch (e: Exception) {
@@ -44,27 +45,26 @@ class EncryptedPreferences(
   @Throws(StorageException::class)
   override fun <T : Any> getAll(
     kClass: KClass<T>
-  ): Map<String, T> = try {
+  ): List<T> = try {
     preferences.all.filterValues { it is String }
         .mapNotNull { entry ->
           try {
             getValue(
                 entry.key, kClass
-            )?.let { entry.key to it }
+            )
           } catch (e: Exception) {
             null
           }
         }
-        .toMap()
   } catch (e: Exception) {
     throw StorageException(e)
   }
 
-  override fun contains(key: String): Boolean = preferences.contains(key)
+  override fun contains(key: String): Boolean = preferences.contains(generateKeyDigest(key))
 
   override fun remove(key: String) {
     preferences.edit()
-        .remove(key)
+        .remove(generateKeyDigest(key))
         .apply()
   }
 
@@ -90,4 +90,9 @@ class EncryptedPreferences(
     data: ByteArray,
     kClass: KClass<T>
   ): T? = serializer.fromByteArray(data, kClass)
+}
+
+internal fun generateKeyDigest(key: String): String {
+  val messageDigest = MessageDigest.getInstance("SHA-256")
+  return Base64.encodeToString(messageDigest.digest(key.toByteArray()), DEFAULT)
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-package com.twilio.security.crypto.key.encrypter
+package com.twilio.security.crypto.key.cipher
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -32,7 +32,7 @@ import javax.crypto.SecretKey
 import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
-class AESEncrypterTest {
+class AESCipherTest {
 
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()
@@ -40,7 +40,7 @@ class AESEncrypterTest {
   private val providerName = "TestKeyStore"
   private val cipherAlgorithm = "TestCipherAlgorithm"
 
-  private lateinit var AESEncrypter: AESEncrypter
+  private lateinit var aesCipher: AESCipher
   private lateinit var provider: Provider
 
   @Before
@@ -59,7 +59,7 @@ class AESEncrypterTest {
     cipherMockInput = CipherMockInput()
     cipherMockOutput = CipherMockOutput()
     val key: SecretKey = mock()
-    AESEncrypter = AESEncrypter(key, cipherAlgorithm)
+    aesCipher = AESCipher(key, cipherAlgorithm)
   }
 
   @After
@@ -87,8 +87,8 @@ class AESEncrypterTest {
     )
     cipherMockInput.encrypted = encrypted
     cipherMockInput.algorithmParameters = algorithmParameters
-    val encryptedData = AESEncrypter.encrypt(data)
-    assertEquals(AESEncrypter.key, cipherMockOutput.secretKey)
+    val encryptedData = aesCipher.encrypt(data)
+    assertEquals(aesCipher.key, cipherMockOutput.secretKey)
     assertTrue(cipherMockOutput.cipherInitialized)
     assertEquals(expectedEncryptedData, encryptedData)
   }
@@ -104,7 +104,7 @@ class AESEncrypterTest {
             RuntimeException::class.java
         )
     )
-    AESEncrypter.encrypt(data)
+    aesCipher.encrypt(data)
   }
 
   @Test
@@ -127,8 +127,8 @@ class AESEncrypterTest {
     )
     cipherMockInput.decrypted = data
     cipherMockInput.algorithmParameters = algorithmParameters
-    val decrypted = AESEncrypter.decrypt(expectedEncryptedData)
-    assertEquals(AESEncrypter.key, cipherMockOutput.secretKey)
+    val decrypted = aesCipher.decrypt(expectedEncryptedData)
+    assertEquals(aesCipher.key, cipherMockOutput.secretKey)
     assertTrue(cipherMockOutput.cipherInitialized)
     assertTrue(data.toByteArray().contentEquals(decrypted))
   }
@@ -158,6 +158,6 @@ class AESEncrypterTest {
             RuntimeException::class.java
         )
     )
-    AESEncrypter.decrypt(expectedEncryptedData)
+    aesCipher.decrypt(expectedEncryptedData)
   }
 }

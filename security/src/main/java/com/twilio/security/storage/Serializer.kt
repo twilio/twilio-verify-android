@@ -14,7 +14,7 @@ interface Serializer {
   ): T?
 }
 
-class DefaultSerializer : Serializer {
+internal class DefaultSerializer : Serializer {
   override fun <T : Any> toByteArray(value: T): ByteArray {
     return when (value) {
       is String -> value.toByteArray()

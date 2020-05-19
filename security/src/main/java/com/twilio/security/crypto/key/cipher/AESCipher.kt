@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-package com.twilio.security.crypto.key.encrypter
+package com.twilio.security.crypto.key.cipher
 
 import com.twilio.security.crypto.KeyException
 import java.security.AlgorithmParameters
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 
-class AESEncrypter(
+class AESCipher(
   internal val key: SecretKey,
   private val cipherAlgorithm: String
-) : Encrypter {
+) : com.twilio.security.crypto.key.cipher.Cipher {
   override fun encrypt(data: ByteArray): EncryptedData {
     return try {
       Cipher.getInstance(cipherAlgorithm)
