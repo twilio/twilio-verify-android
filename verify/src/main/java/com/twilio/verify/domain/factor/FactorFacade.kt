@@ -4,7 +4,7 @@
 package com.twilio.verify.domain.factor
 
 import android.content.Context
-import com.twilio.verify.Authentication
+import com.twilio.verify.networking.AuthenticationProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
@@ -120,7 +120,6 @@ internal class FactorFacade(
 
   class Builder {
     private lateinit var appContext: Context
-    private lateinit var auth: Authentication
     private lateinit var networking: NetworkProvider
     private lateinit var keyStore: KeyStorage
     private lateinit var url: String
@@ -129,9 +128,6 @@ internal class FactorFacade(
 
     fun context(context: Context) =
       apply { this.appContext = context }
-
-    fun authentication(authentication: Authentication) =
-      apply { this.auth = authentication }
 
     fun keyStorage(keyStorage: KeyStorage) =
       apply { this.keyStore = keyStorage }
@@ -143,11 +139,6 @@ internal class FactorFacade(
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
             IllegalArgumentException("Illegal value for context"), InitializationError
-        )
-      }
-      if (!this::auth.isInitialized) {
-        throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for authentication"), InitializationError
         )
       }
       if (!this::networking.isInitialized) {
@@ -169,7 +160,8 @@ internal class FactorFacade(
         )
       }
       val factorAPIClient =
-        FactorAPIClient(networking, appContext, auth, url)
+        FactorAPIClient(networking, appContext,
+            AuthenticationProvider(), url)
       val repository = FactorRepository(appContext, factorAPIClient)
       val pushFactory = PushFactory(repository, keyStore, appContext)
       return FactorFacade(pushFactory, repository)

@@ -1,10 +1,9 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.Authentication
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
-import com.twilio.verify.api.Action.READ
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod.Get
@@ -33,28 +32,23 @@ internal class ServiceAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun getService(authToken: String) {
-      try {
-        val requestHelper = RequestHelper(
-            context,
-            BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
-        )
-        val request = Request.Builder(requestHelper, getServiceURL(serviceSid))
-            .httpMethod(Get)
-            .build()
-        networkProvider.execute(request, {
-          success(JSONObject(it))
-        }, { exception ->
-          error(TwilioVerifyException(exception, NetworkError))
-        })
-      } catch (e: Exception) {
-        error(TwilioVerifyException(NetworkException(e), NetworkError))
-      }
+    try {
+      val authToken = authentication.generateJWT(factor)
+      val requestHelper = RequestHelper(
+          context,
+          BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
+      )
+      val request = Request.Builder(requestHelper, getServiceURL(serviceSid))
+          .httpMethod(Get)
+          .build()
+      networkProvider.execute(request, {
+        success(JSONObject(it))
+      }, { exception ->
+        error(TwilioVerifyException(exception, NetworkError))
+      })
+    } catch (e: Exception) {
+      error(TwilioVerifyException(NetworkException(e), NetworkError))
     }
-    generateToken(
-        authentication, serviceSid = serviceSid, identity = factor.entityIdentity, action = READ,
-        success = ::getService, error = error
-    )
   }
 
   private fun getServiceURL(

@@ -435,7 +435,7 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
-          Config("credentialSid")
+          Config(credentialSid)
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()

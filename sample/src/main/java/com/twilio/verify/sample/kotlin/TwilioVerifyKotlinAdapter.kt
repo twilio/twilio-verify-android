@@ -4,7 +4,6 @@
 package com.twilio.verify.sample.kotlin
 
 import android.content.Context
-import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Factor
@@ -34,10 +33,7 @@ import kotlin.coroutines.resumeWithException
 class TwilioVerifyKotlinAdapter(
   applicationContext: Context,
   okHttpClient: OkHttpClient = okHttpClient(),
-  authentication: Authentication,
-  private val twilioVerify: TwilioVerify = TwilioVerify.Builder(
-      applicationContext, authentication
-  )
+  private val twilioVerify: TwilioVerify = TwilioVerify.Builder(applicationContext)
       .networkProvider(OkHttpProvider(okHttpClient))
       .build(),
   private val sampleBackendAPIClient: SampleBackendAPIClient = SampleBackendAPIClient(okHttpClient),
