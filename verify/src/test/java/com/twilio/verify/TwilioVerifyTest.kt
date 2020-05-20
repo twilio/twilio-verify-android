@@ -81,9 +81,12 @@ import java.security.Security
 import java.security.cert.Certificate
 import java.util.Date
 import java.util.Enumeration
+import kotlin.reflect.KClass
 
 @RunWith(RobolectricTestRunner::class)
-@Config(shadows = [TestKeystore::class])
+@Config(
+    shadows = [TestKeystore::class, TestEncryptedStorage::class, TestSecretKeyCipher::class]
+)
 class TwilioVerifyTest {
 
   private lateinit var factor: Factor
@@ -125,6 +128,7 @@ class TwilioVerifyTest {
     preferences.edit()
         .clear()
         .apply()
+    values.clear()
   }
 
   @Test
@@ -823,6 +827,7 @@ class TwilioVerifyTest {
     createFactor(factorSid, Verified)
     assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
     assertTrue(preferences.contains(factorSid))
+    assertTrue(values.contains(factorSid))
     argumentCaptor<(String) -> Unit>().apply {
       whenever(
           authentication.generateJWE(
@@ -841,6 +846,7 @@ class TwilioVerifyTest {
     idlingResource.startOperation()
     twilioVerify.deleteFactor(factorSid, {
       assertFalse(preferences.contains(factorSid))
+      assertFalse(values.contains(factorSid))
       assertFalse(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
       idlingResource.operationFinished()
     }, { exception ->
@@ -856,6 +862,7 @@ class TwilioVerifyTest {
     createFactor(factorSid, Verified)
     assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
     assertTrue(preferences.contains(factorSid))
+    assertTrue(values.contains(factorSid))
     val expectedException: Exception = mock()
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(
@@ -981,6 +988,66 @@ class TestKeystore {
   @Implementation
   fun delete(alias: String) {
     keys.remove(alias)
+  }
+
+  @Implementation
+  fun contains(alias: String): Boolean {
+    return keys.contains(alias)
+  }
+}
+
+private val values = mutableMapOf<String, Any>()
+
+@Implements(com.twilio.security.storage.key.SecretKeyCipher::class)
+class TestSecretKeyCipher {
+  @Implementation
+  fun create() {
+
+  }
+}
+
+@Implements(com.twilio.security.storage.EncryptedPreferences::class)
+class TestEncryptedStorage {
+  @Implementation
+  fun <T : Any> put(
+    key: String,
+    value: T
+  ) {
+    values[key] = value
+  }
+
+  @Implementation
+  fun <T : Any> get(
+    key: String,
+    kClass: KClass<T>
+  ): T {
+    return values[key] as T
+  }
+
+  @Implementation
+  fun <T : Any> getAll(
+    kClass: KClass<T>
+  ): List<T> {
+    return values.filterValues {
+      it::class.javaObjectType.isAssignableFrom(
+          kClass.javaObjectType
+      )
+    }.values as List<T>
+  }
+
+  @Implementation
+  fun contains(key: String): Boolean {
+    return values.contains(key)
+  }
+
+  @Implementation
+  fun remove(key: String) {
+    values.remove(key)
+  }
+
+  @Implementation
+  fun clear() {
+    values.clear()
   }
 }
 

@@ -4,6 +4,7 @@
 package com.twilio.verify.domain.factor
 
 import android.content.Context
+import com.twilio.security.storage.encryptedPreferences
 import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
@@ -20,6 +21,9 @@ import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.NetworkProvider
+
+internal const val VERIFY_SUFFIX = "verify"
+internal const val ENC_SUFFIX = "enc"
 
 internal class FactorFacade(
   private val pushFactory: PushFactory,
@@ -61,7 +65,12 @@ internal class FactorFacade(
   ) {
     when (updateFactorInput) {
       is UpdatePushFactorInput -> {
-        pushFactory.update(updateFactorInput.sid, updateFactorInput.pushToken, success, error)
+        pushFactory.update(
+            updateFactorInput.sid,
+            updateFactorInput.pushToken,
+            success,
+            error
+        )
       }
     }
   }
@@ -149,7 +158,8 @@ internal class FactorFacade(
       }
       if (!this::auth.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for authentication"), InitializationError
+            IllegalArgumentException("Illegal value for authentication"),
+            InitializationError
         )
       }
       if (!this::networking.isInitialized) {
@@ -173,12 +183,13 @@ internal class FactorFacade(
       val storageName = "${appContext.packageName}.$VERIFY_SUFFIX"
       val factorAPIClient = FactorAPIClient(networking, appContext, auth, url)
       val sharedPreferences = appContext.getSharedPreferences(storageName, Context.MODE_PRIVATE)
-      val storage = Storage(sharedPreferences)
+      val encryptedSharedPreferences =
+        appContext.getSharedPreferences("$storageName.$ENC_SUFFIX", Context.MODE_PRIVATE)
+      val encryptedStorage = encryptedPreferences(storageName, encryptedSharedPreferences)
+      val storage = Storage(sharedPreferences, encryptedStorage)
       val repository = FactorRepository(factorAPIClient, storage)
       val pushFactory = PushFactory(repository, keyStore, appContext)
       return FactorFacade(pushFactory, repository)
     }
   }
 }
-
-internal const val VERIFY_SUFFIX = "verify"

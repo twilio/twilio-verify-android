@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class IdlingResource(private val counter: AtomicInteger = AtomicInteger(0)) {
   fun waitForIdle(
-    waitFor: Long = 100,
-    times: Int = 5
+    waitFor: Long = 200,
+    times: Int = 10
   ) {
     for (i in 0..times) {
       if (counter.get() > 0) {
