@@ -10,6 +10,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.KeyStorage
+import com.twilio.verify.data.Storage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
@@ -86,7 +87,8 @@ internal class FactorFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
-      factorProvider.getAll().find { it.serviceSid == serviceSid }
+      factorProvider.getAll()
+          .find { it.serviceSid == serviceSid }
           ?.let { success(it) } ?: throw TwilioVerifyException(
           StorageException("Factor not found"), StorageError
       )
@@ -168,11 +170,15 @@ internal class FactorFacade(
             InitializationError
         )
       }
-      val factorAPIClient =
-        FactorAPIClient(networking, appContext, auth, url)
-      val repository = FactorRepository(appContext, factorAPIClient)
+      val storageName = "${appContext.packageName}.$VERIFY_SUFFIX"
+      val factorAPIClient = FactorAPIClient(networking, appContext, auth, url)
+      val sharedPreferences = appContext.getSharedPreferences(storageName, Context.MODE_PRIVATE)
+      val storage = Storage(sharedPreferences)
+      val repository = FactorRepository(factorAPIClient, storage)
       val pushFactory = PushFactory(repository, keyStore, appContext)
       return FactorFacade(pushFactory, repository)
     }
   }
 }
+
+internal const val VERIFY_SUFFIX = "verify"
