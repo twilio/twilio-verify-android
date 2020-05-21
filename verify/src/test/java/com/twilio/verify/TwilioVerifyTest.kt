@@ -30,12 +30,12 @@ import com.twilio.verify.domain.challenge.pageKey
 import com.twilio.verify.domain.challenge.pageSizeKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.challenge.valueKey
+import com.twilio.verify.domain.factor.VERIFY_SUFFIX
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.configKey
 import com.twilio.verify.domain.factor.credentialSidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.factor.models.PushFactor
-import com.twilio.verify.domain.factor.sharedPreferencesName
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
 import com.twilio.verify.models.ChallengeListInput
@@ -106,7 +106,8 @@ class TwilioVerifyTest {
       }
     }
     Security.insertProviderAt(provider, 0)
-    preferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+    preferences =
+      context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
     twilioVerify =
       TwilioVerify.Builder(context)
           .networkProvider(networkProvider)

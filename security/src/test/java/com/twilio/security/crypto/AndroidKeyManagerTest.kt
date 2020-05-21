@@ -6,9 +6,9 @@ package com.twilio.security.crypto
 import android.security.keystore.KeyProperties
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.security.crypto.key.encrypter.AESEncrypter
+import com.twilio.security.crypto.key.cipher.AESCipher
 import com.twilio.security.crypto.key.signer.ECSigner
-import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
+import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.mocks.keystore.KeyStoreMockInput
 import com.twilio.security.crypto.mocks.keystore.KeyStoreMockOutput
@@ -37,7 +37,6 @@ import java.security.Provider
 import java.security.PublicKey
 import java.security.Security
 import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
@@ -259,56 +258,53 @@ class AndroidKeyManagerTest {
   }
 
   @Test
-  fun `Create a new AES encrypter`() {
+  fun `Create a new AES cipher`() {
     val alias = "test"
     val algorithm = KeyProperties.KEY_ALGORITHM_AES
     val cipherAlgorithm = "cipherAlgorithm"
-    val template: AESGCMNoPaddingEncrypterTemplate = mock()
+    val template: AESGCMNoPaddingCipherTemplate = mock()
     val key: SecretKey = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     keyStoreMockInput =
       KeyStoreMockInput(
           containsAlias = false, key = key, newKey = key
       )
-    val encrypter = androidKeyManager.encrypter(template)
+    val cipher = androidKeyManager.cipher(template)
     assertTrue(keyStoreMockOutput.generatedKeyPair)
-    assertTrue(encrypter is AESEncrypter)
-    assertEquals(keyStoreMockInput.key, (encrypter as? AESEncrypter)?.key)
+    assertTrue(cipher is AESCipher)
+    assertEquals(keyStoreMockInput.key, (cipher as? AESCipher)?.key)
   }
 
   @Test
-  fun `Get an existing AES encrypter`() {
+  fun `Get an existing AES cipher`() {
     val alias = "test"
     val cipherAlgorithm = "cipherAlgorithm"
-    val template: AESGCMNoPaddingEncrypterTemplate = mock()
+    val template: AESGCMNoPaddingCipherTemplate = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     keyStoreMockInput =
       KeyStoreMockInput(
           containsAlias = true, key = mock<SecretKey>()
       )
-    val encrypter = androidKeyManager.encrypter(template)
+    val cipher = androidKeyManager.cipher(template)
     assertFalse(keyStoreMockOutput.generatedKeyPair)
-    assertTrue(encrypter is AESEncrypter)
-    assertEquals(keyStoreMockInput.key, (encrypter as? AESEncrypter)?.key)
+    assertTrue(cipher is AESCipher)
+    assertEquals(keyStoreMockInput.key, (cipher as? AESCipher)?.key)
   }
 
   @Test
-  fun `Different key for new AES encrypter`() {
+  fun `Different key for new AES cipher`() {
     val alias = "test"
     val algorithm = KeyProperties.KEY_ALGORITHM_AES
     val cipherAlgorithm = "cipherAlgorithm"
-    val template: AESGCMNoPaddingEncrypterTemplate = mock()
+    val template: AESGCMNoPaddingCipherTemplate = mock()
     val key1: SecretKey = mock()
     val key2: SecretKey = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    whenever(template.parameterSpecClass).thenReturn(GCMParameterSpec::class.java)
     keyStoreMockInput =
       KeyStoreMockInput(
           containsAlias = false, key = key1, newKey = key2
@@ -319,13 +315,13 @@ class AndroidKeyManagerTest {
             IllegalArgumentException::class.java
         )
     )
-    androidKeyManager.encrypter(template)
+    androidKeyManager.cipher(template)
   }
 
   @Test
-  fun `Alias not found for previously created encrypter`() {
+  fun `Alias not found for previously created cipher`() {
     val alias = "test"
-    val template: AESGCMNoPaddingEncrypterTemplate = mock()
+    val template: AESGCMNoPaddingCipherTemplate = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.shouldExist).thenReturn(true)
     keyStoreMockInput =
@@ -338,7 +334,7 @@ class AndroidKeyManagerTest {
             IllegalStateException::class.java
         )
     )
-    androidKeyManager.encrypter(template)
+    androidKeyManager.cipher(template)
   }
 
   @Test

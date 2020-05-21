@@ -3,11 +3,9 @@
  */
 package com.twilio.verify.domain.factor
 
-import android.content.Context
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
-import com.twilio.verify.data.Storage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
@@ -15,14 +13,9 @@ import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
 
-internal const val sharedPreferencesName = "TwilioVerify"
-
 internal class FactorRepository(
-  context: Context,
   private val apiClient: FactorAPIClient,
-  private val storage: StorageProvider = Storage(
-      context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-  ),
+  private val storage: StorageProvider,
   private val factorMapper: FactorMapper = FactorMapper()
 ) : FactorProvider {
   override fun create(

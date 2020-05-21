@@ -22,14 +22,14 @@ private const val preferencesName = "testPreferences"
 @Config(manifest = Config.NONE)
 class StorageTest {
 
-  private val sharedPreferences = ApplicationProvider.getApplicationContext<Context>()
-      .getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+  private val context: Context = ApplicationProvider.getApplicationContext()
+  private val sharedPreferences =
+    context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
   private val storage = Storage(sharedPreferences)
 
   @After
   fun tearDown() {
-    ApplicationProvider.getApplicationContext<Context>()
-        .deleteSharedPreferences(preferencesName)
+    context.deleteSharedPreferences(preferencesName)
   }
 
   @Test

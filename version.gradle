@@ -1,0 +1,12 @@
+ext.generateVersionName = {
+    return "${versionMajor}.${versionMinor}.${versionPatch}"
+}
+
+ext.generateVersionCode = {
+    def version = generateVersionName()
+    def build = version.toString().replace(".", "") as int
+    return build * 1000
+}
+
+rootProject.ext.verifyVersionName = generateVersionName()
+rootProject.ext.verifyVersionCode = generateVersionCode()

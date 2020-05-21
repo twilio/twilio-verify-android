@@ -3,13 +3,13 @@
  */
 package com.twilio.security.crypto
 
-import com.twilio.security.crypto.key.encrypter.AESEncrypter
-import com.twilio.security.crypto.key.encrypter.Encrypter
+import com.twilio.security.crypto.key.cipher.AESCipher
+import com.twilio.security.crypto.key.cipher.Cipher
 import com.twilio.security.crypto.key.signer.ECSigner
 import com.twilio.security.crypto.key.signer.Signer
-import com.twilio.security.crypto.key.template.AESGCMNoPaddingEncrypterTemplate
+import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
-import com.twilio.security.crypto.key.template.EncrypterTemplate
+import com.twilio.security.crypto.key.template.CipherTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -22,7 +22,7 @@ import javax.crypto.SecretKey
 
 class AndroidKeyManager(
   private val keyStore: KeyStore,
-  private val provider: String
+  override val provider: String
 ) : KeyManager {
 
   @Throws(KeyException::class)
@@ -81,20 +81,18 @@ class AndroidKeyManager(
   }
 
   @Throws(KeyException::class)
-  override fun encrypter(template: EncrypterTemplate): Encrypter {
+  override fun cipher(template: CipherTemplate): Cipher {
     try {
       val key = if (!contains(template.alias)) {
         if (template.shouldExist) {
           throw IllegalStateException("The alias does not exist")
         }
-        createEncrypterKey(template)
+        createCipherKey(template)
       } else {
-        getEncrypterKey(template.alias)
+        getCipherKey(template.alias)
       }
       return when (template) {
-        is AESGCMNoPaddingEncrypterTemplate -> AESEncrypter(
-            key, template.cipherAlgorithm, template.parameterSpecClass
-        )
+        is AESGCMNoPaddingCipherTemplate -> AESCipher(key, template.cipherAlgorithm)
       }
     } catch (e: Exception) {
       throw KeyException(e)
@@ -114,7 +112,7 @@ class AndroidKeyManager(
 
   override fun contains(alias: String): Boolean = keyStore.containsAlias(alias)
 
-  private fun getEncrypterKey(alias: String): SecretKey {
+  private fun getCipherKey(alias: String): SecretKey {
     return retryToGetValue { getSecretKey(alias) } ?: throw IllegalArgumentException(
         "Secret key not found"
     )
@@ -127,13 +125,13 @@ class AndroidKeyManager(
     return keyStore.getKey(alias, null) as? SecretKey
   }
 
-  private fun createEncrypterKey(template: EncrypterTemplate): SecretKey {
+  private fun createCipherKey(template: CipherTemplate): SecretKey {
     val keyGenerator = KeyGenerator.getInstance(
         template.algorithm, provider
     )
     keyGenerator.init(template.keyGenParameterSpec)
     val key = keyGenerator.generateKey()
-    return getEncrypterKey(
+    return getCipherKey(
         template.alias
     ).takeIf {
       key != null && key == it

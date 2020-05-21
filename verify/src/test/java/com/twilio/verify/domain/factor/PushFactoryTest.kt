@@ -38,8 +38,8 @@ class PushFactoryTest {
 
   private val factorProvider: FactorProvider = mock()
   private val keyStorage: KeyStorage = mock()
-  private val pushFactory =
-    PushFactory(factorProvider, keyStorage, ApplicationProvider.getApplicationContext())
+  private val context: Context = ApplicationProvider.getApplicationContext()
+  private val pushFactory = PushFactory(factorProvider, keyStorage, context)
   private val idlingResource = IdlingResource()
 
   @Test
@@ -59,7 +59,6 @@ class PushFactoryTest {
     val pushToken = "pushToken123"
     val identity = "factor identity"
     val publicKey = "publicKey123"
-    val context = ApplicationProvider.getApplicationContext<Context>()
     val expectedConfig = mapOf(
         SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
         APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
