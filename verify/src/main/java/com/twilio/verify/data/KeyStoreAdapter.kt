@@ -17,7 +17,10 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     KeyStorage {
   override fun create(alias: String): String {
     return try {
-      Base64.encodeToString(manager.signer(ECP256SignerTemplate(alias)).getPublic(), NO_WRAP)
+      Base64.encodeToString(
+          manager.signer(ECP256SignerTemplate(alias))
+              .getPublic(), NO_WRAP
+      )
     } catch (e: Exception) {
       throw TwilioVerifyException(e, KeyStorageError)
     }
@@ -25,13 +28,13 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
 
   override fun sign(
     alias: String,
-    message: String
+    message: String,
+    flags: Int
   ): String {
     return try {
       Base64.encodeToString(
-          manager.signer(ECP256SignerTemplate(alias, shouldExist = true)).sign(
-              message.toByteArray()
-          ), NO_WRAP
+          manager.signer(ECP256SignerTemplate(alias, shouldExist = true))
+              .sign(message.toByteArray()), flags
       )
     } catch (e: Exception) {
       throw TwilioVerifyException(e, KeyStorageError)

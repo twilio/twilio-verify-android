@@ -6,6 +6,7 @@ package com.twilio.verify
 import android.content.Context
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
+import com.twilio.verify.domain.JWTGenerator
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
@@ -19,6 +20,7 @@ import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.VerifyFactorInput
+import com.twilio.verify.networking.AuthenticationProvider
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkProvider
 
@@ -83,6 +85,9 @@ interface TwilioVerify {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
+    private var authentication = AuthenticationProvider(
+        JWTGenerator(keyStorage)
+    )
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
 
@@ -97,6 +102,7 @@ interface TwilioVerify {
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .baseUrl(baseUrl)
+          .setAuthentication(authentication)
           .build()
       val challengeFacade = ChallengeFacade.Builder()
           .context(context)
@@ -104,11 +110,13 @@ interface TwilioVerify {
           .keyStorage(keyStorage)
           .factorFacade(factorFacade)
           .baseUrl(baseUrl)
+          .setAuthentication(authentication)
           .build()
       val serviceFacade = ServiceFacade.Builder()
           .context(context)
           .networkProvider(networkProvider)
           .setFactorFacade(factorFacade)
+          .setAuthentication(authentication)
           .baseUrl(baseUrl)
           .build()
       return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)

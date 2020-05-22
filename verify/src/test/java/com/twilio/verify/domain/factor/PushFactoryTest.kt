@@ -238,7 +238,7 @@ class PushFactoryTest {
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    whenever(keyStorage.sign(eq(keyPairAlias), eq(sid))).thenReturn(payload)
+    whenever(keyStorage.sign(eq(keyPairAlias), eq(sid), any())).thenReturn(payload)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.verify(eq(factor), eq(payload), capture(), any())).then {
         firstValue.invoke(factor)
@@ -301,7 +301,7 @@ class PushFactoryTest {
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    whenever(keyStorage.sign(eq(keyPairAlias), eq(sid))).thenReturn(payload)
+    whenever(keyStorage.sign(eq(keyPairAlias), eq(sid), any())).thenReturn(payload)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorProvider.verify(eq(factor), eq(payload), any(), capture())).then {

@@ -106,7 +106,7 @@ class PushChallengeProcessorTest {
       }
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
-    whenever(keyStorage.sign(eq(alias), any())).thenReturn(signature)
+    whenever(keyStorage.sign(eq(alias), any(), any())).thenReturn(signature)
     whenever(updatedChallenge.status).thenReturn(status)
     idlingResource.startOperation()
     pushChallengeProcessor.update(sid, factor, status, {
@@ -162,7 +162,7 @@ class PushChallengeProcessorTest {
       }
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
-    whenever(keyStorage.sign(eq(alias), any())).thenReturn(signature)
+    whenever(keyStorage.sign(eq(alias), any(), any())).thenReturn(signature)
     whenever(updatedChallenge.status).thenReturn(newStatus)
     idlingResource.startOperation()
     pushChallengeProcessor.update(sid, factor, newStatus, {
@@ -294,7 +294,7 @@ class PushChallengeProcessorTest {
       }
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
-    whenever(keyStorage.sign(eq(alias), any())).thenReturn(signature)
+    whenever(keyStorage.sign(eq(alias), any(), any())).thenReturn(signature)
     whenever(updatedChallenge.status).thenReturn(Denied)
     idlingResource.startOperation()
     pushChallengeProcessor.update(sid, factor, status, {
