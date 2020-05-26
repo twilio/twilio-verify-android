@@ -4,7 +4,8 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.twilio.verify.domain.JWTGenerator
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
@@ -22,7 +23,7 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class AuthenticationProviderTest {
-  private val jwtGenerator: JWTGenerator = mock()
+  private val jwtGenerator: JwtGenerator = mock()
   private lateinit var authentication: Authentication
 
   @Before
@@ -66,7 +67,7 @@ class AuthenticationProviderTest {
     })
   }
 
-  @Test(expected = IllegalStateException::class)
+  @Test(expected = TwilioVerifyException::class)
   fun `Generate JWT token with no keypair should throw exception`() {
     val factorSid = "sid"
     val friendlyName = "friendlyName"
@@ -86,7 +87,7 @@ class AuthenticationProviderTest {
     authentication.generateJWT(factor)
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test(expected = TwilioVerifyException::class)
   fun `Generate JWT token with no factor not supported should throw exception`() {
     val factor: Factor = mock()
     authentication.generateJWT(factor)

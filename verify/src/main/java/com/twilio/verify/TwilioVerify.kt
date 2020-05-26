@@ -6,7 +6,8 @@ package com.twilio.verify
 import android.content.Context
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
-import com.twilio.verify.domain.JWTGenerator
+import com.twilio.verify.data.jwt.JwtGenerator
+import com.twilio.verify.data.jwt.JwtSigner
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
@@ -85,9 +86,8 @@ interface TwilioVerify {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
-    private var authentication = AuthenticationProvider(
-        JWTGenerator(keyStorage)
-    )
+    private var authentication = AuthenticationProvider(JwtGenerator(JwtSigner(keyStorage)))
+
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
 

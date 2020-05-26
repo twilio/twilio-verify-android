@@ -53,7 +53,8 @@ internal class ChallengeMapper {
           updatedAt = fromRFC3339Date(updatedDate),
           challengeDetails = toChallengeDetails(details),
           hiddenDetails = jsonObject.getString(hiddenDetailsKey),
-          status = ChallengeStatus.values().find { it.value == jsonObject.getString(statusKey) }
+          status = ChallengeStatus.values()
+              .find { it.value == jsonObject.getString(statusKey) }
               ?: Expired, entitySid = jsonObject.getString(entitySidKey)
       )
     } catch (e: JSONException) {
@@ -66,7 +67,8 @@ internal class ChallengeMapper {
   private fun toChallengeDetails(details: String): ChallengeDetails = run {
     val detailsJson = JSONObject(details)
     val message = detailsJson.getString(messageKey)
-    val fields = detailsJson.optJSONArray(fieldsKey)?.takeIf { it.length() > 0 }
+    val fields = detailsJson.optJSONArray(fieldsKey)
+        ?.takeIf { it.length() > 0 }
         ?.let {
           val fields = mutableListOf<Detail>()
           for (i in 0 until it.length()) {

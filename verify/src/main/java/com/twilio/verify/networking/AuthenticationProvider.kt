@@ -1,6 +1,9 @@
 package com.twilio.verify.networking
 
-import com.twilio.verify.domain.JWTGenerator
+import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.TwilioVerifyException.ErrorCode.AuthenticationTokenError
+import com.twilio.verify.data.getSignerTemplate
+import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
@@ -25,21 +28,26 @@ internal const val serviceSidKey = "service_sid"
 internal const val jwtType = "JWT"
 internal const val contentType = "twilio-pba;v=1"
 
-internal class AuthenticationProvider(private val jwtGenerator: JWTGenerator) : Authentication {
+internal class AuthenticationProvider(private val jwtGenerator: JwtGenerator) : Authentication {
 
   override fun generateJWT(
     factor: Factor
   ): String {
-    return when (factor) {
-      is PushFactor -> {
-        val header = generateHeader(factor)
-        val payload = generatePayload(factor)
-        val alias = factor.keyPairAlias ?: throw IllegalStateException("Key pair not set")
-        jwtGenerator.generateJWT(alias, header, payload)
+    try {
+      return when (factor) {
+        is PushFactor -> generateJwt(factor)
+        else -> throw IllegalArgumentException("Not supported factor for JWT generation")
       }
-      else -> throw IllegalArgumentException("Not supported factor for JWT generation")
+    } catch (e: Exception) {
+      throw TwilioVerifyException(e, AuthenticationTokenError)
     }
+  }
 
+  private fun generateJwt(factor: PushFactor): String {
+    val header = generateHeader(factor)
+    val payload = generatePayload(factor)
+    val alias = factor.keyPairAlias ?: throw IllegalStateException("Key pair not set")
+    return jwtGenerator.generateJWT(getSignerTemplate(alias, true), header, payload)
   }
 
   private fun generateHeader(factor: PushFactor) = JSONObject().apply {

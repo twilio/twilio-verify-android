@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-package com.twilio.verify.domain
+package com.twilio.verify.data.jwt
 
-import android.util.Base64
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.verify.data.KeyStorage
+import com.twilio.security.crypto.key.template.ECP256SignerTemplate
+import com.twilio.verify.data.encodeToUTF8String
 import com.twilio.verify.domain.factor.DEFAULT_ALG
 import com.twilio.verify.networking.subKey
 import org.json.JSONObject
@@ -15,33 +15,34 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class JWTGeneratorTest {
+class JwtGeneratorTest {
 
-  private val keyStorage: KeyStorage = mock()
-  private val jwtGenerator = JWTGenerator(keyStorage)
+  private val jwtSigner: JwtSigner = mock()
+  private val jwtGenerator = JwtGenerator(jwtSigner)
 
   @Test
-  fun `Generate JWT s hould sign message`() {
-    val alias = "alias"
+  fun `Generate JWT should sign message`() {
+    val signerTemplate: ECP256SignerTemplate = mock()
     val header = JSONObject().apply {
       put(ALGORITHM_KEY, DEFAULT_ALG)
     }
     val payload = JSONObject().apply {
       put(subKey, "sub")
     }
-    val message = "${Base64.encodeToString(
+    val message = "${encodeToUTF8String(
         header.toString()
             .toByteArray(), FLAGS
-    )}.${Base64.encodeToString(
+    )}.${encodeToUTF8String(
         payload.toString()
             .toByteArray(), FLAGS
     )}"
-    val signature = "MEQCIBte4t"
-    whenever(keyStorage.sign(alias, message, FLAGS)).thenReturn(signature)
-    val jwt = jwtGenerator.generateJWT(alias, header, payload)
-    assertEquals("$message.$signature", jwt)
+    val signature = nextBytes(10)
+    whenever(jwtSigner.sign(signerTemplate, message)).thenReturn(signature)
+    val jwt = jwtGenerator.generateJWT(signerTemplate, header, payload)
+    assertEquals("$message.${encodeToUTF8String(signature, FLAGS)}", jwt)
   }
 }

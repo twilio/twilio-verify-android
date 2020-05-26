@@ -1,10 +1,10 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.networking.Authentication
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.models.Factor
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod.Get
 import com.twilio.verify.networking.NetworkAdapter
@@ -46,6 +46,8 @@ internal class ServiceAPIClient(
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
+    } catch (e: TwilioVerifyException) {
+      throw e
     } catch (e: Exception) {
       error(TwilioVerifyException(NetworkException(e), NetworkError))
     }

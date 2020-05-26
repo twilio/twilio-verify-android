@@ -52,9 +52,10 @@ internal class PushChallengeProcessor(
           )
           val authPayload = authPayload(factorChallenge, status)
           challengeProvider.update(challenge, authPayload, { updatedChallenge ->
-            updatedChallenge.takeIf { updatedChallenge.status == status }?.run {
-              onSuccess()
-            } ?: onError(
+            updatedChallenge.takeIf { updatedChallenge.status == status }
+                ?.run {
+                  onSuccess()
+                } ?: onError(
                 TwilioVerifyException(
                     IllegalStateException("Challenge was not updated"),
                     InputError
@@ -76,7 +77,8 @@ internal class PushChallengeProcessor(
   ): String = JSONObject().apply {
     put(signatureKey, generateSignature(factorChallenge))
     put(statusKey, status.value)
-  }.toString()
+  }
+      .toString()
 
   private fun generateSignature(
     challenge: FactorChallenge
@@ -91,6 +93,6 @@ internal class PushChallengeProcessor(
     val payload = "${factor.accountSid}${factor.serviceSid}${challenge.entitySid}${factor.sid}" +
         "${challenge.sid}${challenge.createdDate}${challenge.updatedDate}${challenge.status.value}" +
         "${challenge.details}${challenge.hiddenDetails}"
-    return keyStorage.sign(keyPairAlias, payload)
+    return keyStorage.signAndEncode(keyPairAlias, payload)
   }
 }
