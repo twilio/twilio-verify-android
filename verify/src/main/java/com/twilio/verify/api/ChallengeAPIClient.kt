@@ -65,7 +65,7 @@ internal class ChallengeAPIClient(
         error(TwilioVerifyException(exception, NetworkError))
       })
     } catch (e: TwilioVerifyException) {
-      throw e
+      error(e)
     } catch (e: Exception) {
       error(TwilioVerifyException(NetworkException(e), NetworkError))
     }
@@ -93,7 +93,7 @@ internal class ChallengeAPIClient(
         error(TwilioVerifyException(exception, NetworkError))
       })
     } catch (e: TwilioVerifyException) {
-      throw e
+      error(e)
     } catch (e: Exception) {
       error(TwilioVerifyException(NetworkException(e), NetworkError))
     }
@@ -132,7 +132,7 @@ internal class ChallengeAPIClient(
       })
 
     } catch (e: TwilioVerifyException) {
-      throw e
+      error(e)
     } catch (e: Exception) {
       error(TwilioVerifyException(NetworkException(e), NetworkError))
     }

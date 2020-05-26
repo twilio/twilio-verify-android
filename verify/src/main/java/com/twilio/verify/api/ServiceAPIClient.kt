@@ -47,7 +47,7 @@ internal class ServiceAPIClient(
         error(TwilioVerifyException(exception, NetworkError))
       })
     } catch (e: TwilioVerifyException) {
-      throw e
+      error(e)
     } catch (e: Exception) {
       error(TwilioVerifyException(NetworkException(e), NetworkError))
     }

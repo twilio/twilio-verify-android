@@ -83,7 +83,7 @@ internal class ServiceFacade(
       }
       if (!this::authentication.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for key storage"),
+            IllegalArgumentException("Illegal value for authentication"),
             InitializationError
         )
       }
