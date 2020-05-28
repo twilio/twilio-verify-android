@@ -25,11 +25,11 @@ internal interface ChallengeProvider {
   )
 
   fun getAll(
-      factor: Factor,
-      status: ChallengeStatus?,
-      pageSize: Int,
-      pageToken: String?,
-      success: (ChallengeList) -> Unit,
-      error: (TwilioVerifyException) -> Unit
+    factor: Factor,
+    status: ChallengeStatus?,
+    pageSize: Int,
+    pageToken: String?,
+    success: (ChallengeList) -> Unit,
+    error: (TwilioVerifyException) -> Unit
   )
 }

@@ -50,7 +50,8 @@ internal class FactorMapper {
     jsonObject: JSONObject
   ): FactorStatus {
     return try {
-      FactorStatus.values().find { it.value == jsonObject.getString(statusKey) } ?: Unverified
+      FactorStatus.values()
+          .find { it.value == jsonObject.getString(statusKey) } ?: Unverified
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)
     }
@@ -98,7 +99,8 @@ internal class FactorMapper {
           .put(statusKey, factor.status.value)
           .put(
               configKey, JSONObject().put(credentialSidKey, factor.config.credentialSid)
-          ).toString()
+          )
+          .toString()
     }
   }
 
@@ -115,9 +117,13 @@ internal class FactorMapper {
           accountSid = jsonObject.getString(accountSidKey),
           serviceSid = serviceSid,
           entityIdentity = entityIdentity,
-          status = FactorStatus.values().find { it.value == jsonObject.getString(statusKey) }
+          status = FactorStatus.values()
+              .find { it.value == jsonObject.getString(statusKey) }
               ?: Unverified,
-          config = Config(jsonObject.getJSONObject(configKey).getString(credentialSidKey))
+          config = Config(
+              jsonObject.getJSONObject(configKey)
+                  .getString(credentialSidKey)
+          )
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)

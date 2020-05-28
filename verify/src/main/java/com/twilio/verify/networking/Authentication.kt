@@ -1,5 +1,6 @@
 package com.twilio.verify.networking
 
+import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Factor
 
 /*
@@ -7,6 +8,7 @@ import com.twilio.verify.models.Factor
  */
 
 internal interface Authentication {
+  @Throws(TwilioVerifyException::class)
   fun generateJWT(
     factor: Factor
   ): String

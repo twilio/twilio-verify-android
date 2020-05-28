@@ -5,6 +5,7 @@ package com.twilio.verify
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -12,6 +13,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.SignerTemplate
+import com.twilio.verify.data.jwt.FLAGS
 import com.twilio.verify.domain.challenge.challengesKey
 import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.dateKey
@@ -512,7 +514,9 @@ class TestKeystore {
         .toString()
     val mock: Signer = mock()
     whenever(mock.getPublic()).thenReturn(keys[template.alias]?.toByteArray())
-    whenever(mock.sign(any())).thenReturn(keys[template.alias]?.toByteArray())
+    val derSignature = "MEQCIFtun9Ioo-W-juCG7sOl8PPPuozb8cspsUtpu2TxnzP_AiAi1VpFNTr2eK-VX3b1DLHy8" +
+        "rPm3MOpTvUH14hyNr0Gfg"
+    whenever(mock.sign(any())).thenReturn(Base64.decode(derSignature, FLAGS))
     return mock
   }
 

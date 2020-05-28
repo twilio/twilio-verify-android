@@ -24,7 +24,9 @@ class NetworkAdapter : NetworkProvider {
       for ((key, value) in request.headers) {
         httpUrlConnection.setRequestProperty(key, value)
       }
-      if (request.getParams()?.isNotEmpty() == true) {
+      if (request.getParams()
+              ?.isNotEmpty() == true
+      ) {
         httpUrlConnection.doOutput = true
         val os: OutputStream = httpUrlConnection.outputStream
         val writer = BufferedWriter(

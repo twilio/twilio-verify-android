@@ -47,7 +47,7 @@ None
 ### Add library
 In the build.gradle file, add the library
 
-```implementation "com.twilio:verify:1.0"```
+```implementation 'com.twilio:twilio-verify-android:0.0.1'```
 
 ### Add firebase configuration
 If you want to receive challenges as push notifications, you should add a firebase configuration to your project

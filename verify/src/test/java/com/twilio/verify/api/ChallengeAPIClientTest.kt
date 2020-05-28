@@ -7,7 +7,6 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.verify.networking.Authentication
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
@@ -15,6 +14,7 @@ import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.HttpMethod
 import com.twilio.verify.networking.MediaTypeHeader

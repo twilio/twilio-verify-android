@@ -4,7 +4,6 @@
 package com.twilio.verify.domain.challenge
 
 import android.content.Context
-import com.twilio.verify.networking.AuthenticationProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
@@ -17,6 +16,7 @@ import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdatePushChallengeInput
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.threading.execute
 
@@ -95,6 +95,7 @@ internal class ChallengeFacade(
     private lateinit var keyStore: KeyStorage
     private lateinit var factorProvider: FactorFacade
     private lateinit var url: String
+    private lateinit var authentication: Authentication
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networking = networkProvider }
 
@@ -108,6 +109,9 @@ internal class ChallengeFacade(
       apply { this.factorProvider = factorFacade }
 
     fun baseUrl(url: String) = apply { this.url = url }
+
+    fun setAuthentication(authentication: Authentication) =
+      apply { this.authentication = authentication }
 
     @Throws(TwilioVerifyException::class)
     fun build(): ChallengeFacade {
@@ -140,9 +144,13 @@ internal class ChallengeFacade(
             InitializationError
         )
       }
-      val challengeAPIClient =
-        ChallengeAPIClient(networking, appContext,
-            AuthenticationProvider(), url)
+      if (!this::authentication.isInitialized) {
+        throw TwilioVerifyException(
+            IllegalArgumentException("Illegal value for authentication"),
+            InitializationError
+        )
+      }
+      val challengeAPIClient = ChallengeAPIClient(networking, appContext, authentication, url)
       val repository = ChallengeRepository(challengeAPIClient)
       val pushChallengeProcessor = PushChallengeProcessor(repository, keyStore)
       return ChallengeFacade(pushChallengeProcessor, factorProvider, repository)

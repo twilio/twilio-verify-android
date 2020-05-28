@@ -4,7 +4,6 @@
 package com.twilio.verify.domain.factor
 
 import android.content.Context
-import com.twilio.verify.networking.AuthenticationProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
@@ -19,6 +18,7 @@ import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.UpdatePushFactorInput
 import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.NetworkProvider
 
 internal class FactorFacade(
@@ -125,6 +125,7 @@ internal class FactorFacade(
     private lateinit var networking: NetworkProvider
     private lateinit var keyStore: KeyStorage
     private lateinit var url: String
+    private lateinit var authentication: Authentication
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networking = networkProvider }
 
@@ -135,6 +136,9 @@ internal class FactorFacade(
       apply { this.keyStore = keyStorage }
 
     fun baseUrl(url: String) = apply { this.url = url }
+
+    fun setAuthentication(authentication: Authentication) =
+      apply { this.authentication = authentication }
 
     @Throws(TwilioVerifyException::class)
     fun build(): FactorFacade {
@@ -161,8 +165,14 @@ internal class FactorFacade(
             InitializationError
         )
       }
+      if (!this::authentication.isInitialized) {
+        throw TwilioVerifyException(
+            IllegalArgumentException("Illegal value for authentication"),
+            InitializationError
+        )
+      }
       val storageName = "${appContext.packageName}.$VERIFY_SUFFIX"
-      val factorAPIClient = FactorAPIClient(networking, appContext, AuthenticationProvider(), url)
+      val factorAPIClient = FactorAPIClient(networking, appContext, authentication, url)
       val sharedPreferences = appContext.getSharedPreferences(storageName, Context.MODE_PRIVATE)
       val storage = Storage(sharedPreferences)
       val repository = FactorRepository(factorAPIClient, storage)
