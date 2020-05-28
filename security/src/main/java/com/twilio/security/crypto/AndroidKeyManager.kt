@@ -8,14 +8,15 @@ import com.twilio.security.crypto.key.cipher.Cipher
 import com.twilio.security.crypto.key.signer.ECSigner
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
-import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.CipherTemplate
+import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.cert.Certificate
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -49,11 +50,17 @@ class AndroidKeyManager(
         template.algorithm, provider
     )
     keyPairGenerator.initialize(template.keyGenParameterSpec)
-    val keyPair = keyPairGenerator.generateKeyPair()
-    return getSignerKeyPair(
-        template.alias
-    ).takeIf { keyPair?.public?.encoded?.contentEquals(it.public.encoded) == true }
-        ?: throw IllegalArgumentException("New private key not found")
+    val locale = Locale.getDefault()
+    try {
+      Locale.setDefault(Locale.US)
+      val keyPair = keyPairGenerator.generateKeyPair()
+      return getSignerKeyPair(
+          template.alias
+      ).takeIf { keyPair?.public?.encoded?.contentEquals(it.public.encoded) == true }
+          ?: throw IllegalArgumentException("New private key not found")
+    } finally {
+      Locale.setDefault(locale)
+    }
   }
 
   private fun getSignerKeyPair(alias: String): KeyPair {
@@ -143,10 +150,11 @@ class AndroidKeyManager(
     delayInMillis: Long = 100,
     block: () -> T?
   ): T? {
-    repeat(times - 1) {
+    repeat(times - 1) { index ->
+      val delay = (index + 1) * delayInMillis
       val result = block()
       if (result == null) {
-        TimeUnit.MILLISECONDS.sleep(delayInMillis)
+        TimeUnit.MILLISECONDS.sleep(delay)
       } else {
         return result
       }
