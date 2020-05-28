@@ -2,8 +2,8 @@ package com.twilio.verify.domain.service
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.createdDateKey
-import com.twilio.verify.domain.challenge.fromRFC3339Date
 import com.twilio.verify.domain.challenge.sidKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.factor.accountSidKey

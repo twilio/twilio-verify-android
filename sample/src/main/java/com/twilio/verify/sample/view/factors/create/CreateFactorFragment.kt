@@ -45,6 +45,7 @@ class CreateFactorFragment : Fragment() {
     getPushToken()
     factorViewModel.getFactor()
         .observe(viewLifecycleOwner, Observer {
+          createFactor.isEnabled = true
           when (it) {
             is com.twilio.verify.sample.viewmodel.Factor -> onSuccess(it.factor)
             is FactorError -> it.exception.showError(content)
@@ -83,6 +84,7 @@ class CreateFactorFragment : Fragment() {
   private fun createFactor(
     identity: String
   ) {
+    createFactor.isEnabled = false
     val createFactorData = CreateFactorData(
         identity, "$identity's factor", token
     )

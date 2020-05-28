@@ -56,7 +56,7 @@ class ChallengeAPIClientTest {
     ).apply {
       factor =
         PushFactor(
-            "sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity",
+            "sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", createdAt = Date(),
             config = Config("credentialSid")
         )
     }
