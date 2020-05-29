@@ -5,6 +5,7 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.ChallengeStatus
 import org.hamcrest.Matchers.instanceOf
@@ -94,9 +95,7 @@ class ChallengeMapperTest {
     )
     assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
-    assertEquals(
-        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
-    )
+    assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
@@ -141,9 +140,7 @@ class ChallengeMapperTest {
     assertTrue(challenge.challengeDetails.fields.isEmpty())
     assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
-    assertEquals(
-        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
-    )
+    assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
@@ -208,9 +205,7 @@ class ChallengeMapperTest {
     )
     assertNull(challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
-    assertEquals(
-        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
-    )
+    assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test

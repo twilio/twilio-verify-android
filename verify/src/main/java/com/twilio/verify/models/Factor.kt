@@ -3,6 +3,8 @@
  */
 package com.twilio.verify.models
 
+import java.util.Date
+
 interface Factor {
   var status: FactorStatus
   val sid: String
@@ -11,6 +13,7 @@ interface Factor {
   val serviceSid: String
   val entityIdentity: String
   val type: FactorType
+  val createdAt: Date
 }
 
 enum class FactorStatus(val value: String) {

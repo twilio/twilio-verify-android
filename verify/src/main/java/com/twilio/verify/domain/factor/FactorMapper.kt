@@ -5,6 +5,8 @@ package com.twilio.verify.domain.factor
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.data.fromRFC3339Date
+import com.twilio.verify.data.toRFC3339Date
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -25,6 +27,7 @@ internal const val accountSidKey = "account_sid"
 internal const val serviceSidKey = "service_sid"
 internal const val entityIdentityKey = "entity_identity"
 internal const val keyPairAliasKey = "key_pair"
+internal const val dateCreatedKey = "date_created"
 
 internal class FactorMapper {
 
@@ -100,6 +103,7 @@ internal class FactorMapper {
           .put(
               configKey, JSONObject().put(credentialSidKey, factor.config.credentialSid)
           )
+          .put(dateCreatedKey, toRFC3339Date(factor.createdAt))
           .toString()
     }
   }
@@ -120,6 +124,9 @@ internal class FactorMapper {
           status = FactorStatus.values()
               .find { it.value == jsonObject.getString(statusKey) }
               ?: Unverified,
+          createdAt = fromRFC3339Date(
+              jsonObject.getString(dateCreatedKey)
+          ),
           config = Config(
               jsonObject.getJSONObject(configKey)
                   .getString(credentialSidKey)

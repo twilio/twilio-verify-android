@@ -55,8 +55,8 @@ class ChallengeAPIClientTest {
     FactorChallenge("sid", mock(), "", "factorSid", Pending, Date(), Date(), Date()).apply {
       factor =
         PushFactor(
-            "sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity",
-            config = Config("coredentialSid")
+            "sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", createdAt = Date(),
+            config = Config("credentialSid")
         )
     }
 

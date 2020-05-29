@@ -35,6 +35,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 class FactorRepositoryTest {
@@ -230,6 +231,7 @@ class FactorRepositoryTest {
         "serviceSid",
         "entityIdentity",
         FactorStatus.Unverified,
+        Date(),
         Config("credentialSid")
     )
     val payload = "authPayload"
@@ -269,6 +271,7 @@ class FactorRepositoryTest {
         "serviceSid",
         "entityIdentity",
         FactorStatus.Unverified,
+        Date(),
         Config("credentialSid")
     )
     val payload = "authPayload"

@@ -5,6 +5,7 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
@@ -15,9 +16,6 @@ import com.twilio.verify.models.Detail
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.TimeZone
 
 internal const val sidKey = "sid"
 internal const val messageKey = "message"
@@ -33,11 +31,6 @@ internal const val createdDateKey = "date_created"
 internal const val updatedDateKey = "date_updated"
 internal const val expirationDateKey = "expiration_date"
 internal const val signatureFieldsHeaderSeparator = ","
-internal const val dateFormatTimeZone = "yyyy-MM-dd'T'HH:mm:ssZ"
-internal val dateFormatterTimeZone = SimpleDateFormat(dateFormatTimeZone)
-private const val dateFormatUTC = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-private val dateFormatterUTC =
-  SimpleDateFormat(dateFormatUTC).apply { timeZone = TimeZone.getTimeZone("UTC") }
 
 internal class ChallengeMapper {
   @Throws(TwilioVerifyException::class)
@@ -102,24 +95,5 @@ internal class ChallengeMapper {
         ?.takeIf { it.isNotEmpty() }
         ?.let { fromRFC3339Date(it) }
     return ChallengeDetails(message, fields, date)
-  }
-}
-
-internal fun fromRFC3339Date(date: String): Date {
-  try {
-    if (date.endsWith("Z")) {
-      return dateFormatterUTC.parse(date)
-    }
-    val firstPart: String = date.substring(0, date.lastIndexOf('-'))
-    var secondPart: String = date.substring(date.lastIndexOf('-'))
-
-    secondPart = (secondPart.substring(0, secondPart.indexOf(':'))
-        + secondPart.substring(secondPart.indexOf(':') + 1))
-    val dateString = firstPart + secondPart
-    return dateFormatterTimeZone.parse(dateString)
-  } catch (e: ParseException) {
-    throw e
-  } catch (e: Exception) {
-    throw ParseException(e.message, 0)
   }
 }

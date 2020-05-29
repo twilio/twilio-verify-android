@@ -2,6 +2,7 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.ChallengeStatus
 import org.hamcrest.Matchers
@@ -63,12 +64,10 @@ class FactorChallengeListMapperTest {
     assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
     assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
     assertEquals(
-        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)),
-        secondChallenge.createdAt
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
     )
     assertEquals(
-        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)),
-        secondChallenge.updatedAt
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
     )
     assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
   }
