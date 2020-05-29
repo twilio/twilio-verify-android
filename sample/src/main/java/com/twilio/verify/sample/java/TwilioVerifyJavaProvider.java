@@ -4,7 +4,6 @@ import android.content.Context;
 import com.twilio.verify.TwilioVerify;
 import com.twilio.verify.TwilioVerifyException;
 import com.twilio.verify.sample.BuildConfig;
-import com.twilio.verify.sample.networking.AuthenticationProvider;
 import com.twilio.verify.sample.networking.OkHttpProvider;
 import com.twilio.verify.sample.networking.SampleBackendAPIClient;
 import okhttp3.OkHttpClient;
@@ -25,9 +24,7 @@ public class TwilioVerifyJavaProvider {
       SampleBackendAPIClient sampleBackendAPIClient = new SampleBackendAPIClient(okHttpClient,
           BuildConfig.JWT_URL);
       TwilioVerify twilioVerify = new TwilioVerify.Builder(
-          applicationContext,
-          new AuthenticationProvider(url, okHttpClient())
-      ).networkProvider(new OkHttpProvider(okHttpClient)).build();
+          applicationContext).networkProvider(new OkHttpProvider(okHttpClient)).build();
       twilioVerifyJavaAdapter = new TwilioVerifyJavaAdapter(twilioVerify, sampleBackendAPIClient);
     }
     return twilioVerifyJavaAdapter;

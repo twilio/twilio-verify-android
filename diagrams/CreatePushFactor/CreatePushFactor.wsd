@@ -48,7 +48,8 @@ class Data.Storage implements Data.StorageProvider {
 }
 interface Data.KeyStorage {
     create(alias: String): String
-    sign(alias: String, message: String): String
+    signAndEncode(alias: String, message: String): String
+    sign(alias: String, message: String): byte[]
 }
 class Data.KeyStoreAdapter implements Data.KeyStorage {
 

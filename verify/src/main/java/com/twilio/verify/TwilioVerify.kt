@@ -6,6 +6,8 @@ package com.twilio.verify
 import android.content.Context
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
+import com.twilio.verify.data.jwt.JwtGenerator
+import com.twilio.verify.data.jwt.JwtSigner
 import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
@@ -19,6 +21,7 @@ import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.VerifyFactorInput
+import com.twilio.verify.networking.AuthenticationProvider
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkProvider
 
@@ -78,12 +81,13 @@ interface TwilioVerify {
   )
 
   class Builder(
-    private var context: Context,
-    private var authentication: Authentication
+    private var context: Context
   ) {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
+    private var authentication = AuthenticationProvider(JwtGenerator(JwtSigner(keyStorage)))
+
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
 
@@ -95,24 +99,24 @@ interface TwilioVerify {
     fun build(): TwilioVerify {
       val factorFacade = FactorFacade.Builder()
           .context(context)
-          .authentication(authentication)
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .baseUrl(baseUrl)
+          .setAuthentication(authentication)
           .build()
       val challengeFacade = ChallengeFacade.Builder()
           .context(context)
-          .authentication(authentication)
           .networkProvider(networkProvider)
           .keyStorage(keyStorage)
           .factorFacade(factorFacade)
           .baseUrl(baseUrl)
+          .setAuthentication(authentication)
           .build()
       val serviceFacade = ServiceFacade.Builder()
           .context(context)
-          .authentication(authentication)
           .networkProvider(networkProvider)
           .setFactorFacade(factorFacade)
+          .setAuthentication(authentication)
           .baseUrl(baseUrl)
           .build()
       return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
