@@ -35,6 +35,7 @@ import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -69,9 +70,9 @@ class FactorAPIClientTest {
   @Test
   fun `Create a factor with a success response should call success`() {
     val response = "{\"key\":\"value\"}"
-    argumentCaptor<(String) -> Unit>().apply {
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(response, emptyMap()))
       }
     }
     factorAPIClient.create(
@@ -173,9 +174,9 @@ class FactorAPIClientTest {
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val response = "{\"key\":\"value\"}"
-    argumentCaptor<(String) -> Unit>().apply {
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(response, emptyMap()))
       }
     }
     val factor = PushFactor(
@@ -287,9 +288,9 @@ class FactorAPIClientTest {
           factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
           config = Config("credentialSid")
       )
-    argumentCaptor<(String) -> Unit>().apply {
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(response, emptyMap()))
       }
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -411,9 +412,9 @@ class FactorAPIClientTest {
               ENTITY_PATH, factor.entityIdentity, true
           )
           .replace(FACTOR_SID_PATH, factor.sid)
-    argumentCaptor<(String) -> Unit>().apply {
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(response, emptyMap()))
       }
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")

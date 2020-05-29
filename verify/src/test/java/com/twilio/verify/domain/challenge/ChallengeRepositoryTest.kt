@@ -43,19 +43,27 @@ class ChallengeRepositoryTest {
     val factorSid = "factorSid123"
     val factor: Factor = mock()
     val challenge: FactorChallenge = mock()
-    val response = JSONObject().apply {
+    val expectedResponse = JSONObject().apply {
       put(sidKey, sid)
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, Pending.value)
     }
-    argumentCaptor<(JSONObject) -> Unit>().apply {
+    val expectedSignatureFieldsHeader = expectedResponse.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
+    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(expectedResponse, expectedSignatureFieldsHeader)
       }
     }
-    whenever(challengeMapper.fromApi(response)).thenReturn(challenge)
+    whenever(challengeMapper.fromApi(expectedResponse, expectedSignatureFieldsHeader)).thenReturn(
+        challenge
+    )
     whenever(factor.sid).thenReturn(factorSid)
     whenever(challenge.factorSid).thenReturn(factorSid)
     challengeRepository.get(sid, factor, {
@@ -90,13 +98,21 @@ class ChallengeRepositoryTest {
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, Pending.value)
     }
+    val expectedSignatureFieldsHeader = response.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
     val expectedException: TwilioVerifyException = mock()
-    argumentCaptor<(JSONObject) -> Unit>().apply {
+    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(response, expectedSignatureFieldsHeader)
       }
     }
-    whenever(challengeMapper.fromApi(response)).thenThrow(expectedException)
+    whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenThrow(
+        expectedException
+    )
     challengeRepository.get(sid, factor, { fail() }, { exception ->
       assertEquals(expectedException, exception)
     })
@@ -115,14 +131,20 @@ class ChallengeRepositoryTest {
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, Pending.value)
     }
-    argumentCaptor<(JSONObject) -> Unit>().apply {
+    val expectedSignatureFieldsHeader = response.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
+    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(response, expectedSignatureFieldsHeader)
       }
     }
     whenever(factor.sid).thenReturn(factorSid)
     whenever(challenge.factorSid).thenReturn(factorSid)
-    whenever(challengeMapper.fromApi(response)).thenReturn(challenge)
+    whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(challenge)
     challengeRepository.get(sid, factor, { fail() }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
     })
@@ -141,14 +163,20 @@ class ChallengeRepositoryTest {
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, Pending.value)
     }
-    argumentCaptor<(JSONObject) -> Unit>().apply {
+    val expectedSignatureFieldsHeader = response.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
+    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(response, expectedSignatureFieldsHeader)
       }
     }
     whenever(factor.sid).thenReturn("factorSid234")
     whenever(challenge.factorSid).thenReturn(factorSid)
-    whenever(challengeMapper.fromApi(response)).thenReturn(challenge)
+    whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(challenge)
     challengeRepository.get(sid, factor, { fail() }, { exception ->
       assertTrue(exception.cause is IllegalArgumentException)
     })
@@ -169,14 +197,20 @@ class ChallengeRepositoryTest {
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, Pending.value)
     }
+    val expectedSignatureFieldsHeader = response.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
     argumentCaptor<() -> Unit>().apply {
       whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
         firstValue.invoke()
       }
     }
-    argumentCaptor<(JSONObject) -> Unit>().apply {
+    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(response, expectedSignatureFieldsHeader)
       }
     }
     whenever(factor.sid).thenReturn(factorSid)
@@ -184,7 +218,9 @@ class ChallengeRepositoryTest {
     whenever(challenge.factor).thenReturn(factor)
     whenever(challenge.status).thenReturn(Pending)
     whenever(challenge.sid).thenReturn(sid)
-    whenever(challengeMapper.fromApi(response)).thenReturn(updatedChallenge)
+    whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(
+        updatedChallenge
+    )
     challengeRepository.update(challenge, payload, {
       assertEquals(updatedChallenge, it)
       verify(updatedChallenge).factor = factor

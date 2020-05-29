@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit
  * Copyright (c) 2020, Twilio Inc.
  */
 
-internal const val typeKey = "typ"
 internal const val ctyKey = "cty"
 internal const val kidKey = "kid"
 internal const val jwtValidFor = 10L
@@ -25,7 +24,6 @@ internal const val verifyPushKey = "verify_push"
 internal const val factorSidKey = "factor_sid"
 internal const val entitySidKey = "entity_sid"
 internal const val serviceSidKey = "service_sid"
-internal const val jwtType = "JWT"
 internal const val contentType = "twilio-pba;v=1"
 
 internal class AuthenticationProvider(private val jwtGenerator: JwtGenerator) : Authentication {
@@ -51,7 +49,6 @@ internal class AuthenticationProvider(private val jwtGenerator: JwtGenerator) : 
   }
 
   private fun generateHeader(factor: PushFactor) = JSONObject().apply {
-    put(typeKey, jwtType)
     put(ctyKey, contentType)
     put(kidKey, factor.config.credentialSid)
   }

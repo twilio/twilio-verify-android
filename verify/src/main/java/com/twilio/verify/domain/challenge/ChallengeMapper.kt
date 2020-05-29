@@ -10,6 +10,7 @@ import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Expired
+import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Detail
 import org.json.JSONException
 import org.json.JSONObject
@@ -28,10 +29,10 @@ internal const val valueKey = "value"
 internal const val hiddenDetailsKey = "hidden_details"
 internal const val factorSidKey = "factor_sid"
 internal const val statusKey = "status"
-internal const val entitySidKey = "entity_sid"
 internal const val createdDateKey = "date_created"
 internal const val updatedDateKey = "date_updated"
 internal const val expirationDateKey = "expiration_date"
+internal const val signatureFieldsHeaderSeparator = ","
 internal const val dateFormatTimeZone = "yyyy-MM-dd'T'HH:mm:ssZ"
 internal val dateFormatterTimeZone = SimpleDateFormat(dateFormatTimeZone)
 private const val dateFormatUTC = "yyyy-MM-dd'T'HH:mm:ss'Z'"
@@ -40,22 +41,37 @@ private val dateFormatterUTC =
 
 internal class ChallengeMapper {
   @Throws(TwilioVerifyException::class)
-  fun fromApi(jsonObject: JSONObject): Challenge {
+  fun fromApi(
+    jsonObject: JSONObject,
+    signatureFieldsHeader: String? = null
+  ): Challenge {
     try {
       val details = jsonObject.getString(detailsKey)
       val createdDate = jsonObject.getString(createdDateKey)
       val updatedDate = jsonObject.getString(updatedDateKey)
+      val status = ChallengeStatus.values()
+          .find { it.value == jsonObject.getString(statusKey) }
+          ?: Expired
+      val signatureFields = if (status == Pending && signatureFieldsHeader != null) {
+        signatureFieldsHeader.split(signatureFieldsHeaderSeparator)
+      } else {
+        null
+      }
+      val response = if (status == Pending && signatureFields != null) {
+        jsonObject
+      } else {
+        null
+      }
       return FactorChallenge(
-          sid = jsonObject.getString(sidKey), details = details, createdDate = createdDate,
-          updatedDate = updatedDate, factorSid = jsonObject.getString(factorSidKey),
+          sid = jsonObject.getString(sidKey), response = response,
+          signatureFields = signatureFields,
+          factorSid = jsonObject.getString(factorSidKey),
           expirationDate = fromRFC3339Date(jsonObject.getString(expirationDateKey)),
           createdAt = fromRFC3339Date(createdDate),
           updatedAt = fromRFC3339Date(updatedDate),
           challengeDetails = toChallengeDetails(details),
           hiddenDetails = jsonObject.getString(hiddenDetailsKey),
-          status = ChallengeStatus.values()
-              .find { it.value == jsonObject.getString(statusKey) }
-              ?: Expired, entitySid = jsonObject.getString(entitySidKey)
+          status = status
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)

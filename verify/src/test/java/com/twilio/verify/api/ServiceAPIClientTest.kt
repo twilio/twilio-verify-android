@@ -21,6 +21,7 @@ import com.twilio.verify.networking.MediaTypeValue.UrlEncoded
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -66,9 +67,9 @@ class ServiceAPIClientTest {
       on { serviceSid } doReturn factorServiceSid
     }
     val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
-    argumentCaptor<(String) -> Unit>().apply {
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(response, emptyMap()))
       }
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")

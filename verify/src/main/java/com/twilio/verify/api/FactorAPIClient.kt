@@ -67,7 +67,7 @@ internal class FactorAPIClient(
           .body(createFactorBody(createFactorPayload))
           .build()
       networkProvider.execute(request, {
-        success(JSONObject(it))
+        success(JSONObject(it.body))
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -96,7 +96,7 @@ internal class FactorAPIClient(
           .body(verifyFactorBody(authPayload))
           .build()
       networkProvider.execute(request, {
-        success(JSONObject(it))
+        success(JSONObject(it.body))
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -126,7 +126,7 @@ internal class FactorAPIClient(
             .body(updateFactorBody(updateFactorPayload))
             .build()
       networkProvider.execute(request, {
-        success(JSONObject(it))
+        success(JSONObject(it.body))
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })

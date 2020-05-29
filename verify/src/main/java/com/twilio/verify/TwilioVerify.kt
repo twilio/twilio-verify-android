@@ -86,7 +86,8 @@ interface TwilioVerify {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
-    private var authentication = AuthenticationProvider(JwtGenerator(JwtSigner(keyStorage)))
+    private var jwtGenerator: JwtGenerator = JwtGenerator(JwtSigner(keyStorage))
+    private var authentication = AuthenticationProvider(jwtGenerator)
 
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
@@ -107,7 +108,7 @@ interface TwilioVerify {
       val challengeFacade = ChallengeFacade.Builder()
           .context(context)
           .networkProvider(networkProvider)
-          .keyStorage(keyStorage)
+          .jwtGenerator(jwtGenerator)
           .factorFacade(factorFacade)
           .baseUrl(baseUrl)
           .setAuthentication(authentication)

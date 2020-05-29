@@ -10,7 +10,10 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.domain.challenge.factorSidKey
 import com.twilio.verify.domain.challenge.models.FactorChallenge
+import com.twilio.verify.domain.challenge.sidKey
+import com.twilio.verify.domain.challenge.signatureFieldsHeaderSeparator
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.ChallengeStatus.Pending
@@ -22,7 +25,9 @@ import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -47,13 +52,11 @@ class ChallengeAPIClientTest {
   private val idlingResource = IdlingResource()
 
   private val factorChallenge =
-    FactorChallenge(
-        "sid", mock(), "", "factorSid", Pending, Date(), Date(), Date(), "", "", "", "entitySid"
-    ).apply {
+    FactorChallenge("sid", mock(), "", "factorSid", Pending, Date(), Date(), Date()).apply {
       factor =
         PushFactor(
             "sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity",
-            config = Config("credentialSid")
+            config = Config("coredentialSid")
         )
     }
 
@@ -68,9 +71,9 @@ class ChallengeAPIClientTest {
   @Test
   fun `Update a challenge with a success response should call success`() {
     val response = "{\"key\":\"value\"}"
-    argumentCaptor<(String) -> Unit>().apply {
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(response, emptyMap()))
       }
     }
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
@@ -123,9 +126,7 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Update a challenge with a null factor should call error`() {
-    val challenge = FactorChallenge(
-        "sid", mock(), "", "factorSid", Pending, Date(), Date(), Date(), "", "", "", "entitySid"
-    )
+    val challenge = FactorChallenge("sid", mock(), "", "factorSid", Pending, Date(), Date(), Date())
     idlingResource.startOperation()
     challengeAPIClient.update(challenge, "authPayload", {
       fail()
@@ -177,16 +178,29 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Get a challenge with a success response should call success`() {
-    val response = "{\"key\":\"value\"}"
-    argumentCaptor<(String) -> Unit>().apply {
+    val expectedResponse = "{\"key\":\"value\"}"
+    val expectedSignatureFieldsHeader =
+      mapOf(
+          signatureFieldsHeader to listOf(
+              listOf(sidKey, factorSidKey).joinToString(
+                  signatureFieldsHeaderSeparator
+              )
+          )
+      )
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(expectedResponse, expectedSignatureFieldsHeader))
       }
     }
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
-    challengeAPIClient.get("sid", factorChallenge.factor!!, { jsonObject ->
-      assertEquals(response, jsonObject.toString())
+    challengeAPIClient.get(
+        "sid", factorChallenge.factor!!, { response: JSONObject, signatureFieldsHeader: String? ->
+      assertEquals(expectedResponse, response.toString())
+      assertEquals(
+          expectedSignatureFieldsHeader.values.first()
+              .first(), signatureFieldsHeader
+      )
       idlingResource.operationFinished()
     }, {
       fail()
@@ -205,7 +219,7 @@ class ChallengeAPIClientTest {
     }
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
-    challengeAPIClient.get("sid", factorChallenge.factor!!, {
+    challengeAPIClient.get("sid", factorChallenge.factor!!, { _: JSONObject, _: String? ->
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -219,7 +233,7 @@ class ChallengeAPIClientTest {
   fun `Error getting a challenge should call error`() {
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
-    challengeAPIClient.get("sid", factorChallenge.factor!!, {
+    challengeAPIClient.get("sid", factorChallenge.factor!!, { _: JSONObject, _: String? ->
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -244,7 +258,7 @@ class ChallengeAPIClientTest {
           .replace(challengeSidPath, challengeSid)
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
-    challengeAPIClient.get(challengeSid, factor, {}, {})
+    challengeAPIClient.get(challengeSid, factor, { _: JSONObject, _: String? -> }, {})
     val requestCaptor = argumentCaptor<Request>().apply {
       verify(networkProvider).execute(capture(), any(), any())
     }
@@ -264,9 +278,9 @@ class ChallengeAPIClientTest {
   @Test
   fun `Get challenges with a success response should call success`() {
     val response = "{\"key\":\"value\"}"
-    argumentCaptor<(String) -> Unit>().apply {
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(response, emptyMap()))
       }
     }
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
