@@ -3,7 +3,6 @@
  */
 package com.twilio.verify.data
 
-import android.util.Base64
 import android.util.Base64.NO_WRAP
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -31,6 +30,7 @@ class KeyStoreAdapterTest {
 
   private val keyManager: KeyManager = mock()
   private val keyStoreAdapter = KeyStoreAdapter(keyManager)
+
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()
 
@@ -42,7 +42,7 @@ class KeyStoreAdapterTest {
     whenever(signer.getPublic()).thenReturn(publicKey)
     whenever(keyManager.signer(any())).thenReturn(signer)
     val encodedPublicKey = keyStoreAdapter.create(alias)
-    assertEquals(Base64.encodeToString(publicKey, NO_WRAP), encodedPublicKey)
+    assertEquals(encodeToUTF8String(publicKey, NO_WRAP), encodedPublicKey)
   }
 
   @Test
@@ -56,15 +56,40 @@ class KeyStoreAdapterTest {
   }
 
   @Test
-  fun `Sign message with valid signer should return encoded signature`() {
+  fun `Sign and encode message with valid signer should return encoded signature`() {
     val alias = "alias"
     val message = "message"
     val signer: Signer = mock()
     val signature: ByteArray = ByteArray(5).apply { nextBytes(this) }
     whenever(signer.sign(message.toByteArray())).thenReturn(signature)
     whenever(keyManager.signer(any())).thenReturn(signer)
-    val encodedSignature = keyStoreAdapter.sign(alias, message)
-    assertEquals(Base64.encodeToString(signature, NO_WRAP), encodedSignature)
+    val encodedSignature = keyStoreAdapter.signAndEncode(alias, message)
+    assertEquals(encodeToUTF8String(signature, NO_WRAP), encodedSignature)
+  }
+
+  @Test
+  fun `Sign message with valid signer should return signature`() {
+    val alias = "alias"
+    val message = "message"
+    val signer: Signer = mock()
+    val expectedSignature: ByteArray = ByteArray(5).apply { nextBytes(this) }
+    whenever(signer.sign(message.toByteArray())).thenReturn(expectedSignature)
+    whenever(keyManager.signer(any())).thenReturn(signer)
+    val signature = keyStoreAdapter.sign(alias, message)
+    assertEquals(expectedSignature, signature)
+  }
+
+  @Test
+  fun `Error signing and encoding message should throw exception`() {
+    val alias = "alias"
+    val message = "message"
+    val signer: Signer = mock()
+    whenever(keyManager.signer(any())).thenReturn(signer)
+    whenever(signer.sign(message.toByteArray())).thenThrow(KeyException::class.java)
+    exceptionRule.expect(TwilioVerifyException::class.java)
+    exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
+    exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
+    keyStoreAdapter.signAndEncode(alias, message)
   }
 
   @Test

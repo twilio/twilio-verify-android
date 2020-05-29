@@ -3,10 +3,10 @@
  */
 package com.twilio.verify.data
 
-import android.util.Base64
 import android.util.Base64.NO_WRAP
 import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
+import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
@@ -17,7 +17,10 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     KeyStorage {
   override fun create(alias: String): String {
     return try {
-      Base64.encodeToString(manager.signer(ECP256SignerTemplate(alias)).getPublic(), NO_WRAP)
+      encodeToUTF8String(
+          manager.signer(getSignerTemplate(alias, false))
+              .getPublic(), NO_WRAP
+      )
     } catch (e: Exception) {
       throw TwilioVerifyException(e, KeyStorageError)
     }
@@ -26,13 +29,23 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
   override fun sign(
     alias: String,
     message: String
+  ): ByteArray {
+    return try {
+      manager.signer(getSignerTemplate(alias))
+          .sign(message.toByteArray())
+    } catch (e: Exception) {
+      throw TwilioVerifyException(e, KeyStorageError)
+    }
+  }
+
+  override fun signAndEncode(
+    alias: String,
+    message: String
   ): String {
     return try {
-      Base64.encodeToString(
-          manager.signer(ECP256SignerTemplate(alias, shouldExist = true)).sign(
-              message.toByteArray()
-          ), NO_WRAP
-      )
+      encodeToUTF8String(sign(alias, message), NO_WRAP)
+    } catch (e: TwilioVerifyException) {
+      throw e
     } catch (e: Exception) {
       throw TwilioVerifyException(e, KeyStorageError)
     }
@@ -46,3 +59,8 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     }
   }
 }
+
+fun getSignerTemplate(
+  alias: String,
+  shouldExist: Boolean = true
+): SignerTemplate = ECP256SignerTemplate(alias, shouldExist = shouldExist)

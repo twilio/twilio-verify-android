@@ -5,18 +5,15 @@ package com.twilio.verify
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.SignerTemplate
-import com.twilio.verify.api.Action.DELETE
-import com.twilio.verify.api.Action.READ
-import com.twilio.verify.api.Action.UPDATE
-import com.twilio.verify.api.AuthenticationTokenException
+import com.twilio.verify.data.jwt.FLAGS
 import com.twilio.verify.domain.challenge.challengesKey
 import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.dateKey
@@ -88,7 +85,6 @@ class TwilioVerifyTest {
 
   private lateinit var factor: Factor
   private val networkProvider: NetworkProvider = mock()
-  private val authentication: Authentication = mock()
   private lateinit var twilioVerify: TwilioVerify
   private lateinit var provider: Provider
   private val providerName = "AndroidKeyStore"
@@ -115,7 +111,7 @@ class TwilioVerifyTest {
     preferences =
       context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
     twilioVerify =
-      TwilioVerify.Builder(context, authentication)
+      TwilioVerify.Builder(context)
           .networkProvider(networkProvider)
           .build()
   }
@@ -164,7 +160,7 @@ class TwilioVerifyTest {
   }
 
   @Test
-  fun `Update a factor with auth token successfully generated should call success`() {
+  fun `Update a factor should call success`() {
     val sid = "sid"
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
@@ -176,21 +172,6 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
-      }
-    }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(sid),
-              challengeSid = eq(null),
-              action = eq(UPDATE),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
       }
     }
     val updatePushFactorInput = UpdatePushFactorInput(sid, "pushToken")
@@ -206,52 +187,7 @@ class TwilioVerifyTest {
   }
 
   @Test
-  fun `Update a factor with auth token generation failed should call error`() {
-    val sid = "sid"
-    createFactor(sid, Unverified)
-    val jsonObject = JSONObject()
-        .put(sidKey, sid)
-        .put(friendlyNameKey, "factor name")
-        .put(accountSidKey, "accountSid123")
-        .put(statusKey, Verified.value)
-        .put(credentialSidKey, "credential sid")
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
-        lastValue.invoke(jsonObject.toString())
-      }
-    }
-    val expectedException: Exception = mock()
-    argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(sid),
-              challengeSid = eq(null),
-              action = eq(UPDATE),
-              success = any(),
-              error = capture()
-          )
-      ).then {
-        lastValue.invoke(expectedException)
-      }
-    }
-    val updatePushFactorInput = UpdatePushFactorInput(sid, "pushToken")
-    idlingResource.startOperation()
-    twilioVerify.updateFactor(updatePushFactorInput, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(TwilioVerifyException::class, exception::class)
-      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-      assertEquals(expectedException, exception.cause!!.cause)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Verify a factor with auth token successfully generated should call success`() {
+  fun `Verify a factor should call success`() {
     val sid = "sid"
     val verifyFactorInput = VerifyPushFactorInput(sid)
     createFactor(sid, Unverified)
@@ -261,21 +197,6 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
-      }
-    }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(sid),
-              challengeSid = eq(null),
-              action = eq(UPDATE),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
@@ -290,49 +211,7 @@ class TwilioVerifyTest {
   }
 
   @Test
-  fun `Verify a factor with auth token generation failed should call error`() {
-    val sid = "sid"
-    val verifyFactorInput = VerifyPushFactorInput(sid)
-    createFactor(sid, Unverified)
-    val jsonObject = JSONObject()
-        .put(sidKey, sid)
-        .put(statusKey, Verified.value)
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
-        lastValue.invoke(jsonObject.toString())
-      }
-    }
-    val expectedException: Exception = mock()
-    argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(sid),
-              challengeSid = eq(null),
-              action = eq(UPDATE),
-              success = any(),
-              error = capture()
-          )
-      ).then {
-        lastValue.invoke(expectedException)
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerify.verifyFactor(verifyFactorInput, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(TwilioVerifyException::class, exception::class)
-      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-      assertEquals(expectedException, exception.cause!!.cause)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Get challenge with auth token successfully generated should call success`() {
+  fun `Get challenge should call success`() {
     val factorSid = "factorSid"
     val challengeSid = "challengeSid"
     val status = Approved
@@ -361,21 +240,6 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(jsonObject.toString())
-      }
-    }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
-              challengeSid = eq(challengeSid),
-              action = eq(READ),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
@@ -391,68 +255,7 @@ class TwilioVerifyTest {
   }
 
   @Test
-  fun `Get challenge with auth token generation failed should call error`() {
-    val factorSid = "factorSid"
-    val challengeSid = "challengeSid"
-    val status = Approved
-    createFactor(factorSid, Verified)
-    val jsonObject = JSONObject().apply {
-      put(com.twilio.verify.domain.challenge.sidKey, challengeSid)
-      put(factorSidKey, factorSid)
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(entitySidKey, "entitySid")
-      put(com.twilio.verify.domain.challenge.statusKey, status.value)
-      put(detailsKey, JSONObject().apply {
-        put(messageKey, "message123")
-        put(fieldsKey, JSONObject().apply {
-          put(labelKey, "label123")
-          put(valueKey, "value123")
-        })
-        put(dateKey, "2020-02-19T16:39:57-08:00")
-      }).toString()
-      put(hiddenDetailsKey, JSONObject().apply {
-        put("key1", "value1")
-      }
-          .toString())
-      put(expirationDateKey, "2020-02-27T08:50:57-08:00")
-    }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(jsonObject.toString())
-      }
-    }
-    val expectedException: Exception = mock()
-    argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
-              challengeSid = eq(challengeSid),
-              action = eq(READ),
-              success = any(),
-              error = capture()
-          )
-      ).then {
-        lastValue.invoke(expectedException)
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerify.getChallenge(challengeSid, factorSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(TwilioVerifyException::class, exception::class)
-      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-      assertEquals(expectedException, exception.cause!!.cause)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Update challenge with auth token successfully generated should call success`() {
+  fun `Update challenge should call success`() {
     val factorSid = "factorSid"
     createFactor(factorSid, Verified)
     val challengeSid = "challengeSid"
@@ -496,99 +299,11 @@ class TwilioVerifyTest {
       }
     }
 
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
-              challengeSid = eq(challengeSid),
-              action = any(),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
-      }
-    }
     idlingResource.startOperation()
     twilioVerify.updateChallenge(updateChallengeInput, {
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Update challenge with auth token generation failed should call error`() {
-    val factorSid = "factorSid"
-    createFactor(factorSid, Verified)
-    val challengeSid = "challengeSid"
-    val status = Approved
-    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
-    fun challengeResponse(status: ChallengeStatus): String = JSONObject().apply {
-      put(com.twilio.verify.domain.challenge.sidKey, challengeSid)
-      put(factorSidKey, factorSid)
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(entitySidKey, "entitySid")
-      put(com.twilio.verify.domain.challenge.statusKey, status.value)
-      put(detailsKey, JSONObject().apply {
-        put(messageKey, "message123")
-        put(fieldsKey, JSONArray().apply {
-          put(0, JSONObject().apply {
-            put(labelKey, "label123")
-            put(valueKey, "value123")
-          })
-        })
-        put(dateKey, "2020-02-19T16:39:57-08:00")
-      }
-          .toString())
-      put(hiddenDetailsKey, JSONObject().apply {
-        put("key1", "value1")
-      }
-          .toString())
-      put(expirationDateKey, "2020-02-27T08:50:57-08:00")
-    }
-        .toString()
-
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
-        when (allValues.size) {
-          1 -> lastValue.invoke(challengeResponse(Pending))
-          2 -> lastValue.invoke("")
-          3 -> lastValue.invoke(challengeResponse(status))
-          else -> fail()
-        }
-
-      }
-    }
-    val expectedException: Exception = mock()
-    argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
-              challengeSid = eq(challengeSid),
-              action = eq(READ),
-              success = any(),
-              error = capture()
-          )
-      ).then {
-        lastValue.invoke(expectedException)
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerify.updateChallenge(updateChallengeInput, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(TwilioVerifyException::class, exception::class)
-      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-      assertEquals(expectedException, exception.cause!!.cause)
       idlingResource.operationFinished()
     })
     idlingResource.waitForIdle()
@@ -616,7 +331,7 @@ class TwilioVerifyTest {
   }
 
   @Test
-  fun `Get service with auth token successfully generated should call success`() {
+  fun `Get service should call success`() {
     val factorSid = "factor sid"
     createFactor(factorSid, Verified)
     val serviceSid = factorServiceSid
@@ -630,21 +345,6 @@ class TwilioVerifyTest {
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
-      }
-    }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(null),
-              challengeSid = eq(null),
-              action = eq(READ),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
       }
     }
     idlingResource.startOperation()
@@ -659,53 +359,7 @@ class TwilioVerifyTest {
   }
 
   @Test
-  fun `Get service with auth token generation failed should call error`() {
-    val factorSid = "factor sid"
-    createFactor(factorSid, Verified)
-    val serviceSid = factorServiceSid
-    val jsonObject = JSONObject().apply {
-      put(sidKey, serviceSid)
-      put(friendlyNameKey, "friendlyName")
-      put(accountSidKey, "accountSid123")
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-    }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
-        lastValue.invoke(jsonObject.toString())
-      }
-    }
-    val expectedException: Exception = mock()
-    argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(null),
-              challengeSid = eq(null),
-              action = eq(READ),
-              success = any(),
-              error = capture()
-          )
-      ).then {
-        lastValue.invoke(expectedException)
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerify.getService(serviceSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(TwilioVerifyException::class, exception::class)
-      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-      assertEquals(expectedException, exception.cause!!.cause)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Get all challenges with auth token successfully generated should call success`() {
+  fun `Get all challenges should call success`() {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
     val challengeListInput = ChallengeListInput(factorSid, 1, null, null)
@@ -725,21 +379,7 @@ class TwilioVerifyTest {
         lastValue.invoke(jsonObject.toString())
       }
     }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
-              challengeSid = eq("*"),
-              action = eq(READ),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
-      }
-    }
+
     idlingResource.startOperation()
     twilioVerify.getAllChallenges(challengeListInput, { list ->
       val firstChallenge = list.challenges.first()
@@ -768,76 +408,11 @@ class TwilioVerifyTest {
   }
 
   @Test
-  fun `Get all challenges with auth token generation failed should call error`() {
-    val factorSid = "factorSid123"
-    createFactor(factorSid, Verified)
-    val challengeListInput = ChallengeListInput(factorSid, 1, null, null)
-    val expectedChallenges = JSONArray(
-        listOf(
-            challengeJSONObject("sid123", factorSid),
-            challengeJSONObject("sid456", factorSid)
-        )
-    )
-    val expectedMetadata = metaJSONObject()
-    val jsonObject = JSONObject().apply {
-      put(challengesKey, expectedChallenges)
-      put(metaKey, expectedMetadata)
-    }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
-        lastValue.invoke(jsonObject.toString())
-      }
-    }
-    val expectedException: Exception = mock()
-    argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
-              challengeSid = eq("*"),
-              action = eq(READ),
-              success = any(),
-              error = capture()
-          )
-      ).then {
-        lastValue.invoke(expectedException)
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerify.getAllChallenges(challengeListInput, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(TwilioVerifyException::class, exception::class)
-      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-      assertEquals(expectedException, exception.cause!!.cause)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Delete factor with auth token successfully generated should call success`() {
+  fun `Delete factor should call success`() {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
     assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
     assertTrue(preferences.contains(factorSid))
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
-              challengeSid = eq(null),
-              action = eq(DELETE),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
-      }
-    }
     idlingResource.startOperation()
     twilioVerify.deleteFactor(factorSid, {
       assertFalse(preferences.contains(factorSid))
@@ -845,41 +420,6 @@ class TwilioVerifyTest {
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Delete factor with auth token generation failed should call error`() {
-    val factorSid = "factorSid123"
-    createFactor(factorSid, Verified)
-    assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
-    assertTrue(preferences.contains(factorSid))
-    val expectedException: Exception = mock()
-    argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(factorIdentity),
-              factorSid = eq(factorSid),
-              challengeSid = eq(null),
-              action = eq(DELETE),
-              success = any(),
-              error = capture()
-          )
-      ).then {
-        lastValue.invoke(expectedException)
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerify.deleteFactor(factorSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(TwilioVerifyException::class, exception::class)
-      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-      assertEquals(expectedException, exception.cause!!.cause)
       idlingResource.operationFinished()
     })
     idlingResource.waitForIdle()
@@ -974,7 +514,9 @@ class TestKeystore {
         .toString()
     val mock: Signer = mock()
     whenever(mock.getPublic()).thenReturn(keys[template.alias]?.toByteArray())
-    whenever(mock.sign(any())).thenReturn(keys[template.alias]?.toByteArray())
+    val derSignature = "MEQCIFtun9Ioo-W-juCG7sOl8PPPuozb8cspsUtpu2TxnzP_AiAi1VpFNTr2eK-VX3b1DLHy8" +
+        "rPm3MOpTvUH14hyNr0Gfg"
+    whenever(mock.sign(any())).thenReturn(Base64.decode(derSignature, FLAGS))
     return mock
   }
 

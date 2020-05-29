@@ -76,12 +76,12 @@ internal class ChallengeRepository(
   }
 
   override fun getAll(
-      factor: Factor,
-      status: ChallengeStatus?,
-      pageSize: Int,
-      pageToken: String?,
-      success: (ChallengeList) -> Unit,
-      error: (TwilioVerifyException) -> Unit
+    factor: Factor,
+    status: ChallengeStatus?,
+    pageSize: Int,
+    pageToken: String?,
+    success: (ChallengeList) -> Unit,
+    error: (TwilioVerifyException) -> Unit
   ) {
     fun toResponse(response: JSONObject) {
       try {
