@@ -44,5 +44,3 @@ fun Challenge.string(context: Context?) =
 fun Factor.string() =
   "Sid:\n${this.sid}\nEntity Identity:\n${this.entityIdentity}\nName: ${this.friendlyName}" +
       "\nStatus: ${this.status}"
-
-fun Service.string() = "Sid:\n${this.sid}\nName: ${this.friendlyName}"

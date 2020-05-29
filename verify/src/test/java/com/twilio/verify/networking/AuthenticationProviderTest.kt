@@ -57,13 +57,6 @@ class AuthenticationProviderTest {
       assertTrue(jwt.has(iatKey))
       val validFor = jwt.getLong(expKey) - jwt.getLong(iatKey)
       assertEquals(jwtValidFor, validFor / 60)
-      jwt.getJSONObject(grantsKey)
-          .getJSONObject(verifyPushKey)
-          .also {
-            assertEquals(factorSid, it.getString(factorSidKey))
-            assertEquals(entityIdentity, it.getString(entitySidKey))
-            assertEquals(serviceSid, it.getString(serviceSidKey))
-          }
     })
   }
 

@@ -11,7 +11,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.Service
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.R.layout
 import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
@@ -24,10 +23,7 @@ import com.twilio.verify.sample.viewmodel.ChallengesViewModel
 import com.twilio.verify.sample.viewmodel.Factor
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
-import com.twilio.verify.sample.viewmodel.ServiceError
-import com.twilio.verify.sample.viewmodel.ServiceViewModel
 import kotlinx.android.synthetic.main.fragment_factor_challenges.challenges
-import kotlinx.android.synthetic.main.fragment_factor_challenges.serviceInfo
 import kotlinx.android.synthetic.main.fragment_factors.content
 import kotlinx.android.synthetic.main.view_factor.factorInfo
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -37,7 +33,6 @@ class FactorChallengesFragment : Fragment() {
   private lateinit var viewAdapter: RecyclerView.Adapter<*>
   private lateinit var viewManager: RecyclerView.LayoutManager
   private val factorViewModel: FactorViewModel by viewModel()
-  private val serviceViewModel: ServiceViewModel by viewModel()
   private val challengesViewModel: ChallengesViewModel by viewModel()
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,13 +60,6 @@ class FactorChallengesFragment : Fragment() {
             is FactorError -> it.exception.showError(content)
           }
         })
-    serviceViewModel.getService()
-        .observe(viewLifecycleOwner, Observer {
-          when (it) {
-            is com.twilio.verify.sample.viewmodel.Service -> showService(it.service)
-            is ServiceError -> it.exception.showError(content)
-          }
-        })
     challengesViewModel.getChallenges()
         .observe(viewLifecycleOwner, Observer {
           when (it) {
@@ -86,11 +74,6 @@ class FactorChallengesFragment : Fragment() {
   private fun showFactor(factor: com.twilio.verify.models.Factor) {
     factorInfo.text = factor.string()
     factorInfo.setTextIsSelectable(true)
-    serviceViewModel.loadService(factor.serviceSid)
-  }
-
-  private fun showService(service: Service) {
-    serviceInfo.text = service.string()
   }
 
   private fun showChallenges(challenges: List<Challenge>) {

@@ -7,7 +7,6 @@ import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.ChallengesViewModel
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import com.twilio.verify.sample.viewmodel.FactorsViewModel
-import com.twilio.verify.sample.viewmodel.ServiceViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -31,7 +30,6 @@ class AppApplication : Application() {
   private val viewModelModule = module {
     viewModel { FactorsViewModel(get()) }
     viewModel { FactorViewModel(get()) }
-    viewModel { ServiceViewModel(get()) }
     viewModel { ChallengesViewModel(get()) }
     viewModel { ChallengeViewModel(get()) }
   }

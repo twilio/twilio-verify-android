@@ -345,34 +345,6 @@ class TwilioVerifyTest {
   }
 
   @Test
-  fun `Get service should call success`() {
-    val factorSid = "factor sid"
-    createFactor(factorSid, Verified)
-    val serviceSid = factorServiceSid
-    val jsonObject = JSONObject().apply {
-      put(sidKey, serviceSid)
-      put(friendlyNameKey, "friendlyName")
-      put(accountSidKey, "accountSid123")
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-    }
-    argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
-        lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerify.getService(serviceSid, { service ->
-      assertEquals(jsonObject.getString(sidKey), service.sid)
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
   fun `Get all challenges should call success`() {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
