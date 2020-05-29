@@ -16,6 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Date
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -42,9 +43,8 @@ class AuthenticationProviderTest {
     val status = FactorStatus.Unverified
     val factor =
       PushFactor(
-          factorSid, friendlyName, accountSid, serviceSid, entityIdentity, status, Config(
-          credentialSid
-      )
+          factorSid, friendlyName, accountSid, serviceSid, entityIdentity, status, Date(),
+          Config(credentialSid)
       ).apply {
         keyPairAlias = "test"
       }
@@ -78,9 +78,8 @@ class AuthenticationProviderTest {
     val status = FactorStatus.Unverified
     val factor =
       PushFactor(
-          factorSid, friendlyName, accountSid, serviceSid, entityIdentity, status, Config(
-          credentialSid
-      )
+          factorSid, friendlyName, accountSid, serviceSid, entityIdentity, status, Date(),
+          Config(credentialSid)
       ).apply {
         keyPairAlias = null
       }

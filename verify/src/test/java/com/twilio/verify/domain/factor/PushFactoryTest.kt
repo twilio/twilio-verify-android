@@ -32,6 +32,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 class PushFactoryTest {
@@ -74,7 +75,10 @@ class PushFactoryTest {
       }
     }
     val pushFactor =
-      PushFactor("1", friendlyName, "1", serviceSid, entityId, config = Config("credentialSid"))
+      PushFactor(
+          "1", friendlyName, "1", serviceSid, entityId, createdAt = Date(),
+          config = Config("credentialSid")
+      )
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.create(any(), capture(), any())).then {
         firstValue.invoke(pushFactor)
@@ -234,6 +238,7 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config("credentialSid")
       )
     factor.keyPairAlias = keyPairAlias
@@ -297,6 +302,7 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config("credentialSid")
       )
     factor.keyPairAlias = keyPairAlias
@@ -331,10 +337,7 @@ class PushFactoryTest {
     val keyPairAlias = null
     val factor =
       PushFactor(
-          sid, friendlyName, accountSid, serviceSid, entityId, status,
-          Config(
-              credentialSid
-          )
+          sid, friendlyName, accountSid, serviceSid, entityId, status, Date(), Config(credentialSid)
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -367,6 +370,7 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config("credentialSid")
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -434,7 +438,8 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
-          Config(credentialSid)
+          Date(),
+          Config("credentialSid")
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
@@ -472,6 +477,7 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config(credentialSid)
       ).apply {
         keyPairAlias = alias
@@ -526,7 +532,9 @@ class PushFactoryTest {
     val status = FactorStatus.Unverified
     val credentialSid = "credentialSid"
     val factor =
-      PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status, Config(credentialSid))
+      PushFactor(
+          sid, friendlyName, accountSid, serviceSid, entityId, status, Date(), Config(credentialSid)
+      )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {

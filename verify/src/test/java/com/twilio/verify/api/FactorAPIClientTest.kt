@@ -45,6 +45,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.net.URL
+import java.util.Date
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -185,6 +186,7 @@ class FactorAPIClientTest {
         serviceSid,
         identity,
         Unverified,
+        Date(),
         config = Config("credentialSid")
     )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -218,6 +220,7 @@ class FactorAPIClientTest {
         serviceSid,
         identity,
         Unverified,
+        Date(),
         config = Config("credentialSid")
     )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -255,6 +258,7 @@ class FactorAPIClientTest {
           serviceSidMock,
           entityIdentityMock,
           Unverified,
+          Date(),
           config = Config("credentialSid")
       )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -284,7 +288,7 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val factor =
       PushFactor(
-          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
           config = Config("credentialSid")
       )
     argumentCaptor<(String) -> Unit>().apply {
@@ -315,7 +319,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
           config = Config("credentialSid")
       )
     val expectedException = NetworkException(500, null)
@@ -363,7 +367,7 @@ class FactorAPIClientTest {
     val factor =
       PushFactor(
           sidMock, "friendlyName", "accountSid", serviceSidMock, entityIdentityMock, Verified,
-          config = Config("credentialSid")
+          Date(), config = Config("credentialSid")
       )
     val factorPayload =
       UpdateFactorPayload(
@@ -402,7 +406,7 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val factor =
       PushFactor(
-          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
           config = Config("credentialSid")
       )
     val expectedURL =
@@ -441,7 +445,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
           config = Config("credentialSid")
       )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -470,7 +474,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified,
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
           config = Config("credentialSid")
       )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")

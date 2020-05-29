@@ -14,6 +14,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.verify.data.jwt.FLAGS
+import com.twilio.verify.data.toRFC3339Date
 import com.twilio.verify.domain.challenge.challengesKey
 import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.dateKey
@@ -36,6 +37,7 @@ import com.twilio.verify.domain.factor.VERIFY_SUFFIX
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.configKey
 import com.twilio.verify.domain.factor.credentialSidKey
+import com.twilio.verify.domain.factor.dateCreatedKey
 import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.sidKey
@@ -131,6 +133,7 @@ class TwilioVerifyTest {
         .put(accountSidKey, "accountSid123")
         .put(statusKey, Unverified.value)
         .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+        .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
@@ -169,6 +172,7 @@ class TwilioVerifyTest {
         .put(accountSidKey, "accountSid123")
         .put(statusKey, Verified.value)
         .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+        .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
@@ -379,7 +383,6 @@ class TwilioVerifyTest {
         lastValue.invoke(jsonObject.toString())
       }
     }
-
     idlingResource.startOperation()
     twilioVerify.getAllChallenges(challengeListInput, { list ->
       val firstChallenge = list.challenges.first()
@@ -435,6 +438,7 @@ class TwilioVerifyTest {
         .put(accountSidKey, "accountSid123")
         .put(configKey, JSONObject().put(credentialSidKey, "credential sid"))
         .put(statusKey, status.value)
+        .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(String) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(jsonObject.toString())
