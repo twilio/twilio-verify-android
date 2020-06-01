@@ -6,6 +6,7 @@ package com.twilio.security.crypto.mocks.signature
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SignatureSpi
+import java.util.concurrent.TimeUnit.SECONDS
 
 internal const val signatureMockName = "com.twilio.security.crypto.mocks.signature.SignatureMock"
 
@@ -33,6 +34,12 @@ class SignatureMock : SignatureSpi() {
   }
 
   override fun engineSign(): ByteArray {
+    signatureMockInput.delay?.let {
+      Thread.sleep(SECONDS.toMillis(it.toLong()))
+    }
+    synchronized(this) {
+      signatureMockOutput.signatureTimes.add(System.currentTimeMillis())
+    }
     if (signatureMockInput.error != null) {
       throw signatureMockInput.error!!
     }

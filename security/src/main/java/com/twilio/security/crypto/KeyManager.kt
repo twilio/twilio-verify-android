@@ -10,8 +10,6 @@ import com.twilio.security.crypto.key.template.SignerTemplate
 import java.security.KeyStore
 
 interface KeyManager {
-  val provider: String
-
   @Throws(KeyException::class)
   fun signer(template: SignerTemplate): Signer
 
@@ -27,4 +25,9 @@ interface KeyManager {
 internal const val providerName = "AndroidKeyStore"
 
 fun keyManager(): KeyManager =
-  AndroidKeyManager(KeyStore.getInstance(providerName).apply { load(null) }, providerName)
+  AndroidKeyManager(
+      AndroidKeyStore(
+          KeyStore.getInstance(providerName)
+              .apply { load(null) }
+      )
+  )
