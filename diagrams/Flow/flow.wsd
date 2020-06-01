@@ -1,0 +1,39 @@
+@startuml Flow
+
+actor User
+participant App
+participant SDK
+participant Backend
+participant "Twilio Verify Push backend" as VerifyPush 
+
+== Initialization ==
+App -> SDK : Get a TwilioVerify instance
+SDK -> App : Returns TwilioVerify instance
+== Create a factor ==
+User -> App : Starts enrollment
+App -> Backend : Get enrollment JWT
+Backend -> App : Returns enrollment JWT
+App -> App : Get FCM push token
+App -> SDK : Create a factor
+SDK -> App : Returns factor
+App -> SDK : Verify factor
+SDK -> App : Returns verified factor
+== Update challenge ==
+User -> Backend : Starts sensitive transaction
+Backend -> VerifyPush : Create challenge
+VerifyPush -> App : Sends push notification with challengeSid, factorSid and challenge message
+App -> App : Load challengeSid and factorSid from push payload
+alt show challenge and approval from user
+    App -> SDK : Get challenge
+    SDK -> App : Returns challenge
+    App -> User : Show challenge
+    User -> App : Approve challenge
+    App -> SDK: Update challenge status
+else silent approval
+    App -> SDK: Update challenge status
+end
+SDK -> VerifyPush : Updates status verifying signature
+VerifyPush -> Backend : Calls webhook
+SDK -> App : Successful update
+
+@enduml
