@@ -246,7 +246,7 @@ twilioVerify.getAllChallenges(challengeListInput,
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
 * Get the JWT generation URL from your backend [(Running the Sample backend)](#SampleBackend)
-* Replace the `JWT_URL` (JWT generation URL) in the sample's build.gradle file for [release build type](sample/build.gradle#L29)
+* Replace the `JWT_URL` (JWT generation URL) in the sample's build.gradle file for [release build type](sample/build.gradle#L30)
 * Run the `sample` module using `release` as build variant
 
 <a name='FirebaseConfiguration'></a>
@@ -254,7 +254,7 @@ twilioVerify.getAllChallenges(challengeListInput,
 ### Firebase configuration
 
 In order to run the sample app, you have to create a project and application in Firebase
-* Add a project in Firebase to use cloud messaging for an application ID (you can use `com.twilio.verify.sampleapp`)
+* Add a project in Firebase to use cloud messaging for an application ID (you can use `com.twilio.verify.sample`)
 * Move the google-services.json file you downloaded from Firebase console into the root of `sample` directory.
 
 <a name='SampleBackend'></a>
@@ -290,7 +290,7 @@ curl -X POST https://verify.twilio.com/v2/Services \
 
 ### To run the sample backend
 * Clone this repo: https://github.com/twilio/verify-push-sample-backend
-* Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/sample-backend/README.md)
+* Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/master/README.md)
     * Use your previously created verify service Sid for `TWILIO_VERIFY_SERVICE_SID`
 
 <a name='UsingSampleApp'></a>
@@ -304,7 +304,7 @@ curl -X POST https://verify.twilio.com/v2/Services \
 * Copy the factor Sid
 
 ### Sending a challenge
-* Go to [Create Push Challenge](http://localhost:3000/challenge)
+* Go to Create Push Challenge page (/challenge path in your sample backend)
 * Enter the entity `identity` you used in factor creation
 * Enter the `Factor Sid` you added
 * Enter a `message`. You will see the message in the push notification and in the challenge view
