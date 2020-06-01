@@ -71,13 +71,13 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 ```Kotlin
 val twilioVerify = TwilioVerify.Builder(applicationContext).build()
 ```
-[Full source](sample/kotlin/TwilioVerifyKotlinAdapter.kt#L36)
+[Full source](sample/src/main/java/com/twilio/verify/sample/kotlin/TwilioVerifyKotlinAdapter.kt#L36)
 
 #### Java
 ```Java
 TwilioVerify twilioVerify = new TwilioVerify.Builder(applicationContext).build();
 ```
-[Full source](sample/java/TwilioVerifyJavaProvider.java#L26)
+[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaProvider.java#L26)
 
 ### Create a factor
 
@@ -90,7 +90,7 @@ twilioVerify.createFactor(factorInput, { factor ->
   // Error
 })
 ```
-[Full source](sample/kotlin/TwilioVerifyKotlinAdapter.kt#L121)
+[Full source](sample/src/main/java/com/twilio/verify/sample/kotlin/TwilioVerifyKotlinAdapter.kt#L121)
 
 #### Java
 ```Java
@@ -109,7 +109,7 @@ twilioVerify.createFactor(factorInput,
     }
   });
 ```
-[Full source](sample/java/TwilioVerifyJavaAdapter.java#L89)
+[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L89)
 
 ### Verify a factor
 
@@ -122,7 +122,7 @@ twilioVerify.verifyFactor(verifyFactorInput, { factor ->
   // Error
 })
 ```
-[Full source](sample/kotlin/TwilioVerifyKotlinAdapter.kt#L114)
+[Full source](sample/src/main/java/com/twilio/verify/sample/kotlin/TwilioVerifyKotlinAdapter.kt#L114)
 
 #### Java
 ```Java
@@ -141,7 +141,7 @@ twilioVerify.verifyFactor(verifyFactorInput,
     }
   });
 ```
-[Full source](sample/java/TwilioVerifyJavaAdapter.java#L57)
+[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L57)
 
 ### Get a challenge
 
@@ -153,7 +153,7 @@ twilioVerify.getChallenge(challengeSid, factorSid, { challenge ->
   // Error
 })
 ```
-[Full source](sample/viewmodel/ChallengeViewModel.kt#L21)
+[Full source](sample/src/main/java/com/twilio/verify/sample/viewmodel/ChallengeViewModel.kt#L21)
 
 #### Java
 ```Java
@@ -171,7 +171,7 @@ twilioVerify.getChallenge(challengeSid, factorSid,
     }
   });
 ```
-[Full source](sample/java/TwilioVerifyJavaAdapter.java#L74)
+[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L74)
 
 ### Update a challenge
 
@@ -184,7 +184,7 @@ twilioVerify.updateChallenge(updateChallengeInput, {
   // Error
 })
 ```
-[Full source](sample/viewmodel/ChallengeViewModel.kt#L36)
+[Full source](sample/src/main/java/com/twilio/verify/sample/viewmodel/ChallengeViewModel.kt#L36)
 
 #### Java
 ```Java
@@ -204,7 +204,7 @@ twilioVerify.updateChallenge(challengeSid, factorSid,
     }
   });
 ```
-[Full source](sample/java/TwilioVerifyJavaAdapter.java#L63)
+[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L63)
 
 ### Get challenges
 
@@ -217,7 +217,7 @@ twilioVerify.getAllChallenges(challengeListInput, { challenges ->
   // Error
 })
 ```
-[Full source](sample/viewmodel/ChallengesViewModel.kt#L19)
+[Full source](sample/src/main/java/com/twilio/verify/sample/viewmodel/ChallengesViewModel.kt#L19)
 
 #### Java
 ```Java
@@ -236,7 +236,7 @@ twilioVerify.getAllChallenges(challengeListInput,
     }
   });
 ```
-[Full source](sample/java/TwilioVerifyJavaAdapter.java#L136)
+[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L136)
 
 <a name='SampleApp'></a>
 
