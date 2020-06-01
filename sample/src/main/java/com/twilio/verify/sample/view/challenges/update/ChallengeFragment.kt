@@ -67,6 +67,8 @@ class ChallengeFragment : Fragment() {
           })
       challengeViewModel.getChallenge()
           .observe(viewLifecycleOwner, Observer {
+            approveChallenge.isEnabled = true
+            denyChallenge.isEnabled = true
             when (it) {
               is com.twilio.verify.sample.viewmodel.Challenge -> showChallenge(it.challenge)
               is ChallengeError -> it.exception.showError(content)
@@ -107,6 +109,8 @@ class ChallengeFragment : Fragment() {
     challenge: Challenge,
     status: ChallengeStatus
   ) {
+    approveChallenge.isEnabled = false
+    denyChallenge.isEnabled = false
     challengeViewModel.updateChallenge(challenge, status)
   }
 }

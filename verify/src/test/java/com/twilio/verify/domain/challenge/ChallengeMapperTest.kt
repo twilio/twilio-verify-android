@@ -5,6 +5,7 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.ChallengeStatus
 import org.hamcrest.Matchers.instanceOf
@@ -49,10 +50,12 @@ class ChallengeMapperTest {
           })
         })
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge
@@ -67,20 +70,25 @@ class ChallengeMapperTest {
     assertEquals(jsonObject.getString(detailsKey), challenge.details)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
-    assertEquals(details.getJSONArray(fieldsKey).length(), challenge.challengeDetails.fields.size)
     assertEquals(
-        details.getJSONArray(fieldsKey).getJSONObject(0).getString(labelKey),
+        details.getJSONArray(fieldsKey)
+            .length(), challenge.challengeDetails.fields.size
+    )
+    assertEquals(
+        details.getJSONArray(fieldsKey)
+            .getJSONObject(0)
+            .getString(labelKey),
         challenge.challengeDetails.fields[0].label
     )
     assertEquals(
-        details.getJSONArray(fieldsKey).getJSONObject(0).getString(valueKey),
+        details.getJSONArray(fieldsKey)
+            .getJSONObject(0)
+            .getString(valueKey),
         challenge.challengeDetails.fields[0].value
     )
     assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
-    assertEquals(
-        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
-    )
+    assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
@@ -95,10 +103,12 @@ class ChallengeMapperTest {
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge
@@ -116,9 +126,7 @@ class ChallengeMapperTest {
     assertTrue(challenge.challengeDetails.fields.isEmpty())
     assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
-    assertEquals(
-        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
-    )
+    assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
@@ -138,10 +146,12 @@ class ChallengeMapperTest {
             put(valueKey, "value123")
           })
         })
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge
@@ -156,20 +166,25 @@ class ChallengeMapperTest {
     assertEquals(jsonObject.getString(detailsKey), challenge.details)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
-    assertEquals(details.getJSONArray(fieldsKey).length(), challenge.challengeDetails.fields.size)
     assertEquals(
-        details.getJSONArray(fieldsKey).getJSONObject(0).getString(labelKey),
+        details.getJSONArray(fieldsKey)
+            .length(), challenge.challengeDetails.fields.size
+    )
+    assertEquals(
+        details.getJSONArray(fieldsKey)
+            .getJSONObject(0)
+            .getString(labelKey),
         challenge.challengeDetails.fields[0].label
     )
     assertEquals(
-        details.getJSONArray(fieldsKey).getJSONObject(0).getString(valueKey),
+        details.getJSONArray(fieldsKey)
+            .getJSONObject(0)
+            .getString(valueKey),
         challenge.challengeDetails.fields[0].value
     )
     assertNull(challenge.challengeDetails.date)
     assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
-    assertEquals(
-        fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate
-    )
+    assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
@@ -189,10 +204,12 @@ class ChallengeMapperTest {
           })
         })
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
@@ -212,7 +229,8 @@ class ChallengeMapperTest {
       put(statusKey, ChallengeStatus.Pending.value)
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
@@ -238,10 +256,12 @@ class ChallengeMapperTest {
           })
         })
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
@@ -268,10 +288,12 @@ class ChallengeMapperTest {
           })
         })
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
@@ -298,10 +320,12 @@ class ChallengeMapperTest {
           })
         })
         put(dateKey, "2020-02-19")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
@@ -328,10 +352,12 @@ class ChallengeMapperTest {
           })
         })
         put(dateKey, "2020-03-24T20:37:26Z")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge

@@ -8,6 +8,11 @@ interface KeyStorage {
   fun sign(
     alias: String,
     message: String
+  ): ByteArray
+
+  fun signAndEncode(
+    alias: String,
+    message: String
   ): String
 
   fun delete(alias: String)

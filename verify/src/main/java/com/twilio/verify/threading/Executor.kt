@@ -42,9 +42,11 @@ class Task<T, E : Exception>(
   private val block: (onSuccess: SafeSuccessResult<T>, onError: SafeError<E>) -> Unit,
   private val success: (T) -> Unit,
   private val error: (E) -> Unit,
-  private val handler: Handler? = Looper.myLooper()?.takeIf { it == Looper.getMainLooper() }?.let {
-    Handler(it)
-  }
+  private val handler: Handler? = Looper.myLooper()
+      ?.takeIf { it == Looper.getMainLooper() }
+      ?.let {
+        Handler(it)
+      }
 ) : Runnable {
   override fun run() {
     block(::safeSuccess, ::safeError)

@@ -36,10 +36,13 @@ fun ChallengeDetails.string(context: Context?): String {
 }
 
 fun Challenge.string(context: Context?) =
-  "Sid:\n${this.sid}\nName: ${this.challengeDetails.message}\nStatus: ${this.status}\nExpire on: ${DateUtils.formatDateTime(
-      context, expirationDate.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
-  )}"
+  "Sid:\n${this.sid}\nName: ${this.challengeDetails.message}\nStatus: ${this.status}\nExpire on: " +
+      DateUtils.formatDateTime(
+          context, expirationDate.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
+      )
 
-fun Factor.string() = "Sid:\n${this.sid}\nName: ${this.friendlyName}\nStatus: ${this.status}"
+fun Factor.string() =
+  "Sid:\n${this.sid}\nEntity Identity:\n${this.entityIdentity}\nName: ${this.friendlyName}" +
+      "\nStatus: ${this.status}"
 
 fun Service.string() = "Sid:\n${this.sid}\nName: ${this.friendlyName}"

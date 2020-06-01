@@ -2,6 +2,7 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.ChallengeStatus
 import org.hamcrest.Matchers
@@ -69,12 +70,10 @@ class FactorChallengeListMapperTest {
     assertEquals(secondJSONChallenge.getString(createdDateKey), secondChallenge.createdDate)
     assertEquals(secondJSONChallenge.getString(updatedDateKey), secondChallenge.updatedDate)
     assertEquals(
-        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)),
-        secondChallenge.createdAt
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
     )
     assertEquals(
-        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)),
-        secondChallenge.updatedAt
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
     )
     assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
     assertEquals(secondJSONChallenge.getString(entitySidKey), secondChallenge.entitySid)
@@ -146,10 +145,12 @@ class FactorChallengeListMapperTest {
           })
         })
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
   }
