@@ -61,12 +61,6 @@ interface TwilioVerifyAdapter {
     error: (TwilioVerifyException) -> Unit
   )
 
-  fun getService(
-    serviceSid: String,
-    success: (Service) -> Unit,
-    error: (TwilioVerifyException) -> Unit
-  )
-
   fun updatePushToken(token: String)
 }
 

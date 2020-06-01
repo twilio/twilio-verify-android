@@ -29,6 +29,7 @@ class JwtGeneratorTest {
     val signerTemplate: ECP256SignerTemplate = mock()
     val header = JSONObject().apply {
       put(ALGORITHM_KEY, DEFAULT_ALG)
+      put(typeKey, jwtType)
     }
     val payload = JSONObject().apply {
       put(subKey, "sub")

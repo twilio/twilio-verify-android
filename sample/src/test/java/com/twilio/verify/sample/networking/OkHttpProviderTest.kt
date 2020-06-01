@@ -10,6 +10,7 @@ import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.Request
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.ResponseBody
@@ -39,11 +40,19 @@ class OkHttpProviderTest {
     val call: Call = mock()
     whenever(okHttpClient.newCall(any())).thenReturn(call)
     val bodyJson = JSONObject()
-    val responseBody: ResponseBody = mock() {
+    val responseBody: ResponseBody = mock {
       on { string() } doReturn bodyJson.toString()
+    }
+    val expectedHeaders = mapOf("header" to listOf("value"))
+    val headersBuilder = Headers.Builder()
+    expectedHeaders.forEach { header ->
+      header.value.forEach { value ->
+        headersBuilder.add(header.key, value)
+      }
     }
     val response = Response.Builder()
         .body(responseBody)
+        .headers(headersBuilder.build())
         .message("message")
         .code(200)
         .protocol(mock())
@@ -55,7 +64,8 @@ class OkHttpProviderTest {
       }
     }
     okHttpProvider.execute(request, {
-      assertEquals(bodyJson.toString(), it)
+      assertEquals(bodyJson.toString(), it.body)
+      assertEquals(expectedHeaders, it.headers)
     }, {
       fail()
     })

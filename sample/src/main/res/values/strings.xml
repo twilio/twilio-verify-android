@@ -11,5 +11,4 @@
   <string name="channel_description">Receive challenges</string>
   <string name="jwt_url">JWT url</string>
   <string name="identity">Entity identity</string>
-  <string name="service">Service</string>
 </resources>
