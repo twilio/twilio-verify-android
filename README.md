@@ -27,7 +27,7 @@ None
 
 ## Requirements
 * Android Studio 3.6 or higher
-* Java 1.8.0
+* Java 8
 * Android 6.0 (23) SDK or higher
 * Gradle 5.6.4
 * Kotlin 1.3.72
