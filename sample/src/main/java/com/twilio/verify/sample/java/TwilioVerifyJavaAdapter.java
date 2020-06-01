@@ -136,12 +136,6 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
     twilioVerify.getAllChallenges(challengeListInput, success, error);
   }
 
-  @Override public void getService(@NotNull String serviceSid,
-      @NotNull Function1<? super Service, Unit> success,
-      @NotNull Function1<? super TwilioVerifyException, Unit> error) {
-    twilioVerify.getService(serviceSid, success, error);
-  }
-
   @Override public void updatePushToken(@NotNull final String token) {
     twilioVerify.getAllFactors(new Function1<List<? extends Factor>, Unit>() {
       @Override public Unit invoke(List<? extends Factor> factors) {

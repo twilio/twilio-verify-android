@@ -17,7 +17,6 @@ import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
-import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.VerifyFactorInput
@@ -68,12 +67,6 @@ interface TwilioVerify {
     error: (TwilioVerifyException) -> Unit
   )
 
-  fun getService(
-    serviceSid: String,
-    success: (Service) -> Unit,
-    error: (TwilioVerifyException) -> Unit
-  )
-
   fun deleteFactor(
     factorSid: String,
     success: () -> Unit,
@@ -86,7 +79,8 @@ interface TwilioVerify {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
-    private var authentication = AuthenticationProvider(JwtGenerator(JwtSigner(keyStorage)))
+    private var jwtGenerator: JwtGenerator = JwtGenerator(JwtSigner(keyStorage))
+    private var authentication = AuthenticationProvider(jwtGenerator)
 
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
@@ -107,7 +101,7 @@ interface TwilioVerify {
       val challengeFacade = ChallengeFacade.Builder()
           .context(context)
           .networkProvider(networkProvider)
-          .keyStorage(keyStorage)
+          .jwtGenerator(jwtGenerator)
           .factorFacade(factorFacade)
           .baseUrl(baseUrl)
           .setAuthentication(authentication)

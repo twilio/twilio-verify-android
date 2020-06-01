@@ -42,7 +42,7 @@ internal class ServiceAPIClient(
           .httpMethod(Get)
           .build()
       networkProvider.execute(request, {
-        success(JSONObject(it))
+        success(JSONObject(it.body))
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })

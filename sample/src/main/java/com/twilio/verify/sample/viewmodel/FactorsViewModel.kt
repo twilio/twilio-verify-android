@@ -13,8 +13,8 @@ class FactorsViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : V
   private val factors: MutableLiveData<Factors> = MutableLiveData()
 
   fun loadFactors() {
-    twilioVerifyAdapter.getFactors({ result ->
-      factors.value = FactorList(result.sortedByDescending { it.createdAt })
+    twilioVerifyAdapter.getFactors({ factorList ->
+      factors.value = FactorList(factorList.sortedByDescending { it.createdAt })
     }, {
       factors.value = FactorsError(it)
     })

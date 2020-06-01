@@ -8,7 +8,7 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.api.ChallengeAPIClient
-import com.twilio.verify.data.KeyStorage
+import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
@@ -92,7 +92,7 @@ internal class ChallengeFacade(
   class Builder {
     private lateinit var appContext: Context
     private lateinit var networking: NetworkProvider
-    private lateinit var keyStore: KeyStorage
+    private lateinit var generator: JwtGenerator
     private lateinit var factorProvider: FactorFacade
     private lateinit var url: String
     private lateinit var authentication: Authentication
@@ -102,8 +102,8 @@ internal class ChallengeFacade(
     fun context(context: Context) =
       apply { this.appContext = context }
 
-    fun keyStorage(keyStorage: KeyStorage) =
-      apply { this.keyStore = keyStorage }
+    fun jwtGenerator(jwtGenerator: JwtGenerator) =
+      apply { this.generator = jwtGenerator }
 
     fun factorFacade(factorFacade: FactorFacade) =
       apply { this.factorProvider = factorFacade }
@@ -126,9 +126,9 @@ internal class ChallengeFacade(
             InitializationError
         )
       }
-      if (!this::keyStore.isInitialized) {
+      if (!this::generator.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for key storage"),
+            IllegalArgumentException("Illegal value for JWT generator"),
             InitializationError
         )
       }
@@ -152,7 +152,7 @@ internal class ChallengeFacade(
       }
       val challengeAPIClient = ChallengeAPIClient(networking, appContext, authentication, url)
       val repository = ChallengeRepository(challengeAPIClient)
-      val pushChallengeProcessor = PushChallengeProcessor(repository, keyStore)
+      val pushChallengeProcessor = PushChallengeProcessor(repository, generator)
       return ChallengeFacade(pushChallengeProcessor, factorProvider, repository)
     }
   }

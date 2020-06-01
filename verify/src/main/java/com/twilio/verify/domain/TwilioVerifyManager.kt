@@ -13,7 +13,6 @@ import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorInput
-import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.UpdateFactorInput
 import com.twilio.verify.models.VerifyFactorInput
@@ -77,14 +76,6 @@ internal class TwilioVerifyManager(
     error: (TwilioVerifyException) -> Unit
   ) {
     challengeFacade.updateChallenge(updateChallengeInput, success, error)
-  }
-
-  override fun getService(
-    serviceSid: String,
-    success: (Service) -> Unit,
-    error: (TwilioVerifyException) -> Unit
-  ) {
-    serviceFacade.getService(serviceSid, success, error)
   }
 
   override fun deleteFactor(

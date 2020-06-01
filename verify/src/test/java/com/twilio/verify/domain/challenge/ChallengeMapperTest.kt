@@ -40,7 +40,6 @@ class ChallengeMapperTest {
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, ChallengeStatus.Pending.value)
-      put(entitySidKey, "entitySid")
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {
@@ -58,16 +57,24 @@ class ChallengeMapperTest {
           .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
-    val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge
+    val expectedSignatureFieldsHeader = jsonObject.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
+    val challenge =
+      challengeMapper.fromApi(jsonObject, expectedSignatureFieldsHeader) as FactorChallenge
     assertEquals(jsonObject.getString(sidKey), challenge.sid)
     assertEquals(jsonObject.getString(factorSidKey), challenge.factorSid)
-    assertEquals(jsonObject.getString(createdDateKey), challenge.createdDate)
-    assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
+    assertEquals(
+        expectedSignatureFieldsHeader,
+        challenge.signatureFields?.joinToString(signatureFieldsHeaderSeparator)
+    )
     assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
     assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
     assertEquals(jsonObject.getString(statusKey), challenge.status.value)
-    assertEquals(jsonObject.getString(entitySidKey), challenge.entitySid)
-    assertEquals(jsonObject.getString(detailsKey), challenge.details)
+    assertEquals(jsonObject, challenge.response)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
     assertEquals(
@@ -99,7 +106,6 @@ class ChallengeMapperTest {
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, ChallengeStatus.Pending.value)
-      put(entitySidKey, "entitySid")
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(dateKey, "2020-02-19T16:39:57-08:00")
@@ -111,16 +117,24 @@ class ChallengeMapperTest {
           .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
-    val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge
+    val expectedSignatureFieldsHeader = jsonObject.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
+    val challenge =
+      challengeMapper.fromApi(jsonObject, expectedSignatureFieldsHeader) as FactorChallenge
     assertEquals(jsonObject.getString(sidKey), challenge.sid)
     assertEquals(jsonObject.getString(factorSidKey), challenge.factorSid)
-    assertEquals(jsonObject.getString(createdDateKey), challenge.createdDate)
-    assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
+    assertEquals(
+        expectedSignatureFieldsHeader,
+        challenge.signatureFields?.joinToString(signatureFieldsHeaderSeparator)
+    )
     assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
     assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
     assertEquals(jsonObject.getString(statusKey), challenge.status.value)
-    assertEquals(jsonObject.getString(entitySidKey), challenge.entitySid)
-    assertEquals(jsonObject.getString(detailsKey), challenge.details)
+    assertEquals(jsonObject, challenge.response)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
     assertTrue(challenge.challengeDetails.fields.isEmpty())
@@ -137,7 +151,6 @@ class ChallengeMapperTest {
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, ChallengeStatus.Pending.value)
-      put(entitySidKey, "entitySid")
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {
@@ -154,16 +167,24 @@ class ChallengeMapperTest {
           .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
-    val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge
+    val expectedSignatureFieldsHeader = jsonObject.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
+    val challenge =
+      challengeMapper.fromApi(jsonObject, expectedSignatureFieldsHeader) as FactorChallenge
     assertEquals(jsonObject.getString(sidKey), challenge.sid)
     assertEquals(jsonObject.getString(factorSidKey), challenge.factorSid)
-    assertEquals(jsonObject.getString(entitySidKey), challenge.entitySid)
-    assertEquals(jsonObject.getString(createdDateKey), challenge.createdDate)
-    assertEquals(jsonObject.getString(updatedDateKey), challenge.updatedDate)
+    assertEquals(
+        expectedSignatureFieldsHeader,
+        challenge.signatureFields?.joinToString(signatureFieldsHeaderSeparator)
+    )
     assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
     assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
     assertEquals(jsonObject.getString(statusKey), challenge.status.value)
-    assertEquals(jsonObject.getString(detailsKey), challenge.details)
+    assertEquals(jsonObject, challenge.response)
     val details = JSONObject(jsonObject.getString(detailsKey))
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
     assertEquals(
@@ -188,10 +209,129 @@ class ChallengeMapperTest {
   }
 
   @Test
+  fun `Map a valid response from API with approved status should return a challenge`() {
+    val jsonObject = JSONObject().apply {
+      put(sidKey, "sid123")
+      put(factorSidKey, "factorSid123")
+      put(createdDateKey, "2020-02-19T16:39:57-08:00")
+      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(statusKey, ChallengeStatus.Approved.value)
+      put(detailsKey, JSONObject().apply {
+        put(messageKey, "message123")
+        put(fieldsKey, JSONArray().apply {
+          put(0, JSONObject().apply {
+            put(labelKey, "label123")
+            put(valueKey, "value123")
+          })
+        })
+        put(dateKey, "2020-02-19T16:39:57-08:00")
+      }
+          .toString())
+      put(hiddenDetailsKey, JSONObject().apply {
+        put("key1", "value1")
+      }
+          .toString())
+      put(expirationDateKey, "2020-02-27T08:50:57-08:00")
+    }
+    val expectedSignatureFieldsHeader = jsonObject.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
+    val challenge =
+      challengeMapper.fromApi(jsonObject, expectedSignatureFieldsHeader) as FactorChallenge
+    assertEquals(jsonObject.getString(sidKey), challenge.sid)
+    assertEquals(jsonObject.getString(factorSidKey), challenge.factorSid)
+    assertNull(challenge.signatureFields)
+    assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
+    assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
+    assertEquals(jsonObject.getString(statusKey), challenge.status.value)
+    assertNull(challenge.response)
+    val details = JSONObject(jsonObject.getString(detailsKey))
+    assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
+    assertEquals(
+        details.getJSONArray(fieldsKey)
+            .length(), challenge.challengeDetails.fields.size
+    )
+    assertEquals(
+        details.getJSONArray(fieldsKey)
+            .getJSONObject(0)
+            .getString(labelKey),
+        challenge.challengeDetails.fields[0].label
+    )
+    assertEquals(
+        details.getJSONArray(fieldsKey)
+            .getJSONObject(0)
+            .getString(valueKey),
+        challenge.challengeDetails.fields[0].value
+    )
+    assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
+    assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
+    assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
+  }
+
+  @Test
+  fun `Map a valid response from API with pending status and no signature fields should return a challenge`() {
+    val jsonObject = JSONObject().apply {
+      put(sidKey, "sid123")
+      put(factorSidKey, "factorSid123")
+      put(createdDateKey, "2020-02-19T16:39:57-08:00")
+      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
+      put(statusKey, ChallengeStatus.Pending.value)
+      put(detailsKey, JSONObject().apply {
+        put(messageKey, "message123")
+        put(fieldsKey, JSONArray().apply {
+          put(0, JSONObject().apply {
+            put(labelKey, "label123")
+            put(valueKey, "value123")
+          })
+        })
+        put(dateKey, "2020-02-19T16:39:57-08:00")
+      }
+          .toString())
+      put(hiddenDetailsKey, JSONObject().apply {
+        put("key1", "value1")
+      }
+          .toString())
+      put(expirationDateKey, "2020-02-27T08:50:57-08:00")
+    }
+    val challenge =
+      challengeMapper.fromApi(jsonObject) as FactorChallenge
+    assertEquals(jsonObject.getString(sidKey), challenge.sid)
+    assertEquals(jsonObject.getString(factorSidKey), challenge.factorSid)
+    assertNull(challenge.signatureFields?.joinToString(signatureFieldsHeaderSeparator))
+    assertEquals(fromRFC3339Date(jsonObject.getString(createdDateKey)), challenge.createdAt)
+    assertEquals(fromRFC3339Date(jsonObject.getString(updatedDateKey)), challenge.updatedAt)
+    assertEquals(jsonObject.getString(statusKey), challenge.status.value)
+    assertNull(challenge.response)
+    val details = JSONObject(jsonObject.getString(detailsKey))
+    assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
+    assertEquals(
+        details.getJSONArray(fieldsKey)
+            .length(), challenge.challengeDetails.fields.size
+    )
+    assertEquals(
+        details.getJSONArray(fieldsKey)
+            .getJSONObject(0)
+            .getString(labelKey),
+        challenge.challengeDetails.fields[0].label
+    )
+    assertEquals(
+        details.getJSONArray(fieldsKey)
+            .getJSONObject(0)
+            .getString(valueKey),
+        challenge.challengeDetails.fields[0].value
+    )
+    assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
+    assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
+    assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
+  }
+
+  @Test
   fun `Map a response from API without sid should throw an error`() {
     val jsonObject = JSONObject().apply {
       put(factorSidKey, "factorSid123")
-      put(entitySidKey, "entitySid")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, ChallengeStatus.Pending.value)
@@ -222,7 +362,6 @@ class ChallengeMapperTest {
   fun `Map a response from API without details should throw an error`() {
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
-      put(entitySidKey, "entitySid")
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
@@ -243,7 +382,6 @@ class ChallengeMapperTest {
   fun `Map a response from API without message should throw an error`() {
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
-      put(entitySidKey, "entitySid")
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
@@ -274,7 +412,6 @@ class ChallengeMapperTest {
   fun `Map a response from API with invalid created date should throw an error`() {
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
-      put(entitySidKey, "entitySid")
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "19-02-2020")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
@@ -306,7 +443,6 @@ class ChallengeMapperTest {
   fun `Map a response from API with invalid details date should throw an error`() {
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
-      put(entitySidKey, "entitySid")
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
@@ -342,7 +478,6 @@ class ChallengeMapperTest {
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, ChallengeStatus.Pending.value)
-      put(entitySidKey, "entitySid")
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {
@@ -360,7 +495,14 @@ class ChallengeMapperTest {
           .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
-    val challenge = challengeMapper.fromApi(jsonObject) as FactorChallenge
+    val expectedSignatureFieldsHeader = jsonObject.keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+            signatureFieldsHeaderSeparator
+        )
+    val challenge =
+      challengeMapper.fromApi(jsonObject, expectedSignatureFieldsHeader) as FactorChallenge
     assertEquals(1585082246000, challenge.challengeDetails.date?.time)
   }
 }
