@@ -23,6 +23,7 @@ internal const val challengeSidPath = "{ChallengeSid}"
 internal const val statusParameter = "Status"
 internal const val pageSizeParameter = "PageSize"
 internal const val pageTokenParameter = "PageToken"
+internal const val signatureFieldsHeader = "Twilio-Verify-Signature-Fields"
 internal const val updateChallengeURL =
   "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH/Challenges/$challengeSidPath"
 internal const val getChallengeURL =
@@ -74,7 +75,7 @@ internal class ChallengeAPIClient(
   fun get(
     sid: String,
     factor: Factor,
-    success: (response: JSONObject) -> Unit,
+    success: (response: JSONObject, signatureFieldsHeader: String?) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
@@ -88,7 +89,10 @@ internal class ChallengeAPIClient(
           .httpMethod(Get)
           .build()
       networkProvider.execute(request, {
-        success(JSONObject(it))
+        success(
+            JSONObject(it.body),
+            it.headers[signatureFieldsHeader]?.first()
+        )
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -126,7 +130,7 @@ internal class ChallengeAPIClient(
           .query(queryParameters)
           .build()
       networkProvider.execute(request, {
-        success(JSONObject(it))
+        success(JSONObject(it.body))
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })

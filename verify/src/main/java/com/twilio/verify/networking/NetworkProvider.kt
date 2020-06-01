@@ -8,7 +8,7 @@ interface NetworkProvider {
   @Throws(NetworkException::class)
   fun execute(
     request: Request,
-    success: (response: String) -> Unit,
+    success: (response: Response) -> Unit,
     error: (NetworkException) -> Unit
   )
 }

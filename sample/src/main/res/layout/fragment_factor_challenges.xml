@@ -19,30 +19,6 @@
       />
 
   <TextView
-      android:id="@+id/servicesLabel"
-      style="@style/TextAppearance.AppCompat.Subhead"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="8dp"
-      android:text="@string/service"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/factor"
-      />
-
-  <TextView
-      android:id="@+id/serviceInfo"
-      style="@style/TextAppearance.AppCompat.Medium"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="8dp"
-      android:layout_marginTop="8dp"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/servicesLabel"
-      tools:text="Service Info"
-      />
-
-  <TextView
       android:id="@+id/challengesLabel"
       style="@style/TextAppearance.AppCompat.Subhead"
       android:layout_width="wrap_content"
@@ -51,7 +27,7 @@
       android:text="@string/challenges"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/serviceInfo"
+      app:layout_constraintTop_toBottomOf="@id/factor"
       />
 
   <androidx.recyclerview.widget.RecyclerView

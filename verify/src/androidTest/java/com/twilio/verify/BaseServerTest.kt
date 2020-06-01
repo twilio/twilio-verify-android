@@ -66,12 +66,18 @@ open class BaseServerTest {
 
   fun enqueueMockResponse(
     code: Int,
-    fileContent: String? = null
+    fileContent: String? = null,
+    headers: Map<String, List<String>> = emptyMap()
   ) {
     val mockResponse = MockResponse()
     mockResponse.setResponseCode(code)
     if (fileContent != null) {
       mockResponse.setBody(fileContent)
+    }
+    headers.forEach { header ->
+      header.value.forEach { value ->
+        mockResponse.addHeader(header.key, value)
+      }
     }
     mockWebServer.enqueue(mockResponse)
   }

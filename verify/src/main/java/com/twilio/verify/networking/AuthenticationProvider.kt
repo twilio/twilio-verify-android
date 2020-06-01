@@ -13,19 +13,12 @@ import java.util.concurrent.TimeUnit
  * Copyright (c) 2020, Twilio Inc.
  */
 
-internal const val typeKey = "typ"
 internal const val ctyKey = "cty"
 internal const val kidKey = "kid"
 internal const val jwtValidFor = 10L
 internal const val subKey = "sub"
 internal const val expKey = "exp"
 internal const val iatKey = "nbf"
-internal const val grantsKey = "grants"
-internal const val verifyPushKey = "verify_push"
-internal const val factorSidKey = "factor_sid"
-internal const val entitySidKey = "entity_sid"
-internal const val serviceSidKey = "service_sid"
-internal const val jwtType = "JWT"
 internal const val contentType = "twilio-pba;v=1"
 
 internal class AuthenticationProvider(private val jwtGenerator: JwtGenerator) : Authentication {
@@ -51,7 +44,6 @@ internal class AuthenticationProvider(private val jwtGenerator: JwtGenerator) : 
   }
 
   private fun generateHeader(factor: PushFactor) = JSONObject().apply {
-    put(typeKey, jwtType)
     put(ctyKey, contentType)
     put(kidKey, factor.config.credentialSid)
   }
@@ -67,15 +59,5 @@ internal class AuthenticationProvider(private val jwtGenerator: JwtGenerator) : 
       )
       )
       put(iatKey, TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()))
-      put(grantsKey, getGrants(factor))
-    }
-
-  private fun getGrants(factor: Factor) =
-    JSONObject().apply {
-      put(verifyPushKey, JSONObject().apply {
-        put(factorSidKey, factor.sid)
-        put(entitySidKey, factor.entityIdentity)
-        put(serviceSidKey, factor.serviceSid)
-      })
     }
 }

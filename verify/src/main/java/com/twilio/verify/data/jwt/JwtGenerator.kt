@@ -12,6 +12,8 @@ import com.twilio.verify.data.encodeToUTF8String
 import com.twilio.verify.domain.factor.DEFAULT_ALG
 import org.json.JSONObject
 
+internal const val typeKey = "typ"
+internal const val jwtType = "JWT"
 internal const val ALGORITHM_KEY = "alg"
 internal const val FLAGS = URL_SAFE or NO_PADDING or NO_WRAP
 
@@ -21,6 +23,7 @@ class JwtGenerator(private val jwtSigner: JwtSigner) {
     header: JSONObject,
     payload: JSONObject
   ): String {
+    header.put(typeKey, jwtType)
     when (signerTemplate) {
       is ECP256SignerTemplate -> header.put(ALGORITHM_KEY, DEFAULT_ALG)
     }

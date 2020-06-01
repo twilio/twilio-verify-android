@@ -51,8 +51,6 @@ class FactorChallengeListMapperTest {
     val firstChallenge = challengeList.challenges[0] as FactorChallenge
     assertEquals(firstJSONChallenge.getString(sidKey), firstChallenge.sid)
     assertEquals(firstJSONChallenge.getString(factorSidKey), firstChallenge.factorSid)
-    assertEquals(firstJSONChallenge.getString(createdDateKey), firstChallenge.createdDate)
-    assertEquals(firstJSONChallenge.getString(updatedDateKey), firstChallenge.updatedDate)
     assertEquals(
         fromRFC3339Date(firstJSONChallenge.getString(createdDateKey)), firstChallenge.createdAt
     )
@@ -60,15 +58,11 @@ class FactorChallengeListMapperTest {
         fromRFC3339Date(firstJSONChallenge.getString(updatedDateKey)), firstChallenge.updatedAt
     )
     assertEquals(firstJSONChallenge.getString(statusKey), firstChallenge.status.value)
-    assertEquals(firstJSONChallenge.getString(entitySidKey), firstChallenge.entitySid)
-    assertEquals(firstJSONChallenge.getString(detailsKey), firstChallenge.details)
 
     val secondJSONChallenge = expectedChallenges.getJSONObject(1)
     val secondChallenge = challengeList.challenges[1] as FactorChallenge
     assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
     assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
-    assertEquals(secondJSONChallenge.getString(createdDateKey), secondChallenge.createdDate)
-    assertEquals(secondJSONChallenge.getString(updatedDateKey), secondChallenge.updatedDate)
     assertEquals(
         fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
     )
@@ -76,8 +70,6 @@ class FactorChallengeListMapperTest {
         fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
     )
     assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
-    assertEquals(secondJSONChallenge.getString(entitySidKey), secondChallenge.entitySid)
-    assertEquals(secondJSONChallenge.getString(detailsKey), secondChallenge.details)
   }
 
   @Test
@@ -135,7 +127,6 @@ class FactorChallengeListMapperTest {
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, ChallengeStatus.Pending.value)
-      put(entitySidKey, "entitySid")
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {

@@ -3,10 +3,12 @@
  */
 package com.twilio.verify.domain.challenge
 
+import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
-import com.twilio.verify.data.KeyStorage
+import com.twilio.verify.data.getSignerTemplate
+import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
@@ -18,7 +20,7 @@ internal const val signatureKey = "signature"
 
 internal class PushChallengeProcessor(
   private val challengeProvider: ChallengeProvider,
-  private val keyStorage: KeyStorage
+  private val jwtGenerator: JwtGenerator
 ) {
 
   fun get(
@@ -50,7 +52,29 @@ internal class PushChallengeProcessor(
               IllegalArgumentException("Invalid challenge"),
               InputError
           )
-          val authPayload = authPayload(factorChallenge, status)
+          if (challenge.factor == null || challenge.factor !is PushFactor ||
+              challenge.factor?.sid != factor.sid
+          ) {
+            throw TwilioVerifyException(
+                IllegalArgumentException("Wrong factor for challenge"), InputError
+            )
+          }
+          val keyPairAlias = factor.keyPairAlias?.takeIf { it.isNotBlank() }
+              ?: throw TwilioVerifyException(
+                  IllegalStateException("Key pair not set"), KeyStorageError
+              )
+          val signatureFields = factorChallenge.signatureFields?.takeIf { it.isNotEmpty() }
+              ?: throw TwilioVerifyException(
+                  IllegalStateException("Signature fields not set"), InputError
+              )
+          val response =
+            factorChallenge.response?.takeIf { it.length() > 0 } ?: throw TwilioVerifyException(
+                IllegalStateException("Challenge response not set"), InputError
+            )
+          val authPayload =
+            generateSignature(
+                signatureFields, response, status, getSignerTemplate(keyPairAlias, true)
+            )
           challengeProvider.update(challenge, authPayload, { updatedChallenge ->
             updatedChallenge.takeIf { updatedChallenge.status == status }
                 ?.run {
@@ -71,28 +95,22 @@ internal class PushChallengeProcessor(
     }
   }
 
-  private fun authPayload(
-    factorChallenge: FactorChallenge,
-    status: ChallengeStatus
-  ): String = JSONObject().apply {
-    put(signatureKey, generateSignature(factorChallenge))
-    put(statusKey, status.value)
-  }
-      .toString()
-
   private fun generateSignature(
-    challenge: FactorChallenge
+    signatureFields: List<String>,
+    response: JSONObject,
+    status: ChallengeStatus,
+    signerTemplate: SignerTemplate
   ): String {
-    val factor = challenge.factor as? PushFactor ?: throw TwilioVerifyException(
-        IllegalArgumentException("Wrong factor for challenge"), InputError
-    )
-    val keyPairAlias = factor.keyPairAlias?.takeIf { it.isNotBlank() }
-        ?: throw TwilioVerifyException(
-            IllegalStateException("Key pair not set"), KeyStorageError
-        )
-    val payload = "${factor.accountSid}${factor.serviceSid}${challenge.entitySid}${factor.sid}" +
-        "${challenge.sid}${challenge.createdDate}${challenge.updatedDate}${challenge.status.value}" +
-        "${challenge.details}${challenge.hiddenDetails}"
-    return keyStorage.signAndEncode(keyPairAlias, payload)
+    try {
+      val payload = JSONObject().apply {
+        signatureFields.forEach {
+          put(it, response[it])
+        }
+        put(statusKey, status.value)
+      }
+      return jwtGenerator.generateJWT(signerTemplate, JSONObject(), payload)
+    } catch (e: Exception) {
+      throw TwilioVerifyException(e, InputError)
+    }
   }
 }

@@ -23,7 +23,7 @@ import java.io.IOException
 class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : NetworkProvider {
   override fun execute(
     request: Request,
-    success: (response: String) -> Unit,
+    success: (response: com.twilio.verify.networking.Response) -> Unit,
     error: (NetworkException) -> Unit
   ) {
     val okHttpRequest = toOkHttpRequest(request)
@@ -41,7 +41,11 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
             response: Response
           ) {
             response.takeIf { it.isSuccessful }?.body?.run {
-              success(this.string())
+              success(
+                  com.twilio.verify.networking.Response(
+                      this.string(), response.headers.toMultimap()
+                  )
+              )
             } ?: run {
               error(
                   NetworkException(
