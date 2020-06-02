@@ -238,6 +238,40 @@ twilioVerify.getAllChallenges(challengeListInput,
 ```
 [Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L136)
 
+### Update a factor
+
+If the push token changes, you should update the factors to use the new push token
+
+#### Kotlin
+```Kotlin
+val updateFactorInput = UpdatePushFactorInput(factorSid, newPushToken)
+twilioVerify.updateFactor(updateFactorInput, { factor ->
+  // Success
+}, { exception ->
+  // Error
+})
+```
+[Full source](sample/src/main/java/com/twilio/verify/sample/kotlin/TwilioVerifyKotlinAdapter.kt#L105)
+
+#### Java
+```Java
+UpdateFactorInput updateFactorInput = UpdatePushFactorInput(factorSid, newPushToken);
+twilioVerify.updateFactor(updateFactorInput,
+  new Function1<Factor, Unit>() {
+    @Override public Unit invoke(Factor factor) {
+      // Success
+      return Unit.INSTANCE;
+    }
+  }, 
+  new Function1<TwilioVerifyException, Unit>() {
+    @Override public Unit invoke(TwilioVerifyException error) {
+      // Error
+      return Unit.INSTANCE;
+    }
+  });
+```
+[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L151)
+
 <a name='SampleApp'></a>
 
 ## Running the Sample app
