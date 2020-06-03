@@ -9,6 +9,8 @@ import java.lang.reflect.Modifier
 import java.security.Key
 import java.security.KeyPair
 import java.security.KeyStore
+import java.security.KeyStore.PrivateKeyEntry
+import java.security.KeyStore.SecretKeyEntry
 import java.security.KeyStoreSpi
 import java.security.Provider
 import java.security.Security
@@ -132,7 +134,19 @@ class KeyStoreMock : KeyStoreSpi() {
     alias: String?,
     protParam: KeyStore.ProtectionParameter?
   ): KeyStore.Entry? {
-    throw NotImplementedError()
+    if (keyStoreMockInput.error != null) {
+      throw keyStoreMockInput.error!!
+    }
+    return when (keyStoreMockInput.key) {
+      is SecretKey -> (keyStoreMockInput.key as? SecretKey)?.let { SecretKeyEntry(it) }
+      is KeyPair -> (keyStoreMockInput.key as? KeyPair)?.let {
+        val certificate: Certificate = mock()
+        val publicKey = (keyStoreMockInput.key as? KeyPair)?.public
+        whenever(certificate.publicKey).thenReturn(publicKey)
+        PrivateKeyEntry(it.private, arrayOf(certificate))
+      }
+      else -> null
+    }
   }
 }
 

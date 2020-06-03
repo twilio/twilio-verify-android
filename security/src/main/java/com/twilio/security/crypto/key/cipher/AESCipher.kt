@@ -3,28 +3,18 @@
  */
 package com.twilio.security.crypto.key.cipher
 
+import com.twilio.security.crypto.AndroidKeyStoreOperations
 import com.twilio.security.crypto.KeyException
-import java.security.AlgorithmParameters
-import javax.crypto.Cipher
 import javax.crypto.SecretKey
 
 class AESCipher(
   internal val key: SecretKey,
-  private val cipherAlgorithm: String
+  private val cipherAlgorithm: String,
+  private val androidKeyStoreOperations: AndroidKeyStoreOperations
 ) : com.twilio.security.crypto.key.cipher.Cipher {
   override fun encrypt(data: ByteArray): EncryptedData {
     return try {
-      Cipher.getInstance(cipherAlgorithm)
-          .run {
-            init(Cipher.ENCRYPT_MODE, key)
-            EncryptedData(
-                AlgorithmParametersSpec(
-                    parameters.encoded, parameters.provider.name,
-                    parameters.algorithm
-                )
-                , doFinal(data)
-            )
-          }
+      return androidKeyStoreOperations.encrypt(data, cipherAlgorithm, key)
     } catch (e: Exception) {
       throw KeyException(e)
     }
@@ -32,18 +22,7 @@ class AESCipher(
 
   override fun decrypt(data: EncryptedData): ByteArray {
     return try {
-      Cipher.getInstance(cipherAlgorithm)
-          .run {
-            val algorithmParameterSpec =
-              AlgorithmParameters.getInstance(
-                  data.algorithmParameters.algorithm, data.algorithmParameters.provider
-              )
-                  .apply {
-                    init(data.algorithmParameters.encoded)
-                  }
-            init(Cipher.DECRYPT_MODE, key, algorithmParameterSpec)
-            doFinal(data.encrypted)
-          }
+      return androidKeyStoreOperations.decrypt(data, cipherAlgorithm, key)
     } catch (e: Exception) {
       throw KeyException(e)
     }

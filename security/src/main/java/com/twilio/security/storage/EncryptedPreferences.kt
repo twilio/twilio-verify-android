@@ -13,6 +13,7 @@ class EncryptedPreferences(
   override val serializer: Serializer
 ) : EncryptedStorage {
   @Throws(StorageException::class)
+  @Synchronized
   override fun <T : Any> put(
     key: String,
     value: T
@@ -62,12 +63,14 @@ class EncryptedPreferences(
 
   override fun contains(key: String): Boolean = preferences.contains(generateKeyDigest(key))
 
+  @Synchronized
   override fun remove(key: String) {
     preferences.edit()
         .remove(generateKeyDigest(key))
         .apply()
   }
 
+  @Synchronized
   override fun clear() {
     preferences.edit()
         .clear()

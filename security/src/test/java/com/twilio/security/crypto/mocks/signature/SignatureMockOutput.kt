@@ -10,5 +10,6 @@ data class SignatureMockOutput(
   var initialized: Boolean = false,
   var privateKey: PrivateKey? = null,
   var publicKey: PublicKey? = null,
-  var updatedData: ByteArray? = null
+  var updatedData: ByteArray? = null,
+  var signatureTimes: MutableList<Long> = mutableListOf()
 )

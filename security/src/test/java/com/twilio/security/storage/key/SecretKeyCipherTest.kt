@@ -9,8 +9,8 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.KeyException
 import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.cipher.AlgorithmParametersSpec
-import com.twilio.security.crypto.key.cipher.EncryptedData
 import com.twilio.security.crypto.key.cipher.Cipher
+import com.twilio.security.crypto.key.cipher.EncryptedData
 import com.twilio.security.crypto.key.cipher.fromByteArray
 import com.twilio.security.crypto.key.cipher.toByteArray
 import com.twilio.security.crypto.key.template.CipherTemplate
