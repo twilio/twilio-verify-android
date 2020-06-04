@@ -25,7 +25,7 @@ import kotlin.coroutines.resumeWithException
  */
 class SampleBackendAPIClient(
   private val okHttpClient: OkHttpClient,
-  private val url: String = BuildConfig.JWT_URL
+  private val url: String = BuildConfig.ENROLLMENT_URL
 ) {
 
   fun enrollment(
@@ -49,7 +49,7 @@ class SampleBackendAPIClient(
   ): EnrollmentResponse = withContext(dispatcher) {
     return@withContext suspendCancellableCoroutine<EnrollmentResponse> { cont ->
       val request = Request.Builder()
-          .url("$url/enroll")
+          .url(url)
           .post(
               Builder().add("identity", identity)
                   .build()

@@ -36,7 +36,7 @@ class FactorMapperTest {
   fun `Map a valid response from API with factorPayload should return a factor`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entityId123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entityId123", emptyMap(), emptyMap(), "jwe"
       )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
@@ -60,7 +60,7 @@ class FactorMapperTest {
   fun `Map an incomplete response from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
       )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
@@ -83,7 +83,7 @@ class FactorMapperTest {
   @Test
   fun `Map a response with invalid serviceSid in payload from API should throw an exception`() {
     val factorPayload =
-      CreateFactorPayload("factor name", PUSH, "", "entitySid123", emptyMap(), emptyMap(), "jwt")
+      CreateFactorPayload("factor name", PUSH, "", "entitySid123", emptyMap(), emptyMap(), "jwe")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -98,7 +98,7 @@ class FactorMapperTest {
   fun `Map a response without factor sid from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
       )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
@@ -113,7 +113,7 @@ class FactorMapperTest {
   fun `Map a response without entity sid from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
       )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")

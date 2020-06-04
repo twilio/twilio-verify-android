@@ -36,9 +36,9 @@ class CreateFactorTests : BaseServerTest() {
   }
 
   @Test
-  fun testCreateFactorWithValidJWTAndValidAPIResponseShouldReturnFactor() {
+  fun testCreateFactorWithValidJWEAndValidAPIResponseShouldReturnFactor() {
     val friendlyName = "friendlyName"
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+    val jwe = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
         "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
         "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
         "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
@@ -47,7 +47,7 @@ class CreateFactorTests : BaseServerTest() {
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwt)
+      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwe)
     enqueueMockResponse(200, APIResponses.createValidFactorResponse())
     idlingResource.increment()
     twilioVerify.createFactor(factorInput, {
@@ -91,9 +91,9 @@ class CreateFactorTests : BaseServerTest() {
   }
 
   @Test
-  fun testCreateFactorWithValidJWTAndInvalidAPIResponseCodeShouldThrowNetworkError() {
+  fun testCreateFactorWithValidJWEAndInvalidAPIResponseCodeShouldThrowNetworkError() {
     val friendlyName = "friendlyName"
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+    val jwe = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
         "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
         "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
         "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
@@ -102,7 +102,7 @@ class CreateFactorTests : BaseServerTest() {
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwt)
+      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwe)
     val expectedException = TwilioVerifyException(
         NetworkException(null, null),
         NetworkError
@@ -121,9 +121,9 @@ class CreateFactorTests : BaseServerTest() {
   }
 
   @Test
-  fun testCreateFactorWithValidJWTAndInvalidAPIResponseBodyShouldThrowMapperError() {
+  fun testCreateFactorWithValidJWEAndInvalidAPIResponseBodyShouldThrowMapperError() {
     val friendlyName = "friendlyName"
-    val jwt = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
+    val jwe = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
         "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
         "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
         "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
@@ -132,7 +132,7 @@ class CreateFactorTests : BaseServerTest() {
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwt)
+      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwe)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(null, null),
         MapperError

@@ -78,7 +78,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
         ),
         { jsonObject ->
           assertEquals(response, jsonObject.toString())
@@ -97,7 +97,7 @@ class FactorAPIClientTest {
     }
     factorAPIClient.create(
         CreateFactorPayload(
-            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
         ), {
       fail()
     }, { exception ->
@@ -109,7 +109,7 @@ class FactorAPIClientTest {
   fun `Error creating a factor should call error`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwe"
       )
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
@@ -150,7 +150,7 @@ class FactorAPIClientTest {
       CreateFactorPayload(
           friendlyNameMock, factorTypeMock,
           serviceSid,
-          entity, config, binding, "jwt"
+          entity, config, binding, "jwe"
       )
 
     factorAPIClient.create(factorPayload, {}, {})

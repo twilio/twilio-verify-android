@@ -39,7 +39,7 @@ internal const val FRIENDLY_NAME_KEY = "FriendlyName"
 internal const val FACTOR_TYPE_KEY = "FactorType"
 internal const val BINDING_KEY = "Binding"
 internal const val CONFIG_KEY = "Config"
-internal const val JWT_AUTHENTICATION_USER = "token"
+internal const val AUTHENTICATION_USER = "token"
 
 internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
@@ -57,7 +57,7 @@ internal class FactorAPIClient(
       val requestHelper =
         RequestHelper(
             context,
-            BasicAuthorization(JWT_AUTHENTICATION_USER, createFactorPayload.jwt)
+            BasicAuthorization(AUTHENTICATION_USER, createFactorPayload.jwe)
         )
       val request = Request.Builder(
           requestHelper,
@@ -89,7 +89,7 @@ internal class FactorAPIClient(
       val requestHelper =
         RequestHelper(
             context,
-            BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
+            BasicAuthorization(AUTHENTICATION_USER, authToken)
         )
       val request = Request.Builder(requestHelper, verifyFactorURL(factor))
           .httpMethod(Post)
@@ -118,7 +118,7 @@ internal class FactorAPIClient(
       val requestHelper =
         RequestHelper(
             context,
-            BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
+            BasicAuthorization(AUTHENTICATION_USER, authToken)
         )
       val request =
         Request.Builder(requestHelper, updateFactorURL(factor))
@@ -148,7 +148,7 @@ internal class FactorAPIClient(
       val requestHelper =
         RequestHelper(
             context,
-            BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
+            BasicAuthorization(AUTHENTICATION_USER, authToken)
         )
       val request = Request.Builder(requestHelper, deleteFactorURL(factor))
           .httpMethod(Delete)

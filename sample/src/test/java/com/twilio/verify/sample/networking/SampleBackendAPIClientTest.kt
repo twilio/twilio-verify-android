@@ -32,7 +32,7 @@ class SampleBackendAPIClientTest {
     runBlocking {
       val identity = "identity"
       val call: Call = mock()
-      val tokenValue = "jwtToken"
+      val tokenValue = "jweToken"
       val serviceSidValue = "serviceSidValue"
       val factorTypeValue = "push"
       val identityValue = "identityValue"
@@ -71,7 +71,7 @@ class SampleBackendAPIClientTest {
     runBlocking {
       val identity = "identity"
       val call: Call = mock()
-      val tokenValue = "jwtToken"
+      val tokenValue = "jweToken"
       val serviceSidValue = "serviceSidValue"
       val factorTypeValue = "whatever"
       val identityValue = "identityValue"
@@ -122,7 +122,7 @@ class SampleBackendAPIClientTest {
     runBlocking {
       val identity = "identity"
       val call: Call = mock()
-      val tokenValue = "jwtToken"
+      val tokenValue = "jweToken"
       val bodyJson = JSONObject().apply {
         put("token", tokenValue)
       }

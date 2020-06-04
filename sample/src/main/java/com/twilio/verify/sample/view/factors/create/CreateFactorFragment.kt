@@ -14,6 +14,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.iid.FirebaseInstanceId
 import com.twilio.verify.models.Factor
+import com.twilio.verify.sample.BuildConfig
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.view.showError
@@ -21,6 +22,7 @@ import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import kotlinx.android.synthetic.main.fragment_create_factor.content
 import kotlinx.android.synthetic.main.fragment_create_factor.createFactor
+import kotlinx.android.synthetic.main.fragment_create_factor.enrollmentUrlInput
 import kotlinx.android.synthetic.main.fragment_create_factor.identityInput
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -42,6 +44,7 @@ class CreateFactorFragment : Fragment() {
     createFactor.setOnClickListener {
       startCreateFactor()
     }
+    enrollmentUrlInput.setText(BuildConfig.ENROLLMENT_URL)
     getPushToken()
     factorViewModel.getFactor()
         .observe(viewLifecycleOwner, Observer {

@@ -51,7 +51,7 @@ internal class ChallengeAPIClient(
         )
       val requestHelper = RequestHelper(
           context,
-          BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
+          BasicAuthorization(AUTHENTICATION_USER, authToken)
       )
       val request = Request.Builder(
           requestHelper,
@@ -81,7 +81,7 @@ internal class ChallengeAPIClient(
     try {
       val authToken = authentication.generateJWT(factor)
       val requestHelper =
-        RequestHelper(context, BasicAuthorization(JWT_AUTHENTICATION_USER, authToken))
+        RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
       val request = Request.Builder(
           requestHelper,
           getChallengeURL(sid, factor)
@@ -114,7 +114,7 @@ internal class ChallengeAPIClient(
     try {
       val authToken = authentication.generateJWT(factor)
       val requestHelper =
-        RequestHelper(context, BasicAuthorization(JWT_AUTHENTICATION_USER, authToken))
+        RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
       val queryParameters = mutableMapOf<String, Any>(pageSizeParameter to pageSize)
       status?.let {
         queryParameters.put(statusParameter, it)

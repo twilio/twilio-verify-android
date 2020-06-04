@@ -27,10 +27,10 @@ android {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
       signingConfig signingConfigs.release
-      buildConfigField "String", 'JWT_URL', "\"Your JWT generation url\""
+      buildConfigField "String", 'ENROLLMENT_URL', "\"Your JWT generation url\""
     }
     debug {
-      buildConfigField "String", 'JWT_URL', "\"Your JWT generation url\""
+      buildConfigField "String", 'ENROLLMENT_URL', "\"Your JWT generation url\""
     }
   }
 }
