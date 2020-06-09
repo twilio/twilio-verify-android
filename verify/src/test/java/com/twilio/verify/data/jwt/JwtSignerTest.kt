@@ -9,7 +9,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.verify.data.KeyStorage
-import com.twilio.verify.data.encodeToUTF8String
+import com.twilio.verify.data.encodeToBase64UTF8String
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +38,7 @@ class JwtSignerTest {
         "OpTvUH14hyNr0Gfg"
     whenever(keyStorage.sign(alias, content)).thenReturn(Base64.decode(derSignature, FLAGS))
     val signature = jwtSigner.sign(signerTemplate, content)
-    assertEquals(concatSignature, encodeToUTF8String(signature, FLAGS))
+    assertEquals(concatSignature, encodeToBase64UTF8String(signature, FLAGS))
   }
 
   @Test
@@ -52,7 +52,7 @@ class JwtSignerTest {
         "rPm3MOpTvUH14hyNr0Gfg"
     whenever(keyStorage.sign(alias, content)).thenReturn(Base64.decode(derSignature, FLAGS))
     val signature = jwtSigner.sign(signerTemplate, content)
-    assertEquals(derSignature, encodeToUTF8String(signature, FLAGS))
+    assertEquals(derSignature, encodeToBase64UTF8String(signature, FLAGS))
   }
 
   @Test(expected = IllegalArgumentException::class)

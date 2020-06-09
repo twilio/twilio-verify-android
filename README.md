@@ -280,7 +280,7 @@ twilioVerify.updateFactor(updateFactorInput,
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
 * Get the Enrollment JWE generation URL from your backend [(Running the Sample backend)](#SampleBackend)
-* Replace the `ENROLLMENT_URL` (Enrollment JWE generation URL) in the sample's build.gradle file for [release build type](sample/build.gradle#L30)
+* Replace the `ENROLLMENT_URL` (Enrollment JWE generation URL, including the path) in the sample's build.gradle file for [release build type](sample/build.gradle#L30)
 * Run the `sample` module using `release` as build variant
 
 <a name='FirebaseConfiguration'></a>

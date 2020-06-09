@@ -6,7 +6,7 @@ package com.twilio.verify.data.jwt
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
-import com.twilio.verify.data.encodeToUTF8String
+import com.twilio.verify.data.encodeToBase64UTF8String
 import com.twilio.verify.domain.factor.DEFAULT_ALG
 import com.twilio.verify.networking.subKey
 import org.json.JSONObject
@@ -34,16 +34,16 @@ class JwtGeneratorTest {
     val payload = JSONObject().apply {
       put(subKey, "sub")
     }
-    val message = "${encodeToUTF8String(
+    val message = "${encodeToBase64UTF8String(
         header.toString()
             .toByteArray(), FLAGS
-    )}.${encodeToUTF8String(
+    )}.${encodeToBase64UTF8String(
         payload.toString()
             .toByteArray(), FLAGS
     )}"
     val signature = nextBytes(10)
     whenever(jwtSigner.sign(signerTemplate, message)).thenReturn(signature)
     val jwt = jwtGenerator.generateJWT(signerTemplate, header, payload)
-    assertEquals("$message.${encodeToUTF8String(signature, FLAGS)}", jwt)
+    assertEquals("$message.${encodeToBase64UTF8String(signature, FLAGS)}", jwt)
   }
 }

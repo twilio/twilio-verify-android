@@ -17,7 +17,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     KeyStorage {
   override fun create(alias: String): String {
     return try {
-      encodeToUTF8String(
+      encodeToBase64UTF8String(
           manager.signer(getSignerTemplate(alias, false))
               .getPublic(), NO_WRAP
       )
@@ -43,7 +43,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     message: String
   ): String {
     return try {
-      encodeToUTF8String(sign(alias, message), NO_WRAP)
+      encodeToBase64UTF8String(sign(alias, message), NO_WRAP)
     } catch (e: TwilioVerifyException) {
       throw e
     } catch (e: Exception) {
