@@ -32,7 +32,7 @@ internal class PushFactory(
   private val context: Context
 ) {
   fun create(
-    jwt: String,
+    jwe: String,
     friendlyName: String,
     pushToken: String,
     serviceSid: String,
@@ -48,7 +48,7 @@ internal class PushFactory(
         val config = config(pushToken)
         val factorBuilder = CreateFactorPayload(
             friendlyName, PUSH, serviceSid,
-            identity, config, binding, jwt
+            identity, config, binding, jwe
         )
 
         fun onFactorCreated(factor: Factor) {

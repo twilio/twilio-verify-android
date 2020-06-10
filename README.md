@@ -83,7 +83,7 @@ TwilioVerify twilioVerify = new TwilioVerify.Builder(applicationContext).build()
 
 #### Kotlin
 ```Kotlin
-val factorInput = PushFactorInput(factorName, serviceSid, entityIdentity, pushToken, enrollmentJwt)
+val factorInput = PushFactorInput(factorName, serviceSid, entityIdentity, pushToken, enrollmentJwe)
 twilioVerify.createFactor(factorInput, { factor ->
   // Success
 }, { exception ->
@@ -94,7 +94,7 @@ twilioVerify.createFactor(factorInput, { factor ->
 
 #### Java
 ```Java
-FactorInput factorInput = new PushFactorInput(factorName, serviceSid, entityIdentity, pushToken, enrollmentJwt);
+FactorInput factorInput = new PushFactorInput(factorName, serviceSid, entityIdentity, pushToken, enrollmentJwe);
 twilioVerify.createFactor(factorInput,
   new Function1<Factor, Unit>() {
     @Override public Unit invoke(Factor factor) {
@@ -279,8 +279,8 @@ twilioVerify.updateFactor(updateFactorInput,
 ### To run the Sample App:
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
-* Get the JWT generation URL from your backend [(Running the Sample backend)](#SampleBackend)
-* Replace the `JWT_URL` (JWT generation URL) in the sample's build.gradle file for [release build type](sample/build.gradle#L30)
+* Get the Enrollment JWE generation URL from your backend [(Running the Sample backend)](#SampleBackend)
+* Replace the `ENROLLMENT_URL` (Enrollment JWE generation URL, including the path) in the sample's build.gradle file for [release build type](sample/build.gradle#L30)
 * Run the `sample` module using `release` as build variant
 
 <a name='FirebaseConfiguration'></a>

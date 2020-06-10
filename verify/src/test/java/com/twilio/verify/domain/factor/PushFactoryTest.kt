@@ -44,10 +44,10 @@ class PushFactoryTest {
   private val idlingResource = IdlingResource()
 
   @Test
-  fun `Create factor with valid JWT should call success lambda`() {
+  fun `Create factor with valid JWE should call success lambda`() {
     val serviceSid = "ISb3a64ae0d2262a2bad5e9870c448b83a"
     val entityId = "YEbd15653d11489b27c1b6255230301815"
-    val jwt =
+    val jwe =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -85,7 +85,7 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
+    pushFactory.create(jwe, friendlyName, pushToken, serviceSid, identity, {
       verify(factorProvider).create(check { pushFactor ->
         assertEquals(expectedBinding, pushFactor.binding)
         assertEquals(expectedConfig, pushFactor.config)
@@ -108,7 +108,7 @@ class PushFactoryTest {
 
   @Test
   fun `Keypair not created creating a factor should call error lambda`() {
-    val jwt =
+    val jwe =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -125,7 +125,7 @@ class PushFactoryTest {
       throw TwilioVerifyException(IllegalStateException(), KeyStorageError)
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
+    pushFactory.create(jwe, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -138,7 +138,7 @@ class PushFactoryTest {
 
   @Test
   fun `Error in factor provider creating the factor should call error lambda`() {
-    val jwt =
+    val jwe =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -166,7 +166,7 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
+    pushFactory.create(jwe, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -179,7 +179,7 @@ class PushFactoryTest {
 
   @Test
   fun `Empty keypair in push factor creating a factor should call error lambda`() {
-    val jwt =
+    val jwe =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -208,7 +208,7 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
+    pushFactory.create(jwe, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

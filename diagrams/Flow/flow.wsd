@@ -11,8 +11,8 @@ App -> SDK : Get a TwilioVerify instance
 SDK -> App : Returns TwilioVerify instance
 == Create a factor ==
 User -> App : Starts enrollment
-App -> Backend : Get enrollment JWT
-Backend -> App : Returns enrollment JWT
+App -> Backend : Get enrollment JWE
+Backend -> App : Returns enrollment JWE
 App -> App : Get FCM push token
 App -> SDK : Create a factor
 SDK -> App : Returns factor

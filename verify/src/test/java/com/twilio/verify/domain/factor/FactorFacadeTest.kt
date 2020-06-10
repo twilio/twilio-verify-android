@@ -39,12 +39,12 @@ class FactorFacadeTest {
   @Test
   fun `Create a factor should call success`() {
     val factorInput =
-      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwt")
+      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwe")
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(
           pushFactory.create(
-              eq(factorInput.jwt), eq(factorInput.friendlyName), eq(factorInput.pushToken),
+              eq(factorInput.enrollmentJwe), eq(factorInput.friendlyName), eq(factorInput.pushToken),
               eq(factorInput.serviceSid), eq(factorInput.identity), capture(), any()
           )
       ).then {
@@ -65,12 +65,12 @@ class FactorFacadeTest {
   @Test
   fun `Error creating a factor should call error`() {
     val factorInput =
-      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwt")
+      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwe")
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
           pushFactory.create(
-              eq(factorInput.jwt), eq(factorInput.friendlyName), eq(factorInput.pushToken),
+              eq(factorInput.enrollmentJwe), eq(factorInput.friendlyName), eq(factorInput.pushToken),
               eq(factorInput.serviceSid), eq(factorInput.identity), any(), capture()
           )
       ).then {

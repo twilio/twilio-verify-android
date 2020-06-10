@@ -42,7 +42,7 @@ class KeyStoreAdapterTest {
     whenever(signer.getPublic()).thenReturn(publicKey)
     whenever(keyManager.signer(any())).thenReturn(signer)
     val encodedPublicKey = keyStoreAdapter.create(alias)
-    assertEquals(encodeToUTF8String(publicKey, NO_WRAP), encodedPublicKey)
+    assertEquals(encodeToBase64UTF8String(publicKey, NO_WRAP), encodedPublicKey)
   }
 
   @Test
@@ -64,7 +64,7 @@ class KeyStoreAdapterTest {
     whenever(signer.sign(message.toByteArray())).thenReturn(signature)
     whenever(keyManager.signer(any())).thenReturn(signer)
     val encodedSignature = keyStoreAdapter.signAndEncode(alias, message)
-    assertEquals(encodeToUTF8String(signature, NO_WRAP), encodedSignature)
+    assertEquals(encodeToBase64UTF8String(signature, NO_WRAP), encodedSignature)
   }
 
   @Test

@@ -22,7 +22,7 @@ public class TwilioVerifyJavaProvider {
     if (twilioVerifyJavaAdapter == null) {
       OkHttpClient okHttpClient = okHttpClient();
       SampleBackendAPIClient sampleBackendAPIClient = new SampleBackendAPIClient(okHttpClient,
-          BuildConfig.JWT_URL);
+          BuildConfig.ENROLLMENT_URL);
       TwilioVerify twilioVerify = new TwilioVerify.Builder(
           applicationContext).networkProvider(new OkHttpProvider(okHttpClient)).build();
       twilioVerifyJavaAdapter = new TwilioVerifyJavaAdapter(twilioVerify, sampleBackendAPIClient);

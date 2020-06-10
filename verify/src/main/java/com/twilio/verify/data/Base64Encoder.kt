@@ -5,7 +5,7 @@ package com.twilio.verify.data
 
 import android.util.Base64
 
-fun encodeToUTF8String(
+fun encodeToBase64UTF8String(
   input: ByteArray,
   flags: Int
 ): String {

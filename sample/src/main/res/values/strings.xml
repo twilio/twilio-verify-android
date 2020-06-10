@@ -9,6 +9,6 @@
   <string name="new_challenge">New challenge</string>
   <string name="channel_name">@string/challenges</string>
   <string name="channel_description">Receive challenges</string>
-  <string name="jwt_url">JWT url</string>
+  <string name="enrollment_url">Enrollment URL</string>
   <string name="identity">Entity identity</string>
 </resources>

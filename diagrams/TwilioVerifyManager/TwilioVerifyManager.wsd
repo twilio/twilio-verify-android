@@ -28,7 +28,7 @@ interface FactorInput {
 }
 class PushFactorInput implements FactorInput {
     pushToken: String
-    jwt: String
+    enrollmentJwe: String
 }
 interface VerifyFactorInput {
     sid: String

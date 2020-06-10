@@ -36,7 +36,7 @@ internal class ServiceAPIClient(
       val authToken = authentication.generateJWT(factor)
       val requestHelper = RequestHelper(
           context,
-          BasicAuthorization(JWT_AUTHENTICATION_USER, authToken)
+          BasicAuthorization(AUTHENTICATION_USER, authToken)
       )
       val request = Request.Builder(requestHelper, getServiceURL(serviceSid))
           .httpMethod(Get)
