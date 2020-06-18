@@ -1,6 +1,7 @@
 package com.twilio.verify.api
 
 import android.content.Context
+import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -146,15 +147,13 @@ class ChallengeAPIClientTest {
       "$baseUrl$updateChallengeURL".replace(
           SERVICE_SID_PATH, factorChallenge.factor!!.serviceSid, true
       )
-          .replace(
-              ENTITY_PATH, factorChallenge.factor!!.entityIdentity, true
-          )
-          .replace(FACTOR_SID_PATH, factorChallenge.factor!!.sid)
           .replace(challengeSidPath, factorChallenge.sid)
 
     val authPayload = "authPayload"
     val expectedBody = mapOf(
-        AUTH_PAYLOAD_PARAM to authPayload
+        AUTH_PAYLOAD_PARAM to authPayload,
+        IDENTITY_KEY to factorChallenge.factor!!.entityIdentity,
+        FACTOR_SID_KEY to factorChallenge.factor!!.sid
     )
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
@@ -251,11 +250,16 @@ class ChallengeAPIClientTest {
     val factor = factorChallenge.factor!!
     val expectedURL =
       "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-          .replace(
-              ENTITY_PATH, factor.entityIdentity, true
-          )
-          .replace(FACTOR_SID_PATH, factor.sid)
           .replace(challengeSidPath, challengeSid)
+    val expectedFullURL = Uri.parse(expectedURL)
+        .buildUpon()
+        .apply {
+          appendQueryParameter(IDENTITY_KEY, factorChallenge.factor!!.entityIdentity)
+          appendQueryParameter(FACTOR_SID_KEY, factorChallenge.factor!!.sid)
+        }
+        .build()
+        .toString()
+
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.get(challengeSid, factor, { _: JSONObject, _: String? -> }, {})
@@ -264,7 +268,7 @@ class ChallengeAPIClientTest {
     }
 
     requestCaptor.firstValue.apply {
-      assertEquals(URL(expectedURL), url)
+      assertEquals(URL(expectedFullURL), url)
       assertEquals(HttpMethod.Get, httpMethod)
       assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
       assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.UrlEncoded.type)

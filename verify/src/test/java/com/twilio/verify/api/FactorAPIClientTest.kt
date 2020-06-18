@@ -1,6 +1,7 @@
 package com.twilio.verify.api
 
 import android.content.Context
+import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -126,9 +127,6 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val entity = "entityId"
     val expectedURL = "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSid, true)
-        .replace(
-            ENTITY_PATH, entity, true
-        )
     val friendlyNameMock = "Test"
     val factorTypeMock = PUSH
     val pushToken = "ABCD"
@@ -142,6 +140,7 @@ class FactorAPIClientTest {
     )
     val expectedBody = mapOf(
         FRIENDLY_NAME_KEY to friendlyNameMock, FACTOR_TYPE_KEY to factorTypeMock.factorTypeName,
+        IDENTITY_KEY to entity,
         BINDING_KEY to JSONObject(binding).toString(),
         CONFIG_KEY to JSONObject(config).toString()
     )
@@ -245,12 +244,10 @@ class FactorAPIClientTest {
     val entityIdentityMock = "entityIdentity"
     val authPayloadMock = "authPayload"
     val expectedURL = "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
-        .replace(
-            ENTITY_PATH, entityIdentityMock, true
-        )
         .replace(FACTOR_SID_PATH, sidMock)
 
-    val expectedBody = mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
+    val expectedBody =
+      mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock, IDENTITY_KEY to entityIdentityMock)
     val factor =
       PushFactor(
           sidMock,
@@ -354,9 +351,6 @@ class FactorAPIClientTest {
     val pushToken = "ABCD"
     val factorTypeMock = PUSH
     val expectedURL = "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
-        .replace(
-            ENTITY_PATH, entityIdentityMock, true
-        )
         .replace(FACTOR_SID_PATH, sidMock)
 
     val config = mapOf(
@@ -378,6 +372,7 @@ class FactorAPIClientTest {
 
     val expectedBody = mapOf(
         FRIENDLY_NAME_KEY to friendlyNameMock,
+        IDENTITY_KEY to entityIdentityMock,
         CONFIG_KEY to JSONObject(config).toString()
     )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -412,10 +407,14 @@ class FactorAPIClientTest {
       )
     val expectedURL =
       "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-          .replace(
-              ENTITY_PATH, factor.entityIdentity, true
-          )
           .replace(FACTOR_SID_PATH, factor.sid)
+    val expectedFullURL = Uri.parse(expectedURL)
+        .buildUpon()
+        .apply {
+          appendQueryParameter(IDENTITY_KEY, identity)
+        }
+        .build()
+        .toString()
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
@@ -427,7 +426,7 @@ class FactorAPIClientTest {
         factor, {
       verify(networkProvider).execute(
           check {
-            assertEquals(URL(expectedURL), it.url)
+            assertEquals(URL(expectedFullURL), it.url)
             assertEquals(Delete, it.httpMethod)
           }, any(), any()
       )
