@@ -13,28 +13,36 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
+import retrofit2.http.Url
 import java.io.IOException
 
 interface SampleBackendAPIClient {
-  @POST(BuildConfig.ENROLLMENT_URL) @FormUrlEncoded
-  fun enrollment(@Field("identity") identity: String): Call<EnrollmentResponse>?
+  @POST @FormUrlEncoded
+  fun enrollment(
+    @Field("identity") identity: String,
+    @Url url: String
+  ): Call<EnrollmentResponse>?
 }
 
-fun backendAPIClient(okHttpClient: OkHttpClient): SampleBackendAPIClient {
+@JvmOverloads fun backendAPIClient(
+  okHttpClient: OkHttpClient,
+  url: String = BuildConfig.ENROLLMENT_URL
+): SampleBackendAPIClient {
   val retrofit = Retrofit.Builder()
-      .baseUrl(BuildConfig.ENROLLMENT_URL.substringBeforeLast('/'))
+      .baseUrl(url.substringBeforeLast('/'))
       .addConverterFactory(GsonConverterFactory.create())
       .client(okHttpClient)
       .build()
   return retrofit.create(SampleBackendAPIClient::class.java)
 }
 
-fun SampleBackendAPIClient.getEnrollmentResponse(
+@JvmOverloads fun SampleBackendAPIClient.getEnrollmentResponse(
   identity: String,
   success: (EnrollmentResponse) -> Unit,
-  error: (Throwable) -> Unit
+  error: (Throwable) -> Unit,
+  url: String = BuildConfig.ENROLLMENT_URL
 ) {
-  val call = enrollment(identity)
+  val call = enrollment(identity, url)
   call?.enqueue(object : retrofit2.Callback<EnrollmentResponse> {
     override fun onFailure(
       call: Call<EnrollmentResponse>,
@@ -49,7 +57,14 @@ fun SampleBackendAPIClient.getEnrollmentResponse(
     ) {
       try {
         val enrollmentResponse =
-          response.body() ?: throw IOException("${response.errorBody()?.string()}")
+          response.body()
+              ?.takeIf {
+                !it.token.isNullOrBlank() && !it.factorType.isNullOrBlank()
+                    && !it.identity.isNullOrBlank() && !it.serviceSid.isNullOrBlank()
+              } ?: throw IOException(
+              response.errorBody()
+                  ?.string() ?: "Invalid response"
+          )
         success(enrollmentResponse)
       } catch (e: Exception) {
         error(e)

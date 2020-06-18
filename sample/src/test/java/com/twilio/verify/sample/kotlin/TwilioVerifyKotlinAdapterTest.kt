@@ -68,7 +68,7 @@ class TwilioVerifyKotlinAdapterTest {
         on { enqueue(capture()) }.thenThrow(expectedException)
       }
     }
-    whenever(sampleBackendAPIClient.enrollment(createFactorData.identity)).thenReturn(mockCall)
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(mockCall)
     idlingResource.startOperation()
     twilioVerifyAdapter.createFactor(createFactorData, {
       fail()
@@ -93,7 +93,7 @@ class TwilioVerifyKotlinAdapterTest {
         }
       }
     }
-    whenever(sampleBackendAPIClient.enrollment(createFactorData.identity)).thenReturn(mockCall)
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(mockCall)
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(twilioVerify.createFactor(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
@@ -126,7 +126,7 @@ class TwilioVerifyKotlinAdapterTest {
         }
       }
     }
-    whenever(sampleBackendAPIClient.enrollment(createFactorData.identity)).thenReturn(mockCall)
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(mockCall)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(twilioVerify.createFactor(any(), capture(), any())).then {
         firstValue.invoke(expectedFactor)
