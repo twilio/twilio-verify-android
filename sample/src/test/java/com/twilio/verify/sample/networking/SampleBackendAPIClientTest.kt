@@ -65,7 +65,7 @@ class SampleBackendAPIClientTest {
     sampleBackendAPIClient.getEnrollmentResponse(identity, { enrollmentResponse ->
       assertEquals(tokenValue, enrollmentResponse.token)
       assertEquals(serviceSidValue, enrollmentResponse.serviceSid)
-      assertEquals(factorTypeValue, enrollmentResponse.factorType.factorTypeName)
+      assertEquals(factorTypeValue, enrollmentResponse.factorType)
       assertEquals(identityValue, enrollmentResponse.identity)
       idlingResource.operationFinished()
     }, {

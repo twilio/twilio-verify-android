@@ -88,7 +88,7 @@ class TwilioVerifyKotlinAdapterTest {
       argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
         on { enqueue(capture()) }.then {
           firstValue.onResponse(
-              mockCall, Response.success(EnrollmentResponse("jwe", "serviceSid", "identity", PUSH))
+              mockCall, Response.success(EnrollmentResponse("jwe", "serviceSid", "identity", PUSH.factorTypeName))
           )
         }
       }
@@ -121,7 +121,7 @@ class TwilioVerifyKotlinAdapterTest {
       argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
         on { enqueue(capture()) }.then {
           firstValue.onResponse(
-              mockCall, Response.success(EnrollmentResponse("jwe", "serviceSid", "identity", PUSH))
+              mockCall, Response.success(EnrollmentResponse("jwe", "serviceSid", "identity", PUSH.factorTypeName))
           )
         }
       }
