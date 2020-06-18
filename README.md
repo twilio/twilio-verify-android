@@ -61,7 +61,7 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 
 ## Usage
 
-See the [project website](https://www.twilio.com/docs/admin/pages/21017/edit/preview/) for documentation
+See the [product website](https://www.twilio.com/docs/admin/pages/21017/edit/preview/) for documentation
 
 <a name='SampleApp'></a>
 
