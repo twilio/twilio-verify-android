@@ -11,6 +11,7 @@
 * [Running the Sample app](#SampleApp)
 * [Running the sample backend](#SampleBackend)
 * [Using the sample app](#UsingSampleApp)
+* [Errors](#Errors)
 
 <a name='About'></a>
 
@@ -349,3 +350,15 @@ curl -X POST https://verify.twilio.com/v2/Services \
 * Approve or deny the challenge
 * After the challenge is updated, you will see the challenge status in the backend's `Create Push Challenge` view
 
+<a name='Errors'></a>
+
+## Errors
+Types | Code | Description
+---------- | ----------- | -----------
+Network | 68001 | Exception while calling the API
+Mapping | 68002 | Exception while mapping an entity
+Storage | 68003 | Exception while storing/loading an entity
+Input | 68004 | Exception while loading input
+Key Storage | 68005 | Exception while storing/loading key pairs
+Initialization | 68006 | Exception while initializing an object
+Authentication Token | 68007 | Exception while generating token
