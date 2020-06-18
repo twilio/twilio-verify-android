@@ -5,9 +5,15 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.*
+import com.twilio.verify.networking.Authentication
+import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod.Get
 import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.NetworkAdapter
+import com.twilio.verify.networking.NetworkException
+import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.RequestHelper
 import org.json.JSONObject
 
 /*
@@ -80,7 +86,7 @@ internal class ChallengeAPIClient(
           getChallengeURL(sid, factor)
       )
           .httpMethod(Get)
-          .query(mapOf(IDENTITY_KEY to factor.entityIdentity, FACTOR_SID_KEY to factor.sid))
+          .query(mapOf(FACTOR_SID_KEY to factor.sid))
           .build()
       networkProvider.execute(request, {
         success(
@@ -110,7 +116,7 @@ internal class ChallengeAPIClient(
       val requestHelper =
         RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
       val queryParameters = mutableMapOf<String, Any>(
-          pageSizeParameter to pageSize, IDENTITY_KEY to factor.entityIdentity,
+          pageSizeParameter to pageSize,
           FACTOR_SID_KEY to factor.sid
       )
       status?.let {
@@ -153,7 +159,6 @@ internal class ChallengeAPIClient(
   ): Map<String, String?> =
     mapOf(
         AUTH_PAYLOAD_PARAM to authPayload,
-        IDENTITY_KEY to factor.entityIdentity,
         FACTOR_SID_KEY to factor.sid
     )
 

@@ -6,9 +6,15 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.*
+import com.twilio.verify.networking.Authentication
+import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.NetworkAdapter
+import com.twilio.verify.networking.NetworkException
+import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.RequestHelper
 import org.json.JSONObject
 
 /*
@@ -83,7 +89,7 @@ internal class FactorAPIClient(
         )
       val request = Request.Builder(requestHelper, verifyFactorURL(factor))
           .httpMethod(Post)
-          .body(verifyFactorBody(authPayload, factor.entityIdentity))
+          .body(verifyFactorBody(authPayload))
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it.body))
@@ -142,7 +148,6 @@ internal class FactorAPIClient(
         )
       val request = Request.Builder(requestHelper, deleteFactorURL(factor))
           .httpMethod(Delete)
-          .query(mapOf(IDENTITY_KEY to factor.entityIdentity))
           .build()
       networkProvider.execute(request, {
         success()
@@ -187,17 +192,15 @@ internal class FactorAPIClient(
     )
 
   private fun verifyFactorBody(
-    authPayload: String,
-    entityIdentity: String
+    authPayload: String
   ): Map<String, String?> =
-    mapOf(AUTH_PAYLOAD_PARAM to authPayload, IDENTITY_KEY to entityIdentity)
+    mapOf(AUTH_PAYLOAD_PARAM to authPayload)
 
   private fun updateFactorBody(
     updateFactorPayload: UpdateFactorPayload
   ): Map<String, String?> =
     mapOf(
         FRIENDLY_NAME_KEY to updateFactorPayload.friendlyName,
-        IDENTITY_KEY to updateFactorPayload.entity,
         CONFIG_KEY to JSONObject(updateFactorPayload.config).toString()
     )
 }

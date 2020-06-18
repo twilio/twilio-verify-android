@@ -247,7 +247,7 @@ class FactorAPIClientTest {
         .replace(FACTOR_SID_PATH, sidMock)
 
     val expectedBody =
-      mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock, IDENTITY_KEY to entityIdentityMock)
+      mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
     val factor =
       PushFactor(
           sidMock,
@@ -372,7 +372,6 @@ class FactorAPIClientTest {
 
     val expectedBody = mapOf(
         FRIENDLY_NAME_KEY to friendlyNameMock,
-        IDENTITY_KEY to entityIdentityMock,
         CONFIG_KEY to JSONObject(config).toString()
     )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -408,13 +407,6 @@ class FactorAPIClientTest {
     val expectedURL =
       "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
           .replace(FACTOR_SID_PATH, factor.sid)
-    val expectedFullURL = Uri.parse(expectedURL)
-        .buildUpon()
-        .apply {
-          appendQueryParameter(IDENTITY_KEY, identity)
-        }
-        .build()
-        .toString()
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
@@ -426,7 +418,7 @@ class FactorAPIClientTest {
         factor, {
       verify(networkProvider).execute(
           check {
-            assertEquals(URL(expectedFullURL), it.url)
+            assertEquals(URL(expectedURL), it.url)
             assertEquals(Delete, it.httpMethod)
           }, any(), any()
       )

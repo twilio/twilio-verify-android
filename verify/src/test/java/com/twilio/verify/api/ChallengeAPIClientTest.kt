@@ -152,7 +152,6 @@ class ChallengeAPIClientTest {
     val authPayload = "authPayload"
     val expectedBody = mapOf(
         AUTH_PAYLOAD_PARAM to authPayload,
-        IDENTITY_KEY to factorChallenge.factor!!.entityIdentity,
         FACTOR_SID_KEY to factorChallenge.factor!!.sid
     )
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
@@ -254,7 +253,6 @@ class ChallengeAPIClientTest {
     val expectedFullURL = Uri.parse(expectedURL)
         .buildUpon()
         .apply {
-          appendQueryParameter(IDENTITY_KEY, factorChallenge.factor!!.entityIdentity)
           appendQueryParameter(FACTOR_SID_KEY, factorChallenge.factor!!.sid)
         }
         .build()
