@@ -37,4 +37,4 @@ class FactorViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : Vi
 
 sealed class FactorResult
 class Factor(val factor: Factor) : FactorResult()
-class FactorError(val exception: Exception) : FactorResult()
+class FactorError(val exception: Throwable) : FactorResult()

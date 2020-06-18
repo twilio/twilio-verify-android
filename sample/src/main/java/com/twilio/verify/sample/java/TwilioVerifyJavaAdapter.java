@@ -8,7 +8,6 @@ import com.twilio.verify.models.ChallengeListInput;
 import com.twilio.verify.models.Factor;
 import com.twilio.verify.models.FactorInput;
 import com.twilio.verify.models.PushFactorInput;
-import com.twilio.verify.models.Service;
 import com.twilio.verify.models.UpdateChallengeInput;
 import com.twilio.verify.models.UpdatePushFactorInput;
 import com.twilio.verify.models.VerifyFactorInput;
@@ -16,7 +15,9 @@ import com.twilio.verify.models.VerifyPushFactorInput;
 import com.twilio.verify.sample.TwilioVerifyAdapter;
 import com.twilio.verify.sample.model.CreateFactorData;
 import com.twilio.verify.sample.model.EnrollmentResponse;
+import com.twilio.verify.sample.model.EnrollmentResponseKt;
 import com.twilio.verify.sample.networking.SampleBackendAPIClient;
+import com.twilio.verify.sample.networking.SampleBackendAPIClientKt;
 import com.twilio.verify.sample.push.NewChallenge;
 import com.twilio.verify.sample.push.VerifyEventBus;
 import java.util.List;
@@ -41,13 +42,16 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
 
   @Override public void createFactor(@NotNull final CreateFactorData createFactorData,
       @NotNull final Function1<? super Factor, Unit> success,
-      @NotNull final Function1<? super Exception, Unit> error) {
-    sampleBackendAPIClient.enrollment(createFactorData.getIdentity(),
-        new Function1<EnrollmentResponse, Unit>() {
-          @Override public Unit invoke(EnrollmentResponse enrollmentResponse) {
-            createFactor(createFactorData, enrollmentResponse, success, error);
-            return Unit.INSTANCE;
-          }
+      @NotNull final Function1<? super Throwable, Unit> error) {
+    SampleBackendAPIClientKt.getEnrollmentResponse(sampleBackendAPIClient,
+        createFactorData.getIdentity(), enrollmentResponse -> {
+          FactorInput factorInput = getFactorInput(createFactorData, enrollmentResponse);
+          twilioVerify.createFactor(factorInput,
+              factor -> {
+                verifyFactor(factor, success, error);
+                return Unit.INSTANCE;
+              }, error);
+          return Unit.INSTANCE;
         }, error);
   }
 
@@ -74,53 +78,7 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
     twilioVerify.getChallenge(challengeSid, factorSid, success, error);
   }
 
-  private Function1<? super TwilioVerifyException, Unit> handleError =
-      new Function1<TwilioVerifyException, Unit>() {
-        @Override public Unit invoke(TwilioVerifyException e) {
-          e.printStackTrace();
-          return Unit.INSTANCE;
-        }
-      };
-
-  private void createFactor(CreateFactorData createFactorData,
-      EnrollmentResponse enrollmentResponse,
-      final Function1<? super Factor, Unit> onSuccess,
-      final Function1<? super Exception, Unit> onError) {
-    FactorInput factorInput;
-    switch (enrollmentResponse.getFactorType()) {
-      case PUSH:
-        factorInput = new PushFactorInput(createFactorData.getFactorName(),
-            enrollmentResponse.getServiceSid(),
-            enrollmentResponse.getIdentity(), createFactorData.getPushToken(),
-            enrollmentResponse.getToken());
-        break;
-      default:
-        throw new IllegalStateException("Unexpected value: " + enrollmentResponse.getFactorType());
-    }
-    twilioVerify.createFactor(factorInput,
-        new Function1<Factor, Unit>() {
-          @Override public Unit invoke(Factor factor) {
-            onFactorCreated(factor, onSuccess, onError);
-            return Unit.INSTANCE;
-          }
-        }, onError);
-  }
-
-  private void onFactorCreated(Factor factor,
-      final Function1<? super Factor, Unit> onSuccess,
-      final Function1<? super Exception, Unit> onError) {
-    switch (factor.getType()) {
-      case PUSH:
-        twilioVerify.verifyFactor(new VerifyPushFactorInput(factor.getSid()), onSuccess, onError);
-        break;
-      default:
-        onSuccess.invoke(factor);
-        break;
-    }
-  }
-
-  @Override
-  public void getFactors(@NotNull Function1<? super List<? extends Factor>, Unit> success,
+  @Override public void getFactors(@NotNull Function1<? super List<? extends Factor>, Unit> success,
       @NotNull Function1<? super TwilioVerifyException, Unit> error) {
     twilioVerify.getAllFactors(success, error);
   }
@@ -137,22 +95,45 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
   }
 
   @Override public void updatePushToken(@NotNull final String token) {
-    twilioVerify.getAllFactors(new Function1<List<? extends Factor>, Unit>() {
-      @Override public Unit invoke(List<? extends Factor> factors) {
-        for (Factor factor : factors) {
-          updateFactor(factor, token);
-        }
-        return Unit.INSTANCE;
+    twilioVerify.getAllFactors(factors -> {
+      for (Factor factor : factors) {
+        updateFactor(factor, token);
       }
+      return Unit.INSTANCE;
     }, handleError);
+  }
+
+  private Function1<? super TwilioVerifyException, Unit> handleError =
+      (Function1<TwilioVerifyException, Unit>) e -> {
+        e.printStackTrace();
+        return Unit.INSTANCE;
+      };
+
+  private FactorInput getFactorInput(CreateFactorData createFactorData,
+      EnrollmentResponse enrollmentResponse) {
+    switch (EnrollmentResponseKt.getFactorType(enrollmentResponse)) {
+      case PUSH:
+        return new PushFactorInput(createFactorData.getFactorName(),
+            enrollmentResponse.getServiceSid(),
+            enrollmentResponse.getIdentity(), createFactorData.getPushToken(),
+            enrollmentResponse.getToken());
+      default:
+        throw new IllegalStateException("Unexpected value: " + enrollmentResponse.getFactorType());
+    }
+  }
+
+  private void verifyFactor(Factor factor,
+      final Function1<? super Factor, Unit> onSuccess,
+      final Function1<? super Exception, Unit> onError) {
+    switch (factor.getType()) {
+      case PUSH:
+        verifyFactor(new VerifyPushFactorInput(factor.getSid()), onSuccess, onError);
+        break;
+    }
   }
 
   private void updateFactor(Factor factor, String token) {
     twilioVerify.updateFactor(new UpdatePushFactorInput(factor.getSid(), token),
-        new Function1<Factor, Unit>() {
-          @Override public Unit invoke(Factor factor) {
-            return Unit.INSTANCE;
-          }
-        }, handleError);
+        factor1 -> Unit.INSTANCE, handleError);
   }
 }
