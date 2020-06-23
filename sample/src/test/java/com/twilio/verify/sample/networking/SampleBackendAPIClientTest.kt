@@ -1,7 +1,6 @@
 package com.twilio.verify.sample.networking
 
 import com.twilio.verify.sample.IdlingResource
-import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
@@ -30,7 +29,7 @@ class SampleBackendAPIClientTest {
     mockWebServer.start()
     url = mockWebServer.url("/enroll")
         .toString()
-    sampleBackendAPIClient = backendAPIClient(OkHttpClient(), url)
+    sampleBackendAPIClient = backendAPIClient(url)
   }
 
   @Test
@@ -50,7 +49,7 @@ class SampleBackendAPIClientTest {
         .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getEnrollmentResponse(identity, { enrollmentResponse ->
+    sampleBackendAPIClient.getEnrollmentResponse(identity, url, { enrollmentResponse ->
       assertEquals(tokenValue, enrollmentResponse.token)
       assertEquals(serviceSidValue, enrollmentResponse.serviceSid)
       assertEquals(factorTypeValue, enrollmentResponse.factorType)
@@ -73,7 +72,7 @@ class SampleBackendAPIClientTest {
         .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getEnrollmentResponse(identity, {
+    sampleBackendAPIClient.getEnrollmentResponse(identity, url, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -94,7 +93,7 @@ class SampleBackendAPIClientTest {
         .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getEnrollmentResponse(identity, {
+    sampleBackendAPIClient.getEnrollmentResponse(identity, url, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

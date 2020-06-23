@@ -3,8 +3,8 @@
  */
 package com.twilio.verify.sample.networking
 
-import com.twilio.verify.sample.BuildConfig
 import com.twilio.verify.sample.model.EnrollmentResponse
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Response
@@ -25,24 +25,25 @@ interface SampleBackendAPIClient {
 }
 
 @JvmOverloads fun backendAPIClient(
-  okHttpClient: OkHttpClient,
-  url: String = BuildConfig.ENROLLMENT_URL
+  enrollmentUrl: String,
+  okHttpClient: OkHttpClient = OkHttpClient()
 ): SampleBackendAPIClient {
+  val url = enrollmentUrl.toHttpUrl()
   val retrofit = Retrofit.Builder()
-      .baseUrl(url.substringBeforeLast('/'))
+      .baseUrl("${url.scheme}://${url.host}")
       .addConverterFactory(GsonConverterFactory.create())
       .client(okHttpClient)
       .build()
   return retrofit.create(SampleBackendAPIClient::class.java)
 }
 
-@JvmOverloads fun SampleBackendAPIClient.getEnrollmentResponse(
+fun SampleBackendAPIClient.getEnrollmentResponse(
   identity: String,
+  enrollmentUrl: String,
   success: (EnrollmentResponse) -> Unit,
-  error: (Throwable) -> Unit,
-  url: String = BuildConfig.ENROLLMENT_URL
+  error: (Throwable) -> Unit
 ) {
-  val call = enrollment(identity, url)
+  val call = enrollment(identity, enrollmentUrl)
   call?.enqueue(object : retrofit2.Callback<EnrollmentResponse> {
     override fun onFailure(
       call: Call<EnrollmentResponse>,

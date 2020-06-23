@@ -18,7 +18,6 @@ import com.twilio.verify.sample.model.EnrollmentResponse
 import com.twilio.verify.sample.model.getFactorType
 import com.twilio.verify.sample.networking.OkHttpProvider
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
-import com.twilio.verify.sample.networking.backendAPIClient
 import com.twilio.verify.sample.networking.getEnrollmentResponse
 import com.twilio.verify.sample.networking.okHttpClient
 import com.twilio.verify.sample.push.NewChallenge
@@ -31,18 +30,18 @@ class TwilioVerifyKotlinAdapter(
   private val twilioVerify: TwilioVerify = TwilioVerify.Builder(applicationContext)
       .networkProvider(OkHttpProvider(okHttpClient))
       .build(),
-  private val sampleBackendAPIClient: SampleBackendAPIClient = backendAPIClient(okHttpClient),
   private val verifyEventBus: VerifyEventBus = VerifyEventBus
 ) : TwilioVerify by twilioVerify, TwilioVerifyAdapter {
 
   override fun createFactor(
     createFactorData: CreateFactorData,
+    sampleBackendAPIClient: SampleBackendAPIClient,
     success: (Factor) -> Unit,
     error: (Throwable) -> Unit
   ) {
     try {
       sampleBackendAPIClient.getEnrollmentResponse(
-          createFactorData.identity, { enrollmentResponse ->
+          createFactorData.identity, createFactorData.enrollmentUrl, { enrollmentResponse ->
         val factorInput = getFactorInput(createFactorData, enrollmentResponse)
         twilioVerify.createFactor(factorInput, { factor ->
           verifyFactor(factor, success, error)

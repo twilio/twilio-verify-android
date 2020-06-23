@@ -32,19 +32,17 @@ import org.jetbrains.annotations.NotNull;
 public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
 
   private final TwilioVerify twilioVerify;
-  private final SampleBackendAPIClient sampleBackendAPIClient;
 
-  public TwilioVerifyJavaAdapter(TwilioVerify twilioVerify,
-      SampleBackendAPIClient sampleBackendAPIClient) {
+  TwilioVerifyJavaAdapter(TwilioVerify twilioVerify) {
     this.twilioVerify = twilioVerify;
-    this.sampleBackendAPIClient = sampleBackendAPIClient;
   }
 
   @Override public void createFactor(@NotNull final CreateFactorData createFactorData,
+      @NotNull SampleBackendAPIClient sampleBackendAPIClient,
       @NotNull final Function1<? super Factor, Unit> success,
       @NotNull final Function1<? super Throwable, Unit> error) {
     SampleBackendAPIClientKt.getEnrollmentResponse(sampleBackendAPIClient,
-        createFactorData.getIdentity(), enrollmentResponse -> {
+        createFactorData.getIdentity(), createFactorData.getEnrollmentUrl(), enrollmentResponse -> {
           FactorInput factorInput = getFactorInput(createFactorData, enrollmentResponse);
           twilioVerify.createFactor(factorInput,
               factor -> {

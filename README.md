@@ -70,8 +70,7 @@ See the [product website](https://www.twilio.com/docs/admin/pages/21017/edit/pre
 ### To run the Sample App:
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
-* Get the Enrollment JWE generation URL from your backend [(Running the Sample backend)](#SampleBackend)
-* Replace the `ENROLLMENT_URL` (Enrollment JWE generation URL, including the path) in the sample's build.gradle file for [release build type](sample/build.gradle#L30)
+* Get the Enrollment JWE generation URL from your backend [(Running the Sample backend)](#SampleBackend). You will use it for creating a factor
 * Run the `sample` module using `release` as build variant
 
 <a name='FirebaseConfiguration'></a>
@@ -125,6 +124,7 @@ curl -X POST https://verify.twilio.com/v2/Services \
 ### Adding a factor
 * Press Create factor in the factor list (main view)
 * Enter the entity identity to use. This value should be an UUID that identifies the user to prevent PII information use
+* Enter the enrollment URL (Enrollment JWE generation URL, including the path)
 * Press Create factor
 * Copy the factor Sid
 

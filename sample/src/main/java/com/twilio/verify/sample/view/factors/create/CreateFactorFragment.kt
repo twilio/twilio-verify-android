@@ -14,7 +14,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.iid.FirebaseInstanceId
 import com.twilio.verify.models.Factor
-import com.twilio.verify.sample.BuildConfig
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.view.showError
@@ -24,6 +23,7 @@ import kotlinx.android.synthetic.main.fragment_create_factor.content
 import kotlinx.android.synthetic.main.fragment_create_factor.createFactor
 import kotlinx.android.synthetic.main.fragment_create_factor.enrollmentUrlInput
 import kotlinx.android.synthetic.main.fragment_create_factor.identityInput
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CreateFactorFragment : Fragment() {
@@ -44,7 +44,6 @@ class CreateFactorFragment : Fragment() {
     createFactor.setOnClickListener {
       startCreateFactor()
     }
-    enrollmentUrlInput.setText(BuildConfig.ENROLLMENT_URL)
     getPushToken()
     factorViewModel.getFactor()
         .observe(viewLifecycleOwner, Observer {
@@ -78,19 +77,25 @@ class CreateFactorFragment : Fragment() {
           .isEmpty() -> IllegalArgumentException("Invalid entity identity").showError(
           content
       )
+      enrollmentUrlInput.text.toString()
+          .isEmpty() || enrollmentUrlInput.text.toString()
+          .toHttpUrlOrNull() == null -> IllegalArgumentException(
+          "Invalid enrollment url"
+      ).showError(
+          content
+      )
       else -> {
-        createFactor(identityInput.text.toString())
+        createFactor(identityInput.text.toString(), enrollmentUrlInput.text.toString())
       }
     }
   }
 
   private fun createFactor(
-    identity: String
+    identity: String,
+    enrollmentUrl: String
   ) {
     createFactor.isEnabled = false
-    val createFactorData = CreateFactorData(
-        identity, "$identity's factor", token
-    )
+    val createFactorData = CreateFactorData(identity, "$identity's factor", token, enrollmentUrl)
     factorViewModel.createFactor(createFactorData)
   }
 

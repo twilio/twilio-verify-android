@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.twilio.verify.models.Factor
 import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
+import com.twilio.verify.sample.networking.backendAPIClient
 
 class FactorViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : ViewModel() {
   private val factor: MutableLiveData<FactorResult> = MutableLiveData()
@@ -27,7 +28,8 @@ class FactorViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : Vi
   }
 
   fun createFactor(createFactorData: CreateFactorData) {
-    twilioVerifyAdapter.createFactor(createFactorData, {
+    twilioVerifyAdapter.createFactor(
+        createFactorData, backendAPIClient(createFactorData.enrollmentUrl), {
       factor.value = Factor(it)
     }, {
       factor.value = FactorError(it)

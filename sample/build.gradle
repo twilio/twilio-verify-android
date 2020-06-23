@@ -27,10 +27,6 @@ android {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
       signingConfig signingConfigs.release
-      buildConfigField "String", 'ENROLLMENT_URL', "\"Your Enrollment JWE generation url\""
-    }
-    debug {
-      buildConfigField "String", 'ENROLLMENT_URL', "\"Your Enrollment JWE generation url\""
     }
   }
   compileOptions {
