@@ -22,17 +22,20 @@ import org.json.JSONObject
  */
 internal const val SERVICE_SID_PATH = "{ServiceSid}"
 internal const val FACTOR_SID_PATH = "{FactorSid}"
+internal const val IDENTITY_PATH = "{Identity}"
 
 internal const val AUTH_PAYLOAD_PARAM = "AuthPayload"
 
-internal const val CREATE_FACTOR_URL = "Services/$SERVICE_SID_PATH/Factors"
-internal const val VERIFY_FACTOR_URL = "Services/$SERVICE_SID_PATH/Factors/$FACTOR_SID_PATH"
-internal const val UPDATE_FACTOR_URL = "Services/$SERVICE_SID_PATH/Factors/$FACTOR_SID_PATH"
-internal const val DELETE_FACTOR_URL = "Services/$SERVICE_SID_PATH/Factors/$FACTOR_SID_PATH"
+internal const val CREATE_FACTOR_URL = "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Factors"
+internal const val VERIFY_FACTOR_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Factors/$FACTOR_SID_PATH"
+internal const val UPDATE_FACTOR_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Factors/$FACTOR_SID_PATH"
+internal const val DELETE_FACTOR_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Factors/$FACTOR_SID_PATH"
 
 internal const val FRIENDLY_NAME_KEY = "FriendlyName"
 internal const val FACTOR_TYPE_KEY = "FactorType"
-internal const val IDENTITY_KEY = "Identity"
 internal const val BINDING_KEY = "Binding"
 internal const val CONFIG_KEY = "Config"
 internal const val AUTHENTICATION_USER = "token"
@@ -163,19 +166,23 @@ internal class FactorAPIClient(
 
   private fun createFactorURL(createFactorPayload: CreateFactorPayload): String =
     "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, createFactorPayload.serviceSid, true)
+        .replace(IDENTITY_PATH, createFactorPayload.entity)
 
   private fun verifyFactorURL(factor: Factor): String =
     "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+        .replace(IDENTITY_PATH, factor.entityIdentity)
         .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun deleteFactorURL(factor: Factor): String =
     "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+        .replace(IDENTITY_PATH, factor.entityIdentity)
         .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun updateFactorURL(
     factor: Factor
   ): String =
     "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+        .replace(IDENTITY_PATH, factor.entityIdentity)
         .replace(
             FACTOR_SID_PATH, factor.sid
         )
@@ -186,7 +193,6 @@ internal class FactorAPIClient(
     mapOf(
         FRIENDLY_NAME_KEY to createFactorPayload.friendlyName,
         FACTOR_TYPE_KEY to createFactorPayload.type.factorTypeName,
-        IDENTITY_KEY to createFactorPayload.entity,
         BINDING_KEY to JSONObject(createFactorPayload.binding).toString(),
         CONFIG_KEY to JSONObject(createFactorPayload.config).toString()
     )

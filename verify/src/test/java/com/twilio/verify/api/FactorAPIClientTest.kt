@@ -1,7 +1,6 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -127,6 +126,9 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val entity = "entityId"
     val expectedURL = "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSid, true)
+        .replace(
+            IDENTITY_PATH, entity
+        )
     val friendlyNameMock = "Test"
     val factorTypeMock = PUSH
     val pushToken = "ABCD"
@@ -140,7 +142,6 @@ class FactorAPIClientTest {
     )
     val expectedBody = mapOf(
         FRIENDLY_NAME_KEY to friendlyNameMock, FACTOR_TYPE_KEY to factorTypeMock.factorTypeName,
-        IDENTITY_KEY to entity,
         BINDING_KEY to JSONObject(binding).toString(),
         CONFIG_KEY to JSONObject(config).toString()
     )
@@ -244,8 +245,8 @@ class FactorAPIClientTest {
     val entityIdentityMock = "entityIdentity"
     val authPayloadMock = "authPayload"
     val expectedURL = "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
+        .replace(IDENTITY_PATH, entityIdentityMock)
         .replace(FACTOR_SID_PATH, sidMock)
-
     val expectedBody =
       mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
     val factor =
@@ -351,6 +352,7 @@ class FactorAPIClientTest {
     val pushToken = "ABCD"
     val factorTypeMock = PUSH
     val expectedURL = "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
+        .replace(IDENTITY_PATH, entityIdentityMock)
         .replace(FACTOR_SID_PATH, sidMock)
 
     val config = mapOf(
@@ -406,6 +408,7 @@ class FactorAPIClientTest {
       )
     val expectedURL =
       "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+          .replace(IDENTITY_PATH, identity)
           .replace(FACTOR_SID_PATH, factor.sid)
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {

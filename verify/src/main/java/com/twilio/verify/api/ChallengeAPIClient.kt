@@ -24,9 +24,12 @@ internal const val statusParameter = "Status"
 internal const val pageSizeParameter = "PageSize"
 internal const val pageTokenParameter = "PageToken"
 internal const val signatureFieldsHeader = "Twilio-Verify-Signature-Fields"
-internal const val updateChallengeURL = "Services/$SERVICE_SID_PATH/Challenges/$challengeSidPath"
-internal const val getChallengeURL = "Services/$SERVICE_SID_PATH/Challenges/$challengeSidPath"
-internal const val getChallengesURL = "Services/$SERVICE_SID_PATH/Challenges"
+internal const val updateChallengeURL =
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges/$challengeSidPath"
+internal const val getChallengeURL =
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges/$challengeSidPath"
+internal const val getChallengesURL =
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges"
 
 internal const val FACTOR_SID_KEY = "FactorSid"
 
@@ -148,6 +151,7 @@ internal class ChallengeAPIClient(
   private fun updateChallengeURL(challenge: FactorChallenge) =
     challenge.factor?.let { factor ->
       "$baseUrl$updateChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+          .replace(IDENTITY_PATH, factor.entityIdentity)
           .replace(challengeSidPath, challenge.sid)
     } ?: run {
       throw IllegalArgumentException("ServiceSid or EntityIdentity is null or empty")
@@ -166,9 +170,11 @@ internal class ChallengeAPIClient(
     challengeSid: String,
     factor: Factor
   ) = "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+      .replace(IDENTITY_PATH, factor.entityIdentity)
       .replace(challengeSidPath, challengeSid)
 
   private fun getChallengesURL(
     factor: Factor
   ) = "$baseUrl$getChallengesURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+      .replace(IDENTITY_PATH, factor.entityIdentity)
 }

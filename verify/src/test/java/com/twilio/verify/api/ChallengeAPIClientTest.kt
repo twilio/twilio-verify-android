@@ -147,6 +147,7 @@ class ChallengeAPIClientTest {
       "$baseUrl$updateChallengeURL".replace(
           SERVICE_SID_PATH, factorChallenge.factor!!.serviceSid, true
       )
+          .replace(IDENTITY_PATH, factorChallenge.factor!!.entityIdentity)
           .replace(challengeSidPath, factorChallenge.sid)
 
     val authPayload = "authPayload"
@@ -249,6 +250,7 @@ class ChallengeAPIClientTest {
     val factor = factorChallenge.factor!!
     val expectedURL =
       "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+          .replace(IDENTITY_PATH, factor.entityIdentity)
           .replace(challengeSidPath, challengeSid)
     val expectedFullURL = Uri.parse(expectedURL)
         .buildUpon()
