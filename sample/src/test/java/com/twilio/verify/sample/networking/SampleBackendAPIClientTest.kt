@@ -1,19 +1,13 @@
 package com.twilio.verify.sample.networking
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Response
-import okhttp3.ResponseBody
+import com.twilio.verify.sample.IdlingResource
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -24,125 +18,88 @@ import java.io.IOException
  */
 @RunWith(RobolectricTestRunner::class)
 class SampleBackendAPIClientTest {
-  private val okHttpClient: OkHttpClient = mock()
-  private val sampleBackendAPIClient = SampleBackendAPIClient(okHttpClient, "https://twilio.com")
+  private lateinit var mockWebServer: MockWebServer
+  private lateinit var sampleBackendAPIClient: SampleBackendAPIClient
+  private val idlingResource = IdlingResource()
+  private lateinit var url: String
+
+  @Before
+  fun before() {
+    mockWebServer = MockWebServer()
+    mockWebServer.start()
+    url = mockWebServer.url("/enroll")
+        .toString()
+    sampleBackendAPIClient = backendAPIClient(url)
+  }
 
   @Test
   fun `Enrollment with success response should return enrollment response`() {
-    runBlocking {
-      val identity = "identity"
-      val call: Call = mock()
-      val tokenValue = "jweToken"
-      val serviceSidValue = "serviceSidValue"
-      val factorTypeValue = "push"
-      val identityValue = "identityValue"
-      val bodyJson = JSONObject().apply {
-        put("token", tokenValue)
-        put("serviceSid", serviceSidValue)
-        put("factorType", factorTypeValue)
-        put("identity", identityValue)
-      }
-      val responseBody: ResponseBody = mock() {
-        on { string() } doReturn bodyJson.toString()
-      }
-      val response = Response.Builder()
-          .body(responseBody)
-          .message("message")
-          .code(200)
-          .protocol(mock())
-          .request(mock())
-          .build()
-      whenever(okHttpClient.newCall(any())).thenReturn(call)
-      argumentCaptor<(Callback)>().apply {
-        whenever(call.enqueue(capture())).then {
-          lastValue.onResponse(call, response)
-        }
-      }
-      val enrollmentResponse = sampleBackendAPIClient.enrollment(identity, Dispatchers.Unconfined)
+    val identity = "identity"
+    val tokenValue = "jweToken"
+    val serviceSidValue = "serviceSidValue"
+    val factorTypeValue = "push"
+    val identityValue = "identityValue"
+    val bodyJson = JSONObject().apply {
+      put("token", tokenValue)
+      put("serviceSid", serviceSidValue)
+      put("factorType", factorTypeValue)
+      put("identity", identityValue)
+    }
+    val mockResponse = MockResponse().setResponseCode(200)
+        .setBody(bodyJson.toString())
+    mockWebServer.enqueue(mockResponse)
+    idlingResource.startOperation()
+    sampleBackendAPIClient.getEnrollmentResponse(identity, url, { enrollmentResponse ->
       assertEquals(tokenValue, enrollmentResponse.token)
       assertEquals(serviceSidValue, enrollmentResponse.serviceSid)
-      assertEquals(factorTypeValue, enrollmentResponse.factorType.factorTypeName)
+      assertEquals(factorTypeValue, enrollmentResponse.factorType)
       assertEquals(identityValue, enrollmentResponse.identity)
-    }
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
   }
 
-  @Test(expected = IllegalArgumentException::class)
-  fun `Enrollment with success response but with invalid factorType should throw exception`() {
-    runBlocking {
-      val identity = "identity"
-      val call: Call = mock()
-      val tokenValue = "jweToken"
-      val serviceSidValue = "serviceSidValue"
-      val factorTypeValue = "whatever"
-      val identityValue = "identityValue"
-      val bodyJson = JSONObject().apply {
-        put("token", tokenValue)
-        put("serviceSid", serviceSidValue)
-        put("factorType", factorTypeValue)
-        put("identity", identityValue)
-      }
-      val responseBody: ResponseBody = mock() {
-        on { string() } doReturn bodyJson.toString()
-      }
-      val response = Response.Builder()
-          .body(responseBody)
-          .message("message")
-          .code(200)
-          .protocol(mock())
-          .request(mock())
-          .build()
-      whenever(okHttpClient.newCall(any())).thenReturn(call)
-      argumentCaptor<(Callback)>().apply {
-        whenever(call.enqueue(capture())).then {
-          lastValue.onResponse(call, response)
-        }
-      }
-      sampleBackendAPIClient.enrollment(identity, Dispatchers.Unconfined)
-    }
-  }
-
-  @Test(expected = Exception::class)
-  fun `Enrollment with fail response should throw exception`() {
-    runBlocking {
-      val identity = "identity"
-      val call: Call = mock()
-      val expectedException: IOException = mock()
-      whenever(okHttpClient.newCall(any())).thenReturn(call)
-      argumentCaptor<(Callback)>().apply {
-        whenever(call.enqueue(capture())).then {
-          lastValue.onFailure(call, expectedException)
-        }
-      }
-      sampleBackendAPIClient.enrollment(identity, Dispatchers.Unconfined)
-    }
-  }
-
-  @Test(expected = IOException::class)
+  @Test
   fun `Enrollment with success response but with invalid response code should return throw exception`() {
-    runBlocking {
-      val identity = "identity"
-      val call: Call = mock()
-      val tokenValue = "jweToken"
-      val bodyJson = JSONObject().apply {
-        put("token", tokenValue)
-      }
-      val responseBody: ResponseBody = mock() {
-        on { string() } doReturn bodyJson.toString()
-      }
-      val response = Response.Builder()
-          .body(responseBody)
-          .message("message")
-          .code(400)
-          .protocol(mock())
-          .request(mock())
-          .build()
-      whenever(okHttpClient.newCall(any())).thenReturn(call)
-      argumentCaptor<(Callback)>().apply {
-        whenever(call.enqueue(capture())).then {
-          lastValue.onResponse(call, response)
-        }
-      }
-      sampleBackendAPIClient.enrollment(identity, Dispatchers.Unconfined)
+    val identity = "identity"
+    val bodyJson = JSONObject().apply {
+      put("field", "value")
     }
+    val mockResponse = MockResponse().setResponseCode(200)
+        .setBody(bodyJson.toString())
+    mockWebServer.enqueue(mockResponse)
+    idlingResource.startOperation()
+    sampleBackendAPIClient.getEnrollmentResponse(identity, url, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception is IOException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Enrollment with error response should return throw exception`() {
+    val identity = "identity"
+    val bodyJson = JSONObject().apply {
+      put("error", "25000")
+      put("message", "Error")
+    }
+    val mockResponse = MockResponse().setResponseCode(500)
+        .setBody(bodyJson.toString())
+    mockWebServer.enqueue(mockResponse)
+    idlingResource.startOperation()
+    sampleBackendAPIClient.getEnrollmentResponse(identity, url, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception is IOException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
   }
 }

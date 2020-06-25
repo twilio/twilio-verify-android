@@ -10,5 +10,10 @@ data class EnrollmentResponse(
   val token: String,
   val serviceSid: String,
   val identity: String,
-  val factorType: FactorType
+  val factorType: String
+)
+
+fun EnrollmentResponse.getFactorType(): FactorType = FactorType.values()
+    .associateBy(FactorType::factorTypeName)[factorType] ?: throw IllegalArgumentException(
+    "Invalid response"
 )

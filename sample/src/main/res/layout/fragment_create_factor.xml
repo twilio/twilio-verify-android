@@ -47,7 +47,6 @@
         android:id="@+id/enrollmentUrlInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:enabled="false"
         />
   </com.google.android.material.textfield.TextInputLayout>
 

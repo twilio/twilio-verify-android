@@ -49,7 +49,7 @@ None
 ### Add library
 In the build.gradle file, add the library
 
-```implementation 'com.twilio:twilio-verify-android:0.0.1'```
+```implementation 'com.twilio:twilio-verify-android:(insert latest version)'```
 
 ### Add firebase configuration
 If you want to receive challenges as push notifications, you should add a firebase configuration to your project
@@ -62,216 +62,7 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 
 ## Usage
 
-### Flow
-
-![Verify Push Flow](diagrams/Flow/Flow.png)
-
-### Get a TwilioVerify instance
-
-#### Kotlin
-```Kotlin
-val twilioVerify = TwilioVerify.Builder(applicationContext).build()
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/kotlin/TwilioVerifyKotlinAdapter.kt#L36)
-
-#### Java
-```Java
-TwilioVerify twilioVerify = new TwilioVerify.Builder(applicationContext).build();
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaProvider.java#L26)
-
-### Create a factor
-
-#### Kotlin
-```Kotlin
-val factorInput = PushFactorInput(factorName, serviceSid, entityIdentity, pushToken, enrollmentJwe)
-twilioVerify.createFactor(factorInput, { factor ->
-  // Success
-}, { exception ->
-  // Error
-})
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/kotlin/TwilioVerifyKotlinAdapter.kt#L121)
-
-#### Java
-```Java
-FactorInput factorInput = new PushFactorInput(factorName, serviceSid, entityIdentity, pushToken, enrollmentJwe);
-twilioVerify.createFactor(factorInput,
-  new Function1<Factor, Unit>() {
-    @Override public Unit invoke(Factor factor) {
-      // Success
-      return Unit.INSTANCE;
-    }
-  }, 
-  new Function1<TwilioVerifyException, Unit>() {
-    @Override public Unit invoke(TwilioVerifyException error) {
-      // Error
-      return Unit.INSTANCE;
-    }
-  });
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L89)
-
-### Verify a factor
-
-#### Kotlin
-```Kotlin
-val verifyFactorInput = VerifyPushFactorInput(factorSid)
-twilioVerify.verifyFactor(verifyFactorInput, { factor ->
-  // Success
-}, { exception ->
-  // Error
-})
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/kotlin/TwilioVerifyKotlinAdapter.kt#L114)
-
-#### Java
-```Java
-VerifyFactorInput verifyFactorInput = new VerifyPushFactorInput(factorSid);
-twilioVerify.verifyFactor(verifyFactorInput,
-  new Function1<Factor, Unit>() {
-    @Override public Unit invoke(Factor factor) {
-      // Success
-      return Unit.INSTANCE;
-    }
-  }, 
-  new Function1<TwilioVerifyException, Unit>() {
-    @Override public Unit invoke(TwilioVerifyException error) {
-      // Error
-      return Unit.INSTANCE;
-    }
-  });
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L57)
-
-### Get a challenge
-
-#### Kotlin
-```Kotlin
-twilioVerify.getChallenge(challengeSid, factorSid, { challenge ->
-  // Success
-}, { exception ->
-  // Error
-})
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/viewmodel/ChallengeViewModel.kt#L21)
-
-#### Java
-```Java
-twilioVerify.getChallenge(challengeSid, factorSid,
-  new Function1<Challenge, Unit>() {
-    @Override public Unit invoke(Challenge challenge) {
-      // Success
-      return Unit.INSTANCE;
-    }
-  }, 
-  new Function1<TwilioVerifyException, Unit>() {
-    @Override public Unit invoke(TwilioVerifyException error) {
-      // Error
-      return Unit.INSTANCE;
-    }
-  });
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L74)
-
-### Update a challenge
-
-#### Kotlin
-```Kotlin
-val updateChallengeInput =  UpdatePushChallengeInput(factorSid, challengeSid, newStatus)
-twilioVerify.updateChallenge(updateChallengeInput, {
-  // Success
-}, { exception ->
-  // Error
-})
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/viewmodel/ChallengeViewModel.kt#L36)
-
-#### Java
-```Java
-UpdateChallengeInput updateChallengeInput =  new UpdatePushChallengeInput(factorSid, challengeSid, newStatus);
-twilioVerify.updateChallenge(challengeSid, factorSid,
-  new Function0<Unit>() {
-    @Override
-    public Unit invoke() {
-      // Success
-      return Unit.INSTANCE;
-    }
-  }, 
-  new Function1<TwilioVerifyException, Unit>() {
-    @Override public Unit invoke(TwilioVerifyException error) {
-      // Error
-      return Unit.INSTANCE;
-    }
-  });
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L63)
-
-### Get challenges
-
-#### Kotlin
-```Kotlin
-val challengeListInput = ChallengeListInput(factorSid, pageSize, status, pageToken)
-twilioVerify.getAllChallenges(challengeListInput, { challenges ->
-  // Success
-}, { exception ->
-  // Error
-})
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/viewmodel/ChallengesViewModel.kt#L19)
-
-#### Java
-```Java
-ChallengeListInput challengeListInput = new ChallengeListInput(factorSid, pageSize, status, pageToken);
-twilioVerify.getAllChallenges(challengeListInput, 
-  new Function1<ChallengeList, Unit>() {
-    @Override public Unit invoke(ChallengeList challengeList) {
-      // Success
-      return Unit.INSTANCE;
-    }
-  }, 
-  new Function1<TwilioVerifyException, Unit>() {
-    @Override public Unit invoke(TwilioVerifyException error) {
-      // Error
-      return Unit.INSTANCE;
-    }
-  });
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L136)
-
-### Update a factor
-
-If the push token changes, you should update the factors to use the new push token
-
-#### Kotlin
-```Kotlin
-val updateFactorInput = UpdatePushFactorInput(factorSid, newPushToken)
-twilioVerify.updateFactor(updateFactorInput, { factor ->
-  // Success
-}, { exception ->
-  // Error
-})
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/kotlin/TwilioVerifyKotlinAdapter.kt#L105)
-
-#### Java
-```Java
-UpdateFactorInput updateFactorInput = UpdatePushFactorInput(factorSid, newPushToken);
-twilioVerify.updateFactor(updateFactorInput,
-  new Function1<Factor, Unit>() {
-    @Override public Unit invoke(Factor factor) {
-      // Success
-      return Unit.INSTANCE;
-    }
-  }, 
-  new Function1<TwilioVerifyException, Unit>() {
-    @Override public Unit invoke(TwilioVerifyException error) {
-      // Error
-      return Unit.INSTANCE;
-    }
-  });
-```
-[Full source](sample/src/main/java/com/twilio/verify/sample/java/TwilioVerifyJavaAdapter.java#L151)
+See the [product website](https://www.twilio.com/docs/admin/pages/21017/edit/preview/) for documentation
 
 <a name='SampleApp'></a>
 
@@ -280,8 +71,7 @@ twilioVerify.updateFactor(updateFactorInput,
 ### To run the Sample App:
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
-* Get the Enrollment JWE generation URL from your backend [(Running the Sample backend)](#SampleBackend)
-* Replace the `ENROLLMENT_URL` (Enrollment JWE generation URL, including the path) in the sample's build.gradle file for [release build type](sample/build.gradle#L30)
+* Get the Enrollment JWE generation URL from your backend [(Running the Sample backend)](#SampleBackend). You will use it for creating a factor
 * Run the `sample` module using `release` as build variant
 
 <a name='FirebaseConfiguration'></a>
@@ -335,6 +125,7 @@ curl -X POST https://verify.twilio.com/v2/Services \
 ### Adding a factor
 * Press Create factor in the factor list (main view)
 * Enter the entity identity to use. This value should be an UUID that identifies the user to prevent PII information use
+* Enter the enrollment URL (Enrollment JWE generation URL, including the path)
 * Press Create factor
 * Copy the factor Sid
 
