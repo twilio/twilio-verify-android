@@ -20,6 +20,7 @@ import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.models.VerifyPushFactorInput
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.threading.execute
 
 internal class FactorFacade(
   private val pushFactory: PushFactory,
@@ -30,12 +31,14 @@ internal class FactorFacade(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    when (factorInput) {
-      is PushFactorInput -> {
-        pushFactory.create(
-            factorInput.enrollmentJwe, factorInput.friendlyName, factorInput.pushToken,
-            factorInput.serviceSid, factorInput.identity, success, error
-        )
+    execute(success, error) { onSuccess, onError ->
+      when (factorInput) {
+        is PushFactorInput -> {
+          pushFactory.create(
+              factorInput.enrollmentJwe, factorInput.friendlyName, factorInput.pushToken,
+              factorInput.serviceSid, factorInput.identity, onSuccess, onError
+          )
+        }
       }
     }
   }
@@ -45,11 +48,13 @@ internal class FactorFacade(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    when (verifyFactorInput) {
-      is VerifyPushFactorInput -> {
-        pushFactory.verify(
-            verifyFactorInput.sid, success, error
-        )
+    execute(success, error) { onSuccess, onError ->
+      when (verifyFactorInput) {
+        is VerifyPushFactorInput -> {
+          pushFactory.verify(
+              verifyFactorInput.sid, onSuccess, onError
+          )
+        }
       }
     }
   }
@@ -59,9 +64,11 @@ internal class FactorFacade(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    when (updateFactorInput) {
-      is UpdatePushFactorInput -> {
-        pushFactory.update(updateFactorInput.sid, updateFactorInput.pushToken, success, error)
+    execute(success, error) { onSuccess, onError ->
+      when (updateFactorInput) {
+        is UpdatePushFactorInput -> {
+          pushFactory.update(updateFactorInput.sid, updateFactorInput.pushToken, onSuccess, onError)
+        }
       }
     }
   }
@@ -113,10 +120,12 @@ internal class FactorFacade(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      pushFactory.delete(factorSid, success, error)
-    } catch (e: TwilioVerifyException) {
-      error(e)
+    execute(success, error) { onSuccess, onError ->
+      try {
+        pushFactory.delete(factorSid, onSuccess, onError)
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      }
     }
   }
 
