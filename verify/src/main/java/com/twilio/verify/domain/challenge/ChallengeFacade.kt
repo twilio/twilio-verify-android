@@ -31,11 +31,13 @@ internal class ChallengeFacade(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(factorSid, { factor ->
-      when (factor) {
-        is PushFactor -> pushChallengeProcessor.get(sid, factor, success, error)
-      }
-    }, error)
+    execute(success, error) { onSuccess, onError ->
+      factorFacade.getFactor(factorSid, { factor ->
+        when (factor) {
+          is PushFactor -> pushChallengeProcessor.get(sid, factor, onSuccess, onError)
+        }
+      }, onError)
+    }
   }
 
   fun updateChallenge(
@@ -43,11 +45,13 @@ internal class ChallengeFacade(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(updateChallengeInput.factorSid, { factor ->
-      when (factor) {
-        is PushFactor -> updatePushChallenge(updateChallengeInput, factor, success, error)
-      }
-    }, error)
+    execute(success, error) { onSuccess, onError ->
+      factorFacade.getFactor(updateChallengeInput.factorSid, { factor ->
+        when (factor) {
+          is PushFactor -> updatePushChallenge(updateChallengeInput, factor, onSuccess, onError)
+        }
+      }, onError)
+    }
   }
 
   fun getAllChallenges(
