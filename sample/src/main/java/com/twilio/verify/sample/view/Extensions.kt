@@ -13,9 +13,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.Service
 
-fun Exception.showError(
+fun Throwable.showError(
   content: View
 ) {
   printStackTrace()

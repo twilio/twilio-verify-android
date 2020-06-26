@@ -5,7 +5,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
-import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -27,8 +26,6 @@ import com.twilio.verify.sample.model.EnrollmentResponse
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
 import com.twilio.verify.sample.push.NewChallenge
 import com.twilio.verify.sample.push.VerifyEventBus
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -36,6 +33,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -54,93 +54,111 @@ class TwilioVerifyKotlinAdapterTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
     twilioVerifyAdapter =
       TwilioVerifyKotlinAdapter(
-          applicationContext = context, twilioVerify = twilioVerify,
-          sampleBackendAPIClient = sampleBackendAPIClient, mainDispatcher = Dispatchers.Unconfined,
-          dispatcher = Dispatchers.Unconfined, verifyEventBus = verifyEventBus
+          applicationContext = context, twilioVerify = twilioVerify, verifyEventBus = verifyEventBus
       )
   }
 
   @Test
   fun `Create factor with invalid JWE should return exception`() {
-    runBlocking {
-      val expectedException: Exception = mock()
-      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
-      doAnswer { throw expectedException }
-          .whenever(sampleBackendAPIClient)
-          .enrollment(createFactorData.identity)
-      idlingResource.startOperation()
-      twilioVerifyAdapter.createFactor(createFactorData, {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(expectedException, exception)
-        idlingResource.operationFinished()
-      })
-      idlingResource.waitForIdle()
+    val expectedException: RuntimeException = mock()
+    val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
+    val mockCall: Call<EnrollmentResponse> = mock {
+      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+        on { enqueue(capture()) }.thenThrow(expectedException)
+      }
     }
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+        mockCall
+    )
+    idlingResource.startOperation()
+    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
   }
 
   @Test
   fun `Create factor with an error should return exception`() {
-    runBlocking {
-      val expectedException: TwilioVerifyException = mock()
-      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
-      whenever(
-          sampleBackendAPIClient.enrollment(createFactorData.identity)
-      ).thenReturn(EnrollmentResponse("jwe", "serviceSid", "identity", PUSH))
-      argumentCaptor<(Exception) -> Unit>().apply {
-        whenever(twilioVerify.createFactor(any(), any(), capture())).then {
-          firstValue.invoke(expectedException)
+    val expectedException: TwilioVerifyException = mock()
+    val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
+    val mockCall: Call<EnrollmentResponse> = mock { mockCall ->
+      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+        on { enqueue(capture()) }.then {
+          firstValue.onResponse(
+              mockCall, Response.success(
+              EnrollmentResponse("jwe", "serviceSid", "identity", PUSH.factorTypeName)
+          )
+          )
         }
       }
-      idlingResource.startOperation()
-      twilioVerifyAdapter.createFactor(createFactorData, {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(expectedException, exception)
-        idlingResource.operationFinished()
-      })
-      idlingResource.waitForIdle()
     }
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+        mockCall
+    )
+    argumentCaptor<(Exception) -> Unit>().apply {
+      whenever(twilioVerify.createFactor(any(), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
   }
 
   @Test
   fun `Create factor with valid JWE and Push type should return factor verified`() {
-    runBlocking {
-      val expectedFactor: Factor = mock() {
-        on { type } doReturn PUSH
-        on { sid } doReturn "factorSid"
-      }
-      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
-      whenever(
-          sampleBackendAPIClient.enrollment(createFactorData.identity)
-      ).thenReturn(EnrollmentResponse("jwe", "serviceSid", "identity", PUSH))
-
-      argumentCaptor<(Factor) -> Unit>().apply {
-        whenever(twilioVerify.createFactor(any(), capture(), any())).then {
-          firstValue.invoke(expectedFactor)
-        }
-      }
-      val expectedVerifiedFactor: Factor = mock() {
-        on { status } doReturn Verified
-      }
-      argumentCaptor<(Factor) -> Unit>().apply {
-        whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
-          firstValue.invoke(expectedVerifiedFactor)
-        }
-      }
-      idlingResource.startOperation()
-      twilioVerifyAdapter.createFactor(createFactorData, { factor ->
-        assertEquals(expectedVerifiedFactor, factor)
-        assertEquals(expectedVerifiedFactor.status, Verified)
-        idlingResource.operationFinished()
-      }, {
-        fail()
-        idlingResource.operationFinished()
-      })
-      idlingResource.waitForIdle()
+    val expectedFactor: Factor = mock() {
+      on { type } doReturn PUSH
+      on { sid } doReturn "factorSid"
     }
+    val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
+    val mockCall: Call<EnrollmentResponse> = mock { mockCall ->
+      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+        on { enqueue(capture()) }.then {
+          firstValue.onResponse(
+              mockCall, Response.success(
+              EnrollmentResponse("jwe", "serviceSid", "identity", PUSH.factorTypeName)
+          )
+          )
+        }
+      }
+    }
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+        mockCall
+    )
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(twilioVerify.createFactor(any(), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+    val expectedVerifiedFactor: Factor = mock() {
+      on { status } doReturn Verified
+    }
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
+        firstValue.invoke(expectedVerifiedFactor)
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, { factor ->
+      assertEquals(expectedVerifiedFactor, factor)
+      assertEquals(expectedVerifiedFactor.status, Verified)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
   }
 
   @Test

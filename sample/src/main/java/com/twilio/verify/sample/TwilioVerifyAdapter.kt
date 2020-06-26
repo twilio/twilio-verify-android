@@ -8,16 +8,17 @@ import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListInput
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.Service
 import com.twilio.verify.models.UpdateChallengeInput
 import com.twilio.verify.models.VerifyFactorInput
 import com.twilio.verify.sample.model.CreateFactorData
+import com.twilio.verify.sample.networking.SampleBackendAPIClient
 
 interface TwilioVerifyAdapter {
   fun createFactor(
     createFactorData: CreateFactorData,
+    sampleBackendAPIClient: SampleBackendAPIClient,
     success: (Factor) -> Unit,
-    error: (Exception) -> Unit
+    error: (Throwable) -> Unit
   )
 
   fun verifyFactor(

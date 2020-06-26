@@ -1,92 +1,75 @@
-package com.twilio.verify.sample.networking
-
-import com.twilio.verify.models.FactorType
-import com.twilio.verify.sample.BuildConfig
-import com.twilio.verify.sample.model.EnrollmentResponse
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.FormBody.Builder
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import org.json.JSONObject
-import java.io.IOException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-class SampleBackendAPIClient(
-  private val okHttpClient: OkHttpClient,
-  private val url: String = BuildConfig.ENROLLMENT_URL
-) {
+package com.twilio.verify.sample.networking
 
+import com.twilio.verify.sample.model.EnrollmentResponse
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.POST
+import retrofit2.http.Url
+import java.io.IOException
+
+interface SampleBackendAPIClient {
+  @POST @FormUrlEncoded
   fun enrollment(
-    identity: String,
-    onSuccess: (EnrollmentResponse) -> Unit,
-    onError: (Exception) -> Unit
-  ) {
-    CoroutineScope(Dispatchers.Main).launch {
+    @Field("identity") identity: String,
+    @Url url: String
+  ): Call<EnrollmentResponse>?
+}
+
+@JvmOverloads fun backendAPIClient(
+  enrollmentUrl: String,
+  okHttpClient: OkHttpClient = OkHttpClient()
+): SampleBackendAPIClient {
+  val url = enrollmentUrl.toHttpUrl()
+  val retrofit = Retrofit.Builder()
+      .baseUrl("${url.scheme}://${url.host}")
+      .addConverterFactory(GsonConverterFactory.create())
+      .client(okHttpClient)
+      .build()
+  return retrofit.create(SampleBackendAPIClient::class.java)
+}
+
+fun SampleBackendAPIClient.getEnrollmentResponse(
+  identity: String,
+  enrollmentUrl: String,
+  success: (EnrollmentResponse) -> Unit,
+  error: (Throwable) -> Unit
+) {
+  val call = enrollment(identity, enrollmentUrl)
+  call?.enqueue(object : retrofit2.Callback<EnrollmentResponse> {
+    override fun onFailure(
+      call: Call<EnrollmentResponse>,
+      t: Throwable
+    ) {
+      error(t)
+    }
+
+    override fun onResponse(
+      call: Call<EnrollmentResponse>,
+      response: Response<EnrollmentResponse>
+    ) {
       try {
-        val enrollmentResponse = enrollment(identity)
-        onSuccess(enrollmentResponse)
+        val enrollmentResponse =
+          response.body()
+              ?.takeIf {
+                !it.token.isNullOrBlank() && !it.factorType.isNullOrBlank()
+                    && !it.identity.isNullOrBlank() && !it.serviceSid.isNullOrBlank()
+              } ?: throw IOException(
+              response.errorBody()
+                  ?.string() ?: "Invalid response"
+          )
+        success(enrollmentResponse)
       } catch (e: Exception) {
-        onError(e)
+        error(e)
       }
     }
-  }
-
-  suspend fun enrollment(
-    identity: String,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
-  ): EnrollmentResponse = withContext(dispatcher) {
-    return@withContext suspendCancellableCoroutine<EnrollmentResponse> { cont ->
-      val request = Request.Builder()
-          .url(url)
-          .post(
-              Builder().add("identity", identity)
-                  .build()
-          )
-          .build()
-      okHttpClient.newCall(request)
-          .enqueue(object : Callback {
-            override fun onFailure(
-              call: Call,
-              e: IOException
-            ) {
-              cont.resumeWithException(e)
-            }
-
-            override fun onResponse(
-              call: Call,
-              response: Response
-            ) {
-              response.takeIf { it.isSuccessful }
-                  ?.body?.string()
-                  ?.let { cont.resume(toEnrollmentResponse(JSONObject(it))) }
-                  ?: cont.resumeWithException(IOException("Invalid response: ${response.code}"))
-            }
-          })
-    }
-  }
-
-  private fun toEnrollmentResponse(jsonResponse: JSONObject): EnrollmentResponse {
-    val token = jsonResponse.getString("token")
-    val serviceSid = jsonResponse.getString("serviceSid")
-    val identity = jsonResponse.getString("identity")
-    val factorType = jsonResponse.getString("factorType")
-    return EnrollmentResponse(
-        token, serviceSid, identity,
-        FactorType.values()
-            .associateBy(FactorType::factorTypeName)[factorType]
-            ?: throw IllegalArgumentException("Invalid response")
-    )
-  }
+  })
 }

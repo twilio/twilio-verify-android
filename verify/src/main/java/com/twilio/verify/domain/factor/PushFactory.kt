@@ -15,7 +15,6 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.PUSH
-import com.twilio.verify.threading.execute
 
 internal const val PUBLIC_KEY_KEY = "public_key"
 internal const val FCM_PUSH_TYPE = "fcm"
@@ -40,44 +39,42 @@ internal class PushFactory(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    execute(success, error) { onSuccess, onError ->
-      try {
-        val alias = generateKeyPairAlias()
-        val publicKey = keyStorage.create(alias)
-        val binding = binding(publicKey)
-        val config = config(pushToken)
-        val factorBuilder = CreateFactorPayload(
-            friendlyName, PUSH, serviceSid,
-            identity, config, binding, jwe
-        )
+    try {
+      val alias = generateKeyPairAlias()
+      val publicKey = keyStorage.create(alias)
+      val binding = binding(publicKey)
+      val config = config(pushToken)
+      val factorBuilder = CreateFactorPayload(
+          friendlyName, PUSH, serviceSid,
+          identity, config, binding, jwe
+      )
 
-        fun onFactorCreated(factor: Factor) {
-          (factor as? PushFactor?)?.apply {
-            keyPairAlias = alias
-          }
-              ?.let { pushFactor ->
-                pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }
-                    ?.let {
-                      factorProvider.save(pushFactor)
-                      onSuccess(pushFactor)
-                    } ?: run {
-                  keyStorage.delete(alias)
-                  onError(
-                      TwilioVerifyException(
-                          IllegalStateException("Key pair not set"), KeyStorageError
-                      )
-                  )
-                }
+      fun onFactorCreated(factor: Factor) {
+        (factor as? PushFactor?)?.apply {
+          keyPairAlias = alias
+        }
+            ?.let { pushFactor ->
+              pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }
+                  ?.let {
+                    factorProvider.save(pushFactor)
+                    success(pushFactor)
+                  } ?: run {
+                keyStorage.delete(alias)
+                error(
+                    TwilioVerifyException(
+                        IllegalStateException("Key pair not set"), KeyStorageError
+                    )
+                )
               }
-        }
-
-        factorProvider.create(factorBuilder, ::onFactorCreated) { exception ->
-          keyStorage.delete(alias)
-          onError(exception)
-        }
-      } catch (e: TwilioVerifyException) {
-        onError(e)
+            }
       }
+
+      factorProvider.create(factorBuilder, ::onFactorCreated) { exception ->
+        keyStorage.delete(alias)
+        error(exception)
+      }
+    } catch (e: TwilioVerifyException) {
+      error(e)
     }
   }
 
@@ -86,24 +83,22 @@ internal class PushFactory(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    execute(success, error) { onSuccess, onError ->
-      fun verifyFactor(pushFactor: PushFactor) {
-        pushFactor.keyPairAlias?.let { keyPairAlias ->
-          val payload = keyStorage.signAndEncode(keyPairAlias, sid)
-          factorProvider.verify(pushFactor, payload, onSuccess, onError)
-        } ?: run {
-          onError(TwilioVerifyException(IllegalStateException("Alias not found"), KeyStorageError))
-        }
+    fun verifyFactor(pushFactor: PushFactor) {
+      pushFactor.keyPairAlias?.let { keyPairAlias ->
+        val payload = keyStorage.signAndEncode(keyPairAlias, sid)
+        factorProvider.verify(pushFactor, payload, success, error)
+      } ?: run {
+        error(TwilioVerifyException(IllegalStateException("Alias not found"), KeyStorageError))
       }
+    }
 
-      try {
-        val factor = factorProvider.get(sid) as? PushFactor
-        factor?.let(::verifyFactor) ?: run {
-          throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
-        }
-      } catch (e: TwilioVerifyException) {
-        onError(e)
+    try {
+      val factor = factorProvider.get(sid) as? PushFactor
+      factor?.let(::verifyFactor) ?: run {
+        throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
       }
+    } catch (e: TwilioVerifyException) {
+      error(e)
     }
   }
 
@@ -113,22 +108,20 @@ internal class PushFactory(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    execute(success, error) { onSuccess, onError ->
-      fun updateFactor(pushFactor: PushFactor) {
-        val updateFactorPayload = UpdateFactorPayload(
-            pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.entityIdentity,
-            config(pushToken), pushFactor.sid
-        )
-        factorProvider.update(updateFactorPayload, onSuccess, onError)
+    fun updateFactor(pushFactor: PushFactor) {
+      val updateFactorPayload = UpdateFactorPayload(
+          pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.entityIdentity,
+          config(pushToken), pushFactor.sid
+      )
+      factorProvider.update(updateFactorPayload, success, error)
+    }
+    try {
+      val factor = factorProvider.get(sid) as? PushFactor
+      factor?.let(::updateFactor) ?: run {
+        throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
       }
-      try {
-        val factor = factorProvider.get(sid) as? PushFactor
-        factor?.let(::updateFactor) ?: run {
-          throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
-        }
-      } catch (e: TwilioVerifyException) {
-        onError(e)
-      }
+    } catch (e: TwilioVerifyException) {
+      error(e)
     }
   }
 
@@ -137,21 +130,19 @@ internal class PushFactory(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    execute(success, error) { onSuccess, onError ->
-      fun deleteFactor(pushFactor: PushFactor) {
-        factorProvider.delete(pushFactor, {
-          pushFactor.keyPairAlias?.let { keyStorage.delete(it) }
-          onSuccess()
-        }, onError)
+    fun deleteFactor(pushFactor: PushFactor) {
+      factorProvider.delete(pushFactor, {
+        pushFactor.keyPairAlias?.let { keyStorage.delete(it) }
+        success()
+      }, error)
+    }
+    try {
+      val factor = factorProvider.get(sid) as? PushFactor
+      factor?.let(::deleteFactor) ?: run {
+        throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
       }
-      try {
-        val factor = factorProvider.get(sid) as? PushFactor
-        factor?.let(::deleteFactor) ?: run {
-          throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
-        }
-      } catch (e: TwilioVerifyException) {
-        onError(e)
-      }
+    } catch (e: TwilioVerifyException) {
+      error(e)
     }
   }
 
