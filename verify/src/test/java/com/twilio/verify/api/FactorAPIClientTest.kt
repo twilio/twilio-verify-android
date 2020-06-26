@@ -127,7 +127,7 @@ class FactorAPIClientTest {
     val entity = "entityId"
     val expectedURL = "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSid, true)
         .replace(
-            ENTITY_PATH, entity, true
+            IDENTITY_PATH, entity
         )
     val friendlyNameMock = "Test"
     val factorTypeMock = PUSH
@@ -245,11 +245,8 @@ class FactorAPIClientTest {
     val entityIdentityMock = "entityIdentity"
     val authPayloadMock = "authPayload"
     val expectedURL = "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
-        .replace(
-            ENTITY_PATH, entityIdentityMock, true
-        )
+        .replace(IDENTITY_PATH, entityIdentityMock)
         .replace(FACTOR_SID_PATH, sidMock)
-
     val expectedBody = mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
     val factor =
       PushFactor(
@@ -354,9 +351,7 @@ class FactorAPIClientTest {
     val pushToken = "ABCD"
     val factorTypeMock = PUSH
     val expectedURL = "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
-        .replace(
-            ENTITY_PATH, entityIdentityMock, true
-        )
+        .replace(IDENTITY_PATH, entityIdentityMock)
         .replace(FACTOR_SID_PATH, sidMock)
 
     val config = mapOf(
@@ -412,9 +407,7 @@ class FactorAPIClientTest {
       )
     val expectedURL =
       "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-          .replace(
-              ENTITY_PATH, factor.entityIdentity, true
-          )
+          .replace(IDENTITY_PATH, identity)
           .replace(FACTOR_SID_PATH, factor.sid)
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {

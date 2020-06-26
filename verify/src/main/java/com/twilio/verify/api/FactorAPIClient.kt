@@ -21,19 +21,18 @@ import org.json.JSONObject
  * Copyright (c) 2020, Twilio Inc.
  */
 internal const val SERVICE_SID_PATH = "{ServiceSid}"
-internal const val ENTITY_PATH = "{EntityIdentity}"
 internal const val FACTOR_SID_PATH = "{FactorSid}"
+internal const val IDENTITY_PATH = "{Identity}"
 
 internal const val AUTH_PAYLOAD_PARAM = "AuthPayload"
 
-internal const val CREATE_FACTOR_URL =
-  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors"
+internal const val CREATE_FACTOR_URL = "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Factors"
 internal const val VERIFY_FACTOR_URL =
-  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Factors/$FACTOR_SID_PATH"
 internal const val UPDATE_FACTOR_URL =
-  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Factors/$FACTOR_SID_PATH"
 internal const val DELETE_FACTOR_URL =
-  "Services/$SERVICE_SID_PATH/Entities/$ENTITY_PATH/Factors/$FACTOR_SID_PATH"
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Factors/$FACTOR_SID_PATH"
 
 internal const val FRIENDLY_NAME_KEY = "FriendlyName"
 internal const val FACTOR_TYPE_KEY = "FactorType"
@@ -167,31 +166,23 @@ internal class FactorAPIClient(
 
   private fun createFactorURL(createFactorPayload: CreateFactorPayload): String =
     "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, createFactorPayload.serviceSid, true)
-        .replace(
-            ENTITY_PATH, createFactorPayload.entity, true
-        )
+        .replace(IDENTITY_PATH, createFactorPayload.entity)
 
   private fun verifyFactorURL(factor: Factor): String =
     "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(
-            ENTITY_PATH, factor.entityIdentity, true
-        )
+        .replace(IDENTITY_PATH, factor.entityIdentity)
         .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun deleteFactorURL(factor: Factor): String =
     "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(
-            ENTITY_PATH, factor.entityIdentity, true
-        )
+        .replace(IDENTITY_PATH, factor.entityIdentity)
         .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun updateFactorURL(
     factor: Factor
   ): String =
     "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(
-            ENTITY_PATH, factor.entityIdentity, true
-        )
+        .replace(IDENTITY_PATH, factor.entityIdentity)
         .replace(
             FACTOR_SID_PATH, factor.sid
         )
@@ -206,7 +197,9 @@ internal class FactorAPIClient(
         CONFIG_KEY to JSONObject(createFactorPayload.config).toString()
     )
 
-  private fun verifyFactorBody(authPayload: String): Map<String, String?> =
+  private fun verifyFactorBody(
+    authPayload: String
+  ): Map<String, String?> =
     mapOf(AUTH_PAYLOAD_PARAM to authPayload)
 
   private fun updateFactorBody(
