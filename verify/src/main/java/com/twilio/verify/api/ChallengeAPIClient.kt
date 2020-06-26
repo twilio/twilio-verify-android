@@ -60,7 +60,7 @@ internal class ChallengeAPIClient(
           updateChallengeURL(challenge)
       )
           .httpMethod(Post)
-          .body(updateChallengeBody(authPayload, factor))
+          .body(updateChallengeBody(authPayload))
           .build()
       networkProvider.execute(request, {
         success()
@@ -89,7 +89,6 @@ internal class ChallengeAPIClient(
           getChallengeURL(sid, factor)
       )
           .httpMethod(Get)
-          .query(mapOf(FACTOR_SID_KEY to factor.sid))
           .build()
       networkProvider.execute(request, {
         success(
@@ -158,12 +157,10 @@ internal class ChallengeAPIClient(
     }
 
   private fun updateChallengeBody(
-    authPayload: String,
-    factor: Factor
+    authPayload: String
   ): Map<String, String?> =
     mapOf(
-        AUTH_PAYLOAD_PARAM to authPayload,
-        FACTOR_SID_KEY to factor.sid
+        AUTH_PAYLOAD_PARAM to authPayload
     )
 
   private fun getChallengeURL(
