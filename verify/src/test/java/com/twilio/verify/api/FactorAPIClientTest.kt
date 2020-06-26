@@ -247,8 +247,7 @@ class FactorAPIClientTest {
     val expectedURL = "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
         .replace(IDENTITY_PATH, entityIdentityMock)
         .replace(FACTOR_SID_PATH, sidMock)
-    val expectedBody =
-      mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
+    val expectedBody = mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
     val factor =
       PushFactor(
           sidMock,
