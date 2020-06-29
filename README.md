@@ -5,7 +5,6 @@
 * [About](#About)
 * [Dependencies](#Dependencies)
 * [Requirements](#Requirements)
-* [Definitions](#Definitions)
 * [Installation](#Installation)
 * [Usage](#Usage)
 * [Running the Sample app](#SampleApp)
@@ -34,15 +33,6 @@ None
 * Gradle 5.6.4
 * Kotlin 1.3.72 (For Kotlin projects)
 
-<a name='Definitions'></a>
-
-## Definitions
-
-* `Service`: Scope the resources. It contains the configurations for each factor
-* `Entity`: Represents anything that can be authenticated in a developer’s application. Like a User
-* `Factor`: It is an established method for sending authentication Challenges. Like SMS, Phone Call, Push
-* `Challenge`: It is a verification attempt sent to an Entity |
-
 <a name='Installation'></a>
 
 ## Installation
@@ -63,7 +53,7 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 
 ## Usage
 
-See the [product website](https://www.twilio.com/docs/admin/pages/21017/edit/preview/) for documentation
+See [Verify Push Quickstart](https://www.twilio.com/docs/verify/quickstarts/push-android) for a step-by-step guide to using this SDK in a basic Verify Push implementation.
 
 <a name='SampleApp'></a>
 
