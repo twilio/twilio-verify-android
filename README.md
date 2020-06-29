@@ -77,37 +77,8 @@ In order to run the sample app, you have to create a project and application in 
 
 ## Running the Sample backend
 
-### Create a Notify service
-You will need a notify service to send push notifications to your app
-* Go to [Push Credentials](https://www.twilio.com/console/notify/credentials)
-* Click the `Add (+)` button 
-* Enter a friendly name
-* Select `FCM push credentials` as type
-* Enter the `FCM Secret`. The value is the app's `Server key`. You can find it in your app's Firebase project settings, Cloud messaging
-* Click the `Create` button
-* Go to [Notify Services](https://www.twilio.com/console/notify/services)
-* Create a `Notify service` for the app
-* For `FCM CREDENTIAL SID`, select the created FCM credential
-* Save changes
-* Copy the notify service sid
-
-### Create a verify service
-* Get your account Sid and Auth Token from [API credentials](https://www.twilio.com/console/project/settings)
-* Create a verify service calling the endpoint:
-```
-curl -X POST https://verify.twilio.com/v2/Services \
---form 'FriendlyName=Your service name' \
---form 'Push={
-    "notify_service_sid": "IS00000000000000000000000000000000"
-  }' \
--u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
-```
-* Copy the verify service Sid, it is the `sid` field in the response
-
-### To run the sample backend
 * Clone this repo: https://github.com/twilio/verify-push-sample-backend
 * Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/master/README.md)
-    * Use your previously created verify service Sid for `TWILIO_VERIFY_SERVICE_SID`
 
 <a name='UsingSampleApp'></a>
 
