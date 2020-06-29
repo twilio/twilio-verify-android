@@ -13,4 +13,4 @@ internal data class CreateFactorPayload(
   override val config: Map<String, String>,
   val binding: Map<String, String>,
   val jwe: String
-) : FactorPayload
+) : FactorDataPayload

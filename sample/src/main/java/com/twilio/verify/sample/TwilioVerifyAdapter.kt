@@ -6,10 +6,10 @@ package com.twilio.verify.sample
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeListInput
+import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.UpdateChallengeInput
-import com.twilio.verify.models.VerifyFactorInput
+import com.twilio.verify.models.UpdateChallengePayload
+import com.twilio.verify.models.VerifyFactorPayload
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
 
@@ -22,7 +22,7 @@ interface TwilioVerifyAdapter {
   )
 
   fun verifyFactor(
-    verifyFactorInput: VerifyFactorInput,
+    verifyFactorPayload: VerifyFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
@@ -33,7 +33,7 @@ interface TwilioVerifyAdapter {
   )
 
   fun updateChallenge(
-    updateChallengeInput: UpdateChallengeInput,
+    updateChallengePayload: UpdateChallengePayload,
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
@@ -57,7 +57,7 @@ interface TwilioVerifyAdapter {
   )
 
   fun getAllChallenges(
-    challengeListInput: ChallengeListInput,
+    challengeListPayload: ChallengeListPayload,
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )

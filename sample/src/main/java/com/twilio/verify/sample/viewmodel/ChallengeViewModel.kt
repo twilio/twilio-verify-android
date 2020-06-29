@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus
-import com.twilio.verify.models.UpdatePushChallengeInput
+import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.sample.TwilioVerifyAdapter
 
 class ChallengeViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : ViewModel() {
@@ -34,7 +34,7 @@ class ChallengeViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) :
     status: ChallengeStatus
   ) {
     twilioVerifyAdapter.updateChallenge(
-        UpdatePushChallengeInput(challenge.factorSid, challenge.sid, status), {
+        UpdatePushChallengePayload(challenge.factorSid, challenge.sid, status), {
       loadChallenge(challenge.sid, challenge.factorSid)
     }, {
       this.challenge.value = ChallengeError(it)

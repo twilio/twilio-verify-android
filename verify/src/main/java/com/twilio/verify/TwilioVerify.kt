@@ -14,31 +14,31 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeListInput
+import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorInput
-import com.twilio.verify.models.UpdateChallengeInput
-import com.twilio.verify.models.UpdateFactorInput
-import com.twilio.verify.models.VerifyFactorInput
+import com.twilio.verify.models.FactorPayload
+import com.twilio.verify.models.UpdateChallengePayload
+import com.twilio.verify.models.UpdateFactorPayload
+import com.twilio.verify.models.VerifyFactorPayload
 import com.twilio.verify.networking.AuthenticationProvider
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkProvider
 
 interface TwilioVerify {
   fun createFactor(
-    factorInput: FactorInput,
+    factorPayload: FactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
 
   fun verifyFactor(
-    verifyFactorInput: VerifyFactorInput,
+    verifyFactorPayload: VerifyFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
 
   fun updateFactor(
-    updateFactorInput: UpdateFactorInput,
+    updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
@@ -56,13 +56,13 @@ interface TwilioVerify {
   )
 
   fun getAllChallenges(
-    challengeListInput: ChallengeListInput,
+    challengeListPayload: ChallengeListPayload,
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
 
   fun updateChallenge(
-    updateChallengeInput: UpdateChallengeInput,
+    updateChallengePayload: UpdateChallengePayload,
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   )

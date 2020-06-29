@@ -3,8 +3,8 @@
  */
 package com.twilio.verify.models
 
-class UpdatePushChallengeInput(
+class UpdatePushChallengePayload(
   override val factorSid: String,
   override val challengeSid: String,
   val status: ChallengeStatus
-) : UpdateChallengeInput
+) : UpdateChallengePayload

@@ -7,11 +7,11 @@ import android.content.Context
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorInput
+import com.twilio.verify.models.FactorPayload
 import com.twilio.verify.models.FactorType.PUSH
-import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.UpdatePushFactorInput
-import com.twilio.verify.models.VerifyPushFactorInput
+import com.twilio.verify.models.PushFactorPayload
+import com.twilio.verify.models.UpdatePushFactorPayload
+import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.model.EnrollmentResponse
@@ -42,8 +42,8 @@ class TwilioVerifyKotlinAdapter(
     try {
       sampleBackendAPIClient.getEnrollmentResponse(
           createFactorData.identity, createFactorData.enrollmentUrl, { enrollmentResponse ->
-        val factorInput = getFactorInput(createFactorData, enrollmentResponse)
-        twilioVerify.createFactor(factorInput, { factor ->
+        val factorPayload = getFactorPayload(createFactorData, enrollmentResponse)
+        twilioVerify.createFactor(factorPayload, { factor ->
           verifyFactor(factor, success, error)
         }, error)
       }, error
@@ -62,7 +62,7 @@ class TwilioVerifyKotlinAdapter(
   ) {
     when (factor.type) {
       PUSH -> twilioVerify.verifyFactor(
-          VerifyPushFactorInput(factor.sid),
+          VerifyPushFactorPayload(factor.sid),
           success,
           error
       )
@@ -88,7 +88,7 @@ class TwilioVerifyKotlinAdapter(
     factor: Factor,
     token: String
   ) {
-    twilioVerify.updateFactor(UpdatePushFactorInput(factor.sid, token), {}, ::handleError)
+    twilioVerify.updateFactor(UpdatePushFactorPayload(factor.sid, token), {}, ::handleError)
   }
 
   override fun showChallenge(
@@ -98,12 +98,12 @@ class TwilioVerifyKotlinAdapter(
     verifyEventBus.send(NewChallenge(challengeSid, factorSid))
   }
 
-  private fun getFactorInput(
+  private fun getFactorPayload(
     createFactorData: CreateFactorData,
     enrollmentResponse: EnrollmentResponse
-  ): FactorInput {
+  ): FactorPayload {
     return when (enrollmentResponse.getFactorType()) {
-      PUSH -> PushFactorInput(
+      PUSH -> PushFactorPayload(
           createFactorData.factorName, enrollmentResponse.serviceSid,
           enrollmentResponse.identity, createFactorData.pushToken, enrollmentResponse.token
       )

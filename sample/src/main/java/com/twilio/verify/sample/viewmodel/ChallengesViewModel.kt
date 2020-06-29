@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeListInput
+import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.sample.TwilioVerifyAdapter
 
 private const val PAGE_SIZE = 20
@@ -16,7 +16,7 @@ class ChallengesViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) 
   private val challenges: MutableLiveData<Challenges> = MutableLiveData()
 
   fun loadChallenges(factorSid: String) {
-    twilioVerifyAdapter.getAllChallenges(ChallengeListInput(factorSid, PAGE_SIZE), {
+    twilioVerifyAdapter.getAllChallenges(ChallengeListPayload(factorSid, PAGE_SIZE), {
       challenges.value = ChallengeList(it.challenges)
     }, {
       challenges.value = ChallengesError(it)

@@ -4,7 +4,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.api.APIResponses
 import com.twilio.verify.domain.factor.models.PushFactor
-import com.twilio.verify.models.VerifyPushFactorInput
+import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.networking.NetworkException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -17,10 +17,10 @@ class VerifyFactorTests : BaseFactorTest() {
 
   @Test
   fun testVerifyFactorWithValidAPIResponseShouldReturnFactor() {
-    val verifyInput = VerifyPushFactorInput(factor!!.sid)
+    val verifyPayload = VerifyPushFactorPayload(factor!!.sid)
     enqueueMockResponse(200, APIResponses.verifyValidFactorResponse())
     idlingResource.increment()
-    twilioVerify.verifyFactor(verifyInput, {
+    twilioVerify.verifyFactor(verifyPayload, {
       assertEquals(factor!!.sid, it.sid)
       idlingResource.decrement()
     }, { e ->
@@ -32,14 +32,14 @@ class VerifyFactorTests : BaseFactorTest() {
 
   @Test
   fun testVerifyFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
-    val verifyInput = VerifyPushFactorInput(factor!!.sid)
+    val verifyFactorPayload = VerifyPushFactorPayload(factor!!.sid)
     val expectedException = TwilioVerifyException(
         NetworkException(null, null),
         NetworkError
     )
     enqueueMockResponse(400, APIResponses.verifyValidFactorResponse())
     idlingResource.increment()
-    twilioVerify.verifyFactor(verifyInput, {
+    twilioVerify.verifyFactor(verifyFactorPayload, {
       fail()
       idlingResource.decrement()
     }, { exception ->
@@ -51,14 +51,14 @@ class VerifyFactorTests : BaseFactorTest() {
 
   @Test
   fun testVerifyFactorWithInvalidAPIResponseBodyShouldThrowMapperError() {
-    val verifyInput = VerifyPushFactorInput(factor!!.sid)
+    val verifyFactorPayload = VerifyPushFactorPayload(factor!!.sid)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(null, null),
         MapperError
     )
     enqueueMockResponse(200, APIResponses.verifyInvalidFactorResponse())
     idlingResource.increment()
-    twilioVerify.verifyFactor(verifyInput, {
+    twilioVerify.verifyFactor(verifyFactorPayload, {
       fail()
       idlingResource.decrement()
     }, { exception ->
@@ -72,10 +72,10 @@ class VerifyFactorTests : BaseFactorTest() {
   fun testVerifyFactorWithCreatedFactorAndValidAPIResponseShouldReturnFactor() {
     createFactor {
       factor = it as PushFactor
-      val verifyInput = VerifyPushFactorInput(factor!!.sid)
+      val verifyFactorPayload = VerifyPushFactorPayload(factor!!.sid)
       enqueueMockResponse(200, APIResponses.verifyValidFactorResponse())
       idlingResource.increment()
-      twilioVerify.verifyFactor(verifyInput, { verifiedFactor ->
+      twilioVerify.verifyFactor(verifyFactorPayload, { verifiedFactor ->
         assertEquals(factor!!.sid, verifiedFactor.sid)
         idlingResource.decrement()
       }, { e ->
