@@ -16,7 +16,8 @@
 <a name='About'></a>
 
 ## About
-Verify Push enables developers to implement secure push authentication without giving up privacy and control. This project provides a SDK to create and use verify push
+Twilio Verify Push SDK helps you verify users by adding a low-friction, secure, cost-effective, "push verification" factor into your own mobile application. This fully managed API service allows you to seamlessly verify users in-app via a secure channel, without the risks, hassles or costs of One-Time Passcodes (OTPs).
+This project provides an SDK to implement Verify Push for your Android app.
 
 <a name='Dependencies'></a>
 
@@ -31,7 +32,7 @@ None
 * Java 8
 * Android 6.0 (23) SDK or higher
 * Gradle 5.6.4
-* Kotlin 1.3.72
+* Kotlin 1.3.72 (For Kotlin projects)
 
 <a name='Definitions'></a>
 
