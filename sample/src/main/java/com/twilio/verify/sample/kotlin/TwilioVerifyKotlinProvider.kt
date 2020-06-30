@@ -1,6 +1,7 @@
 package com.twilio.verify.sample.kotlin
 
 import android.content.Context
+import com.twilio.verify.TwilioVerify
 
 object TwilioVerifyKotlinProvider {
   private lateinit var twilioVerifyAdapter: TwilioVerifyKotlinAdapter
@@ -9,8 +10,10 @@ object TwilioVerifyKotlinProvider {
     applicationContext: Context
   ): TwilioVerifyKotlinAdapter {
     if (!this::twilioVerifyAdapter.isInitialized) {
-      twilioVerifyAdapter =
-        TwilioVerifyKotlinAdapter(applicationContext)
+      twilioVerifyAdapter = TwilioVerifyKotlinAdapter(
+          TwilioVerify.Builder(applicationContext)
+              .build()
+      )
     }
     return twilioVerifyAdapter
   }

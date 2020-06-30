@@ -4,14 +4,14 @@ import com.twilio.verify.TwilioVerify;
 import com.twilio.verify.TwilioVerifyException;
 import com.twilio.verify.models.Challenge;
 import com.twilio.verify.models.ChallengeList;
-import com.twilio.verify.models.ChallengeListInput;
+import com.twilio.verify.models.ChallengeListPayload;
 import com.twilio.verify.models.Factor;
-import com.twilio.verify.models.FactorInput;
-import com.twilio.verify.models.PushFactorInput;
-import com.twilio.verify.models.UpdateChallengeInput;
-import com.twilio.verify.models.UpdatePushFactorInput;
-import com.twilio.verify.models.VerifyFactorInput;
-import com.twilio.verify.models.VerifyPushFactorInput;
+import com.twilio.verify.models.FactorPayload;
+import com.twilio.verify.models.PushFactorPayload;
+import com.twilio.verify.models.UpdateChallengePayload;
+import com.twilio.verify.models.UpdatePushFactorPayload;
+import com.twilio.verify.models.VerifyFactorPayload;
+import com.twilio.verify.models.VerifyPushFactorPayload;
 import com.twilio.verify.sample.TwilioVerifyAdapter;
 import com.twilio.verify.sample.model.CreateFactorData;
 import com.twilio.verify.sample.model.EnrollmentResponse;
@@ -43,8 +43,8 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
       @NotNull final Function1<? super Throwable, Unit> error) {
     SampleBackendAPIClientKt.getEnrollmentResponse(sampleBackendAPIClient,
         createFactorData.getIdentity(), createFactorData.getEnrollmentUrl(), enrollmentResponse -> {
-          FactorInput factorInput = getFactorInput(createFactorData, enrollmentResponse);
-          twilioVerify.createFactor(factorInput,
+          FactorPayload factorPayload = getFactorPayload(createFactorData, enrollmentResponse);
+          twilioVerify.createFactor(factorPayload,
               factor -> {
                 verifyFactor(factor, success, error);
                 return Unit.INSTANCE;
@@ -53,16 +53,16 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
         }, error);
   }
 
-  @Override public void verifyFactor(@NotNull VerifyFactorInput verifyFactorInput,
+  @Override public void verifyFactor(@NotNull VerifyFactorPayload verifyFactorPayload,
       @NotNull Function1<? super Factor, Unit> success,
       @NotNull Function1<? super TwilioVerifyException, Unit> error) {
-    twilioVerify.verifyFactor(verifyFactorInput, success, error);
+    twilioVerify.verifyFactor(verifyFactorPayload, success, error);
   }
 
-  @Override public void updateChallenge(@NotNull UpdateChallengeInput updateChallengeInput,
+  @Override public void updateChallenge(@NotNull UpdateChallengePayload updateChallengePayload,
       @NotNull Function0<Unit> success,
       @NotNull Function1<? super TwilioVerifyException, Unit> error) {
-    twilioVerify.updateChallenge(updateChallengeInput, success, error);
+    twilioVerify.updateChallenge(updateChallengePayload, success, error);
   }
 
   @Override
@@ -86,10 +86,10 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
     twilioVerify.deleteFactor(factorSid, success, error);
   }
 
-  @Override public void getAllChallenges(@NotNull ChallengeListInput challengeListInput,
+  @Override public void getAllChallenges(@NotNull ChallengeListPayload challengeListPayload,
       @NotNull Function1<? super ChallengeList, Unit> success,
       @NotNull Function1<? super TwilioVerifyException, Unit> error) {
-    twilioVerify.getAllChallenges(challengeListInput, success, error);
+    twilioVerify.getAllChallenges(challengeListPayload, success, error);
   }
 
   @Override public void updatePushToken(@NotNull final String token) {
@@ -107,11 +107,11 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
         return Unit.INSTANCE;
       };
 
-  private FactorInput getFactorInput(CreateFactorData createFactorData,
-      EnrollmentResponse enrollmentResponse) {
+  private FactorPayload getFactorPayload(CreateFactorData createFactorData,
+                                         EnrollmentResponse enrollmentResponse) {
     switch (EnrollmentResponseKt.getFactorType(enrollmentResponse)) {
       case PUSH:
-        return new PushFactorInput(createFactorData.getFactorName(),
+        return new PushFactorPayload(createFactorData.getFactorName(),
             enrollmentResponse.getServiceSid(),
             enrollmentResponse.getIdentity(), createFactorData.getPushToken(),
             enrollmentResponse.getToken());
@@ -125,13 +125,13 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
       final Function1<? super Exception, Unit> onError) {
     switch (factor.getType()) {
       case PUSH:
-        verifyFactor(new VerifyPushFactorInput(factor.getSid()), onSuccess, onError);
+        verifyFactor(new VerifyPushFactorPayload(factor.getSid()), onSuccess, onError);
         break;
     }
   }
 
   private void updateFactor(Factor factor, String token) {
-    twilioVerify.updateFactor(new UpdatePushFactorInput(factor.getSid(), token),
+    twilioVerify.updateFactor(new UpdatePushFactorPayload(factor.getSid(), token),
         factor1 -> Unit.INSTANCE, handleError);
   }
 }

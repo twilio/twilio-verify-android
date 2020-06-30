@@ -43,7 +43,7 @@ import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
-import com.twilio.verify.models.ChallengeListInput
+import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Pending
@@ -51,10 +51,10 @@ import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorStatus.Verified
-import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.UpdatePushChallengeInput
-import com.twilio.verify.models.UpdatePushFactorInput
-import com.twilio.verify.models.VerifyPushFactorInput
+import com.twilio.verify.models.PushFactorPayload
+import com.twilio.verify.models.UpdatePushChallengePayload
+import com.twilio.verify.models.UpdatePushFactorPayload
+import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Response
 import org.json.JSONArray
@@ -150,10 +150,10 @@ class TwilioVerifyTest {
           "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
           "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
           "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
-    val factorInput =
-      PushFactorInput("friendly name", factorServiceSid, factorIdentity, "pushToken", jwe)
+    val factorPayload =
+      PushFactorPayload("friendly name", factorServiceSid, factorIdentity, "pushToken", jwe)
     idlingResource.startOperation()
-    twilioVerify.createFactor(factorInput, { factor ->
+    twilioVerify.createFactor(factorPayload, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
       assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
       idlingResource.operationFinished()
@@ -180,9 +180,9 @@ class TwilioVerifyTest {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
-    val updatePushFactorInput = UpdatePushFactorInput(sid, "pushToken")
+    val updatePushFactorPayload = UpdatePushFactorPayload(sid, "pushToken")
     idlingResource.startOperation()
-    twilioVerify.updateFactor(updatePushFactorInput, { factor ->
+    twilioVerify.updateFactor(updatePushFactorPayload, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
       idlingResource.operationFinished()
     }, { exception ->
@@ -195,7 +195,7 @@ class TwilioVerifyTest {
   @Test
   fun `Verify a factor should call success`() {
     val sid = "sid"
-    val verifyFactorInput = VerifyPushFactorInput(sid)
+    val verifyFactorPayload = VerifyPushFactorPayload(sid)
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
         .put(sidKey, sid)
@@ -206,7 +206,7 @@ class TwilioVerifyTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerify.verifyFactor(verifyFactorInput, { factor ->
+    twilioVerify.verifyFactor(verifyFactorPayload, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
       idlingResource.operationFinished()
     }, { exception ->
@@ -265,7 +265,7 @@ class TwilioVerifyTest {
     createFactor(factorSid, Verified)
     val challengeSid = "challengeSid"
     val status = Approved
-    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     fun challengeResponse(status: ChallengeStatus): JSONObject = JSONObject().apply {
       put(com.twilio.verify.domain.challenge.sidKey, challengeSid)
       put(factorSidKey, factorSid)
@@ -314,7 +314,7 @@ class TwilioVerifyTest {
     }
 
     idlingResource.startOperation()
-    twilioVerify.updateChallenge(updateChallengeInput, {
+    twilioVerify.updateChallenge(updateChallengePayload, {
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
@@ -348,7 +348,7 @@ class TwilioVerifyTest {
   fun `Get all challenges should call success`() {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
-    val challengeListInput = ChallengeListInput(factorSid, 1, null, null)
+    val challengeListPayload = ChallengeListPayload(factorSid, 1, null, null)
     val expectedChallenges = JSONArray(
         listOf(
             challengeJSONObject("sid123", factorSid),
@@ -366,7 +366,7 @@ class TwilioVerifyTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerify.getAllChallenges(challengeListInput, { list ->
+    twilioVerify.getAllChallenges(challengeListPayload, { list ->
       val firstChallenge = list.challenges.first()
       val secondChallenge = list.challenges.last()
 
@@ -435,10 +435,10 @@ class TwilioVerifyTest {
           "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
           "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
           "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
-    val factorInput =
-      PushFactorInput("friendly name", factorServiceSid, factorIdentity, "pushToken", jwe)
+    val factorPayload =
+      PushFactorPayload("friendly name", factorServiceSid, factorIdentity, "pushToken", jwe)
     idlingResource.startOperation()
-    twilioVerify.createFactor(factorInput, { factor ->
+    twilioVerify.createFactor(factorPayload, { factor ->
       this.factor = factor
       assertEquals(factorSid, factor.sid)
       assertEquals(status, factor.status)

@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.models
 
-interface UpdateChallengeInput {
+interface UpdateChallengePayload {
   val factorSid: String
   val challengeSid: String
 }

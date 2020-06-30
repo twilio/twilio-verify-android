@@ -10,12 +10,12 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeListInput
+import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorInput
-import com.twilio.verify.models.UpdateChallengeInput
-import com.twilio.verify.models.UpdateFactorInput
-import com.twilio.verify.models.VerifyFactorInput
+import com.twilio.verify.models.FactorPayload
+import com.twilio.verify.models.UpdateChallengePayload
+import com.twilio.verify.models.UpdateFactorPayload
+import com.twilio.verify.models.VerifyFactorPayload
 
 internal class TwilioVerifyManager(
   private val factorFacade: FactorFacade,
@@ -23,27 +23,27 @@ internal class TwilioVerifyManager(
   private val serviceFacade: ServiceFacade
 ) : TwilioVerify {
   override fun createFactor(
-    factorInput: FactorInput,
+    factorPayload: FactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.createFactor(factorInput, success, error)
+    factorFacade.createFactor(factorPayload, success, error)
   }
 
   override fun verifyFactor(
-    verifyFactorInput: VerifyFactorInput,
+    verifyFactorPayload: VerifyFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.verifyFactor(verifyFactorInput, success, error)
+    factorFacade.verifyFactor(verifyFactorPayload, success, error)
   }
 
   override fun updateFactor(
-    updateFactorInput: UpdateFactorInput,
+    updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.updateFactor(updateFactorInput, success, error)
+    factorFacade.updateFactor(updateFactorPayload, success, error)
   }
 
   override fun getAllFactors(
@@ -63,19 +63,19 @@ internal class TwilioVerifyManager(
   }
 
   override fun getAllChallenges(
-    challengeListInput: ChallengeListInput,
+    challengeListPayload: ChallengeListPayload,
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    challengeFacade.getAllChallenges(challengeListInput, success, error)
+    challengeFacade.getAllChallenges(challengeListPayload, success, error)
   }
 
   override fun updateChallenge(
-    updateChallengeInput: UpdateChallengeInput,
+    updateChallengePayload: UpdateChallengePayload,
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    challengeFacade.updateChallenge(updateChallengeInput, success, error)
+    challengeFacade.updateChallenge(updateChallengePayload, success, error)
   }
 
   override fun deleteFactor(

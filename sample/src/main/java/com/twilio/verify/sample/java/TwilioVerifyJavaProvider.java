@@ -3,12 +3,6 @@ package com.twilio.verify.sample.java;
 import android.content.Context;
 import com.twilio.verify.TwilioVerify;
 import com.twilio.verify.TwilioVerifyException;
-import com.twilio.verify.sample.networking.OkHttpProvider;
-import com.twilio.verify.sample.networking.SampleBackendAPIClient;
-import com.twilio.verify.sample.networking.SampleBackendAPIClientKt;
-import okhttp3.OkHttpClient;
-
-import static com.twilio.verify.sample.networking.OkHttpProviderKt.okHttpClient;
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -20,9 +14,8 @@ public class TwilioVerifyJavaProvider {
   public static TwilioVerifyJavaAdapter getInstance(Context applicationContext)
       throws TwilioVerifyException {
     if (twilioVerifyJavaAdapter == null) {
-      OkHttpClient okHttpClient = okHttpClient();
       TwilioVerify twilioVerify = new TwilioVerify.Builder(
-          applicationContext).networkProvider(new OkHttpProvider(okHttpClient)).build();
+          applicationContext).build();
       twilioVerifyJavaAdapter = new TwilioVerifyJavaAdapter(twilioVerify);
     }
     return twilioVerifyJavaAdapter;

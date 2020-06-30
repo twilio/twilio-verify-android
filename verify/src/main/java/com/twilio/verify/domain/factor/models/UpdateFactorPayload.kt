@@ -13,4 +13,4 @@ internal data class UpdateFactorPayload(
   override val entity: String,
   override val config: Map<String, String>,
   val factorSid: String
-) : FactorPayload
+) : FactorDataPayload

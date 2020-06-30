@@ -3,13 +3,13 @@
  */
 package com.twilio.verify.models
 
-class PushFactorInput(
+class PushFactorPayload(
   override val friendlyName: String,
   override val serviceSid: String,
   override val identity: String,
   val pushToken: String,
   val enrollmentJwe: String
-) : FactorInput {
+) : FactorPayload {
   override val factorType: FactorType
     get() = FactorType.PUSH
 }

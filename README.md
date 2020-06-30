@@ -5,7 +5,6 @@
 * [About](#About)
 * [Dependencies](#Dependencies)
 * [Requirements](#Requirements)
-* [Definitions](#Definitions)
 * [Installation](#Installation)
 * [Usage](#Usage)
 * [Running the Sample app](#SampleApp)
@@ -16,7 +15,8 @@
 <a name='About'></a>
 
 ## About
-Verify Push enables developers to implement secure push authentication without giving up privacy and control. This project provides a SDK to create and use verify push
+Twilio Verify Push SDK helps you verify users by adding a low-friction, secure, cost-effective, "push verification" factor into your own mobile application. This fully managed API service allows you to seamlessly verify users in-app via a secure channel, without the risks, hassles or costs of One-Time Passcodes (OTPs).
+This project provides an SDK to implement Verify Push for your Android app.
 
 <a name='Dependencies'></a>
 
@@ -32,15 +32,6 @@ None
 * Android 6.0 (23) SDK or higher
 * Gradle 5.6.4
 * Kotlin 1.3.72
-
-<a name='Definitions'></a>
-
-## Definitions
-
-* `Service`: Scope the resources. It contains the configurations for each factor
-* `Entity`: Represents anything that can be authenticated in a developer’s application. Like a User
-* `Factor`: It is an established method for sending authentication Challenges. Like SMS, Phone Call, Push
-* `Challenge`: It is a verification attempt sent to an Entity |
 
 <a name='Installation'></a>
 
@@ -62,7 +53,7 @@ More info [here](https://firebase.google.com/docs/android/setup#console)
 
 ## Usage
 
-See the [product website](https://www.twilio.com/docs/admin/pages/21017/edit/preview/) for documentation
+See [Verify Push Quickstart](https://www.twilio.com/docs/verify/quickstarts/push-android) for a step-by-step guide to using this SDK in a basic Verify Push implementation.
 
 <a name='SampleApp'></a>
 
@@ -86,37 +77,8 @@ In order to run the sample app, you have to create a project and application in 
 
 ## Running the Sample backend
 
-### Create a Notify service
-You will need a notify service to send push notifications to your app
-* Go to [Push Credentials](https://www.twilio.com/console/notify/credentials)
-* Click the `Add (+)` button 
-* Enter a friendly name
-* Select `FCM push credentials` as type
-* Enter the `FCM Secret`. The value is the app's `Server key`. You can find it in your app's Firebase project settings, Cloud messaging
-* Click the `Create` button
-* Go to [Notify Services](https://www.twilio.com/console/notify/services)
-* Create a `Notify service` for the app
-* For `FCM CREDENTIAL SID`, select the created FCM credential
-* Save changes
-* Copy the notify service sid
-
-### Create a verify service
-* Get your account Sid and Auth Token from [API credentials](https://www.twilio.com/console/project/settings)
-* Create a verify service calling the endpoint:
-```
-curl -X POST https://verify.twilio.com/v2/Services \
---form 'FriendlyName=Your service name' \
---form 'Push={
-    "notify_service_sid": "IS00000000000000000000000000000000"
-  }' \
--u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
-```
-* Copy the verify service Sid, it is the `sid` field in the response
-
-### To run the sample backend
 * Clone this repo: https://github.com/twilio/verify-push-sample-backend
 * Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/master/README.md)
-    * Use your previously created verify service Sid for `TWILIO_VERIFY_SERVICE_SID`
 
 <a name='UsingSampleApp'></a>
 

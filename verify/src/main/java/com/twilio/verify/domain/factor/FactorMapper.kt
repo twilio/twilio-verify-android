@@ -7,8 +7,8 @@ import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.data.toRFC3339Date
+import com.twilio.verify.domain.factor.models.FactorDataPayload
 import com.twilio.verify.domain.factor.models.Config
-import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
@@ -34,7 +34,7 @@ internal class FactorMapper {
   @Throws(TwilioVerifyException::class)
   fun fromApi(
     jsonObject: JSONObject,
-    factorPayload: FactorPayload
+    factorPayload: FactorDataPayload
   ): Factor {
     val serviceSid = factorPayload.serviceSid
     val entityIdentity = factorPayload.entity

@@ -8,7 +8,7 @@ import com.twilio.verify.domain.factor.FactorMapper
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.PUSH
-import com.twilio.verify.models.PushFactorInput
+import com.twilio.verify.models.PushFactorPayload
 import com.twilio.verify.networking.NetworkException
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -46,11 +46,11 @@ class CreateFactorTests : BaseServerTest() {
         "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
-    val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwe)
+    val factorPayload =
+      PushFactorPayload(friendlyName, "serviceSid", "identity", "pushToken", jwe)
     enqueueMockResponse(200, APIResponses.createValidFactorResponse())
     idlingResource.increment()
-    twilioVerify.createFactor(factorInput, {
+    twilioVerify.createFactor(factorPayload, {
       assertEquals(friendlyName, it.friendlyName)
       assertTrue(it is PushFactor)
       assertEquals(PUSH, it.type)
@@ -101,15 +101,15 @@ class CreateFactorTests : BaseServerTest() {
         "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
-    val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwe)
+    val factorPayload =
+      PushFactorPayload(friendlyName, "serviceSid", "identity", "pushToken", jwe)
     val expectedException = TwilioVerifyException(
         NetworkException(null, null),
         NetworkError
     )
     enqueueMockResponse(400, APIResponses.createValidFactorResponse())
     idlingResource.increment()
-    twilioVerify.createFactor(factorInput, {
+    twilioVerify.createFactor(factorPayload, {
       fail()
       idlingResource.decrement()
     }, { exception ->
@@ -131,15 +131,15 @@ class CreateFactorTests : BaseServerTest() {
         "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
         "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
         "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
-    val factorInput =
-      PushFactorInput(friendlyName, "serviceSid", "identity", "pushToken", jwe)
+    val factorPayload =
+      PushFactorPayload(friendlyName, "serviceSid", "identity", "pushToken", jwe)
     val expectedException = TwilioVerifyException(
         IllegalArgumentException(null, null),
         MapperError
     )
     enqueueMockResponse(200, APIResponses.createInvalidFactorResponse())
     idlingResource.increment()
-    twilioVerify.createFactor(factorInput, {
+    twilioVerify.createFactor(factorPayload, {
       fail()
       idlingResource.decrement()
     }, { exception ->

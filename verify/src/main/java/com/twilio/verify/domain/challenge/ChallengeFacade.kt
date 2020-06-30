@@ -13,9 +13,9 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeListInput
-import com.twilio.verify.models.UpdateChallengeInput
-import com.twilio.verify.models.UpdatePushChallengeInput
+import com.twilio.verify.models.ChallengeListPayload
+import com.twilio.verify.models.UpdateChallengePayload
+import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.threading.execute
@@ -41,29 +41,29 @@ internal class ChallengeFacade(
   }
 
   fun updateChallenge(
-    updateChallengeInput: UpdateChallengeInput,
+    updateChallengePayload: UpdateChallengePayload,
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
-      factorFacade.getFactor(updateChallengeInput.factorSid, { factor ->
+      factorFacade.getFactor(updateChallengePayload.factorSid, { factor ->
         when (factor) {
-          is PushFactor -> updatePushChallenge(updateChallengeInput, factor, onSuccess, onError)
+          is PushFactor -> updatePushChallenge(updateChallengePayload, factor, onSuccess, onError)
         }
       }, onError)
     }
   }
 
   fun getAllChallenges(
-    challengeListInput: ChallengeListInput,
+    challengeListPayload: ChallengeListPayload,
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(challengeListInput.factorSid, { factor ->
+    factorFacade.getFactor(challengeListPayload.factorSid, { factor ->
       execute(success, error) { onSuccess, onError ->
         repository.getAll(
-            factor, challengeListInput.status, challengeListInput.pageSize,
-            challengeListInput.pageToken, { list ->
+            factor, challengeListPayload.status, challengeListPayload.pageSize,
+            challengeListPayload.pageToken, { list ->
           onSuccess(list)
         }, { exception ->
           onError(exception)
@@ -73,20 +73,20 @@ internal class ChallengeFacade(
   }
 
   private fun updatePushChallenge(
-    updateChallengeInput: UpdateChallengeInput,
+    updateChallengePayload: UpdateChallengePayload,
     factor: PushFactor,
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
-      val status = (updateChallengeInput as? UpdatePushChallengeInput)?.status
+      val status = (updateChallengePayload as? UpdatePushChallengePayload)?.status
           ?: throw TwilioVerifyException(
               IllegalArgumentException(
                   "Invalid update challenge input for factor ${factor.type}"
               ), InputError
           )
       pushChallengeProcessor.update(
-          updateChallengeInput.challengeSid, factor, status, success, error
+          updateChallengePayload.challengeSid, factor, status, success, error
       )
     } catch (e: TwilioVerifyException) {
       error(e)

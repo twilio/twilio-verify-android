@@ -1,7 +1,5 @@
 package com.twilio.verify.sample.kotlin
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
@@ -17,8 +15,8 @@ import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.FactorType.PUSH
-import com.twilio.verify.models.UpdatePushChallengeInput
-import com.twilio.verify.models.VerifyPushFactorInput
+import com.twilio.verify.models.UpdatePushChallengePayload
+import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.sample.IdlingResource
 import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
@@ -51,11 +49,8 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Before
   fun setup() {
-    val context = ApplicationProvider.getApplicationContext<Context>()
     twilioVerifyAdapter =
-      TwilioVerifyKotlinAdapter(
-          applicationContext = context, twilioVerify = twilioVerify, verifyEventBus = verifyEventBus
-      )
+      TwilioVerifyKotlinAdapter(twilioVerify = twilioVerify, verifyEventBus = verifyEventBus)
   }
 
   @Test
@@ -166,14 +161,14 @@ class TwilioVerifyKotlinAdapterTest {
     val expectedFactor: Factor = mock() {
       on { sid } doReturn "factorSid"
     }
-    val verifyFactorInput = VerifyPushFactorInput(expectedFactor.sid)
+    val verifyFactorPayload = VerifyPushFactorPayload(expectedFactor.sid)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.verifyFactor(verifyFactorInput, { factor ->
+    twilioVerifyAdapter.verifyFactor(verifyFactorPayload, { factor ->
       assertEquals(expectedFactor, factor)
       idlingResource.operationFinished()
     }, {
@@ -185,7 +180,7 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Test
   fun `Verify factor with an error should return exception`() {
-    val verifyFactorInput = VerifyPushFactorInput("factorSid")
+    val verifyFactorPayload = VerifyPushFactorPayload("factorSid")
     val expectedException: TwilioVerifyException = mock()
 
     argumentCaptor<(Exception) -> Unit>().apply {
@@ -194,7 +189,7 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.verifyFactor(verifyFactorInput, {
+    twilioVerifyAdapter.verifyFactor(verifyFactorPayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -259,15 +254,15 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Test
   fun `Update challenge with success response should call success callback`() {
-    val updateChallengeInput = UpdatePushChallengeInput("factorSid", "challengeSid", Approved)
+    val updateChallengePayload = UpdatePushChallengePayload("factorSid", "challengeSid", Approved)
 
     argumentCaptor<() -> Unit>().apply {
-      whenever(twilioVerify.updateChallenge(eq(updateChallengeInput), capture(), any())).then {
+      whenever(twilioVerify.updateChallenge(eq(updateChallengePayload), capture(), any())).then {
         firstValue.invoke()
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.updateChallenge(updateChallengeInput, {
+    twilioVerifyAdapter.updateChallenge(updateChallengePayload, {
       idlingResource.operationFinished()
     }, {
       fail()
@@ -278,16 +273,16 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Test
   fun `Update challenge with an error should return exception`() {
-    val updateChallengeInput = UpdatePushChallengeInput("factorSid", "challengeSid", Approved)
+    val updateChallengePayload = UpdatePushChallengePayload("factorSid", "challengeSid", Approved)
     val expectedException: TwilioVerifyException = mock()
 
     argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(twilioVerify.updateChallenge(eq(updateChallengeInput), any(), capture())).then {
+      whenever(twilioVerify.updateChallenge(eq(updateChallengePayload), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.updateChallenge(updateChallengeInput, {
+    twilioVerifyAdapter.updateChallenge(updateChallengePayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
