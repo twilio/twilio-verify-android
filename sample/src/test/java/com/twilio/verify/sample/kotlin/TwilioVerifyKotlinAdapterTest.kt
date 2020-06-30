@@ -1,7 +1,5 @@
 package com.twilio.verify.sample.kotlin
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
@@ -51,11 +49,8 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Before
   fun setup() {
-    val context = ApplicationProvider.getApplicationContext<Context>()
     twilioVerifyAdapter =
-      TwilioVerifyKotlinAdapter(
-          applicationContext = context, twilioVerify = twilioVerify, verifyEventBus = verifyEventBus
-      )
+      TwilioVerifyKotlinAdapter(twilioVerify = twilioVerify, verifyEventBus = verifyEventBus)
   }
 
   @Test

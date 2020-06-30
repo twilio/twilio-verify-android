@@ -3,7 +3,6 @@
  */
 package com.twilio.verify.sample.kotlin
 
-import android.content.Context
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Factor
@@ -16,20 +15,13 @@ import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.model.EnrollmentResponse
 import com.twilio.verify.sample.model.getFactorType
-import com.twilio.verify.sample.networking.OkHttpProvider
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
 import com.twilio.verify.sample.networking.getEnrollmentResponse
-import com.twilio.verify.sample.networking.okHttpClient
 import com.twilio.verify.sample.push.NewChallenge
 import com.twilio.verify.sample.push.VerifyEventBus
-import okhttp3.OkHttpClient
 
 class TwilioVerifyKotlinAdapter(
-  applicationContext: Context,
-  okHttpClient: OkHttpClient = okHttpClient(),
-  private val twilioVerify: TwilioVerify = TwilioVerify.Builder(applicationContext)
-      .networkProvider(OkHttpProvider(okHttpClient))
-      .build(),
+  private val twilioVerify: TwilioVerify,
   private val verifyEventBus: VerifyEventBus = VerifyEventBus
 ) : TwilioVerify by twilioVerify, TwilioVerifyAdapter {
 

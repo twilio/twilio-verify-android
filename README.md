@@ -31,7 +31,7 @@ None
 * Java 8
 * Android 6.0 (23) SDK or higher
 * Gradle 5.6.4
-* Kotlin 1.3.72 (For Kotlin projects)
+* Kotlin 1.3.72
 
 <a name='Installation'></a>
 
