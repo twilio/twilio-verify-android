@@ -87,7 +87,7 @@ In order to run the sample app, you have to create a project and application in 
 ### Adding a factor
 * Press Create factor in the factor list (main view)
 * Enter the entity identity to use. This value should be an UUID that identifies the user to prevent PII information use
-* Enter the enrollment URL (Enrollment JWE generation URL, including the path)
+* Enter the enrollment URL (Enrollment JWE generation URL, including the path, e.g. https://yourapp.ngrok.io/enroll)
 * Press Create factor
 * Copy the factor Sid
 
