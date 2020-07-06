@@ -16,11 +16,14 @@ class ChallengesViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) 
   private val challenges: MutableLiveData<Challenges> = MutableLiveData()
 
   fun loadChallenges(factorSid: String) {
-    twilioVerifyAdapter.getAllChallenges(ChallengeListPayload(factorSid, PAGE_SIZE), {
-      challenges.value = ChallengeList(it.challenges)
-    }, {
-      challenges.value = ChallengesError(it)
-    })
+    twilioVerifyAdapter.getAllChallenges(ChallengeListPayload(factorSid, PAGE_SIZE),
+        { challengeList ->
+          challenges.value =
+            ChallengeList(challengeList.challenges.sortedByDescending { it.createdAt })
+        },
+        {
+          challenges.value = ChallengesError(it)
+        })
   }
 
   fun getChallenges(): LiveData<Challenges> {
