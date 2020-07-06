@@ -24,6 +24,8 @@ object APIResponses {
 
   fun getValidApprovedChallengeResponse() = getJson("network_files/challenge/get_challenge_approved_valid.json")
 
+  fun getAllChallengesResponse() = getJson("network_files/challenges/get_challenges_valid.json")
+
   private fun getJson(path: String): String =
     String(
         ApplicationProvider.getApplicationContext<Context>().assets.open(path).readBytes()
