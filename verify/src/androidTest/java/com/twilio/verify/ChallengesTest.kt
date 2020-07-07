@@ -22,7 +22,7 @@ class ChallengesTests : BaseFactorTest() {
     twilioVerify.getAllChallenges(challengeListPayload, {
       assertEquals(2, it.challenges.size)
       assertEquals(2, it.metadata.pageSize)
-      assertEquals(1, it.metadata.page)
+      assertEquals(0, it.metadata.page)
       assertNotNull(it.metadata.previousPageToken)
       assertNotNull(it.metadata.nextPageToken)
       idlingResource.decrement()

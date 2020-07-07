@@ -46,7 +46,7 @@ class FactorChallengeListMapperTest {
 
     val challengeList = challengeListMapper.fromApi(jsonObject)
     assertEquals(challengeList.challenges.size, expectedChallenges.length())
-    assertEquals(expectedMetadata.getInt(pageKey) + 1, challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
     assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
     assertEquals(previousPageToken, challengeList.metadata.previousPageToken)
     assertEquals(nextPageToken, challengeList.metadata.nextPageToken)
@@ -92,7 +92,7 @@ class FactorChallengeListMapperTest {
 
     val challengeList = challengeListMapper.fromApi(jsonObject)
     assertEquals(challengeList.challenges.size, expectedChallenges.length())
-    assertEquals(expectedMetadata.getInt(pageKey) + 1, challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
     assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
     assertEquals(previousPageToken, challengeList.metadata.previousPageToken)
     assertNull(challengeList.metadata.nextPageToken)
@@ -138,7 +138,7 @@ class FactorChallengeListMapperTest {
 
     val challengeList = challengeListMapper.fromApi(jsonObject)
     assertEquals(challengeList.challenges.size, expectedChallenges.length())
-    assertEquals(expectedMetadata.getInt(pageKey) + 1, challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
     assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
     assertEquals(previousPageToken, challengeList.metadata.previousPageToken)
     assertNull(challengeList.metadata.nextPageToken)
@@ -184,7 +184,7 @@ class FactorChallengeListMapperTest {
 
     val challengeList = challengeListMapper.fromApi(jsonObject)
     assertEquals(challengeList.challenges.size, expectedChallenges.length())
-    assertEquals(expectedMetadata.getInt(pageKey) + 1, challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
     assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
     assertEquals(previousPageToken, challengeList.metadata.previousPageToken)
     assertNull(challengeList.metadata.nextPageToken)
@@ -230,7 +230,7 @@ class FactorChallengeListMapperTest {
 
     val challengeList = challengeListMapper.fromApi(jsonObject)
     assertEquals(challengeList.challenges.size, expectedChallenges.length())
-    assertEquals(expectedMetadata.getInt(pageKey) + 1, challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
     assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
     assertNull(challengeList.metadata.previousPageToken)
     assertEquals(nextPageToken, challengeList.metadata.nextPageToken)
@@ -276,7 +276,7 @@ class FactorChallengeListMapperTest {
 
     val challengeList = challengeListMapper.fromApi(jsonObject)
     assertEquals(challengeList.challenges.size, expectedChallenges.length())
-    assertEquals(expectedMetadata.getInt(pageKey) + 1, challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
     assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
     assertNull(challengeList.metadata.previousPageToken)
     assertEquals(nextPageToken, challengeList.metadata.nextPageToken)

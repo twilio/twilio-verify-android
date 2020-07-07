@@ -34,7 +34,7 @@ internal class ChallengeListMapper(
       val meta = jsonObject.getJSONObject(metaKey)
       val metadata = ChallengeListMetadata(
           // page from API starts in zero
-          page = meta.getInt(pageKey) + 1,
+          page = meta.getInt(pageKey),
           pageSize = meta.getInt(pageSizeKey),
           previousPageToken = meta.optString(previousPageKey)
               ?.let {
