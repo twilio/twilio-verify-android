@@ -35,7 +35,10 @@ fun ChallengeDetails.string(context: Context?): String {
 }
 
 fun Challenge.string(context: Context?) =
-  "Sid:\n${this.sid}\nName: ${this.challengeDetails.message}\nStatus: ${this.status}\nExpire on: " +
+  "Sid:\n${this.sid}\nName: ${this.challengeDetails.message}\nStatus: ${this.status}\nCreated at: " +
+      "${DateUtils.formatDateTime(
+          context, createdAt.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
+      )}\nExpire on: " +
       DateUtils.formatDateTime(
           context, expirationDate.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
       )

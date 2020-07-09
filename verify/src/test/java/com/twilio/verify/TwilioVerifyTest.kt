@@ -24,13 +24,14 @@ import com.twilio.verify.domain.challenge.expirationDateKey
 import com.twilio.verify.domain.challenge.factorSidKey
 import com.twilio.verify.domain.challenge.fieldsKey
 import com.twilio.verify.domain.challenge.hiddenDetailsKey
-import com.twilio.verify.domain.challenge.key
 import com.twilio.verify.domain.challenge.labelKey
 import com.twilio.verify.domain.challenge.messageKey
 import com.twilio.verify.domain.challenge.metaKey
 import com.twilio.verify.domain.challenge.nextPageKey
 import com.twilio.verify.domain.challenge.pageKey
 import com.twilio.verify.domain.challenge.pageSizeKey
+import com.twilio.verify.domain.challenge.pageTokenKey
+import com.twilio.verify.domain.challenge.previousPageKey
 import com.twilio.verify.domain.challenge.signatureFieldsHeaderSeparator
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.challenge.valueKey
@@ -382,8 +383,8 @@ class TwilioVerifyTest {
               .getString(sidKey), secondChallenge.sid
       )
 
-      assertEquals(expectedMetadata.getString(key), list.metadata.key)
-      assertEquals(expectedMetadata.getString(nextPageKey), list.metadata.nextPageURL)
+      assertEquals(previousPageToken, list.metadata.previousPageToken)
+      assertEquals(nextPageToken, list.metadata.nextPageToken)
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
@@ -480,12 +481,15 @@ private fun challengeJSONObject(
   }
 }
 
+private const val previousPageToken = "previousPageToken"
+private const val nextPageToken = "nextPageToken"
+
 private fun metaJSONObject(): JSONObject {
   return JSONObject().apply {
-    put(pageKey, 1)
+    put(pageKey, 0)
     put(pageSizeKey, 10)
-    put(nextPageKey, "next_page")
-    put(key, "key")
+    put(previousPageKey, "https://www.twilio.com?$pageTokenKey=$previousPageToken")
+    put(nextPageKey, "https://www.twilio.com?$pageTokenKey=$nextPageToken")
   }
 }
 
