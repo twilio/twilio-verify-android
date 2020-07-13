@@ -14,7 +14,7 @@ class NetworkAdapter : NetworkProvider {
 
   override fun execute(
     request: Request,
-    success: (response: String) -> Unit,
+    success: (response: Response) -> Unit,
     error: (NetworkException) -> Unit
   ) {
     var httpUrlConnection: HttpURLConnection? = null
@@ -24,7 +24,9 @@ class NetworkAdapter : NetworkProvider {
       for ((key, value) in request.headers) {
         httpUrlConnection.setRequestProperty(key, value)
       }
-      if (request.getParams()?.isNotEmpty() == true) {
+      if (request.getParams()
+              ?.isNotEmpty() == true
+      ) {
         httpUrlConnection.doOutput = true
         val os: OutputStream = httpUrlConnection.outputStream
         val writer = BufferedWriter(
@@ -39,7 +41,7 @@ class NetworkAdapter : NetworkProvider {
       if (responseCode < 300) {
         val response = httpUrlConnection.inputStream.bufferedReader()
             .use { it.readText() }
-        success(response)
+        success(Response(body = response, headers = httpUrlConnection.headerFields))
       } else {
         val errorResponse = httpUrlConnection.errorStream.bufferedReader()
             .use { it.readText() }

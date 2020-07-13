@@ -1,6 +1,6 @@
 package com.twilio.verify.models
 
-class ChallengeListInput(
+class ChallengeListPayload(
   val factorSid: String,
   val pageSize: Int,
   val status: ChallengeStatus? = null,

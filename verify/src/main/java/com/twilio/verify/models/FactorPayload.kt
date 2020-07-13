@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.models
 
-interface FactorInput {
+interface FactorPayload {
   val friendlyName: String
   val serviceSid: String
   val identity: String

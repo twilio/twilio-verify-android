@@ -15,11 +15,11 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeListInput
+import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.UpdateChallengeInput
-import com.twilio.verify.models.UpdatePushChallengeInput
+import com.twilio.verify.models.UpdateChallengePayload
+import com.twilio.verify.models.UpdatePushChallengePayload
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -118,7 +118,7 @@ class ChallengeFacadeTest {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
     val status = Approved
-    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     val expectedFactor: PushFactor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
@@ -135,7 +135,7 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.updateChallenge(updateChallengeInput, {
+    challengeFacade.updateChallenge(updateChallengePayload, {
       idlingResource.operationFinished()
     }, {
       fail()
@@ -149,7 +149,7 @@ class ChallengeFacadeTest {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
     val status = Approved
-    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -167,7 +167,7 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.updateChallenge(updateChallengeInput, {
+    challengeFacade.updateChallenge(updateChallengePayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -182,7 +182,7 @@ class ChallengeFacadeTest {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
     val status = Approved
-    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
@@ -190,7 +190,7 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.updateChallenge(updateChallengeInput, {
+    challengeFacade.updateChallenge(updateChallengePayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -203,8 +203,8 @@ class ChallengeFacadeTest {
   @Test
   fun `Update challenge with invalid update challenge input should call error`() {
     val factorSid = "factorSid"
-    val updateChallengeInput: UpdateChallengeInput = mock()
-    whenever(updateChallengeInput.factorSid).thenReturn(factorSid)
+    val updateChallengePayload: UpdateChallengePayload = mock()
+    whenever(updateChallengePayload.factorSid).thenReturn(factorSid)
     val expectedFactor: PushFactor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
@@ -212,7 +212,7 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.updateChallenge(updateChallengeInput, {
+    challengeFacade.updateChallenge(updateChallengePayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -226,7 +226,7 @@ class ChallengeFacadeTest {
   fun `Get all challenges with valid data should call success`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = ChallengeListInput(factorSid, pageSize, null, null)
+    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, null)
     val expectedFactor: PushFactor = mock()
     val expectedChallengeList: ChallengeList = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -242,7 +242,7 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getAllChallenges(challengeListInput, { list ->
+    challengeFacade.getAllChallenges(challengeListPayload, { list ->
       assertEquals(expectedChallengeList, list)
       idlingResource.operationFinished()
     }, {
@@ -256,7 +256,7 @@ class ChallengeFacadeTest {
   fun `Error getting all challenges should call error`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = ChallengeListInput(factorSid, pageSize, null, null)
+    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, null)
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -272,7 +272,7 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getAllChallenges(challengeListInput, {
+    challengeFacade.getAllChallenges(challengeListPayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -286,7 +286,7 @@ class ChallengeFacadeTest {
   fun `Error getting the factor when getting all challenges should call error`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListInput = ChallengeListInput(factorSid, pageSize, null, null)
+    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, null)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
@@ -294,7 +294,7 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getAllChallenges(challengeListInput, {
+    challengeFacade.getAllChallenges(challengeListPayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

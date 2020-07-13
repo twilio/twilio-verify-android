@@ -14,17 +14,15 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
-import com.twilio.verify.domain.service.models.FactorService
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeListInput
+import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.Service
-import com.twilio.verify.models.UpdatePushChallengeInput
-import com.twilio.verify.models.UpdatePushFactorInput
-import com.twilio.verify.models.VerifyPushFactorInput
+import com.twilio.verify.models.PushFactorPayload
+import com.twilio.verify.models.UpdatePushChallengePayload
+import com.twilio.verify.models.UpdatePushFactorPayload
+import com.twilio.verify.models.VerifyPushFactorPayload
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
@@ -45,16 +43,16 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Create a factor should call success`() {
-    val factorInput =
-      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwt")
+    val factorPayload =
+      PushFactorPayload("friendly name", "serviceSid", "identity", "pushToken", "jwe")
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.createFactor(eq(factorInput), capture(), any())).then {
+      whenever(factorFacade.createFactor(eq(factorPayload), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.createFactor(factorInput, { factor ->
+    twilioVerifyManager.createFactor(factorPayload, { factor ->
       assertEquals(expectedFactor, factor)
       idlingResource.operationFinished()
     }, {
@@ -66,16 +64,16 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error creating a factor should call error`() {
-    val factorInput =
-      PushFactorInput("friendly name", "serviceSid", "identity", "pushToken", "jwt")
+    val factorPayload =
+      PushFactorPayload("friendly name", "serviceSid", "identity", "pushToken", "jwe")
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(factorFacade.createFactor(eq(factorInput), any(), capture())).then {
+      whenever(factorFacade.createFactor(eq(factorPayload), any(), capture())).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.createFactor(factorInput, {
+    twilioVerifyManager.createFactor(factorPayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -87,15 +85,15 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Update a factor should call success`() {
-    val updatePushFactorInput = UpdatePushFactorInput("sid", "pushToken")
+    val updatePushFactorPayload = UpdatePushFactorPayload("sid", "pushToken")
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.updateFactor(eq(updatePushFactorInput), capture(), any())).then {
+      whenever(factorFacade.updateFactor(eq(updatePushFactorPayload), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.updateFactor(updatePushFactorInput, { factor ->
+    twilioVerifyManager.updateFactor(updatePushFactorPayload, { factor ->
       assertEquals(expectedFactor, factor)
       idlingResource.operationFinished()
     }, {
@@ -107,15 +105,15 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error updating a factor should call error`() {
-    val updatePushFactorInput = UpdatePushFactorInput("sid", "pushToken")
+    val updatePushFactorPayload = UpdatePushFactorPayload("sid", "pushToken")
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(factorFacade.updateFactor(eq(updatePushFactorInput), any(), capture())).then {
+      whenever(factorFacade.updateFactor(eq(updatePushFactorPayload), any(), capture())).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.updateFactor(updatePushFactorInput, {
+    twilioVerifyManager.updateFactor(updatePushFactorPayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -127,15 +125,15 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Verify a factor should call success`() {
-    val verifyFactorInput = VerifyPushFactorInput("sid")
+    val verifyFactorPayload = VerifyPushFactorPayload("sid")
     val expectedFactor: Factor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
-      whenever(factorFacade.verifyFactor(eq(verifyFactorInput), capture(), any())).then {
+      whenever(factorFacade.verifyFactor(eq(verifyFactorPayload), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.verifyFactor(verifyFactorInput, { factor ->
+    twilioVerifyManager.verifyFactor(verifyFactorPayload, { factor ->
       assertEquals(expectedFactor, factor)
       idlingResource.operationFinished()
     }, {
@@ -147,15 +145,15 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error verifying a factor should call error`() {
-    val verifyFactorInput = VerifyPushFactorInput("sid")
+    val verifyFactorPayload = VerifyPushFactorPayload("sid")
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(factorFacade.verifyFactor(eq(verifyFactorInput), any(), capture())).then {
+      whenever(factorFacade.verifyFactor(eq(verifyFactorPayload), any(), capture())).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.verifyFactor(verifyFactorInput, {
+    twilioVerifyManager.verifyFactor(verifyFactorPayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -250,14 +248,14 @@ class TwilioVerifyManagerTest {
     val factorSid = "factorSid"
     val challengeSid = "challengeSid"
     val status = Approved
-    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     argumentCaptor<() -> Unit>().apply {
-      whenever(challengeFacade.updateChallenge(eq(updateChallengeInput), capture(), any())).then {
+      whenever(challengeFacade.updateChallenge(eq(updateChallengePayload), capture(), any())).then {
         firstValue.invoke()
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.updateChallenge(updateChallengeInput, {
+    twilioVerifyManager.updateChallenge(updateChallengePayload, {
       idlingResource.operationFinished()
     }, {
       fail()
@@ -271,55 +269,15 @@ class TwilioVerifyManagerTest {
     val factorSid = "factorSid"
     val challengeSid = "challengeSid"
     val status = Approved
-    val updateChallengeInput = UpdatePushChallengeInput(factorSid, challengeSid, status)
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(challengeFacade.updateChallenge(eq(updateChallengeInput), any(), capture())).then {
+      whenever(challengeFacade.updateChallenge(eq(updateChallengePayload), any(), capture())).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.updateChallenge(updateChallengeInput, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Get service should call success`() {
-    val serviceSid = "sid"
-    val expectedService: FactorService = mock()
-    argumentCaptor<(Service) -> Unit>().apply {
-      whenever(serviceFacade.getService(eq(serviceSid), capture(), any())).then {
-        firstValue.invoke(expectedService)
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerifyManager.getService(serviceSid, { challenge ->
-      assertEquals(expectedService, challenge)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Error getting service should call error`() {
-    val serviceSid = "sid"
-    val expectedException: Exception = mock()
-    argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
-      whenever(serviceFacade.getService(eq(serviceSid), any(), capture())).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
-      }
-    }
-    idlingResource.startOperation()
-    twilioVerifyManager.getService(serviceSid, {
+    twilioVerifyManager.updateChallenge(updateChallengePayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -331,7 +289,7 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Get all challenges should call success`() {
-    val challengeListInput = ChallengeListInput("factorSid", 1, null, null)
+    val challengeListPayload = ChallengeListPayload("factorSid", 1, null, null)
     val expectedChallengeList: ChallengeList = mock()
     argumentCaptor<(ChallengeList) -> Unit>().apply {
       whenever(challengeFacade.getAllChallenges(any(), capture(), any())).then {
@@ -339,7 +297,7 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.getAllChallenges(challengeListInput, { list ->
+    twilioVerifyManager.getAllChallenges(challengeListPayload, { list ->
       assertEquals(expectedChallengeList, list)
       idlingResource.operationFinished()
     }, {
@@ -351,7 +309,7 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error getting all challenges should call error`() {
-    val challengeListInput = ChallengeListInput("factorSid", 1, null, null)
+    val challengeListPayload = ChallengeListPayload("factorSid", 1, null, null)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(challengeFacade.getAllChallenges(any(), any(), capture())).then {
@@ -359,7 +317,7 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.getAllChallenges(challengeListInput, { list ->
+    twilioVerifyManager.getAllChallenges(challengeListPayload, { list ->
       fail()
       idlingResource.operationFinished()
     }, { exception ->

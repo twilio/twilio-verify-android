@@ -5,13 +5,14 @@ package com.twilio.verify.domain.challenge
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.data.KeyStorage
+import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
@@ -19,6 +20,7 @@ import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Denied
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
+import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -33,8 +35,8 @@ import org.robolectric.annotation.Config
 class PushChallengeProcessorTest {
 
   private val challengeProvider: ChallengeProvider = mock()
-  private val keyStorage: KeyStorage = mock()
-  private val pushChallengeProcessor = PushChallengeProcessor(challengeProvider, keyStorage)
+  private val jwtGenerator: JwtGenerator = mock()
+  private val pushChallengeProcessor = PushChallengeProcessor(challengeProvider, jwtGenerator)
   private val idlingResource = IdlingResource()
 
   @Test
@@ -82,31 +84,40 @@ class PushChallengeProcessorTest {
   @Test
   fun `Update challenge with valid data should call success`() {
     val sid = "sid123"
+    val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val challenge: FactorChallenge = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+    }
+    val challenge: FactorChallenge = FactorChallenge(
+        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+        .asSequence()
+        .toList(), response
+    ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
-    val signature = "signature"
+    val verifyJwt = "verifyJwt"
     val status = Approved
-    val authPayload = JSONObject().apply {
-      put(signatureKey, signature)
-      put(statusKey, status.value)
-    }
-        .toString()
-    whenever(challenge.status).thenReturn(Pending)
-    whenever(challenge.factor).thenReturn(factor)
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(challenge)
       }
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
-      whenever(challengeProvider.update(eq(challenge), eq(authPayload), capture(), any())).then {
+      whenever(
+          challengeProvider.update(
+              eq(challenge),
+              eq(verifyJwt),
+              capture(),
+              any()
+          )
+      ).then {
         firstValue.invoke(updatedChallenge)
       }
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
-    whenever(keyStorage.sign(eq(alias), any())).thenReturn(signature)
+    whenever(jwtGenerator.generateJWT(any(), any(), any())).thenReturn(verifyJwt)
     whenever(updatedChallenge.status).thenReturn(status)
     idlingResource.startOperation()
     pushChallengeProcessor.update(sid, factor, status, {
@@ -124,29 +135,24 @@ class PushChallengeProcessorTest {
     val factorSid = "sid123"
     val accountSid = "accountSid"
     val serviceSid = "serviceSid"
-    val entitySid = "entitySid"
     val entityId = "entityId"
-    val createdDate = "createdDate"
-    val updatedDate = "updatedDate"
-    val details = "details"
     val hiddenDetails = "hiddenDetails"
     val newStatus = Denied
     val status = Pending
     val factor: PushFactor = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+      put(hiddenDetailsKey, hiddenDetails)
+    }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), hiddenDetails, factorSid, status, mock(), mock(), mock(), details,
-        createdDate, updatedDate, entitySid
+        sid, mock(), hiddenDetails, factorSid, status, mock(), mock(), mock(), response.keys()
+        .asSequence()
+        .toList(), response
     ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
-    val payload = "${accountSid}${serviceSid}${entitySid}${factorSid}${sid}${createdDate}" +
-        "${updatedDate}${status.value}${details}${hiddenDetails}"
-    val signature = "signature"
-    val authPayload = JSONObject().apply {
-      put(signatureKey, signature)
-      put(statusKey, newStatus.value)
-    }
-        .toString()
+    val verifyJwt = "verifyJwt"
     whenever(factor.sid).thenReturn(factorSid)
     whenever(factor.accountSid).thenReturn(accountSid)
     whenever(factor.serviceSid).thenReturn(serviceSid)
@@ -157,16 +163,25 @@ class PushChallengeProcessorTest {
       }
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
-      whenever(challengeProvider.update(eq(challenge), eq(authPayload), capture(), any())).then {
+      whenever(
+          challengeProvider.update(
+              eq(challenge),
+              eq(verifyJwt),
+              capture(),
+              any()
+          )
+      ).then {
         firstValue.invoke(updatedChallenge)
       }
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
-    whenever(keyStorage.sign(eq(alias), any())).thenReturn(signature)
+    whenever(jwtGenerator.generateJWT(any(), any(), any())).thenReturn(verifyJwt)
     whenever(updatedChallenge.status).thenReturn(newStatus)
     idlingResource.startOperation()
     pushChallengeProcessor.update(sid, factor, newStatus, {
-      verify(keyStorage).sign(alias, payload)
+      verify(jwtGenerator).generateJWT(check {
+        assertEquals(alias, it.alias)
+      }, any(), any())
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
@@ -180,6 +195,8 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factor: PushFactor = mock()
     val challenge: Challenge = mock()
+    val alias = "alias"
+    whenever(factor.keyPairAlias).thenReturn(alias)
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(challenge)
@@ -268,19 +285,205 @@ class PushChallengeProcessorTest {
   }
 
   @Test
+  fun `Update challenge with no signature fields for push factor should call error`() {
+    val sid = "sid123"
+    val factorSid = "sid123"
+    val factor: PushFactor = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+    }
+    val challenge: FactorChallenge = FactorChallenge(
+        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response = response
+    ).apply { this.factor = factor }
+    val alias = "alias"
+    argumentCaptor<(Challenge) -> Unit>().apply {
+      whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(challenge)
+      }
+    }
+    whenever(factor.keyPairAlias).thenReturn(alias)
+    idlingResource.startOperation()
+    pushChallengeProcessor.update(sid, factor, Approved, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception.cause is IllegalStateException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update challenge with empty signature fields for push factor should call error`() {
+    val sid = "sid123"
+    val factorSid = "sid123"
+    val factor: PushFactor = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+    }
+    val challenge: FactorChallenge = FactorChallenge(
+        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), emptyList(), response
+    ).apply { this.factor = factor }
+    val alias = "alias"
+    argumentCaptor<(Challenge) -> Unit>().apply {
+      whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(challenge)
+      }
+    }
+    whenever(factor.keyPairAlias).thenReturn(alias)
+    idlingResource.startOperation()
+    pushChallengeProcessor.update(sid, factor, Approved, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception.cause is IllegalStateException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update challenge with no response for push factor should call error`() {
+    val sid = "sid123"
+    val factorSid = "sid123"
+    val factor: PushFactor = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+    }
+    val challenge: FactorChallenge = FactorChallenge(
+        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+        .asSequence()
+        .toList()
+    ).apply { this.factor = factor }
+    val alias = "alias"
+    argumentCaptor<(Challenge) -> Unit>().apply {
+      whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(challenge)
+      }
+    }
+    whenever(factor.keyPairAlias).thenReturn(alias)
+    idlingResource.startOperation()
+    pushChallengeProcessor.update(sid, factor, Approved, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception.cause is IllegalStateException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update challenge with empty response for push factor should call error`() {
+    val sid = "sid123"
+    val factorSid = "sid123"
+    val factor: PushFactor = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+    }
+    val challenge: FactorChallenge = FactorChallenge(
+        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+        .asSequence()
+        .toList(), JSONObject()
+    ).apply { this.factor = factor }
+    val alias = "alias"
+    argumentCaptor<(Challenge) -> Unit>().apply {
+      whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(challenge)
+      }
+    }
+    whenever(factor.keyPairAlias).thenReturn(alias)
+    idlingResource.startOperation()
+    pushChallengeProcessor.update(sid, factor, Approved, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception.cause is IllegalStateException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update challenge with response without signature field for push factor should call error`() {
+    val sid = "sid123"
+    val factorSid = "sid123"
+    val factor: PushFactor = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+    }
+    val challenge: FactorChallenge = FactorChallenge(
+        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+        .asSequence()
+        .toList() + "test", response
+    ).apply { this.factor = factor }
+    val alias = "alias"
+    argumentCaptor<(Challenge) -> Unit>().apply {
+      whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(challenge)
+      }
+    }
+    whenever(factor.keyPairAlias).thenReturn(alias)
+    idlingResource.startOperation()
+    pushChallengeProcessor.update(sid, factor, Approved, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception.cause is JSONException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update challenge with error generating signature for push factor should call error`() {
+    val sid = "sid123"
+    val factorSid = "sid123"
+    val factor: PushFactor = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+    }
+    val challenge: FactorChallenge = FactorChallenge(
+        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+        .asSequence()
+        .toList(), response
+    ).apply { this.factor = factor }
+    val alias = "alias"
+    argumentCaptor<(Challenge) -> Unit>().apply {
+      whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(challenge)
+      }
+    }
+    whenever(factor.keyPairAlias).thenReturn(alias)
+    whenever(jwtGenerator.generateJWT(any(), any(), any())).thenThrow(
+        IllegalArgumentException("Invalid signature")
+    )
+    idlingResource.startOperation()
+    pushChallengeProcessor.update(sid, factor, Approved, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertTrue(exception.cause is IllegalArgumentException)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+  }
+
+  @Test
   fun `Update challenge with updated challenge's status different than sent should call error`() {
     val sid = "sid123"
     val factor: PushFactor = mock()
     val challenge: FactorChallenge = mock()
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
-    val signature = "signature"
+    val verifyJwt = "verifyJwt"
     val status = Approved
-    val authPayload = JSONObject().apply {
-      put(signatureKey, signature)
-      put(statusKey, status.value)
-    }
-        .toString()
     whenever(challenge.status).thenReturn(Pending)
     whenever(challenge.factor).thenReturn(factor)
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -289,12 +492,19 @@ class PushChallengeProcessorTest {
       }
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
-      whenever(challengeProvider.update(eq(challenge), eq(authPayload), capture(), any())).then {
+      whenever(
+          challengeProvider.update(
+              eq(challenge),
+              eq(verifyJwt),
+              capture(),
+              any()
+          )
+      ).then {
         firstValue.invoke(updatedChallenge)
       }
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
-    whenever(keyStorage.sign(eq(alias), any())).thenReturn(signature)
+    whenever(jwtGenerator.generateJWT(any(), any(), any())).thenReturn(verifyJwt)
     whenever(updatedChallenge.status).thenReturn(Denied)
     idlingResource.startOperation()
     pushChallengeProcessor.update(sid, factor, status, {

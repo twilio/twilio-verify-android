@@ -6,7 +6,7 @@ import com.twilio.verify.models.FactorType
  * Copyright (c) 2020, Twilio Inc.
  */
 
-internal interface FactorPayload {
+internal interface FactorDataPayload {
   val friendlyName: String
   val type: FactorType
   val serviceSid: String

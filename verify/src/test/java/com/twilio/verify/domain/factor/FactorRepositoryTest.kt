@@ -35,6 +35,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 class FactorRepositoryTest {
@@ -52,7 +53,7 @@ class FactorRepositoryTest {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(),
-        emptyMap(), "jwt"
+        emptyMap(), "jwe"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -82,7 +83,7 @@ class FactorRepositoryTest {
   fun `No response from API creating a factor should call error`() {
     val factorPayload = CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "entitySid123",
-        emptyMap(), emptyMap(), "jwt"
+        emptyMap(), emptyMap(), "jwe"
     )
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
@@ -102,7 +103,7 @@ class FactorRepositoryTest {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "entitySid123",
-        emptyMap(), emptyMap(), "jwt"
+        emptyMap(), emptyMap(), "jwe"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -127,7 +128,7 @@ class FactorRepositoryTest {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "entitySid123",
-        emptyMap(), emptyMap(), "jwt"
+        emptyMap(), emptyMap(), "jwe"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -230,6 +231,7 @@ class FactorRepositoryTest {
         "serviceSid",
         "entityIdentity",
         FactorStatus.Unverified,
+        Date(),
         Config("credentialSid")
     )
     val payload = "authPayload"
@@ -269,6 +271,7 @@ class FactorRepositoryTest {
         "serviceSid",
         "entityIdentity",
         FactorStatus.Unverified,
+        Date(),
         Config("credentialSid")
     )
     val payload = "authPayload"
@@ -335,6 +338,7 @@ class FactorRepositoryTest {
         "entity",
         emptyMap(), sidMock
     )
+    val factor: Factor = mock()
     val response = JSONObject()
         .put(sidKey, sidMock)
         .put(friendlyNameKey, "factor name")
@@ -345,7 +349,7 @@ class FactorRepositoryTest {
     val factorToJson = JSONObject().put(sidKey, sidMock)
         .toString()
     argumentCaptor<(JSONObject) -> Unit>().apply {
-      whenever(apiClient.update(eq(updateFactorPayload), capture(), any())).then {
+      whenever(apiClient.update(eq(factor), eq(updateFactorPayload), capture(), any())).then {
         firstValue.invoke(response)
       }
     }
@@ -361,6 +365,20 @@ class FactorRepositoryTest {
     }, { fail() })
   }
 
+  @Test(expected = TwilioVerifyException::class)
+  fun `Update a factor with null factor should throw exception`() {
+    val sidMock = "sid123"
+    val updateFactorPayload = UpdateFactorPayload(
+        "friendlyName",
+        PUSH,
+        "serviceSid",
+        "entity",
+        emptyMap(), sidMock
+    )
+    whenever(storage.get(sidMock)).thenReturn(null)
+    factorRepository.update(updateFactorPayload, {}, {})
+  }
+
   @Test
   fun `Error from mapper updating a factor should call error`() {
     val sidMock = "sid123"
@@ -371,6 +389,9 @@ class FactorRepositoryTest {
         "entity",
         emptyMap(), sidMock
     )
+    val factor: Factor = mock() {
+      on { sid } doReturn sidMock
+    }
     val response = JSONObject()
         .put(sidKey, sidMock)
         .put(friendlyNameKey, "factor name")
@@ -378,10 +399,14 @@ class FactorRepositoryTest {
         .put(serviceSidKey, "serviceSid")
         .put(statusKey, FactorStatus.Unverified.value)
     argumentCaptor<(JSONObject) -> Unit>().apply {
-      whenever(apiClient.update(eq(updateFactorPayload), capture(), any())).then {
+      whenever(apiClient.update(eq(factor), eq(updateFactorPayload), capture(), any())).then {
         firstValue.invoke(response)
       }
     }
+    val factorToJson = JSONObject().put(sidKey, sidMock)
+        .toString()
+    whenever(storage.get(sidMock)).thenReturn(factorToJson)
+    whenever(factorMapper.fromStorage(factorToJson)).thenReturn(mock())
     val expectedException: TwilioVerifyException = mock()
     whenever(factorMapper.fromApi(response, updateFactorPayload)).thenThrow(expectedException)
     factorRepository.update(updateFactorPayload, {

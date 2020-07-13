@@ -21,7 +21,9 @@ import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import kotlinx.android.synthetic.main.fragment_create_factor.content
 import kotlinx.android.synthetic.main.fragment_create_factor.createFactor
+import kotlinx.android.synthetic.main.fragment_create_factor.enrollmentUrlInput
 import kotlinx.android.synthetic.main.fragment_create_factor.identityInput
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CreateFactorFragment : Fragment() {
@@ -45,6 +47,7 @@ class CreateFactorFragment : Fragment() {
     getPushToken()
     factorViewModel.getFactor()
         .observe(viewLifecycleOwner, Observer {
+          createFactor.isEnabled = true
           when (it) {
             is com.twilio.verify.sample.viewmodel.Factor -> onSuccess(it.factor)
             is FactorError -> it.exception.showError(content)
@@ -74,18 +77,25 @@ class CreateFactorFragment : Fragment() {
           .isEmpty() -> IllegalArgumentException("Invalid entity identity").showError(
           content
       )
+      enrollmentUrlInput.text.toString()
+          .isEmpty() || enrollmentUrlInput.text.toString()
+          .toHttpUrlOrNull() == null -> IllegalArgumentException(
+          "Invalid enrollment url"
+      ).showError(
+          content
+      )
       else -> {
-        createFactor(identityInput.text.toString())
+        createFactor(identityInput.text.toString(), enrollmentUrlInput.text.toString())
       }
     }
   }
 
   private fun createFactor(
-    identity: String
+    identity: String,
+    enrollmentUrl: String
   ) {
-    val createFactorData = CreateFactorData(
-        identity, "$identity's factor", token
-    )
+    createFactor.isEnabled = false
+    val createFactorData = CreateFactorData(identity, "$identity's factor", token, enrollmentUrl)
     factorViewModel.createFactor(createFactorData)
   }
 

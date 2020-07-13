@@ -5,7 +5,6 @@ package com.twilio.verify.domain.factor
 
 import android.content.Context
 import com.twilio.security.storage.encryptedPreferences
-import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
@@ -14,13 +13,15 @@ import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.Storage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorInput
-import com.twilio.verify.models.PushFactorInput
-import com.twilio.verify.models.UpdateFactorInput
-import com.twilio.verify.models.UpdatePushFactorInput
-import com.twilio.verify.models.VerifyFactorInput
-import com.twilio.verify.models.VerifyPushFactorInput
+import com.twilio.verify.models.FactorPayload
+import com.twilio.verify.models.PushFactorPayload
+import com.twilio.verify.models.UpdateFactorPayload
+import com.twilio.verify.models.UpdatePushFactorPayload
+import com.twilio.verify.models.VerifyFactorPayload
+import com.twilio.verify.models.VerifyPushFactorPayload
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.threading.execute
 
 internal const val VERIFY_SUFFIX = "verify"
 internal const val ENC_SUFFIX = "enc"
@@ -30,47 +31,50 @@ internal class FactorFacade(
   private val factorProvider: FactorProvider
 ) {
   fun createFactor(
-    factorInput: FactorInput,
+    factorPayload: FactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    when (factorInput) {
-      is PushFactorInput -> {
-        pushFactory.create(
-            factorInput.jwt, factorInput.friendlyName, factorInput.pushToken,
-            factorInput.serviceSid, factorInput.identity, success, error
-        )
+    execute(success, error) { onSuccess, onError ->
+      when (factorPayload) {
+        is PushFactorPayload -> {
+          pushFactory.create(
+              factorPayload.enrollmentJwe, factorPayload.friendlyName, factorPayload.pushToken,
+              factorPayload.serviceSid, factorPayload.identity, onSuccess, onError
+          )
+        }
       }
     }
   }
 
   fun verifyFactor(
-    verifyFactorInput: VerifyFactorInput,
+    verifyFactorPayload: VerifyFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    when (verifyFactorInput) {
-      is VerifyPushFactorInput -> {
-        pushFactory.verify(
-            verifyFactorInput.sid, success, error
-        )
+    execute(success, error) { onSuccess, onError ->
+      when (verifyFactorPayload) {
+        is VerifyPushFactorPayload -> {
+          pushFactory.verify(
+              verifyFactorPayload.sid, onSuccess, onError
+          )
+        }
       }
     }
   }
 
   fun updateFactor(
-    updateFactorInput: UpdateFactorInput,
+    updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    when (updateFactorInput) {
-      is UpdatePushFactorInput -> {
-        pushFactory.update(
-            updateFactorInput.sid,
-            updateFactorInput.pushToken,
-            success,
-            error
-        )
+    execute(success, error) { onSuccess, onError ->
+      when (updateFactorPayload) {
+        is UpdatePushFactorPayload -> {
+          pushFactory.update(
+              updateFactorPayload.sid, updateFactorPayload.pushToken, onSuccess, onError
+          )
+        }
       }
     }
   }
@@ -122,44 +126,40 @@ internal class FactorFacade(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      pushFactory.delete(factorSid, success, error)
-    } catch (e: TwilioVerifyException) {
-      error(e)
+    execute(success, error) { onSuccess, onError ->
+      try {
+        pushFactory.delete(factorSid, onSuccess, onError)
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      }
     }
   }
 
   class Builder {
     private lateinit var appContext: Context
-    private lateinit var auth: Authentication
     private lateinit var networking: NetworkProvider
     private lateinit var keyStore: KeyStorage
     private lateinit var url: String
+    private lateinit var authentication: Authentication
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networking = networkProvider }
 
     fun context(context: Context) =
       apply { this.appContext = context }
 
-    fun authentication(authentication: Authentication) =
-      apply { this.auth = authentication }
-
     fun keyStorage(keyStorage: KeyStorage) =
       apply { this.keyStore = keyStorage }
 
     fun baseUrl(url: String) = apply { this.url = url }
+
+    fun setAuthentication(authentication: Authentication) =
+      apply { this.authentication = authentication }
 
     @Throws(TwilioVerifyException::class)
     fun build(): FactorFacade {
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
             IllegalArgumentException("Illegal value for context"), InitializationError
-        )
-      }
-      if (!this::auth.isInitialized) {
-        throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for authentication"),
-            InitializationError
         )
       }
       if (!this::networking.isInitialized) {
@@ -180,8 +180,14 @@ internal class FactorFacade(
             InitializationError
         )
       }
+      if (!this::authentication.isInitialized) {
+        throw TwilioVerifyException(
+            IllegalArgumentException("Illegal value for authentication"),
+            InitializationError
+        )
+      }
       val storageName = "${appContext.packageName}.$VERIFY_SUFFIX"
-      val factorAPIClient = FactorAPIClient(networking, appContext, auth, url)
+      val factorAPIClient = FactorAPIClient(networking, appContext, authentication, url)
       val sharedPreferences = appContext.getSharedPreferences(storageName, Context.MODE_PRIVATE)
       val encryptedSharedPreferences =
         appContext.getSharedPreferences("$storageName.$ENC_SUFFIX", Context.MODE_PRIVATE)

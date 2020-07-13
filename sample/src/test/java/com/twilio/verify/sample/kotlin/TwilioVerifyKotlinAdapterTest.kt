@@ -1,17 +1,13 @@
 package com.twilio.verify.sample.kotlin
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
-import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.verify.Authentication
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Challenge
@@ -19,8 +15,8 @@ import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus.Verified
 import com.twilio.verify.models.FactorType.PUSH
-import com.twilio.verify.models.UpdatePushChallengeInput
-import com.twilio.verify.models.VerifyPushFactorInput
+import com.twilio.verify.models.UpdatePushChallengePayload
+import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.sample.IdlingResource
 import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
@@ -28,8 +24,6 @@ import com.twilio.verify.sample.model.EnrollmentResponse
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
 import com.twilio.verify.sample.push.NewChallenge
 import com.twilio.verify.sample.push.VerifyEventBus
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -37,6 +31,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -45,7 +42,6 @@ import org.robolectric.RobolectricTestRunner
 class TwilioVerifyKotlinAdapterTest {
 
   private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
-  private val authentication: Authentication = mock()
   private val twilioVerify: TwilioVerify = mock()
   private val sampleBackendAPIClient: SampleBackendAPIClient = mock()
   private val verifyEventBus: VerifyEventBus = mock()
@@ -53,97 +49,111 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Before
   fun setup() {
-    val context = ApplicationProvider.getApplicationContext<Context>()
     twilioVerifyAdapter =
-      TwilioVerifyKotlinAdapter(
-          applicationContext = context, authentication = authentication,
-          twilioVerify = twilioVerify,
-          sampleBackendAPIClient = sampleBackendAPIClient, mainDispatcher = Dispatchers.Unconfined,
-          dispatcher = Dispatchers.Unconfined, verifyEventBus = verifyEventBus
-      )
+      TwilioVerifyKotlinAdapter(twilioVerify = twilioVerify, verifyEventBus = verifyEventBus)
   }
 
   @Test
-  fun `Create factor with invalid JWT should return exception`() {
-    runBlocking {
-      val expectedException: Exception = mock()
-      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
-      doAnswer { throw expectedException }
-          .whenever(sampleBackendAPIClient)
-          .enrollment(createFactorData.identity)
-      idlingResource.startOperation()
-      twilioVerifyAdapter.createFactor(createFactorData, {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(expectedException, exception)
-        idlingResource.operationFinished()
-      })
-      idlingResource.waitForIdle()
+  fun `Create factor with invalid JWE should return exception`() {
+    val expectedException: RuntimeException = mock()
+    val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
+    val mockCall: Call<EnrollmentResponse> = mock {
+      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+        on { enqueue(capture()) }.thenThrow(expectedException)
+      }
     }
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+        mockCall
+    )
+    idlingResource.startOperation()
+    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
   }
 
   @Test
   fun `Create factor with an error should return exception`() {
-    runBlocking {
-      val expectedException: TwilioVerifyException = mock()
-      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
-      whenever(
-          sampleBackendAPIClient.enrollment(createFactorData.identity)
-      ).thenReturn(EnrollmentResponse("jwt", "serviceSid", "identity", PUSH))
-      argumentCaptor<(Exception) -> Unit>().apply {
-        whenever(twilioVerify.createFactor(any(), any(), capture())).then {
-          firstValue.invoke(expectedException)
+    val expectedException: TwilioVerifyException = mock()
+    val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
+    val mockCall: Call<EnrollmentResponse> = mock { mockCall ->
+      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+        on { enqueue(capture()) }.then {
+          firstValue.onResponse(
+              mockCall, Response.success(
+              EnrollmentResponse("jwe", "serviceSid", "identity", PUSH.factorTypeName)
+          )
+          )
         }
       }
-      idlingResource.startOperation()
-      twilioVerifyAdapter.createFactor(createFactorData, {
-        fail()
-        idlingResource.operationFinished()
-      }, { exception ->
-        assertEquals(expectedException, exception)
-        idlingResource.operationFinished()
-      })
-      idlingResource.waitForIdle()
     }
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+        mockCall
+    )
+    argumentCaptor<(Exception) -> Unit>().apply {
+      whenever(twilioVerify.createFactor(any(), any(), capture())).then {
+        firstValue.invoke(expectedException)
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
   }
 
   @Test
-  fun `Create factor with valid JWT and Push type should return factor verified`() {
-    runBlocking {
-      val expectedFactor: Factor = mock() {
-        on { type } doReturn PUSH
-        on { sid } doReturn "factorSid"
-      }
-      val createFactorData = CreateFactorData("identity", "factorName", "pushToken")
-      whenever(
-          sampleBackendAPIClient.enrollment(createFactorData.identity)
-      ).thenReturn(EnrollmentResponse("jwt", "serviceSid", "identity", PUSH))
-
-      argumentCaptor<(Factor) -> Unit>().apply {
-        whenever(twilioVerify.createFactor(any(), capture(), any())).then {
-          firstValue.invoke(expectedFactor)
-        }
-      }
-      val expectedVerifiedFactor: Factor = mock() {
-        on { status } doReturn Verified
-      }
-      argumentCaptor<(Factor) -> Unit>().apply {
-        whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
-          firstValue.invoke(expectedVerifiedFactor)
-        }
-      }
-      idlingResource.startOperation()
-      twilioVerifyAdapter.createFactor(createFactorData, { factor ->
-        assertEquals(expectedVerifiedFactor, factor)
-        assertEquals(expectedVerifiedFactor.status, Verified)
-        idlingResource.operationFinished()
-      }, {
-        fail()
-        idlingResource.operationFinished()
-      })
-      idlingResource.waitForIdle()
+  fun `Create factor with valid JWE and Push type should return factor verified`() {
+    val expectedFactor: Factor = mock() {
+      on { type } doReturn PUSH
+      on { sid } doReturn "factorSid"
     }
+    val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
+    val mockCall: Call<EnrollmentResponse> = mock { mockCall ->
+      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+        on { enqueue(capture()) }.then {
+          firstValue.onResponse(
+              mockCall, Response.success(
+              EnrollmentResponse("jwe", "serviceSid", "identity", PUSH.factorTypeName)
+          )
+          )
+        }
+      }
+    }
+    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+        mockCall
+    )
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(twilioVerify.createFactor(any(), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+    val expectedVerifiedFactor: Factor = mock() {
+      on { status } doReturn Verified
+    }
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
+        firstValue.invoke(expectedVerifiedFactor)
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, { factor ->
+      assertEquals(expectedVerifiedFactor, factor)
+      assertEquals(expectedVerifiedFactor.status, Verified)
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
   }
 
   @Test
@@ -151,14 +161,14 @@ class TwilioVerifyKotlinAdapterTest {
     val expectedFactor: Factor = mock() {
       on { sid } doReturn "factorSid"
     }
-    val verifyFactorInput = VerifyPushFactorInput(expectedFactor.sid)
+    val verifyFactorPayload = VerifyPushFactorPayload(expectedFactor.sid)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.verifyFactor(verifyFactorInput, { factor ->
+    twilioVerifyAdapter.verifyFactor(verifyFactorPayload, { factor ->
       assertEquals(expectedFactor, factor)
       idlingResource.operationFinished()
     }, {
@@ -170,7 +180,7 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Test
   fun `Verify factor with an error should return exception`() {
-    val verifyFactorInput = VerifyPushFactorInput("factorSid")
+    val verifyFactorPayload = VerifyPushFactorPayload("factorSid")
     val expectedException: TwilioVerifyException = mock()
 
     argumentCaptor<(Exception) -> Unit>().apply {
@@ -179,7 +189,7 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.verifyFactor(verifyFactorInput, {
+    twilioVerifyAdapter.verifyFactor(verifyFactorPayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -244,15 +254,15 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Test
   fun `Update challenge with success response should call success callback`() {
-    val updateChallengeInput = UpdatePushChallengeInput("factorSid", "challengeSid", Approved)
+    val updateChallengePayload = UpdatePushChallengePayload("factorSid", "challengeSid", Approved)
 
     argumentCaptor<() -> Unit>().apply {
-      whenever(twilioVerify.updateChallenge(eq(updateChallengeInput), capture(), any())).then {
+      whenever(twilioVerify.updateChallenge(eq(updateChallengePayload), capture(), any())).then {
         firstValue.invoke()
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.updateChallenge(updateChallengeInput, {
+    twilioVerifyAdapter.updateChallenge(updateChallengePayload, {
       idlingResource.operationFinished()
     }, {
       fail()
@@ -263,16 +273,16 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Test
   fun `Update challenge with an error should return exception`() {
-    val updateChallengeInput = UpdatePushChallengeInput("factorSid", "challengeSid", Approved)
+    val updateChallengePayload = UpdatePushChallengePayload("factorSid", "challengeSid", Approved)
     val expectedException: TwilioVerifyException = mock()
 
     argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(twilioVerify.updateChallenge(eq(updateChallengeInput), any(), capture())).then {
+      whenever(twilioVerify.updateChallenge(eq(updateChallengePayload), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.updateChallenge(updateChallengeInput, {
+    twilioVerifyAdapter.updateChallenge(updateChallengePayload, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

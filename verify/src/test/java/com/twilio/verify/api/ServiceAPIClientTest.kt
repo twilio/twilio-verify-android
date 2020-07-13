@@ -5,17 +5,14 @@ import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.verify.Authentication
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
-import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
-import com.twilio.verify.api.Action.READ
 import com.twilio.verify.models.Factor
+import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.HttpMethod.Get
 import com.twilio.verify.networking.MediaTypeHeader.Accept
@@ -24,6 +21,7 @@ import com.twilio.verify.networking.MediaTypeValue.UrlEncoded
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
+import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -59,7 +57,7 @@ class ServiceAPIClientTest {
   }
 
   @Test
-  fun `Get a service with auth token successfully generated and a success response should call success`() {
+  fun `Get a service with a success response should call success`() {
     val identity = "identity"
     val factorSid = "sid"
     val factorServiceSid = "serviceSid"
@@ -69,26 +67,12 @@ class ServiceAPIClientTest {
       on { serviceSid } doReturn factorServiceSid
     }
     val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
-    argumentCaptor<(String) -> Unit>().apply {
+    argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
-        firstValue.invoke(response)
+        firstValue.invoke(Response(response, emptyMap()))
       }
     }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(identity),
-              factorSid = eq(null),
-              challengeSid = eq(null),
-              action = eq(READ),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
-      }
-    }
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, { jsonObject ->
       assertEquals(response, jsonObject.toString())
@@ -101,46 +85,7 @@ class ServiceAPIClientTest {
   }
 
   @Test
-  fun `Get a service with auth token generation failed should call error`() {
-    val identity = "identity"
-    val factorSid = "sid"
-    val factorServiceSid = "serviceSid"
-    val factor: Factor = mock() {
-      on { entityIdentity } doReturn identity
-      on { sid } doReturn factorSid
-      on { serviceSid } doReturn factorServiceSid
-    }
-    val expectedException: Exception = mock()
-    argumentCaptor<(Exception) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(identity),
-              factorSid = eq(null),
-              challengeSid = eq(null),
-              action = eq(READ),
-              success = any(),
-              error = capture()
-          )
-      ).then {
-        lastValue.invoke(expectedException)
-      }
-    }
-    idlingResource.startOperation()
-    serviceAPIClient.get(factorServiceSid, factor, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(TwilioVerifyException::class, exception::class)
-      assertEquals(AuthenticationTokenException::class, exception.cause!!::class)
-      assertEquals(expectedException, exception.cause!!.cause)
-      idlingResource.operationFinished()
-    })
-    idlingResource.waitForIdle()
-  }
-
-  @Test
-  fun `Get a service with with auth token successfully generated an error response should call error`() {
+  fun `Get a service with an error response should call error`() {
     val identity = "identity"
     val factorSid = "sid"
     val factorServiceSid = "serviceSid"
@@ -155,21 +100,7 @@ class ServiceAPIClientTest {
         firstValue.invoke(expectedException)
       }
     }
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(identity),
-              factorSid = eq(null),
-              challengeSid = eq(null),
-              action = eq(READ),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
-      }
-    }
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, {
       fail()
@@ -192,21 +123,6 @@ class ServiceAPIClientTest {
       on { serviceSid } doReturn factorServiceSid
     }
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(identity),
-              factorSid = eq(null),
-              challengeSid = eq(null),
-              action = eq(READ),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
-      }
-    }
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, {
       fail()
@@ -232,21 +148,7 @@ class ServiceAPIClientTest {
     }
     val expectedURL =
       "$baseUrl$getServiceURL".replace(SERVICE_SID_PATH, factorServiceSid, true)
-    argumentCaptor<(String) -> Unit>().apply {
-      whenever(
-          authentication.generateJWE(
-              serviceSid = eq(factorServiceSid),
-              identity = eq(identity),
-              factorSid = eq(null),
-              challengeSid = eq(null),
-              action = eq(READ),
-              success = capture(),
-              error = any()
-          )
-      ).then {
-        lastValue.invoke("authToken")
-      }
-    }
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {

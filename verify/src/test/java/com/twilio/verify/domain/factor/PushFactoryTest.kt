@@ -32,6 +32,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 class PushFactoryTest {
@@ -43,10 +44,10 @@ class PushFactoryTest {
   private val idlingResource = IdlingResource()
 
   @Test
-  fun `Create factor with valid JWT should call success lambda`() {
+  fun `Create factor with valid JWE should call success lambda`() {
     val serviceSid = "ISb3a64ae0d2262a2bad5e9870c448b83a"
     val entityId = "YEbd15653d11489b27c1b6255230301815"
-    val jwt =
+    val jwe =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -74,14 +75,17 @@ class PushFactoryTest {
       }
     }
     val pushFactor =
-      PushFactor("1", friendlyName, "1", serviceSid, entityId, config = Config("credentialSid"))
+      PushFactor(
+          "1", friendlyName, "1", serviceSid, entityId, createdAt = Date(),
+          config = Config("credentialSid")
+      )
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.create(any(), capture(), any())).then {
         firstValue.invoke(pushFactor)
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
+    pushFactory.create(jwe, friendlyName, pushToken, serviceSid, identity, {
       verify(factorProvider).create(check { pushFactor ->
         assertEquals(expectedBinding, pushFactor.binding)
         assertEquals(expectedConfig, pushFactor.config)
@@ -104,7 +108,7 @@ class PushFactoryTest {
 
   @Test
   fun `Keypair not created creating a factor should call error lambda`() {
-    val jwt =
+    val jwe =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -121,7 +125,7 @@ class PushFactoryTest {
       throw TwilioVerifyException(IllegalStateException(), KeyStorageError)
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
+    pushFactory.create(jwe, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -134,7 +138,7 @@ class PushFactoryTest {
 
   @Test
   fun `Error in factor provider creating the factor should call error lambda`() {
-    val jwt =
+    val jwe =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -162,7 +166,7 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
+    pushFactory.create(jwe, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -175,7 +179,7 @@ class PushFactoryTest {
 
   @Test
   fun `Empty keypair in push factor creating a factor should call error lambda`() {
-    val jwt =
+    val jwe =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -204,7 +208,7 @@ class PushFactoryTest {
       }
     }
     idlingResource.startOperation()
-    pushFactory.create(jwt, friendlyName, pushToken, serviceSid, identity, {
+    pushFactory.create(jwe, friendlyName, pushToken, serviceSid, identity, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -234,11 +238,12 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config("credentialSid")
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    whenever(keyStorage.sign(eq(keyPairAlias), eq(sid))).thenReturn(payload)
+    whenever(keyStorage.signAndEncode(eq(keyPairAlias), eq(sid))).thenReturn(payload)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.verify(eq(factor), eq(payload), capture(), any())).then {
         firstValue.invoke(factor)
@@ -254,7 +259,7 @@ class PushFactoryTest {
       assertEquals(entityId, it.entityIdentity)
       assertEquals(sid, it.sid)
       assertEquals(credentialSid, (it as PushFactor).config.credentialSid)
-      verify(keyStorage).sign(keyPairAlias, it.sid)
+      verify(keyStorage).signAndEncode(keyPairAlias, it.sid)
       idlingResource.operationFinished()
     }, {
       fail()
@@ -297,11 +302,12 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config("credentialSid")
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
-    whenever(keyStorage.sign(eq(keyPairAlias), eq(sid))).thenReturn(payload)
+    whenever(keyStorage.signAndEncode(eq(keyPairAlias), eq(sid))).thenReturn(payload)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorProvider.verify(eq(factor), eq(payload), any(), capture())).then {
@@ -331,10 +337,7 @@ class PushFactoryTest {
     val keyPairAlias = null
     val factor =
       PushFactor(
-          sid, friendlyName, accountSid, serviceSid, entityId, status,
-          Config(
-              credentialSid
-          )
+          sid, friendlyName, accountSid, serviceSid, entityId, status, Date(), Config(credentialSid)
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -367,6 +370,7 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config("credentialSid")
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -434,6 +438,7 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config("credentialSid")
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -472,6 +477,7 @@ class PushFactoryTest {
           serviceSid,
           entityId,
           status,
+          Date(),
           Config(credentialSid)
       ).apply {
         keyPairAlias = alias
@@ -526,7 +532,9 @@ class PushFactoryTest {
     val status = FactorStatus.Unverified
     val credentialSid = "credentialSid"
     val factor =
-      PushFactor(sid, friendlyName, accountSid, serviceSid, entityId, status, Config(credentialSid))
+      PushFactor(
+          sid, friendlyName, accountSid, serviceSid, entityId, status, Date(), Config(credentialSid)
+      )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {

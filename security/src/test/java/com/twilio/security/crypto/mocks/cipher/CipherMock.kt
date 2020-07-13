@@ -8,6 +8,7 @@ import java.security.AlgorithmParametersSpi
 import java.security.Key
 import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
+import java.util.concurrent.TimeUnit.SECONDS
 import javax.crypto.CipherSpi
 
 internal const val cipherMockName = "com.twilio.security.crypto.mocks.cipher.CipherMock"
@@ -92,6 +93,12 @@ class CipherMock : CipherSpi() {
     inputOffset: Int,
     inputLen: Int
   ): ByteArray {
+    cipherMockInput.delay?.let {
+      Thread.sleep(SECONDS.toMillis(it.toLong()))
+    }
+    synchronized(this) {
+      cipherMockOutput.encryptionTimes.add(System.currentTimeMillis())
+    }
     if (cipherMockInput.error != null) {
       throw cipherMockInput.error!!
     }

@@ -6,6 +6,7 @@ package com.twilio.verify.domain.factor
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.data.toRFC3339Date
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -21,6 +22,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 class FactorMapperTest {
@@ -34,7 +36,7 @@ class FactorMapperTest {
   fun `Map a valid response from API with factorPayload should return a factor`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entityId123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entityId123", emptyMap(), emptyMap(), "jwe"
       )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
@@ -42,6 +44,7 @@ class FactorMapperTest {
         .put(accountSidKey, "accountSid123")
         .put(statusKey, Unverified.value)
         .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+        .put(dateCreatedKey, toRFC3339Date(Date()))
     val factor = factorMapper.fromApi(jsonObject, factorPayload) as PushFactor
     assertEquals(factorPayload.type, factor.type)
     assertEquals(factorPayload.serviceSid, factor.serviceSid)
@@ -50,13 +53,14 @@ class FactorMapperTest {
     assertEquals(jsonObject.getString(friendlyNameKey), factor.friendlyName)
     assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
     assertEquals(jsonObject.getString(statusKey), factor.status.value)
+    assertEquals(jsonObject.getString(dateCreatedKey), toRFC3339Date(factor.createdAt))
   }
 
   @Test
   fun `Map an incomplete response from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
       )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
@@ -69,11 +73,7 @@ class FactorMapperTest {
 
   @Test
   fun `Map a valid response from verifying a token API should return the factor status`() {
-    val pushFactor = PushFactor(
-        "", "", "", "", "", Unverified, Config(
-        "credentialSid"
-    )
-    )
+    val pushFactor = PushFactor("", "", "", "", "", Unverified, Date(), Config("credentialSid"))
     val jsonObject = JSONObject()
         .put(statusKey, Verified.value)
     pushFactor.status = factorMapper.status(jsonObject)
@@ -83,7 +83,7 @@ class FactorMapperTest {
   @Test
   fun `Map a response with invalid serviceSid in payload from API should throw an exception`() {
     val factorPayload =
-      CreateFactorPayload("factor name", PUSH, "", "entitySid123", emptyMap(), emptyMap(), "jwt")
+      CreateFactorPayload("factor name", PUSH, "", "entitySid123", emptyMap(), emptyMap(), "jwe")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -98,7 +98,7 @@ class FactorMapperTest {
   fun `Map a response without factor sid from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
       )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
@@ -113,7 +113,7 @@ class FactorMapperTest {
   fun `Map a response without entity sid from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwt"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
       )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
@@ -138,6 +138,7 @@ class FactorMapperTest {
         .put(keyPairAliasKey, "keyPairAlias123")
         .put(statusKey, Unverified.value)
         .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+        .put(dateCreatedKey, toRFC3339Date(Date()))
     val factor = factorMapper.fromStorage(jsonObject.toString()) as PushFactor
     assertEquals(PUSH, factor.type)
     assertEquals(jsonObject.getString(serviceSidKey), factor.serviceSid)
@@ -146,6 +147,7 @@ class FactorMapperTest {
     assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
     assertEquals(jsonObject.getString(keyPairAliasKey), factor.keyPairAlias)
     assertEquals(jsonObject.getString(statusKey), factor.status.value)
+    assertEquals(jsonObject.getString(dateCreatedKey), toRFC3339Date(factor.createdAt))
   }
 
   @Test
@@ -193,7 +195,7 @@ class FactorMapperTest {
     val factor = PushFactor(
         sid = "sid123", friendlyName = "factor name", accountSid = "accountSid123",
         serviceSid = "serviceSid123", entityIdentity = "entityIdentity123", status = Unverified,
-        config = Config("credentialSid")
+        createdAt = Date(), config = Config("credentialSid")
     ).apply { keyPairAlias = "keyPairAlias123" }
     val json = factorMapper.toJSON(factor)
     val jsonObject = JSONObject(json)
@@ -204,5 +206,6 @@ class FactorMapperTest {
     assertEquals(factor.accountSid, jsonObject.getString(accountSidKey))
     assertEquals(factor.entityIdentity, jsonObject.getString(entityIdentityKey))
     assertEquals(factor.keyPairAlias, jsonObject.getString(keyPairAliasKey))
+    assertEquals(toRFC3339Date(factor.createdAt), jsonObject.getString(dateCreatedKey))
   }
 }

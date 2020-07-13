@@ -3,26 +3,18 @@
  */
 package com.twilio.security.crypto
 
+import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.cipher.AESCipher
 import com.twilio.security.crypto.key.signer.ECSigner
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
-import com.twilio.security.crypto.mocks.keystore.KeyStoreMockInput
-import com.twilio.security.crypto.mocks.keystore.KeyStoreMockOutput
-import com.twilio.security.crypto.mocks.keystore.addProvider
-import com.twilio.security.crypto.mocks.keystore.generator.keyGeneratorMockName
-import com.twilio.security.crypto.mocks.keystore.generator.keyPairGeneratorMockName
-import com.twilio.security.crypto.mocks.keystore.keyStoreMockInput
-import com.twilio.security.crypto.mocks.keystore.keyStoreMockName
-import com.twilio.security.crypto.mocks.keystore.keyStoreMockOutput
-import com.twilio.security.crypto.mocks.keystore.setProviderAsVerified
 import org.hamcrest.Matchers
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -31,11 +23,8 @@ import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.security.KeyPair
-import java.security.KeyStore
 import java.security.PrivateKey
-import java.security.Provider
 import java.security.PublicKey
-import java.security.Security
 import javax.crypto.SecretKey
 import kotlin.random.Random.Default.nextBytes
 
@@ -43,43 +32,14 @@ import kotlin.random.Random.Default.nextBytes
 class AndroidKeyManagerTest {
 
   private lateinit var androidKeyManager: KeyManager
-  private lateinit var provider: Provider
+  private val androidKeyStore: AndroidKeyStore = mock()
 
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()
 
-  private val providerName = "TestKeyStore"
-
   @Before
   fun setup() {
-    provider = object : Provider(
-        providerName, 1.0, "Fake KeyStore which is used for Robolectric tests"
-    ) {
-      init {
-        put(
-            "KeyStore.$providerName",
-            keyStoreMockName
-        )
-        put(
-            "KeyPairGenerator.${KeyProperties.KEY_ALGORITHM_EC}",
-            keyPairGeneratorMockName
-        )
-        put(
-            "KeyGenerator.${KeyProperties.KEY_ALGORITHM_AES}",
-            keyGeneratorMockName
-        )
-      }
-    }
-    setProviderAsVerified(provider)
-    addProvider(provider)
-    keyStoreMockOutput = KeyStoreMockOutput()
-    androidKeyManager =
-      AndroidKeyManager(KeyStore.getInstance(providerName).apply { load(null) }, providerName)
-  }
-
-  @After
-  fun tearDown() {
-    Security.removeProvider(providerName)
+    androidKeyManager = AndroidKeyManager(androidKeyStore)
   }
 
   @Test
@@ -92,25 +52,22 @@ class AndroidKeyManagerTest {
     val publicKey: PublicKey = mock()
     val privateKey: PrivateKey = mock()
     val encoded = ByteArray(5).apply { nextBytes(this) }
+    val keyGenParameterSpec: KeyGenParameterSpec = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.signatureAlgorithm).thenReturn(signatureAlgorithm)
+    whenever(template.keyGenParameterSpec).thenReturn(keyGenParameterSpec)
     whenever(keyPair.public).thenReturn(publicKey)
     whenever(keyPair.private).thenReturn(privateKey)
     whenever(publicKey.encoded).thenReturn(encoded)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = false, key = keyPair, newKey = keyPair
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(false)
+        .thenReturn(true)
+    whenever(androidKeyStore.createKeyPair(algorithm, keyGenParameterSpec)).thenReturn(keyPair)
+    whenever(androidKeyStore.getKeyPair(alias)).thenReturn(keyPair)
     val signer = androidKeyManager.signer(template)
-    assertTrue(keyStoreMockOutput.generatedKeyPair)
     assertTrue(signer is ECSigner)
-    assertEquals(
-        (keyStoreMockInput.key as? KeyPair)?.public, (signer as? ECSigner)?.keyPair?.public
-    )
-    assertEquals(
-        (keyStoreMockInput.key as? KeyPair)?.private, (signer as? ECSigner)?.keyPair?.private
-    )
+    assertEquals(keyPair.public, (signer as? ECSigner)?.keyPair?.public)
+    assertEquals(keyPair.private, (signer as? ECSigner)?.keyPair?.private)
   }
 
   @Test
@@ -125,19 +82,12 @@ class AndroidKeyManagerTest {
     whenever(keyPair.private).thenReturn(privateKey)
     whenever(template.alias).thenReturn(alias)
     whenever(template.signatureAlgorithm).thenReturn(signatureAlgorithm)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = true, key = keyPair
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(true)
+    whenever(androidKeyStore.getKeyPair(alias)).thenReturn(keyPair)
     val signer = androidKeyManager.signer(template)
-    assertFalse(keyStoreMockOutput.generatedKeyPair)
     assertTrue(signer is ECSigner)
-    assertEquals(
-        (keyStoreMockInput.key as? KeyPair)?.public, (signer as? ECSigner)?.keyPair?.public
-    )
-    assertEquals(
-        (keyStoreMockInput.key as? KeyPair)?.private, (signer as? ECSigner)?.keyPair?.private
-    )
+    assertEquals(keyPair.public, (signer as? ECSigner)?.keyPair?.public)
+    assertEquals(keyPair.private, (signer as? ECSigner)?.keyPair?.private)
   }
 
   @Test
@@ -149,15 +99,17 @@ class AndroidKeyManagerTest {
     val publicKey: PublicKey = mock()
     val privateKey: PrivateKey = mock()
     val encoded = ByteArray(5).apply { nextBytes(this) }
+    val keyGenParameterSpec: KeyGenParameterSpec = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
+    whenever(template.keyGenParameterSpec).thenReturn(keyGenParameterSpec)
     whenever(keyPair.public).thenReturn(publicKey)
     whenever(keyPair.private).thenReturn(privateKey)
     whenever(publicKey.encoded).thenReturn(encoded)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = false, key = null
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(false)
+        .thenReturn(true)
+    whenever(androidKeyStore.createKeyPair(algorithm, keyGenParameterSpec)).thenReturn(keyPair)
+    whenever(androidKeyStore.getKeyPair(alias)).thenReturn(null)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
         Matchers.instanceOf(
@@ -180,18 +132,20 @@ class AndroidKeyManagerTest {
     val privateKey2: PrivateKey = mock()
     val encoded1 = ByteArray(5).apply { nextBytes(this) }
     val encoded2 = ByteArray(5).apply { nextBytes(this) }
+    val keyGenParameterSpec: KeyGenParameterSpec = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
+    whenever(template.keyGenParameterSpec).thenReturn(keyGenParameterSpec)
     whenever(keyPair1.public).thenReturn(publicKey1)
     whenever(keyPair2.public).thenReturn(publicKey2)
     whenever(keyPair1.private).thenReturn(privateKey1)
     whenever(keyPair2.private).thenReturn(privateKey2)
     whenever(publicKey1.encoded).thenReturn(encoded1)
     whenever(publicKey2.encoded).thenReturn(encoded2)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = false, key = keyPair1, newKey = keyPair2
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(false)
+        .thenReturn(true)
+    whenever(androidKeyStore.createKeyPair(algorithm, keyGenParameterSpec)).thenReturn(keyPair1)
+    whenever(androidKeyStore.getKeyPair(alias)).thenReturn(keyPair2)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
         Matchers.instanceOf(
@@ -206,10 +160,8 @@ class AndroidKeyManagerTest {
     val alias = "test"
     val template: ECP256SignerTemplate = mock()
     whenever(template.alias).thenReturn(alias)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = true, key = null
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(true)
+    whenever(androidKeyStore.getKeyPair(alias)).thenReturn(null)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
         Matchers.instanceOf(
@@ -225,10 +177,7 @@ class AndroidKeyManagerTest {
     val template: ECP256SignerTemplate = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.shouldExist).thenReturn(true)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = false, key = null
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(false)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
         Matchers.instanceOf(
@@ -244,10 +193,8 @@ class AndroidKeyManagerTest {
     val template: ECP256SignerTemplate = mock()
     val error: RuntimeException = mock()
     whenever(template.alias).thenReturn(alias)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = true, key = null, error = error
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(true)
+    whenever(androidKeyStore.getKeyPair(alias)).thenThrow(error)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
         Matchers.instanceOf(
@@ -264,17 +211,18 @@ class AndroidKeyManagerTest {
     val cipherAlgorithm = "cipherAlgorithm"
     val template: AESGCMNoPaddingCipherTemplate = mock()
     val key: SecretKey = mock()
+    val keyGenParameterSpec: KeyGenParameterSpec = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = false, key = key, newKey = key
-      )
+    whenever(template.keyGenParameterSpec).thenReturn(keyGenParameterSpec)
+    whenever(androidKeyStore.contains(alias)).thenReturn(false)
+        .thenReturn(true)
+    whenever(androidKeyStore.createKey(algorithm, keyGenParameterSpec)).thenReturn(key)
+    whenever(androidKeyStore.getSecretKey(alias)).thenReturn(key)
     val cipher = androidKeyManager.cipher(template)
-    assertTrue(keyStoreMockOutput.generatedKeyPair)
     assertTrue(cipher is AESCipher)
-    assertEquals(keyStoreMockInput.key, (cipher as? AESCipher)?.key)
+    assertEquals(key, (cipher as? AESCipher)?.key)
   }
 
   @Test
@@ -282,16 +230,14 @@ class AndroidKeyManagerTest {
     val alias = "test"
     val cipherAlgorithm = "cipherAlgorithm"
     val template: AESGCMNoPaddingCipherTemplate = mock()
+    val key: SecretKey = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = true, key = mock<SecretKey>()
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(true)
+    whenever(androidKeyStore.getSecretKey(alias)).thenReturn(key)
     val cipher = androidKeyManager.cipher(template)
-    assertFalse(keyStoreMockOutput.generatedKeyPair)
     assertTrue(cipher is AESCipher)
-    assertEquals(keyStoreMockInput.key, (cipher as? AESCipher)?.key)
+    assertEquals(key, (cipher as? AESCipher)?.key)
   }
 
   @Test
@@ -302,13 +248,32 @@ class AndroidKeyManagerTest {
     val template: AESGCMNoPaddingCipherTemplate = mock()
     val key1: SecretKey = mock()
     val key2: SecretKey = mock()
+    val keyGenParameterSpec: KeyGenParameterSpec = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.algorithm).thenReturn(algorithm)
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = false, key = key1, newKey = key2
-      )
+    whenever(template.keyGenParameterSpec).thenReturn(keyGenParameterSpec)
+    whenever(androidKeyStore.contains(alias)).thenReturn(false)
+        .thenReturn(true)
+    whenever(androidKeyStore.createKey(algorithm, keyGenParameterSpec)).thenReturn(key1)
+    whenever(androidKeyStore.getSecretKey(alias)).thenReturn(key2)
+    exceptionRule.expect(KeyException::class.java)
+    exceptionRule.expectCause(
+        Matchers.instanceOf(
+            IllegalArgumentException::class.java
+        )
+    )
+    androidKeyManager.cipher(template)
+  }
+
+  @Test
+  fun `Key not found for previously created cipher`() {
+    val alias = "test"
+    val template: AESGCMNoPaddingCipherTemplate = mock()
+    whenever(template.alias).thenReturn(alias)
+    whenever(template.shouldExist).thenReturn(true)
+    whenever(androidKeyStore.contains(alias)).thenReturn(true)
+    whenever(androidKeyStore.getSecretKey(alias)).thenReturn(null)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
         Matchers.instanceOf(
@@ -324,10 +289,7 @@ class AndroidKeyManagerTest {
     val template: AESGCMNoPaddingCipherTemplate = mock()
     whenever(template.alias).thenReturn(alias)
     whenever(template.shouldExist).thenReturn(true)
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = false, key = null
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(false)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
         Matchers.instanceOf(
@@ -340,34 +302,25 @@ class AndroidKeyManagerTest {
   @Test
   fun `Delete alias should delete it from keystore`() {
     val alias = "test"
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = true, key = mock<KeyPair>()
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(true)
     androidKeyManager.delete(alias)
-    assertEquals(alias, keyStoreMockOutput.deletedAlias)
+    verify(androidKeyStore).deleteEntry(alias)
   }
 
   @Test
   fun `Delete non-existing alias should not call delete from keystore`() {
     val alias = "test"
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = false, key = null
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(false)
     androidKeyManager.delete(alias)
-    assertTrue(keyStoreMockOutput.deletedAlias.isNullOrEmpty())
+    verify(androidKeyStore, never()).deleteEntry(alias)
   }
 
   @Test
   fun `Error deleting alias should throw exception`() {
     val alias = "test"
     val error: RuntimeException = mock()
-    keyStoreMockInput =
-      KeyStoreMockInput(
-          containsAlias = true, key = mock<KeyPair>(),
-          error = error
-      )
+    whenever(androidKeyStore.contains(alias)).thenReturn(true)
+    whenever(androidKeyStore.deleteEntry(alias)).thenThrow(error)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
         Matchers.instanceOf(

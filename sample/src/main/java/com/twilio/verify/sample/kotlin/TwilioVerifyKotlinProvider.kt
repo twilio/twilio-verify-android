@@ -1,18 +1,19 @@
 package com.twilio.verify.sample.kotlin
 
 import android.content.Context
-import com.twilio.verify.sample.networking.AuthenticationProvider
+import com.twilio.verify.TwilioVerify
 
 object TwilioVerifyKotlinProvider {
   private lateinit var twilioVerifyAdapter: TwilioVerifyKotlinAdapter
 
   fun getInstance(
-    applicationContext: Context,
-    url: String
+    applicationContext: Context
   ): TwilioVerifyKotlinAdapter {
     if (!this::twilioVerifyAdapter.isInitialized) {
-      twilioVerifyAdapter =
-        TwilioVerifyKotlinAdapter(applicationContext, authentication = AuthenticationProvider(url))
+      twilioVerifyAdapter = TwilioVerifyKotlinAdapter(
+          TwilioVerify.Builder(applicationContext)
+              .build()
+      )
     }
     return twilioVerifyAdapter
   }

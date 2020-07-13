@@ -2,6 +2,7 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.ChallengeStatus
 import org.hamcrest.Matchers
@@ -9,12 +10,16 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+
+private const val previousPageToken = "previousPageToken"
+private const val nextPageToken = "nextPageToken"
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -43,15 +48,13 @@ class FactorChallengeListMapperTest {
     assertEquals(challengeList.challenges.size, expectedChallenges.length())
     assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
     assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
-    assertEquals(expectedMetadata.getString(nextPageKey), challengeList.metadata.nextPageURL)
-    assertEquals(expectedMetadata.getString(key), challengeList.metadata.key)
+    assertEquals(previousPageToken, challengeList.metadata.previousPageToken)
+    assertEquals(nextPageToken, challengeList.metadata.nextPageToken)
 
     val firstJSONChallenge = expectedChallenges.getJSONObject(0)
     val firstChallenge = challengeList.challenges[0] as FactorChallenge
     assertEquals(firstJSONChallenge.getString(sidKey), firstChallenge.sid)
     assertEquals(firstJSONChallenge.getString(factorSidKey), firstChallenge.factorSid)
-    assertEquals(firstJSONChallenge.getString(createdDateKey), firstChallenge.createdDate)
-    assertEquals(firstJSONChallenge.getString(updatedDateKey), firstChallenge.updatedDate)
     assertEquals(
         fromRFC3339Date(firstJSONChallenge.getString(createdDateKey)), firstChallenge.createdAt
     )
@@ -59,30 +62,252 @@ class FactorChallengeListMapperTest {
         fromRFC3339Date(firstJSONChallenge.getString(updatedDateKey)), firstChallenge.updatedAt
     )
     assertEquals(firstJSONChallenge.getString(statusKey), firstChallenge.status.value)
-    assertEquals(firstJSONChallenge.getString(entitySidKey), firstChallenge.entitySid)
-    assertEquals(firstJSONChallenge.getString(detailsKey), firstChallenge.details)
 
     val secondJSONChallenge = expectedChallenges.getJSONObject(1)
     val secondChallenge = challengeList.challenges[1] as FactorChallenge
     assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
     assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
-    assertEquals(secondJSONChallenge.getString(createdDateKey), secondChallenge.createdDate)
-    assertEquals(secondJSONChallenge.getString(updatedDateKey), secondChallenge.updatedDate)
     assertEquals(
-        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)),
-        secondChallenge.createdAt
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
     )
     assertEquals(
-        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)),
-        secondChallenge.updatedAt
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
     )
     assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
-    assertEquals(secondJSONChallenge.getString(entitySidKey), secondChallenge.entitySid)
-    assertEquals(secondJSONChallenge.getString(detailsKey), secondChallenge.details)
   }
 
   @Test
-  fun `Map response without challenges should throw an error`() {
+  fun `Map a valid response and no next page url from API should return a list of challenges`() {
+    val expectedChallenges = JSONArray(
+        listOf(
+            challengeJSONObject("sid123"),
+            challengeJSONObject("sid456")
+        )
+    )
+    val expectedMetadata = metaJSONObject(nextPageUrl = null)
+    val jsonObject = JSONObject().apply {
+      put(challengesKey, expectedChallenges)
+      put(metaKey, expectedMetadata)
+    }
+
+    val challengeList = challengeListMapper.fromApi(jsonObject)
+    assertEquals(challengeList.challenges.size, expectedChallenges.length())
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
+    assertEquals(previousPageToken, challengeList.metadata.previousPageToken)
+    assertNull(challengeList.metadata.nextPageToken)
+
+    val firstJSONChallenge = expectedChallenges.getJSONObject(0)
+    val firstChallenge = challengeList.challenges[0] as FactorChallenge
+    assertEquals(firstJSONChallenge.getString(sidKey), firstChallenge.sid)
+    assertEquals(firstJSONChallenge.getString(factorSidKey), firstChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(createdDateKey)), firstChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(updatedDateKey)), firstChallenge.updatedAt
+    )
+    assertEquals(firstJSONChallenge.getString(statusKey), firstChallenge.status.value)
+
+    val secondJSONChallenge = expectedChallenges.getJSONObject(1)
+    val secondChallenge = challengeList.challenges[1] as FactorChallenge
+    assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
+    assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
+    )
+    assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
+  }
+
+  @Test
+  fun `Map a valid response and no next page token from API should return a list of challenges`() {
+    val expectedChallenges = JSONArray(
+        listOf(
+            challengeJSONObject("sid123"),
+            challengeJSONObject("sid456")
+        )
+    )
+    val expectedMetadata = metaJSONObject(nextPageUrl = "http://www.twilio.com")
+    val jsonObject = JSONObject().apply {
+      put(challengesKey, expectedChallenges)
+      put(metaKey, expectedMetadata)
+    }
+
+    val challengeList = challengeListMapper.fromApi(jsonObject)
+    assertEquals(challengeList.challenges.size, expectedChallenges.length())
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
+    assertEquals(previousPageToken, challengeList.metadata.previousPageToken)
+    assertNull(challengeList.metadata.nextPageToken)
+
+    val firstJSONChallenge = expectedChallenges.getJSONObject(0)
+    val firstChallenge = challengeList.challenges[0] as FactorChallenge
+    assertEquals(firstJSONChallenge.getString(sidKey), firstChallenge.sid)
+    assertEquals(firstJSONChallenge.getString(factorSidKey), firstChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(createdDateKey)), firstChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(updatedDateKey)), firstChallenge.updatedAt
+    )
+    assertEquals(firstJSONChallenge.getString(statusKey), firstChallenge.status.value)
+
+    val secondJSONChallenge = expectedChallenges.getJSONObject(1)
+    val secondChallenge = challengeList.challenges[1] as FactorChallenge
+    assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
+    assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
+    )
+    assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
+  }
+
+  @Test
+  fun `Map a valid response and invalid next page url from API should return a list of challenges`() {
+    val expectedChallenges = JSONArray(
+        listOf(
+            challengeJSONObject("sid123"),
+            challengeJSONObject("sid456")
+        )
+    )
+    val expectedMetadata = metaJSONObject(nextPageUrl = "twilio")
+    val jsonObject = JSONObject().apply {
+      put(challengesKey, expectedChallenges)
+      put(metaKey, expectedMetadata)
+    }
+
+    val challengeList = challengeListMapper.fromApi(jsonObject)
+    assertEquals(challengeList.challenges.size, expectedChallenges.length())
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
+    assertEquals(previousPageToken, challengeList.metadata.previousPageToken)
+    assertNull(challengeList.metadata.nextPageToken)
+
+    val firstJSONChallenge = expectedChallenges.getJSONObject(0)
+    val firstChallenge = challengeList.challenges[0] as FactorChallenge
+    assertEquals(firstJSONChallenge.getString(sidKey), firstChallenge.sid)
+    assertEquals(firstJSONChallenge.getString(factorSidKey), firstChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(createdDateKey)), firstChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(updatedDateKey)), firstChallenge.updatedAt
+    )
+    assertEquals(firstJSONChallenge.getString(statusKey), firstChallenge.status.value)
+
+    val secondJSONChallenge = expectedChallenges.getJSONObject(1)
+    val secondChallenge = challengeList.challenges[1] as FactorChallenge
+    assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
+    assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
+    )
+    assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
+  }
+
+  @Test
+  fun `Map a valid response and no previous page url from API should return a list of challenges`() {
+    val expectedChallenges = JSONArray(
+        listOf(
+            challengeJSONObject("sid123"),
+            challengeJSONObject("sid456")
+        )
+    )
+    val expectedMetadata = metaJSONObject(previousPageUrl = null)
+    val jsonObject = JSONObject().apply {
+      put(challengesKey, expectedChallenges)
+      put(metaKey, expectedMetadata)
+    }
+
+    val challengeList = challengeListMapper.fromApi(jsonObject)
+    assertEquals(challengeList.challenges.size, expectedChallenges.length())
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
+    assertNull(challengeList.metadata.previousPageToken)
+    assertEquals(nextPageToken, challengeList.metadata.nextPageToken)
+
+    val firstJSONChallenge = expectedChallenges.getJSONObject(0)
+    val firstChallenge = challengeList.challenges[0] as FactorChallenge
+    assertEquals(firstJSONChallenge.getString(sidKey), firstChallenge.sid)
+    assertEquals(firstJSONChallenge.getString(factorSidKey), firstChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(createdDateKey)), firstChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(updatedDateKey)), firstChallenge.updatedAt
+    )
+    assertEquals(firstJSONChallenge.getString(statusKey), firstChallenge.status.value)
+
+    val secondJSONChallenge = expectedChallenges.getJSONObject(1)
+    val secondChallenge = challengeList.challenges[1] as FactorChallenge
+    assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
+    assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
+    )
+    assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
+  }
+
+  @Test
+  fun `Map a valid response and no previous page token from API should return a list of challenges`() {
+    val expectedChallenges = JSONArray(
+        listOf(
+            challengeJSONObject("sid123"),
+            challengeJSONObject("sid456")
+        )
+    )
+    val expectedMetadata = metaJSONObject(previousPageUrl = "http://www.twilio.com")
+    val jsonObject = JSONObject().apply {
+      put(challengesKey, expectedChallenges)
+      put(metaKey, expectedMetadata)
+    }
+
+    val challengeList = challengeListMapper.fromApi(jsonObject)
+    assertEquals(challengeList.challenges.size, expectedChallenges.length())
+    assertEquals(expectedMetadata.getInt(pageKey), challengeList.metadata.page)
+    assertEquals(expectedMetadata.getInt(pageSizeKey), challengeList.metadata.pageSize)
+    assertNull(challengeList.metadata.previousPageToken)
+    assertEquals(nextPageToken, challengeList.metadata.nextPageToken)
+
+    val firstJSONChallenge = expectedChallenges.getJSONObject(0)
+    val firstChallenge = challengeList.challenges[0] as FactorChallenge
+    assertEquals(firstJSONChallenge.getString(sidKey), firstChallenge.sid)
+    assertEquals(firstJSONChallenge.getString(factorSidKey), firstChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(createdDateKey)), firstChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(firstJSONChallenge.getString(updatedDateKey)), firstChallenge.updatedAt
+    )
+    assertEquals(firstJSONChallenge.getString(statusKey), firstChallenge.status.value)
+
+    val secondJSONChallenge = expectedChallenges.getJSONObject(1)
+    val secondChallenge = challengeList.challenges[1] as FactorChallenge
+    assertEquals(secondJSONChallenge.getString(sidKey), secondChallenge.sid)
+    assertEquals(secondJSONChallenge.getString(factorSidKey), secondChallenge.factorSid)
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(createdDateKey)), secondChallenge.createdAt
+    )
+    assertEquals(
+        fromRFC3339Date(secondJSONChallenge.getString(updatedDateKey)), secondChallenge.updatedAt
+    )
+    assertEquals(secondJSONChallenge.getString(statusKey), secondChallenge.status.value)
+  }
+
+  @Test
+  fun `Map response without challenges key should throw an error`() {
     val expectedMetaData = metaJSONObject()
     val jsonObject = JSONObject().apply {
       put(metaKey, expectedMetaData)
@@ -94,7 +319,7 @@ class FactorChallengeListMapperTest {
     challengeListMapper.fromApi(jsonObject)
   }
 
-  fun `Map response without metadata should throw an error`() {
+  fun `Map response without metadata key should throw an error`() {
     val expectedChallenges = JSONArray(
         listOf(
             challengeJSONObject("sid123"),
@@ -117,7 +342,6 @@ class FactorChallengeListMapperTest {
       put(pageKey, 1)
       put(pageSizeKey, 10)
       put(nextPageKey, 14)
-      put(key, "key")
     }
     val jsonObject = JSONObject().apply {
       put(metaKey, metadata)
@@ -136,7 +360,6 @@ class FactorChallengeListMapperTest {
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(statusKey, ChallengeStatus.Pending.value)
-      put(entitySidKey, "entitySid")
       put(detailsKey, JSONObject().apply {
         put(messageKey, "message123")
         put(fieldsKey, JSONArray().apply {
@@ -146,20 +369,25 @@ class FactorChallengeListMapperTest {
           })
         })
         put(dateKey, "2020-02-19T16:39:57-08:00")
-      }.toString())
+      }
+          .toString())
       put(hiddenDetailsKey, JSONObject().apply {
         put("key1", "value1")
-      }.toString())
+      }
+          .toString())
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
   }
 
-  private fun metaJSONObject(): JSONObject {
+  private fun metaJSONObject(
+    previousPageUrl: String? = "https://www.twilio.com?$pageTokenKey=$previousPageToken",
+    nextPageUrl: String? = "https://www.twilio.com?$pageTokenKey=$nextPageToken"
+  ): JSONObject {
     return JSONObject().apply {
-      put(pageKey, 1)
+      put(pageKey, 0)
       put(pageSizeKey, 10)
-      put(nextPageKey, "next_page")
-      put(key, "key")
+      put(previousPageKey, previousPageUrl)
+      put(nextPageKey, nextPageUrl)
     }
   }
 }

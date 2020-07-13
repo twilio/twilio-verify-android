@@ -26,9 +26,12 @@ internal class ChallengeRepository(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun toChallenge(response: JSONObject) {
+    fun toChallenge(
+      response: JSONObject,
+      signatureFieldsHeader: String?
+    ) {
       try {
-        val challenge = challengeMapper.fromApi(response)
+        val challenge = challengeMapper.fromApi(response, signatureFieldsHeader)
             .also {
               if (it.factorSid != factor.sid) {
                 throw TwilioVerifyException(
@@ -76,12 +79,12 @@ internal class ChallengeRepository(
   }
 
   override fun getAll(
-      factor: Factor,
-      status: ChallengeStatus?,
-      pageSize: Int,
-      pageToken: String?,
-      success: (ChallengeList) -> Unit,
-      error: (TwilioVerifyException) -> Unit
+    factor: Factor,
+    status: ChallengeStatus?,
+    pageSize: Int,
+    pageToken: String?,
+    success: (ChallengeList) -> Unit,
+    error: (TwilioVerifyException) -> Unit
   ) {
     fun toResponse(response: JSONObject) {
       try {

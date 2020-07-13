@@ -36,6 +36,7 @@ class NetworkAdapterTest {
     val url: URL = mock()
     val urlConnection: HttpsURLConnection = mock()
     val expectedResponse = "Response"
+    val expectedHeaders = mapOf("Header" to listOf("Value"))
     val inputStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
     val outputStream: OutputStream = mock()
 
@@ -46,8 +47,10 @@ class NetworkAdapterTest {
     `when`(urlConnection.outputStream).thenReturn(outputStream)
     `when`(urlConnection.responseCode).thenReturn(200)
     `when`(urlConnection.inputStream).thenReturn(inputStream)
+    `when`(urlConnection.headerFields).thenReturn(expectedHeaders)
     networkAdapter.execute(request, {
-      assertEquals(expectedResponse, it)
+      assertEquals(expectedResponse, it.body)
+      assertEquals(expectedHeaders, it.headers)
     }, {
       fail()
     })

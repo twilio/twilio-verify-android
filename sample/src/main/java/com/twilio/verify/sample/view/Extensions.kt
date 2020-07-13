@@ -13,9 +13,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.Service
 
-fun Exception.showError(
+fun Throwable.showError(
   content: View
 ) {
   printStackTrace()
@@ -36,10 +35,14 @@ fun ChallengeDetails.string(context: Context?): String {
 }
 
 fun Challenge.string(context: Context?) =
-  "Sid:\n${this.sid}\nName: ${this.challengeDetails.message}\nStatus: ${this.status}\nExpire on: ${DateUtils.formatDateTime(
-      context, expirationDate.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
-  )}"
+  "Sid:\n${this.sid}\nName: ${this.challengeDetails.message}\nStatus: ${this.status}\nCreated at: " +
+      "${DateUtils.formatDateTime(
+          context, createdAt.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
+      )}\nExpire on: " +
+      DateUtils.formatDateTime(
+          context, expirationDate.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
+      )
 
-fun Factor.string() = "Sid:\n${this.sid}\nName: ${this.friendlyName}\nStatus: ${this.status}"
-
-fun Service.string() = "Sid:\n${this.sid}\nName: ${this.friendlyName}"
+fun Factor.string() =
+  "Sid:\n${this.sid}\nEntity Identity:\n${this.entityIdentity}\nName: ${this.friendlyName}" +
+      "\nStatus: ${this.status}"

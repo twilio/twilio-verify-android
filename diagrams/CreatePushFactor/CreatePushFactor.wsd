@@ -48,7 +48,8 @@ class Data.Storage implements Data.StorageProvider {
 }
 interface Data.KeyStorage {
     create(alias: String): String
-    sign(alias: String, message: String): String
+    signAndEncode(alias: String, message: String): String
+    sign(alias: String, message: String): byte[]
 }
 class Data.KeyStoreAdapter implements Data.KeyStorage {
 
@@ -63,7 +64,7 @@ class Domain.Factor.FactorRepository implements Domain.Factor.FactorProvider {
 
 }
 class Domain.Factor.PushFactory {
-    create(jwt: String, friendlyName: String, pushToken: String, success: (Factor)->(), error: (TwilioVerifyException)->())
+    create(jwe: String, friendlyName: String, pushToken: String, success: (Factor)->(), error: (TwilioVerifyException)->())
     verify(sid: String, verificationCode: String, success: (Factor)->(), error: (TwilioVerifyException)->())
 }
 Domain.Factor.PushFactory o-left-> Data.KeyStorage: create key pair

@@ -5,8 +5,10 @@ package com.twilio.verify.domain.factor
 
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.data.fromRFC3339Date
+import com.twilio.verify.data.toRFC3339Date
+import com.twilio.verify.domain.factor.models.FactorDataPayload
 import com.twilio.verify.domain.factor.models.Config
-import com.twilio.verify.domain.factor.models.FactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
@@ -25,13 +27,14 @@ internal const val accountSidKey = "account_sid"
 internal const val serviceSidKey = "service_sid"
 internal const val entityIdentityKey = "entity_identity"
 internal const val keyPairAliasKey = "key_pair"
+internal const val dateCreatedKey = "date_created"
 
 internal class FactorMapper {
 
   @Throws(TwilioVerifyException::class)
   fun fromApi(
     jsonObject: JSONObject,
-    factorPayload: FactorPayload
+    factorPayload: FactorDataPayload
   ): Factor {
     val serviceSid = factorPayload.serviceSid
     val entityIdentity = factorPayload.entity
@@ -50,7 +53,8 @@ internal class FactorMapper {
     jsonObject: JSONObject
   ): FactorStatus {
     return try {
-      FactorStatus.values().find { it.value == jsonObject.getString(statusKey) } ?: Unverified
+      FactorStatus.values()
+          .find { it.value == jsonObject.getString(statusKey) } ?: Unverified
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)
     }
@@ -98,7 +102,9 @@ internal class FactorMapper {
           .put(statusKey, factor.status.value)
           .put(
               configKey, JSONObject().put(credentialSidKey, factor.config.credentialSid)
-          ).toString()
+          )
+          .put(dateCreatedKey, toRFC3339Date(factor.createdAt))
+          .toString()
     }
   }
 
@@ -115,9 +121,16 @@ internal class FactorMapper {
           accountSid = jsonObject.getString(accountSidKey),
           serviceSid = serviceSid,
           entityIdentity = entityIdentity,
-          status = FactorStatus.values().find { it.value == jsonObject.getString(statusKey) }
+          status = FactorStatus.values()
+              .find { it.value == jsonObject.getString(statusKey) }
               ?: Unverified,
-          config = Config(jsonObject.getJSONObject(configKey).getString(credentialSidKey))
+          createdAt = fromRFC3339Date(
+              jsonObject.getString(dateCreatedKey)
+          ),
+          config = Config(
+              jsonObject.getJSONObject(configKey)
+                  .getString(credentialSidKey)
+          )
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)

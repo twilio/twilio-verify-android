@@ -12,5 +12,5 @@ internal data class CreateFactorPayload(
   override val entity: String,
   override val config: Map<String, String>,
   val binding: Map<String, String>,
-  val jwt: String
-) : FactorPayload
+  val jwe: String
+) : FactorDataPayload
