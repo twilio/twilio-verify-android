@@ -68,7 +68,7 @@ class ServiceAPIClientTest {
     }
     val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
@@ -96,7 +96,7 @@ class ServiceAPIClientTest {
     }
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -122,7 +122,7 @@ class ServiceAPIClientTest {
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
-    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
+    whenever(networkProvider.execute(any(), any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, {
       fail()
@@ -152,7 +152,7 @@ class ServiceAPIClientTest {
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any())
+      verify(networkProvider).execute(capture(), any(), any(), any())
     }
 
     requestCaptor.firstValue.apply {

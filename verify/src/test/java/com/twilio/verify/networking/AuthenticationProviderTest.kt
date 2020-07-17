@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -25,11 +26,12 @@ import java.util.Date
 @RunWith(RobolectricTestRunner::class)
 class AuthenticationProviderTest {
   private val jwtGenerator: JwtGenerator = mock()
+  private val dateProvider: DateProvider = mock()
   private lateinit var authentication: Authentication
 
   @Before
   fun setup() {
-    authentication = AuthenticationProvider(jwtGenerator)
+    authentication = AuthenticationProvider(jwtGenerator, dateProvider)
   }
 
   @Test

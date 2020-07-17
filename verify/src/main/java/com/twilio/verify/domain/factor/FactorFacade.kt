@@ -20,6 +20,7 @@ import com.twilio.verify.models.VerifyFactorPayload
 import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.NetworkProvider
+import com.twilio.verify.storagePreferences
 import com.twilio.verify.threading.execute
 
 internal class FactorFacade(
@@ -182,9 +183,8 @@ internal class FactorFacade(
             InitializationError
         )
       }
-      val storageName = "${appContext.packageName}.$VERIFY_SUFFIX"
       val factorAPIClient = FactorAPIClient(networking, appContext, authentication, url)
-      val sharedPreferences = appContext.getSharedPreferences(storageName, Context.MODE_PRIVATE)
+      val sharedPreferences = storagePreferences(appContext)
       val storage = Storage(sharedPreferences)
       val repository = FactorRepository(factorAPIClient, storage)
       val pushFactory = PushFactory(repository, keyStore, appContext)
@@ -192,5 +192,3 @@ internal class FactorFacade(
     }
   }
 }
-
-internal const val VERIFY_SUFFIX = "verify"

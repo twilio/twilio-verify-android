@@ -1,6 +1,8 @@
 package com.twilio.verify.api
 
 import android.content.Context
+import com.twilio.verify.data.DateAdapter
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.domain.challenge.models.FactorChallenge
@@ -14,6 +16,7 @@ import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.RequestHelper
+import com.twilio.verify.storagePreferences
 import org.json.JSONObject
 
 /*
@@ -37,8 +40,11 @@ internal class ChallengeAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
   private val authentication: Authentication,
-  private val baseUrl: String
-) {
+  private val baseUrl: String,
+  dateProvider: DateProvider = DateAdapter(
+      storagePreferences(context)
+  )
+) : BaseAPIClient(dateProvider) {
 
   fun update(
     challenge: FactorChallenge,
@@ -64,6 +70,10 @@ internal class ChallengeAPIClient(
           .build()
       networkProvider.execute(request, {
         success()
+      }, {
+        syncTime {
+          update(challenge, authPayload, success, error)
+        }
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -95,6 +105,10 @@ internal class ChallengeAPIClient(
             JSONObject(it.body),
             it.headers[signatureFieldsHeader]?.first()
         )
+      }, {
+        syncTime {
+          get(sid, factor, success, error)
+        }
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -136,6 +150,10 @@ internal class ChallengeAPIClient(
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it.body))
+      }, {
+        syncTime {
+          getAll(factor, status, pageSize, pageToken, success, error)
+        }
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -175,3 +193,4 @@ internal class ChallengeAPIClient(
   ) = "$baseUrl$getChallengesURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
       .replace(IDENTITY_PATH, factor.entityIdentity)
 }
+

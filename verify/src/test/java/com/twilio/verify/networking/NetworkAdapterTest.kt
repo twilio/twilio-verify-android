@@ -51,7 +51,7 @@ class NetworkAdapterTest {
     networkAdapter.execute(request, {
       assertEquals(expectedResponse, it.body)
       assertEquals(expectedHeaders, it.headers)
-    }, {
+    }, error = {
       fail()
     })
   }
@@ -67,7 +67,7 @@ class NetworkAdapterTest {
     val expectedResponse = "Error"
     val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
     `when`(urlConnection.errorStream).thenReturn(errorStream)
-    networkAdapter.execute(request, { fail() }, { exception ->
+    networkAdapter.execute(request, { fail() }, error = { exception ->
       assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
     })
   }
@@ -79,7 +79,7 @@ class NetworkAdapterTest {
     `when`(request.httpMethod).thenReturn(HttpMethod.Post)
     val expectedException: IOException = mock()
     `when`(url.openConnection()).thenThrow(expectedException)
-    networkAdapter.execute(request, { fail() }, { exception ->
+    networkAdapter.execute(request, { fail() }, error = { exception ->
       assertEquals(expectedException, exception.cause)
     })
   }

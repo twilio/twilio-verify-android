@@ -5,12 +5,14 @@ import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.check
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.factor.ALG_KEY
 import com.twilio.verify.domain.factor.APP_ID_KEY
 import com.twilio.verify.domain.factor.DEFAULT_ALG
@@ -57,6 +59,7 @@ class FactorAPIClientTest {
   private lateinit var factorAPIClient: FactorAPIClient
   private lateinit var networkProvider: NetworkProvider
   private val authentication: Authentication = mock()
+  private val dateProvider: DateProvider = mock()
   private lateinit var context: Context
   private val baseUrl = BuildConfig.BASE_URL
   private val idlingResource = IdlingResource()
@@ -65,14 +68,15 @@ class FactorAPIClientTest {
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
-    factorAPIClient = FactorAPIClient(networkProvider, context, authentication, baseUrl)
+    factorAPIClient =
+      FactorAPIClient(networkProvider, context, authentication, baseUrl, dateProvider)
   }
 
   @Test
   fun `Create a factor with a success response should call success`() {
     val response = "{\"key\":\"value\"}"
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
@@ -91,7 +95,7 @@ class FactorAPIClientTest {
   fun `Create a factor with an error response should call error`() {
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -111,7 +115,7 @@ class FactorAPIClientTest {
       CreateFactorPayload(
           "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwe"
       )
-    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
+    whenever(networkProvider.execute(any(), any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
       fail()
     }, { exception ->
@@ -155,7 +159,7 @@ class FactorAPIClientTest {
 
     factorAPIClient.create(factorPayload, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any())
+      verify(networkProvider).execute(capture(), any(), eq(null), any())
     }
 
     requestCaptor.firstValue.apply {
@@ -176,7 +180,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val response = "{\"key\":\"value\"}"
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
@@ -210,7 +214,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -263,7 +267,7 @@ class FactorAPIClientTest {
     idlingResource.startOperation()
     factorAPIClient.verify(factor, authPayloadMock, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any())
+      verify(networkProvider).execute(capture(), any(), any(), any())
     }
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
@@ -290,7 +294,7 @@ class FactorAPIClientTest {
           config = Config("credentialSid")
       )
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
@@ -322,7 +326,7 @@ class FactorAPIClientTest {
       )
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -379,7 +383,7 @@ class FactorAPIClientTest {
     idlingResource.startOperation()
     factorAPIClient.update(factor, factorPayload, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any())
+      verify(networkProvider).execute(capture(), any(), any(), any())
     }
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
@@ -410,7 +414,7 @@ class FactorAPIClientTest {
           .replace(IDENTITY_PATH, identity)
           .replace(FACTOR_SID_PATH, factor.sid)
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
@@ -423,6 +427,7 @@ class FactorAPIClientTest {
             assertEquals(URL(expectedURL), it.url)
             assertEquals(Delete, it.httpMethod)
           }, any(), any()
+          , any()
       )
       idlingResource.operationFinished()
     }, {
@@ -445,7 +450,7 @@ class FactorAPIClientTest {
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -473,7 +478,7 @@ class FactorAPIClientTest {
       )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     val expectedException = RuntimeException()
-    whenever(networkProvider.execute(any(), any(), any())).thenThrow(expectedException)
+    whenever(networkProvider.execute(any(), any(), any(), any())).thenThrow(expectedException)
     idlingResource.startOperation()
     factorAPIClient.delete(
         factor, {

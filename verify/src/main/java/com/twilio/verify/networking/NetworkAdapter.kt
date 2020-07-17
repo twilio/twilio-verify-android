@@ -1,6 +1,7 @@
 package com.twilio.verify.networking
 
 import java.io.BufferedWriter
+import java.io.InputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -15,6 +16,7 @@ class NetworkAdapter : NetworkProvider {
   override fun execute(
     request: Request,
     success: (response: Response) -> Unit,
+    syncTime: (() -> Unit)?,
     error: (NetworkException) -> Unit
   ) {
     var httpUrlConnection: HttpURLConnection? = null
@@ -38,14 +40,18 @@ class NetworkAdapter : NetworkProvider {
         os.close()
       }
       val responseCode = httpUrlConnection.responseCode
-      if (responseCode < 300) {
-        val response = httpUrlConnection.inputStream.bufferedReader()
-            .use { it.readText() }
-        success(Response(body = response, headers = httpUrlConnection.headerFields))
-      } else {
-        val errorResponse = httpUrlConnection.errorStream.bufferedReader()
-            .use { it.readText() }
-        error(NetworkException(responseCode, errorResponse))
+      when {
+        responseCode < 300 -> {
+          val response = httpUrlConnection.inputStream.bufferedReader()
+              .use { it.readText() }
+          success(Response(body = response, headers = httpUrlConnection.headerFields))
+        }
+        responseCode == 401 -> syncTime?.let { it() } ?: run {
+          error(errorResponse(responseCode, httpUrlConnection.errorStream))
+        }
+        else -> {
+          error(errorResponse(responseCode, httpUrlConnection.errorStream))
+        }
       }
     } catch (e: Exception) {
       error(NetworkException(e))
@@ -53,4 +59,11 @@ class NetworkAdapter : NetworkProvider {
       httpUrlConnection?.disconnect()
     }
   }
+
+  private fun errorResponse(
+    responseCode: Int,
+    errorStream: InputStream
+  ): NetworkException =
+    NetworkException(responseCode, errorStream.bufferedReader()
+        .use { it.readText() })
 }

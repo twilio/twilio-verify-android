@@ -72,7 +72,7 @@ class ChallengeAPIClientTest {
   fun `Update a challenge with a success response should call success`() {
     val response = "{\"key\":\"value\"}"
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
@@ -91,7 +91,7 @@ class ChallengeAPIClientTest {
   fun `Update a challenge with an error response should call error`() {
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -109,7 +109,7 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Error updating a challenge should call error`() {
-    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
+    whenever(networkProvider.execute(any(), any(), any(), any())).thenThrow(RuntimeException())
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.update(factorChallenge, "authPayload", {
@@ -157,7 +157,7 @@ class ChallengeAPIClientTest {
     idlingResource.startOperation()
     challengeAPIClient.update(factorChallenge, authPayload, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any())
+      verify(networkProvider).execute(capture(), any(), any(), any())
     }
 
     requestCaptor.firstValue.apply {
@@ -185,7 +185,7 @@ class ChallengeAPIClientTest {
           )
       )
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
         firstValue.invoke(Response(expectedResponse, expectedSignatureFieldsHeader))
       }
     }
@@ -210,7 +210,7 @@ class ChallengeAPIClientTest {
   fun `Get a challenge with an error response should call error`() {
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -228,7 +228,7 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Error getting a challenge should call error`() {
-    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
+    whenever(networkProvider.execute(any(), any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
     challengeAPIClient.get("sid", factorChallenge.factor!!, { _: JSONObject, _: String? ->
       fail()
@@ -254,7 +254,7 @@ class ChallengeAPIClientTest {
     idlingResource.startOperation()
     challengeAPIClient.get(challengeSid, factor, { _: JSONObject, _: String? -> }, {})
     val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any())
+      verify(networkProvider).execute(capture(), any(), any(), any())
     }
 
     requestCaptor.firstValue.apply {
@@ -273,7 +273,7 @@ class ChallengeAPIClientTest {
   fun `Get challenges with a success response should call success`() {
     val response = "{\"key\":\"value\"}"
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
@@ -293,7 +293,7 @@ class ChallengeAPIClientTest {
   fun `Get challenges with an error response should call error`() {
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -311,7 +311,7 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Error getting challenges should call error`() {
-    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
+    whenever(networkProvider.execute(any(), any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
     challengeAPIClient.getAll(factorChallenge.factor!!, null, 0, null, {
       fail()

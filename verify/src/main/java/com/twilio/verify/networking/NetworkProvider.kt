@@ -5,10 +5,10 @@ package com.twilio.verify.networking
  */
 
 interface NetworkProvider {
-  @Throws(NetworkException::class)
   fun execute(
     request: Request,
     success: (response: Response) -> Unit,
+    syncTime: (() -> Unit)? = null,
     error: (NetworkException) -> Unit
   )
 }
