@@ -7,6 +7,5 @@ enum class HttpMethod(val method: String) {
   Get("GET"),
   Post("POST"),
   Delete("DELETE"),
-  Put("PUT"),
-  Head("HEAD")
+  Put("PUT")
 }
