@@ -11,19 +11,21 @@ import javax.net.ssl.HttpsURLConnection
  * Copyright (c) 2020, Twilio Inc.
  */
 
+internal const val dateHeaderKey = "Date"
+
 class NetworkAdapter : NetworkProvider {
 
   override fun execute(
     request: Request,
     success: (response: Response) -> Unit,
-    syncTime: (() -> Unit)?,
+    syncTime: ((date: String) -> Unit)?,
     error: (NetworkException) -> Unit
   ) {
     var httpUrlConnection: HttpURLConnection? = null
     try {
       httpUrlConnection = request.url.openConnection() as HttpsURLConnection
       httpUrlConnection.requestMethod = request.httpMethod.method
-      for ((key, value) in request.headers) {
+      request.headers?.forEach { (key, value) ->
         httpUrlConnection.setRequestProperty(key, value)
       }
       if (request.getParams()
@@ -46,7 +48,10 @@ class NetworkAdapter : NetworkProvider {
               .use { it.readText() }
           success(Response(body = response, headers = httpUrlConnection.headerFields))
         }
-        responseCode == 401 -> syncTime?.let { it() } ?: run {
+        responseCode == 401 -> syncTime?.let {
+          httpUrlConnection.headerFields[dateHeaderKey]?.first()
+              ?.let { date -> it(date) }
+        } ?: run {
           error(errorResponse(responseCode, httpUrlConnection.errorStream))
         }
         else -> {

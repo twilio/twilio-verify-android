@@ -10,6 +10,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.challenge.factorSidKey
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.challenge.sidKey
@@ -49,6 +50,7 @@ class ChallengeAPIClientTest {
   private val authentication: Authentication = mock()
   private lateinit var context: Context
   private val baseUrl = BuildConfig.BASE_URL
+  private val dateProvider: DateProvider = mock()
   private val idlingResource = IdlingResource()
 
   private val factorChallenge =
@@ -65,7 +67,7 @@ class ChallengeAPIClientTest {
     context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
     challengeAPIClient =
-      ChallengeAPIClient(networkProvider, context, authentication, baseUrl)
+      ChallengeAPIClient(networkProvider, context, authentication, baseUrl, dateProvider)
   }
 
   @Test
@@ -85,6 +87,33 @@ class ChallengeAPIClientTest {
       idlingResource.operationFinished()
     })
     idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update a challenge with out of sync time request should sync time and redo the request`() {
+    val response = "{\"key\":\"value\"}"
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    argumentCaptor<(Response) -> Unit, (String) -> Unit>()
+        .let { (success, syncTime) ->
+          whenever(
+              networkProvider.execute(any(), success.capture(), syncTime.capture(), any())
+          ).then {
+            syncTime.firstValue.invoke(date)
+
+          }.then {
+            success.firstValue.invoke(Response(response, emptyMap()))
+          }
+        }
+    whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
+    idlingResource.startOperation()
+    challengeAPIClient.update(factorChallenge, "authPayload", {
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
   }
 
   @Test
@@ -207,6 +236,47 @@ class ChallengeAPIClientTest {
   }
 
   @Test
+  fun `Get a challenge with out of sync time request should sync time and redo the request`() {
+    val expectedResponse = "{\"key\":\"value\"}"
+    val expectedSignatureFieldsHeader =
+      mapOf(
+          signatureFieldsHeader to listOf(
+              listOf(sidKey, factorSidKey).joinToString(
+                  signatureFieldsHeaderSeparator
+              )
+          )
+      )
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    argumentCaptor<(Response) -> Unit, (String) -> Unit>()
+        .let { (success, syncTime) ->
+          whenever(
+              networkProvider.execute(any(), success.capture(), syncTime.capture(), any())
+          ).then {
+            syncTime.firstValue.invoke(date)
+
+          }.then {
+            success.firstValue.invoke(Response(expectedResponse, expectedSignatureFieldsHeader))
+          }
+        }
+    whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
+    idlingResource.startOperation()
+    challengeAPIClient.get(
+        "sid", factorChallenge.factor!!, { response: JSONObject, signatureFieldsHeader: String? ->
+      assertEquals(expectedResponse, response.toString())
+      assertEquals(
+          expectedSignatureFieldsHeader.values.first()
+              .first(), signatureFieldsHeader
+      )
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+  }
+
+  @Test
   fun `Get a challenge with an error response should call error`() {
     val expectedException = NetworkException(500, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
@@ -287,6 +357,34 @@ class ChallengeAPIClientTest {
       idlingResource.operationFinished()
     })
     idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get challenges with out of sync time request should sync time and redo the request`() {
+    val response = "{\"key\":\"value\"}"
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    argumentCaptor<(Response) -> Unit, (String) -> Unit>()
+        .let { (success, syncTime) ->
+          whenever(
+              networkProvider.execute(any(), success.capture(), syncTime.capture(), any())
+          ).then {
+            syncTime.firstValue.invoke(date)
+
+          }.then {
+            success.firstValue.invoke(Response(response, emptyMap()))
+          }
+        }
+    whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
+    idlingResource.startOperation()
+    challengeAPIClient.getAll(factorChallenge.factor!!, null, 0, null, { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
   }
 
   @Test

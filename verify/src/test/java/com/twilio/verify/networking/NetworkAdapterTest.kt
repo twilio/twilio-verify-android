@@ -57,6 +57,49 @@ class NetworkAdapterTest {
   }
 
   @Test
+  fun `Request with invalid authentication response code with date header should return syncTime`() {
+    val url: URL = mock()
+    val urlConnection: HttpsURLConnection = mock()
+    val expectedResponse = "Response"
+    val expectedDate = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedHeaders = mapOf(dateHeaderKey to listOf("Tue, 21 Jul 2020 17:07:32 GMT"))
+    val inputStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
+    val outputStream: OutputStream = mock()
+
+    `when`(request.url).thenReturn(url)
+    `when`(request.httpMethod).thenReturn(HttpMethod.Post)
+    `when`(request.getParams()).thenReturn("Params")
+    `when`(url.openConnection()).thenReturn(urlConnection)
+    `when`(urlConnection.outputStream).thenReturn(outputStream)
+    `when`(urlConnection.responseCode).thenReturn(401)
+    `when`(urlConnection.inputStream).thenReturn(inputStream)
+    `when`(urlConnection.headerFields).thenReturn(expectedHeaders)
+    networkAdapter.execute(request, {
+      fail()
+    }, { date ->
+      assertEquals(expectedDate, date)
+    }, {
+      fail()
+    })
+  }
+
+  @Test
+  fun `Request with invalid authentication response code without date header should return error`() {
+    val url: URL = mock()
+    val urlConnection: HttpsURLConnection = mock()
+    `when`(request.url).thenReturn(url)
+    `when`(request.httpMethod).thenReturn(HttpMethod.Post)
+    `when`(url.openConnection()).thenReturn(urlConnection)
+    `when`(urlConnection.responseCode).thenReturn(401)
+    val expectedResponse = "Error"
+    val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
+    `when`(urlConnection.errorStream).thenReturn(errorStream)
+    networkAdapter.execute(request, { fail() }, error = { exception ->
+      assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
+    })
+  }
+
+  @Test
   fun `Request with failure response code should return error`() {
     val url: URL = mock()
     val urlConnection: HttpsURLConnection = mock()

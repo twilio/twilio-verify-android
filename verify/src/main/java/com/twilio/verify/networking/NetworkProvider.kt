@@ -8,7 +8,7 @@ interface NetworkProvider {
   fun execute(
     request: Request,
     success: (response: Response) -> Unit,
-    syncTime: (() -> Unit)? = null,
+    syncTime: ((date: String) -> Unit)? = null,
     error: (NetworkException) -> Unit
   )
 }

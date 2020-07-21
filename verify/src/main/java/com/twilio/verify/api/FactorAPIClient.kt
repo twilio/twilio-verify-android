@@ -1,10 +1,10 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.data.DateAdapter
-import com.twilio.verify.data.DateProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.data.DateAdapter
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
@@ -102,10 +102,9 @@ internal class FactorAPIClient(
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it.body))
-      }, {
-        syncTime {
-          verify(factor, authPayload, success, error)
-        }
+      }, { date ->
+        syncTime(date)
+        verify(factor, authPayload, success, error)
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -136,10 +135,9 @@ internal class FactorAPIClient(
             .build()
       networkProvider.execute(request, {
         success(JSONObject(it.body))
-      }, {
-        syncTime {
-          update(factor, updateFactorPayload, success, error)
-        }
+      }, { date ->
+        syncTime(date)
+        update(factor, updateFactorPayload, success, error)
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -168,10 +166,9 @@ internal class FactorAPIClient(
           .build()
       networkProvider.execute(request, {
         success()
-      }, {
-        syncTime {
-          delete(factor, success, error)
-        }
+      }, { date ->
+        syncTime(date)
+        delete(factor, success, error)
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })

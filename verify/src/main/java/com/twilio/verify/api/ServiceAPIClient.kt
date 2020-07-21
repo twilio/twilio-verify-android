@@ -1,10 +1,10 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.data.DateAdapter
-import com.twilio.verify.data.DateProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.data.DateAdapter
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.BasicAuthorization
@@ -49,7 +49,8 @@ internal class ServiceAPIClient(
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it.body))
-      }, {
+      }, { date ->
+        syncTime(date)
         get(serviceSid, factor, success, error)
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))

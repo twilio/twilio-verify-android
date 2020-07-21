@@ -1,10 +1,10 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import com.twilio.verify.data.DateAdapter
-import com.twilio.verify.data.DateProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.data.DateAdapter
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
@@ -70,10 +70,9 @@ internal class ChallengeAPIClient(
           .build()
       networkProvider.execute(request, {
         success()
-      }, {
-        syncTime {
-          update(challenge, authPayload, success, error)
-        }
+      }, { date ->
+        syncTime(date)
+        update(challenge, authPayload, success, error)
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -105,10 +104,9 @@ internal class ChallengeAPIClient(
             JSONObject(it.body),
             it.headers[signatureFieldsHeader]?.first()
         )
-      }, {
-        syncTime {
-          get(sid, factor, success, error)
-        }
+      }, { date ->
+        syncTime(date)
+        get(sid, factor, success, error)
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
@@ -150,10 +148,9 @@ internal class ChallengeAPIClient(
           .build()
       networkProvider.execute(request, {
         success(JSONObject(it.body))
-      }, {
-        syncTime {
-          getAll(factor, status, pageSize, pageToken, success, error)
-        }
+      }, { date ->
+        syncTime(date)
+        getAll(factor, status, pageSize, pageToken, success, error)
       }, { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })

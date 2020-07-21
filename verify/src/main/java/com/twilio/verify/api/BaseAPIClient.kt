@@ -1,8 +1,6 @@
 package com.twilio.verify.api
 
-import com.twilio.verify.BuildConfig
 import com.twilio.verify.data.DateProvider
-import java.net.URL
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -10,8 +8,8 @@ import java.net.URL
 
 open class BaseAPIClient(private val dateProvider: DateProvider) {
   fun syncTime(
-    success: () -> Unit
+    date: String
   ) {
-    dateProvider.syncTime(URL(BuildConfig.BASE_URL), success)
+    dateProvider.syncTime(date)
   }
 }

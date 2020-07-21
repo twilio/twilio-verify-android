@@ -11,6 +11,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
@@ -23,8 +24,8 @@ import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
-import org.junit.Assert
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -44,6 +45,7 @@ class ServiceAPIClientTest {
   private lateinit var serviceAPIClient: ServiceAPIClient
   private lateinit var networkProvider: NetworkProvider
   private val authentication: Authentication = mock()
+  private val dateProvider: DateProvider = mock()
   private lateinit var context: Context
   private val baseUrl = BuildConfig.BASE_URL
   private val idlingResource = IdlingResource()
@@ -53,7 +55,7 @@ class ServiceAPIClientTest {
     context = ApplicationProvider.getApplicationContext()
     networkProvider = mock()
     serviceAPIClient =
-      ServiceAPIClient(networkProvider, context, authentication, baseUrl)
+      ServiceAPIClient(networkProvider, context, authentication, baseUrl, dateProvider)
   }
 
   @Test
@@ -113,6 +115,42 @@ class ServiceAPIClientTest {
   }
 
   @Test
+  fun `Get a service with out of sync time request should sync time and redo the request`() {
+    val identity = "identity"
+    val factorSid = "sid"
+    val factorServiceSid = "serviceSid"
+    val factor: Factor = mock() {
+      on { entityIdentity } doReturn identity
+      on { sid } doReturn factorSid
+      on { serviceSid } doReturn factorServiceSid
+    }
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
+    argumentCaptor<(Response) -> Unit, (String) -> Unit>()
+        .let { (success, syncTime) ->
+          whenever(
+              networkProvider.execute(any(), success.capture(), syncTime.capture(), any())
+          ).then {
+            syncTime.firstValue.invoke(date)
+
+          }.then {
+            success.firstValue.invoke(Response(response, emptyMap()))
+          }
+        }
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
+    idlingResource.startOperation()
+    serviceAPIClient.get(factorServiceSid, factor, { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+  }
+
+  @Test
   fun `Error getting a service should call error`() {
     val identity = "identity"
     val factorSid = "sid"
@@ -128,8 +166,8 @@ class ServiceAPIClientTest {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
-      Assert.assertTrue(exception.cause is NetworkException)
-      Assert.assertTrue(exception.cause?.cause is RuntimeException)
+      assertTrue(exception.cause is NetworkException)
+      assertTrue(exception.cause?.cause is RuntimeException)
       assertEquals(NetworkError.message, exception.message)
       idlingResource.operationFinished()
     })
@@ -158,10 +196,10 @@ class ServiceAPIClientTest {
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
       assertEquals(Get, httpMethod)
-      Assert.assertTrue(headers[ContentType.type] == UrlEncoded.type)
-      Assert.assertTrue(headers[Accept.type] == UrlEncoded.type)
-      Assert.assertTrue(headers.containsKey(AuthorizationHeader))
-      Assert.assertTrue(headers.containsKey(userAgent))
+      assertTrue(headers[ContentType.type] == UrlEncoded.type)
+      assertTrue(headers[Accept.type] == UrlEncoded.type)
+      assertTrue(headers.containsKey(AuthorizationHeader))
+      assertTrue(headers.containsKey(userAgent))
       idlingResource.operationFinished()
     }
     idlingResource.waitForIdle()
