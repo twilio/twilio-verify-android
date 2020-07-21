@@ -35,7 +35,7 @@ class DeleteFactorTests : BaseFactorTest() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
     assertTrue(sharedPreferences.contains(factor!!.sid))
     val expectedException = TwilioVerifyException(
-        NetworkException(null, null),
+        NetworkException(null, null, null),
         NetworkError
     )
     enqueueMockResponse(400)

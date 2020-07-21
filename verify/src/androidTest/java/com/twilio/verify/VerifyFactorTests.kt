@@ -34,7 +34,7 @@ class VerifyFactorTests : BaseFactorTest() {
   fun testVerifyFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
     val verifyFactorPayload = VerifyPushFactorPayload(factor!!.sid)
     val expectedException = TwilioVerifyException(
-        NetworkException(null, null),
+        NetworkException(null, null, null),
         NetworkError
     )
     enqueueMockResponse(400, APIResponses.verifyValidFactorResponse())
