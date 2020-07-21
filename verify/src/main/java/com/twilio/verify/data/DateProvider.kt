@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
  * Copyright (c) 2020, Twilio Inc.
  */
 
-interface DateProvider {
+internal interface DateProvider {
   fun getCurrentTime(): Long
 
   @Throws(ParseException::class)
@@ -19,7 +19,7 @@ interface DateProvider {
 
 internal const val timeCorrectionKey = "timeCorrection"
 
-class DateAdapter(
+internal class DateAdapter(
   private val preferences: SharedPreferences
 ) : DateProvider {
   override fun getCurrentTime(): Long {

@@ -1,7 +1,6 @@
 package com.twilio.verify.networking
 
 import java.io.BufferedWriter
-import java.io.InputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -10,22 +9,18 @@ import javax.net.ssl.HttpsURLConnection
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-
-internal const val dateHeaderKey = "Date"
-
 class NetworkAdapter : NetworkProvider {
 
   override fun execute(
     request: Request,
     success: (response: Response) -> Unit,
-    syncTime: ((date: String) -> Unit)?,
     error: (NetworkException) -> Unit
   ) {
     var httpUrlConnection: HttpURLConnection? = null
     try {
       httpUrlConnection = request.url.openConnection() as HttpsURLConnection
       httpUrlConnection.requestMethod = request.httpMethod.method
-      request.headers?.forEach { (key, value) ->
+      request.headers.forEach { (key, value) ->
         httpUrlConnection.setRequestProperty(key, value)
       }
       if (request.getParams()
@@ -48,14 +43,14 @@ class NetworkAdapter : NetworkProvider {
               .use { it.readText() }
           success(Response(body = response, headers = httpUrlConnection.headerFields))
         }
-        responseCode == 401 -> syncTime?.let {
-          httpUrlConnection.headerFields[dateHeaderKey]?.first()
-              ?.let { date -> it(date) }
-        } ?: run {
-          error(errorResponse(responseCode, httpUrlConnection.errorStream))
-        }
         else -> {
-          error(errorResponse(responseCode, httpUrlConnection.errorStream))
+          error(
+              NetworkException(
+                  responseCode, httpUrlConnection.errorStream.bufferedReader()
+                  .use { it.readText() },
+                  FailureResponse(responseCode, httpUrlConnection.headerFields)
+              )
+          )
         }
       }
     } catch (e: Exception) {
@@ -64,11 +59,4 @@ class NetworkAdapter : NetworkProvider {
       httpUrlConnection?.disconnect()
     }
   }
-
-  private fun errorResponse(
-    responseCode: Int,
-    errorStream: InputStream
-  ): NetworkException =
-    NetworkException(responseCode, errorStream.bufferedReader()
-        .use { it.readText() })
 }

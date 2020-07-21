@@ -24,7 +24,6 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
   override fun execute(
     request: Request,
     success: (response: com.twilio.verify.networking.Response) -> Unit,
-    syncTime: ((date: String) -> Unit)?,
     error: (NetworkException) -> Unit
   ) {
     val okHttpRequest = toOkHttpRequest(request)
@@ -48,12 +47,12 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
                   )
               )
             } ?: run {
-              error(
-                  NetworkException(
-                      response.code,
-                      response.body?.string()
-                  )
-              )
+//              error(
+//                  NetworkException(
+//                      response.code,
+//                      response.body?.string()
+//                  )
+//              )
             }
           }
 

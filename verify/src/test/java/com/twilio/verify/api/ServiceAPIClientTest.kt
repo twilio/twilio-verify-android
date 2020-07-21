@@ -15,6 +15,7 @@ import com.twilio.verify.data.DateProvider
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
+import com.twilio.verify.networking.FailureResponse
 import com.twilio.verify.networking.HttpMethod.Get
 import com.twilio.verify.networking.MediaTypeHeader.Accept
 import com.twilio.verify.networking.MediaTypeHeader.ContentType
@@ -70,7 +71,7 @@ class ServiceAPIClientTest {
     }
     val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
@@ -96,9 +97,9 @@ class ServiceAPIClientTest {
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
-    val expectedException = NetworkException(500, null)
+    val expectedException = NetworkException(500, null, null)
     argumentCaptor<(NetworkException) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), any(), any(), capture())).then {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
       }
     }
@@ -124,17 +125,23 @@ class ServiceAPIClientTest {
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
-    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
-    val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
-    argumentCaptor<(Response) -> Unit, (String) -> Unit>()
-        .let { (success, syncTime) ->
-          whenever(
-              networkProvider.execute(any(), success.capture(), syncTime.capture(), any())
-          ).then {
-            syncTime.firstValue.invoke(date)
 
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        500, null, FailureResponse(
+        unauthorized,
+        mapOf(dateHeaderKey to listOf(date))
+        )
+    )
+    val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
+    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
+        .let { (success, error) ->
+          whenever(
+              networkProvider.execute(any(), success.capture(), error.capture())
+          ).then {
+            error.firstValue.invoke(expectedException)
           }.then {
-            success.firstValue.invoke(Response(response, emptyMap()))
+              success.firstValue.invoke(Response(response, emptyMap()))
           }
         }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -160,7 +167,7 @@ class ServiceAPIClientTest {
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
-    whenever(networkProvider.execute(any(), any(), any(), any())).thenThrow(RuntimeException())
+    whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, {
       fail()
@@ -190,7 +197,7 @@ class ServiceAPIClientTest {
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, {}, {})
     val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any(), any())
+      verify(networkProvider).execute(capture(), any(), any())
     }
 
     requestCaptor.firstValue.apply {

@@ -52,35 +52,35 @@ internal class ChallengeAPIClient(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      val factor = challenge.factor ?: throw IllegalArgumentException(
-          "Factor is null"
-      )
-      val authToken = authentication.generateJWT(factor)
-      val requestHelper = RequestHelper(
-          context,
-          BasicAuthorization(AUTHENTICATION_USER, authToken)
-      )
-      val request = Request.Builder(
-          requestHelper,
-          updateChallengeURL(challenge)
-      )
-          .httpMethod(Post)
-          .body(updateChallengeBody(authPayload))
-          .build()
-      networkProvider.execute(request, {
-        success()
-      }, { date ->
-        syncTime(date)
-        update(challenge, authPayload, success, error)
-      }, { exception ->
-        error(TwilioVerifyException(exception, NetworkError))
-      })
-    } catch (e: TwilioVerifyException) {
-      error(e)
-    } catch (e: Exception) {
-      error(TwilioVerifyException(NetworkException(e), NetworkError))
+    fun updateChallenge() {
+      try {
+        val factor = challenge.factor ?: throw IllegalArgumentException(
+            "Factor is null"
+        )
+        val authToken = authentication.generateJWT(factor)
+        val requestHelper = RequestHelper(
+            context,
+            BasicAuthorization(AUTHENTICATION_USER, authToken)
+        )
+        val request = Request.Builder(
+            requestHelper,
+            updateChallengeURL(challenge)
+        )
+            .httpMethod(Post)
+            .body(updateChallengeBody(authPayload))
+            .build()
+        networkProvider.execute(request, {
+          success()
+        }, { exception ->
+          validateException(exception, ::updateChallenge, error)
+        })
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      } catch (e: Exception) {
+        error(TwilioVerifyException(NetworkException(e), NetworkError))
+      }
     }
+    updateChallenge()
   }
 
   fun get(
@@ -89,32 +89,32 @@ internal class ChallengeAPIClient(
     success: (response: JSONObject, signatureFieldsHeader: String?) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      val authToken = authentication.generateJWT(factor)
-      val requestHelper =
-        RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
-      val request = Request.Builder(
-          requestHelper,
-          getChallengeURL(sid, factor)
-      )
-          .httpMethod(Get)
-          .build()
-      networkProvider.execute(request, {
-        success(
-            JSONObject(it.body),
-            it.headers[signatureFieldsHeader]?.first()
+    fun getChallenge() {
+      try {
+        val authToken = authentication.generateJWT(factor)
+        val requestHelper =
+          RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
+        val request = Request.Builder(
+            requestHelper,
+            getChallengeURL(sid, factor)
         )
-      }, { date ->
-        syncTime(date)
-        get(sid, factor, success, error)
-      }, { exception ->
-        error(TwilioVerifyException(exception, NetworkError))
-      })
-    } catch (e: TwilioVerifyException) {
-      error(e)
-    } catch (e: Exception) {
-      error(TwilioVerifyException(NetworkException(e), NetworkError))
+            .httpMethod(Get)
+            .build()
+        networkProvider.execute(request, {
+          success(
+              JSONObject(it.body),
+              it.headers[signatureFieldsHeader]?.first()
+          )
+        }, { exception ->
+          validateException(exception, ::getChallenge, error)
+        })
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      } catch (e: Exception) {
+        error(TwilioVerifyException(NetworkException(e), NetworkError))
+      }
     }
+    getChallenge()
   }
 
   fun getAll(
@@ -125,41 +125,41 @@ internal class ChallengeAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      val authToken = authentication.generateJWT(factor)
-      val requestHelper =
-        RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
-      val queryParameters = mutableMapOf<String, Any>(
-          pageSizeParameter to pageSize,
-          FACTOR_SID_KEY to factor.sid
-      )
-      status?.let {
-        queryParameters.put(statusParameter, it)
-      }
-      pageToken?.let {
-        queryParameters.put(pageTokenParameter, it)
-      }
-      val request = Request.Builder(
-          requestHelper,
-          getChallengesURL(factor)
-      )
-          .httpMethod(Get)
-          .query(queryParameters)
-          .build()
-      networkProvider.execute(request, {
-        success(JSONObject(it.body))
-      }, { date ->
-        syncTime(date)
-        getAll(factor, status, pageSize, pageToken, success, error)
-      }, { exception ->
-        error(TwilioVerifyException(exception, NetworkError))
-      })
+    fun getAllChallenges() {
+      try {
+        val authToken = authentication.generateJWT(factor)
+        val requestHelper =
+          RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
+        val queryParameters = mutableMapOf<String, Any>(
+            pageSizeParameter to pageSize,
+            FACTOR_SID_KEY to factor.sid
+        )
+        status?.let {
+          queryParameters.put(statusParameter, it)
+        }
+        pageToken?.let {
+          queryParameters.put(pageTokenParameter, it)
+        }
+        val request = Request.Builder(
+            requestHelper,
+            getChallengesURL(factor)
+        )
+            .httpMethod(Get)
+            .query(queryParameters)
+            .build()
+        networkProvider.execute(request, {
+          success(JSONObject(it.body))
+        }, { exception ->
+          validateException(exception, ::getAllChallenges, error)
+        })
 
-    } catch (e: TwilioVerifyException) {
-      error(e)
-    } catch (e: Exception) {
-      error(TwilioVerifyException(NetworkException(e), NetworkError))
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      } catch (e: Exception) {
+        error(TwilioVerifyException(NetworkException(e), NetworkError))
+      }
     }
+    getAllChallenges()
   }
 
   private fun updateChallengeURL(challenge: FactorChallenge) =

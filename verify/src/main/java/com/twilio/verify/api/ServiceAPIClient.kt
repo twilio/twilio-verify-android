@@ -38,28 +38,28 @@ internal class ServiceAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      val authToken = authentication.generateJWT(factor)
-      val requestHelper = RequestHelper(
-          context,
-          BasicAuthorization(AUTHENTICATION_USER, authToken)
-      )
-      val request = Request.Builder(requestHelper, getServiceURL(serviceSid))
-          .httpMethod(Get)
-          .build()
-      networkProvider.execute(request, {
-        success(JSONObject(it.body))
-      }, { date ->
-        syncTime(date)
-        get(serviceSid, factor, success, error)
-      }, { exception ->
-        error(TwilioVerifyException(exception, NetworkError))
-      })
-    } catch (e: TwilioVerifyException) {
-      error(e)
-    } catch (e: Exception) {
-      error(TwilioVerifyException(NetworkException(e), NetworkError))
+    fun getService() {
+      try {
+        val authToken = authentication.generateJWT(factor)
+        val requestHelper = RequestHelper(
+            context,
+            BasicAuthorization(AUTHENTICATION_USER, authToken)
+        )
+        val request = Request.Builder(requestHelper, getServiceURL(serviceSid))
+            .httpMethod(Get)
+            .build()
+        networkProvider.execute(request, {
+          success(JSONObject(it.body))
+        }, { exception ->
+          validateException(exception, ::getService, error)
+        })
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      } catch (e: Exception) {
+        error(TwilioVerifyException(NetworkException(e), NetworkError))
+      }
     }
+    getService()
   }
 
   private fun getServiceURL(

@@ -9,7 +9,6 @@ import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.key.signer.Signer
@@ -138,7 +137,7 @@ class TwilioVerifyTest {
         .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
         .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), eq(null), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
@@ -177,7 +176,7 @@ class TwilioVerifyTest {
         .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
         .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
@@ -202,7 +201,7 @@ class TwilioVerifyTest {
         .put(sidKey, sid)
         .put(statusKey, Verified.value)
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
@@ -244,7 +243,7 @@ class TwilioVerifyTest {
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         firstValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
@@ -292,7 +291,7 @@ class TwilioVerifyTest {
     }
 
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         when (allValues.size) {
           1 -> lastValue.invoke(
               Response(
@@ -362,7 +361,7 @@ class TwilioVerifyTest {
       put(metaKey, expectedMetadata)
     }
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
@@ -400,7 +399,7 @@ class TwilioVerifyTest {
     assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
     assertTrue(preferences.contains(factorSid))
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), any(), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response("", emptyMap()))
       }
     }
@@ -428,7 +427,7 @@ class TwilioVerifyTest {
         .put(statusKey, status.value)
         .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(Response) -> Unit>().apply {
-      whenever(networkProvider.execute(any(), capture(), eq(null), any())).then {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
