@@ -47,12 +47,12 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
                   )
               )
             } ?: run {
-//              error(
-//                  NetworkException(
-//                      response.code,
-//                      response.body?.string()
-//                  )
-//              )
+              error(
+                  NetworkException(
+                      response.code,
+                      response.body?.string(), null
+                  )
+              )
             }
           }
 

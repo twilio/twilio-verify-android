@@ -90,33 +90,37 @@ class ChallengeAPIClientTest {
     idlingResource.waitForIdle()
   }
 
-//  @Test
-//  fun `Update a challenge with out of sync time request should sync time and redo the request`() {
-//    val response = "{\"key\":\"value\"}"
-//    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
-//    argumentCaptor<(Response) -> Unit, (String) -> Unit>()
-//        .let { (success, syncTime) ->
-//          whenever(
-//              networkProvider.execute(any(), success.capture(), syncTime.capture(), any())
-//          ).then {
-//            syncTime.firstValue.invoke(date)
-//
-//          }
-//              .then {
-//                success.firstValue.invoke(Response(response, emptyMap()))
-//              }
-//        }
-//    whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
-//    idlingResource.startOperation()
-//    challengeAPIClient.update(factorChallenge, "authPayload", {
-//      idlingResource.operationFinished()
-//    }, {
-//      fail()
-//      idlingResource.operationFinished()
-//    })
-//    idlingResource.waitForIdle()
-//    verify(dateProvider).syncTime(date)
-//  }
+  @Test
+  fun `Update a challenge with out of sync time request should sync time and redo the request`() {
+    val response = "{\"key\":\"value\"}"
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        500, null, FailureResponse(
+        unauthorized,
+        mapOf(dateHeaderKey to listOf(date))
+    )
+    )
+    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
+        .let { (success, error) ->
+          whenever(
+              networkProvider.execute(any(), success.capture(), error.capture())
+          ).then {
+            error.firstValue.invoke(expectedException)
+          }.then {
+            success.firstValue.invoke(Response(response, emptyMap()))
+          }
+        }
+    whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
+    idlingResource.startOperation()
+    challengeAPIClient.update(factorChallenge, "authPayload", {
+      idlingResource.operationFinished()
+    }, {
+      fail()
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+  }
 
   @Test
   fun `Update a challenge with an error response should call error`() {
