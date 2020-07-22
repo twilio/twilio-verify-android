@@ -18,11 +18,10 @@ class NetworkException constructor(
   val failureResponse: FailureResponse?
 ) : Exception(message, cause) {
   constructor(
-    statusCode: Int,
-    errorResponse: String?,
     failureResponse: FailureResponse?
   ) : this(
-      "Network exception with status code $statusCode and body: $errorResponse", null,
+      "Network exception with status code ${failureResponse?.responseCode} and body: ${failureResponse?.errorBody}",
+      null,
       failureResponse
   )
 
@@ -33,5 +32,6 @@ class NetworkException constructor(
 
 class FailureResponse(
   val responseCode: Int,
+  val errorBody: String?,
   val headers: Map<String, List<String>>?
 )

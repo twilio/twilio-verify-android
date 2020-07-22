@@ -94,7 +94,13 @@ class FactorAPIClientTest {
 
   @Test
   fun `Create a factor with an error response should call error`() {
-    val expectedException = NetworkException(500, null, null)
+    val expectedException = NetworkException(
+        FailureResponse(
+            500,
+            null,
+            null
+        )
+    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
@@ -216,10 +222,11 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
     val expectedException = NetworkException(
-        500, null, FailureResponse(
-        unauthorized,
-        mapOf(dateHeaderKey to listOf(date))
-    )
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
     )
     argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
         .let { (success, error) ->
@@ -260,7 +267,13 @@ class FactorAPIClientTest {
     val identity = "entityIdentity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
-    val expectedException = NetworkException(500, null, null)
+    val expectedException = NetworkException(
+        FailureResponse(
+            500,
+            null,
+            null
+        )
+    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
@@ -375,10 +388,11 @@ class FactorAPIClientTest {
       )
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
     val expectedException = NetworkException(
-        500, null, FailureResponse(
-        unauthorized,
-        mapOf(dateHeaderKey to listOf(date))
-    )
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
     )
     argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
         .let { (success, error) ->
@@ -417,7 +431,13 @@ class FactorAPIClientTest {
           factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
           config = Config("credentialSid")
       )
-    val expectedException = NetworkException(500, null, null)
+    val expectedException = NetworkException(
+        FailureResponse(
+            500,
+            null,
+            null
+        )
+    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
@@ -546,10 +566,11 @@ class FactorAPIClientTest {
           .replace(FACTOR_SID_PATH, factor.sid)
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
     val expectedException = NetworkException(
-        500, null, FailureResponse(
-        unauthorized,
-        mapOf(dateHeaderKey to listOf(date))
-    )
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
     )
     argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
         .let { (success, error) ->
@@ -592,7 +613,13 @@ class FactorAPIClientTest {
           config = Config("credentialSid")
       )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
-    val expectedException = NetworkException(500, null, null)
+    val expectedException = NetworkException(
+        FailureResponse(
+            500,
+            null,
+            null
+        )
+    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         firstValue.invoke(expectedException)

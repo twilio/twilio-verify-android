@@ -44,11 +44,11 @@ class NetworkAdapter : NetworkProvider {
           success(Response(body = response, headers = httpUrlConnection.headerFields))
         }
         else -> {
+          val errorBody = httpUrlConnection.errorStream.bufferedReader()
+              .use { it.readText() }
           error(
               NetworkException(
-                  responseCode, httpUrlConnection.errorStream.bufferedReader()
-                  .use { it.readText() },
-                  FailureResponse(responseCode, httpUrlConnection.headerFields)
+                  FailureResponse(responseCode, errorBody, httpUrlConnection.headerFields)
               )
           )
         }

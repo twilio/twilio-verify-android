@@ -97,7 +97,13 @@ class ServiceAPIClientTest {
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
-    val expectedException = NetworkException(500, null, null)
+    val expectedException = NetworkException(
+        FailureResponse(
+            500,
+            null,
+            null
+        )
+    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
@@ -128,9 +134,10 @@ class ServiceAPIClientTest {
 
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
     val expectedException = NetworkException(
-        500, null, FailureResponse(
-        unauthorized,
-        mapOf(dateHeaderKey to listOf(date))
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
         )
     )
     val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"

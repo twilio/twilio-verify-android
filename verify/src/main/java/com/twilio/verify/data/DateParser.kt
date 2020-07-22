@@ -39,7 +39,7 @@ internal fun toRFC3339Date(date: Date): String {
   return dateFormatterUTC.format(date)
 }
 
-fun fromRFC1123Date(date: String): Date {
+internal fun fromRFC1123Date(date: String): Date {
   try {
     return SimpleDateFormat(RFC1123_FORMAT, Locale.US).parse(date)
   } catch (e: ParseException) {
