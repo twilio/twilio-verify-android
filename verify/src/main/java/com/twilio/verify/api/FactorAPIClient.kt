@@ -162,7 +162,6 @@ internal class FactorAPIClient(
         networkProvider.execute(request, {
           success()
         }, { exception ->
-          print(" Sergio: $retries ")
           validateException(exception, ::deleteFactor, retries, error)
         })
       } catch (e: TwilioVerifyException) {
