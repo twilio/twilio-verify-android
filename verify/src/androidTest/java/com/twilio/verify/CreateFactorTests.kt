@@ -104,7 +104,7 @@ class CreateFactorTests : BaseServerTest() {
     val factorPayload =
       PushFactorPayload(friendlyName, "serviceSid", "identity", "pushToken", jwe)
     val expectedException = TwilioVerifyException(
-        NetworkException(null, null),
+        NetworkException(null, null, null),
         NetworkError
     )
     enqueueMockResponse(400, APIResponses.createValidFactorResponse())

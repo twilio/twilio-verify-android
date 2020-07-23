@@ -35,7 +35,6 @@ import com.twilio.verify.domain.challenge.previousPageKey
 import com.twilio.verify.domain.challenge.signatureFieldsHeaderSeparator
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.challenge.valueKey
-import com.twilio.verify.domain.factor.VERIFY_SUFFIX
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.configKey
 import com.twilio.verify.domain.factor.credentialSidKey
@@ -399,6 +398,11 @@ class TwilioVerifyTest {
     createFactor(factorSid, Verified)
     assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
     assertTrue(preferences.contains(factorSid))
+    argumentCaptor<(Response) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), capture(), any())).then {
+        lastValue.invoke(Response("", emptyMap()))
+      }
+    }
     idlingResource.startOperation()
     twilioVerify.deleteFactor(factorSid, {
       assertFalse(preferences.contains(factorSid))

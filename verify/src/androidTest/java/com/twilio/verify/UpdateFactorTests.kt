@@ -34,7 +34,7 @@ class UpdateFactorTests : BaseFactorTest() {
   fun testUpdatePushFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
     val updatePushFactorPayload = UpdatePushFactorPayload(factor!!.sid, "pushToken")
     val expectedException = TwilioVerifyException(
-        NetworkException(null, null),
+        NetworkException(null, null, null),
         NetworkError
     )
     enqueueMockResponse(400, APIResponses.updateFactorValidResponse())

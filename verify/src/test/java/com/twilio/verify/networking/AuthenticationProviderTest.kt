@@ -4,7 +4,9 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
@@ -17,6 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.util.Date
+import java.util.concurrent.TimeUnit
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -25,11 +28,12 @@ import java.util.Date
 @RunWith(RobolectricTestRunner::class)
 class AuthenticationProviderTest {
   private val jwtGenerator: JwtGenerator = mock()
+  private val dateProvider: DateProvider = mock()
   private lateinit var authentication: Authentication
 
   @Before
   fun setup() {
-    authentication = AuthenticationProvider(jwtGenerator)
+    authentication = AuthenticationProvider(jwtGenerator, dateProvider)
   }
 
   @Test
@@ -48,6 +52,8 @@ class AuthenticationProviderTest {
       ).apply {
         keyPairAlias = "test"
       }
+    val expectedDate = 1595358902L
+    whenever(dateProvider.getCurrentTime()).thenReturn(expectedDate)
     authentication.generateJWT(factor)
     verify(jwtGenerator).generateJWT(any(), check {
       assertEquals(credentialSid, it.getString(kidKey))
@@ -55,6 +61,10 @@ class AuthenticationProviderTest {
       assertEquals(accountSid, jwt.getString(subKey))
       assertTrue(jwt.has(expKey))
       assertTrue(jwt.has(iatKey))
+      assertEquals(jwt.getLong(iatKey), expectedDate)
+      assertEquals(
+          jwt.getLong(expKey), expectedDate + TimeUnit.MINUTES.toSeconds(jwtValidFor)
+      )
       val validFor = jwt.getLong(expKey) - jwt.getLong(iatKey)
       assertEquals(jwtValidFor, validFor / 60)
     })

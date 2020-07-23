@@ -4,6 +4,7 @@
 package com.twilio.verify
 
 import android.content.Context
+import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
 import com.twilio.verify.data.jwt.JwtGenerator
@@ -80,7 +81,11 @@ interface TwilioVerify {
     private var networkProvider: NetworkProvider = NetworkAdapter()
     private var baseUrl: String = BuildConfig.BASE_URL
     private var jwtGenerator: JwtGenerator = JwtGenerator(JwtSigner(keyStorage))
-    private var authentication = AuthenticationProvider(jwtGenerator)
+    private var authentication =
+      AuthenticationProvider(
+          jwtGenerator,
+          DateAdapter(storagePreferences(context))
+      )
 
     fun networkProvider(networkProvider: NetworkProvider) =
       apply { this.networkProvider = networkProvider }
@@ -117,3 +122,7 @@ interface TwilioVerify {
     }
   }
 }
+
+internal fun storagePreferences(context: Context) =
+  context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
+internal const val VERIFY_SUFFIX = "verify"

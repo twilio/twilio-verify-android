@@ -66,7 +66,7 @@ class OkHttpProviderTest {
     okHttpProvider.execute(request, {
       assertEquals(bodyJson.toString(), it.body)
       assertEquals(expectedHeaders, it.headers)
-    }, {
+    }, error = {
       fail()
     })
   }
@@ -97,7 +97,7 @@ class OkHttpProviderTest {
     }
     okHttpProvider.execute(request, {
       fail()
-    }, {
+    }, error = {
       assertEquals(NetworkException::class, it::class)
     })
   }
@@ -118,7 +118,7 @@ class OkHttpProviderTest {
     }
     okHttpProvider.execute(request, {
       fail()
-    }, {
+    }, error = {
       assertEquals(expectedException, it.cause)
     })
   }

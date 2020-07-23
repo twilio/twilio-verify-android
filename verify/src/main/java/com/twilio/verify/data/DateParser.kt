@@ -12,6 +12,7 @@ import java.util.TimeZone
 internal const val dateFormatTimeZone = "yyyy-MM-dd'T'HH:mm:ssZ"
 internal val dateFormatterTimeZone = SimpleDateFormat(dateFormatTimeZone, Locale.US)
 private const val dateFormatUTC = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+private const val RFC1123_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz"
 private val dateFormatterUTC =
   SimpleDateFormat(dateFormatUTC, Locale.US).apply { timeZone = TimeZone.getTimeZone("UTC") }
 
@@ -36,4 +37,14 @@ internal fun fromRFC3339Date(date: String): Date {
 
 internal fun toRFC3339Date(date: Date): String {
   return dateFormatterUTC.format(date)
+}
+
+internal fun fromRFC1123Date(date: String): Date {
+  try {
+    return SimpleDateFormat(RFC1123_FORMAT, Locale.US).parse(date)
+  } catch (e: ParseException) {
+    throw e
+  } catch (e: Exception) {
+    throw ParseException(e.message, 0)
+  }
 }
