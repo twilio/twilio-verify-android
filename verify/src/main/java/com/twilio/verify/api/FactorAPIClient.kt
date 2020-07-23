@@ -1,7 +1,6 @@
 package com.twilio.verify.api
 
 import android.content.Context
-import android.util.Log
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.data.DateAdapter
