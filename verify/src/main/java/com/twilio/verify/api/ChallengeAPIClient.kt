@@ -52,7 +52,7 @@ internal class ChallengeAPIClient(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun updateChallenge() {
+    fun updateChallenge(retries: Int = retryTimes) {
       try {
         val factor = challenge.factor ?: throw IllegalArgumentException(
             "Factor is null"
@@ -72,7 +72,7 @@ internal class ChallengeAPIClient(
         networkProvider.execute(request, {
           success()
         }, { exception ->
-          validateException(exception, ::updateChallenge, error)
+          validateException(exception, ::updateChallenge, retries, error)
         })
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -89,7 +89,7 @@ internal class ChallengeAPIClient(
     success: (response: JSONObject, signatureFieldsHeader: String?) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun getChallenge() {
+    fun getChallenge(retries: Int = retryTimes) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
@@ -106,7 +106,7 @@ internal class ChallengeAPIClient(
               it.headers[signatureFieldsHeader]?.first()
           )
         }, { exception ->
-          validateException(exception, ::getChallenge, error)
+          validateException(exception, ::getChallenge, retries, error)
         })
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -125,7 +125,7 @@ internal class ChallengeAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun getAllChallenges() {
+    fun getAllChallenges(retries: Int = retryTimes) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
@@ -150,7 +150,7 @@ internal class ChallengeAPIClient(
         networkProvider.execute(request, {
           success(JSONObject(it.body))
         }, { exception ->
-          validateException(exception, ::getAllChallenges, error)
+          validateException(exception, ::getAllChallenges, retries, error)
         })
 
       } catch (e: TwilioVerifyException) {

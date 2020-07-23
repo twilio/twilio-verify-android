@@ -1,6 +1,7 @@
 package com.twilio.verify.api
 
 import android.content.Context
+import android.util.Log
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.data.DateAdapter
@@ -8,15 +9,9 @@ import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.Authentication
-import com.twilio.verify.networking.BasicAuthorization
+import com.twilio.verify.networking.*
 import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.HttpMethod.Post
-import com.twilio.verify.networking.NetworkAdapter
-import com.twilio.verify.networking.NetworkException
-import com.twilio.verify.networking.NetworkProvider
-import com.twilio.verify.networking.Request
-import com.twilio.verify.networking.RequestHelper
 import com.twilio.verify.storagePreferences
 import org.json.JSONObject
 
@@ -89,7 +84,7 @@ internal class FactorAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun verifyFactor() {
+    fun verifyFactor(retries: Int = retryTimes) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
@@ -104,7 +99,7 @@ internal class FactorAPIClient(
         networkProvider.execute(request, {
           success(JSONObject(it.body))
         }, { exception ->
-          validateException(exception, ::verifyFactor, error)
+          validateException(exception, ::verifyFactor, retries, error)
         })
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -121,7 +116,7 @@ internal class FactorAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun updateFactor() {
+    fun updateFactor(retries: Int = retryTimes) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
@@ -137,7 +132,7 @@ internal class FactorAPIClient(
         networkProvider.execute(request, {
           success(JSONObject(it.body))
         }, { exception ->
-          validateException(exception, ::updateFactor, error)
+          validateException(exception, ::updateFactor, retries, error)
         })
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -153,7 +148,7 @@ internal class FactorAPIClient(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun deleteFactor() {
+    fun deleteFactor(retries: Int = retryTimes) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
@@ -167,7 +162,8 @@ internal class FactorAPIClient(
         networkProvider.execute(request, {
           success()
         }, { exception ->
-          validateException(exception, ::deleteFactor, error)
+          print(" Sergio: $retries ")
+          validateException(exception, ::deleteFactor, retries, error)
         })
       } catch (e: TwilioVerifyException) {
         error(e)

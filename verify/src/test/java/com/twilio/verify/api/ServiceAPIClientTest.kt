@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
@@ -141,16 +142,15 @@ class ServiceAPIClientTest {
         )
     )
     val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
-    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
-        .let { (success, error) ->
-          whenever(
-              networkProvider.execute(any(), success.capture(), error.capture())
-          ).then {
-            error.firstValue.invoke(expectedException)
-          }.then {
-              success.firstValue.invoke(Response(response, emptyMap()))
-          }
-        }
+    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>().let { (success, error) ->
+      whenever(
+          networkProvider.execute(any(), success.capture(), error.capture())
+      ).then {
+        error.firstValue.invoke(expectedException)
+      }.then {
+        success.firstValue.invoke(Response(response, emptyMap()))
+      }
+    }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
     serviceAPIClient.get(factorServiceSid, factor, { jsonObject ->
@@ -162,6 +162,44 @@ class ServiceAPIClientTest {
     })
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
+  }
+
+  @Test
+  fun `Get a service with out of sync time should retry only another time`() {
+    val identity = "identity"
+    val factorSid = "sid"
+    val factorServiceSid = "serviceSid"
+    val factor: Factor = mock() {
+      on { entityIdentity } doReturn identity
+      on { sid } doReturn factorSid
+      on { serviceSid } doReturn factorServiceSid
+    }
+
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
+    )
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        lastValue.invoke(expectedException)
+      }
+    }
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
+    idlingResource.startOperation()
+    serviceAPIClient.get(factorServiceSid, factor, { jsonObject ->
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
   }
 
   @Test

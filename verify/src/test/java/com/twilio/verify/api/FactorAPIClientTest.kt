@@ -81,13 +81,11 @@ class FactorAPIClientTest {
         firstValue.invoke(Response(response, emptyMap()))
       }
     }
-    factorAPIClient.create(
-        CreateFactorPayload(
-            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
-        ),
-        { jsonObject ->
-          assertEquals(response, jsonObject.toString())
-        }, {
+    factorAPIClient.create(CreateFactorPayload(
+        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
+    ), { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+    }, {
       fail()
     })
   }
@@ -106,10 +104,9 @@ class FactorAPIClientTest {
         firstValue.invoke(expectedException)
       }
     }
-    factorAPIClient.create(
-        CreateFactorPayload(
-            "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
-        ), {
+    factorAPIClient.create(CreateFactorPayload(
+        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
+    ), {
       fail()
     }, { exception ->
       assertEquals(expectedException, exception.cause)
@@ -203,11 +200,10 @@ class FactorAPIClientTest {
     )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    factorAPIClient.verify(factor, "authyPayload",
-        { jsonObject ->
-          assertEquals(response, jsonObject.toString())
-          idlingResource.operationFinished()
-        }, {
+    factorAPIClient.verify(factor, "authyPayload", { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+      idlingResource.operationFinished()
+    }, {
       fail()
       idlingResource.operationFinished()
     })
@@ -228,16 +224,15 @@ class FactorAPIClientTest {
             mapOf(dateHeaderKey to listOf(date))
         )
     )
-    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
-        .let { (success, error) ->
-          whenever(
-              networkProvider.execute(any(), success.capture(), error.capture())
-          ).then {
-            error.firstValue.invoke(expectedException)
-          }.then {
-            success.firstValue.invoke(Response(response, emptyMap()))
-          }
-        }
+    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>().let { (success, error) ->
+      whenever(
+          networkProvider.execute(any(), success.capture(), error.capture())
+      ).then {
+        error.firstValue.invoke(expectedException)
+      }.then {
+        success.firstValue.invoke(Response(response, emptyMap()))
+      }
+    }
     val factor = PushFactor(
         factorSid,
         "friendlyName",
@@ -250,16 +245,57 @@ class FactorAPIClientTest {
     )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    factorAPIClient.verify(factor, "authyPayload",
-        { jsonObject ->
-          assertEquals(response, jsonObject.toString())
-          idlingResource.operationFinished()
-        }, {
+    factorAPIClient.verify(factor, "authyPayload", { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+      idlingResource.operationFinished()
+    }, {
       fail()
       idlingResource.operationFinished()
     })
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
+  }
+
+  @Test
+  fun `Verify a factor with out of sync time should retry only another time`() {
+    val identity = "entityIdentity"
+    val factorSid = "sid"
+    val serviceSid = "serviceSid"
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
+    )
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        lastValue.invoke(expectedException)
+      }
+    }
+    val factor = PushFactor(
+        factorSid,
+        "friendlyName",
+        "accountSid",
+        serviceSid,
+        identity,
+        Unverified,
+        Date(),
+        config = Config("credentialSid")
+    )
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
+    idlingResource.startOperation()
+    factorAPIClient.verify(factor, "authyPayload", {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
   }
 
   @Test
@@ -361,14 +397,12 @@ class FactorAPIClientTest {
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    factorAPIClient.update(factor,
-        UpdateFactorPayload(
-            "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
-        ),
-        { jsonObject ->
-          assertEquals(response, jsonObject.toString())
-          idlingResource.operationFinished()
-        }, {
+    factorAPIClient.update(factor, UpdateFactorPayload(
+        "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
+    ), { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+      idlingResource.operationFinished()
+    }, {
       fail()
       idlingResource.operationFinished()
     })
@@ -394,31 +428,68 @@ class FactorAPIClientTest {
             mapOf(dateHeaderKey to listOf(date))
         )
     )
-    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
-        .let { (success, error) ->
-          whenever(
-              networkProvider.execute(any(), success.capture(), error.capture())
-          ).then {
-            error.firstValue.invoke(expectedException)
-          }.then {
-            success.firstValue.invoke(Response(response, emptyMap()))
-          }
-        }
+    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>().let { (success, error) ->
+      whenever(
+          networkProvider.execute(any(), success.capture(), error.capture())
+      ).then {
+        error.firstValue.invoke(expectedException)
+      }.then {
+        success.firstValue.invoke(Response(response, emptyMap()))
+      }
+    }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    factorAPIClient.update(factor,
-        UpdateFactorPayload(
-            "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
-        ),
-        { jsonObject ->
-          assertEquals(response, jsonObject.toString())
-          idlingResource.operationFinished()
-        }, {
+    factorAPIClient.update(factor, UpdateFactorPayload(
+        "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
+    ), { jsonObject ->
+      assertEquals(response, jsonObject.toString())
+      idlingResource.operationFinished()
+    }, {
       fail()
       idlingResource.operationFinished()
     })
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
+  }
+
+  @Test
+  fun `Update factor with out of sync time should retry only another time`() {
+    val identity = "entityIdentity"
+    val factorSid = "sid"
+    val serviceSid = "serviceSid"
+    val factor =
+      PushFactor(
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+          config = Config("credentialSid")
+      )
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
+    )
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        lastValue.invoke(expectedException)
+      }
+    }
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
+    idlingResource.startOperation()
+    factorAPIClient.update(
+        factor, UpdateFactorPayload(
+        "factor name", PUSH, serviceSid, identity, emptyMap(), factorSid
+    ), {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
   }
 
   @Test
@@ -445,11 +516,10 @@ class FactorAPIClientTest {
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    factorAPIClient.update(factor,
-        UpdateFactorPayload(
-            "factor name", PUSH, serviceSid, identity,
-            emptyMap(), factorSid
-        ), {
+    factorAPIClient.update(factor, UpdateFactorPayload(
+        "factor name", PUSH, serviceSid, identity,
+        emptyMap(), factorSid
+    ), {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -533,8 +603,7 @@ class FactorAPIClientTest {
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    factorAPIClient.delete(
-        factor, {
+    factorAPIClient.delete(factor, {
       verify(networkProvider).execute(
           check {
             assertEquals(URL(expectedURL), it.url)
@@ -572,21 +641,18 @@ class FactorAPIClientTest {
             mapOf(dateHeaderKey to listOf(date))
         )
     )
-    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
-        .let { (success, error) ->
-          whenever(
-              networkProvider.execute(any(), success.capture(), error.capture())
-          ).then {
-            error.firstValue.invoke(expectedException)
-
-          }.then {
-            success.firstValue.invoke(Response(response, emptyMap()))
-          }
-        }
+    argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>().let { (success, error) ->
+      whenever(
+          networkProvider.execute(any(), success.capture(), error.capture())
+      ).then {
+        error.firstValue.invoke(expectedException)
+      }.then {
+        success.firstValue.invoke(Response(response, emptyMap()))
+      }
+    }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    factorAPIClient.delete(
-        factor, {
+    factorAPIClient.delete(factor, {
       verify(networkProvider, times(2)).execute(
           check {
             assertEquals(URL(expectedURL), it.url)
@@ -600,6 +666,45 @@ class FactorAPIClientTest {
     })
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
+    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
+  }
+
+  @Test
+  fun `Delete a factor with out of sync time should retry only another time`() {
+    val identity = "entityIdentity"
+    val factorSid = "sid"
+    val serviceSid = "serviceSid"
+    val factor =
+      PushFactor(
+          factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+          config = Config("credentialSid")
+      )
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
+    )
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        lastValue.invoke(expectedException)
+      }
+    }
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
+    idlingResource.startOperation()
+    factorAPIClient.delete(
+        factor, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
   }
 
   @Test
@@ -626,8 +731,7 @@ class FactorAPIClientTest {
       }
     }
     idlingResource.startOperation()
-    factorAPIClient.delete(
-        factor, {
+    factorAPIClient.delete(factor, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -651,16 +755,14 @@ class FactorAPIClientTest {
     val expectedException = RuntimeException()
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(expectedException)
     idlingResource.startOperation()
-    factorAPIClient.delete(
-        factor, {
+    factorAPIClient.delete(factor, {
       fail()
       idlingResource.operationFinished()
-    },
-        { exception ->
-          assertEquals(expectedException, exception.cause?.cause)
-          assertTrue(exception.cause is NetworkException)
-          idlingResource.operationFinished()
-        })
+    }, { exception ->
+      assertEquals(expectedException, exception.cause?.cause)
+      assertTrue(exception.cause is NetworkException)
+      idlingResource.operationFinished()
+    })
     idlingResource.waitForIdle()
   }
 }

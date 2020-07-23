@@ -38,7 +38,7 @@ internal class ServiceAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    fun getService() {
+    fun getService(retries: Int = retryTimes) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper = RequestHelper(
@@ -51,7 +51,7 @@ internal class ServiceAPIClient(
         networkProvider.execute(request, {
           success(JSONObject(it.body))
         }, { exception ->
-          validateException(exception, ::getService, error)
+          validateException(exception, ::getService, retries, error)
         })
       } catch (e: TwilioVerifyException) {
         error(e)

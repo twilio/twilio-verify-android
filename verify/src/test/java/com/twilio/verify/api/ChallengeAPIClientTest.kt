@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
@@ -121,6 +122,35 @@ class ChallengeAPIClientTest {
     })
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
+  }
+
+  @Test
+  fun `Update a challenge with out of sync time should retry only another time`() {
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
+    )
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        lastValue.invoke(expectedException)
+      }
+    }
+    whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
+    idlingResource.startOperation()
+    challengeAPIClient.update(factorChallenge, "authPayload", {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
   }
 
   @Test
@@ -291,6 +321,36 @@ class ChallengeAPIClientTest {
   }
 
   @Test
+  fun `Get a challenge with out of sync time should retry only another time`() {
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
+    )
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        lastValue.invoke(expectedException)
+      }
+    }
+    whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
+    idlingResource.startOperation()
+    challengeAPIClient.get(
+        "sid", factorChallenge.factor!!, { _, _ ->
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
+  }
+
+  @Test
   fun `Get a challenge with an error response should call error`() {
     val expectedException = NetworkException(
         FailureResponse(
@@ -411,6 +471,35 @@ class ChallengeAPIClientTest {
     })
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
+  }
+
+  @Test
+  fun `Get challenges with out of sync time should retry only another time`() {
+    val date = "Tue, 21 Jul 2020 17:07:32 GMT"
+    val expectedException = NetworkException(
+        FailureResponse(
+            unauthorized,
+            null,
+            mapOf(dateHeaderKey to listOf(date))
+        )
+    )
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        lastValue.invoke(expectedException)
+      }
+    }
+    whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
+    idlingResource.startOperation()
+    challengeAPIClient.getAll(factorChallenge.factor!!, null, 0, null, {
+      fail()
+      idlingResource.operationFinished()
+    }, { exception ->
+      assertEquals(expectedException, exception.cause)
+      idlingResource.operationFinished()
+    })
+    idlingResource.waitForIdle()
+    verify(dateProvider).syncTime(date)
+    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
   }
 
   @Test

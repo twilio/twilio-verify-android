@@ -11,34 +11,30 @@ import com.twilio.verify.networking.NetworkException
 
 internal const val unauthorized = 401
 internal const val dateHeaderKey = "Date"
+internal const val retryTimes = 1
 
 internal open class BaseAPIClient(private val dateProvider: DateProvider) {
 
-  private var retryCount = 0
-
-  fun validateException(
+  protected fun validateException(
     exception: NetworkException,
-    retry: () -> Unit,
+    retryBlock: (Int) -> Unit,
+    retries: Int,
     error: (TwilioVerifyException) -> Unit
   ) {
-    if (shouldSyncTimeRetry()) {
+    if (retries > 0) {
       when (exception.failureResponse?.responseCode) {
         unauthorized -> exception.failureResponse.headers?.get(dateHeaderKey)
             ?.first()
             ?.let { date ->
               syncTime(date)
-              retryCount++
-              retry()
+              retryBlock(retries - 1)
             } ?: error(TwilioVerifyException(exception, NetworkError))
         else -> error(TwilioVerifyException(exception, NetworkError))
       }
     } else {
-      retryCount = 0
       error(TwilioVerifyException(exception, NetworkError))
     }
   }
-
-  private fun shouldSyncTimeRetry() = retryCount < 1
 
   private fun syncTime(
     date: String
