@@ -8,7 +8,7 @@ class PushFactorPayload(
   override val serviceSid: String,
   override val identity: String,
   val pushToken: String,
-  val enrollmentJwe: String
+  val accessToken: String
 ) : FactorPayload {
   override val factorType: FactorType
     get() = FactorType.PUSH

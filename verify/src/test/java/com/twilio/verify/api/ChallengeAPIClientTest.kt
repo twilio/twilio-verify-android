@@ -59,7 +59,7 @@ class ChallengeAPIClientTest {
     FactorChallenge("sid", mock(), "", "factorSid", Pending, Date(), Date(), Date()).apply {
       factor =
         PushFactor(
-            "sid", "friendlyName", "accountSid", "serviceSid", "entityIdentity", createdAt = Date(),
+            "sid", "friendlyName", "accountSid", "serviceSid", "identity", createdAt = Date(),
             config = Config("credentialSid")
         )
     }
@@ -212,7 +212,7 @@ class ChallengeAPIClientTest {
       "$baseUrl$updateChallengeURL".replace(
           SERVICE_SID_PATH, factorChallenge.factor!!.serviceSid, true
       )
-          .replace(IDENTITY_PATH, factorChallenge.factor!!.entityIdentity)
+          .replace(IDENTITY_PATH, factorChallenge.factor!!.identity)
           .replace(challengeSidPath, factorChallenge.sid)
 
     val authPayload = "authPayload"
@@ -398,7 +398,7 @@ class ChallengeAPIClientTest {
     val factor = factorChallenge.factor!!
     val expectedURL =
       "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-          .replace(IDENTITY_PATH, factor.entityIdentity)
+          .replace(IDENTITY_PATH, factor.identity)
           .replace(challengeSidPath, challengeSid)
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()

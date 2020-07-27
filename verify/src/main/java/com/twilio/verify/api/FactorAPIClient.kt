@@ -56,7 +56,7 @@ internal class FactorAPIClient(
       val requestHelper =
         RequestHelper(
             context,
-            BasicAuthorization(AUTHENTICATION_USER, createFactorPayload.jwe)
+            BasicAuthorization(AUTHENTICATION_USER, createFactorPayload.accessToken)
         )
       val request = Request.Builder(
           requestHelper,
@@ -174,23 +174,23 @@ internal class FactorAPIClient(
 
   private fun createFactorURL(createFactorPayload: CreateFactorPayload): String =
     "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, createFactorPayload.serviceSid, true)
-        .replace(IDENTITY_PATH, createFactorPayload.entity)
+        .replace(IDENTITY_PATH, createFactorPayload.identity)
 
   private fun verifyFactorURL(factor: Factor): String =
     "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(IDENTITY_PATH, factor.entityIdentity)
+        .replace(IDENTITY_PATH, factor.identity)
         .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun deleteFactorURL(factor: Factor): String =
     "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(IDENTITY_PATH, factor.entityIdentity)
+        .replace(IDENTITY_PATH, factor.identity)
         .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun updateFactorURL(
     factor: Factor
   ): String =
     "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(IDENTITY_PATH, factor.entityIdentity)
+        .replace(IDENTITY_PATH, factor.identity)
         .replace(
             FACTOR_SID_PATH, factor.sid
         )

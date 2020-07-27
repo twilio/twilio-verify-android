@@ -165,10 +165,10 @@ internal class ChallengeAPIClient(
   private fun updateChallengeURL(challenge: FactorChallenge) =
     challenge.factor?.let { factor ->
       "$baseUrl$updateChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-          .replace(IDENTITY_PATH, factor.entityIdentity)
+          .replace(IDENTITY_PATH, factor.identity)
           .replace(challengeSidPath, challenge.sid)
     } ?: run {
-      throw IllegalArgumentException("ServiceSid or EntityIdentity is null or empty")
+      throw IllegalArgumentException("ServiceSid or Identity is null or empty")
     }
 
   private fun updateChallengeBody(
@@ -182,12 +182,12 @@ internal class ChallengeAPIClient(
     challengeSid: String,
     factor: Factor
   ) = "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-      .replace(IDENTITY_PATH, factor.entityIdentity)
+      .replace(IDENTITY_PATH, factor.identity)
       .replace(challengeSidPath, challengeSid)
 
   private fun getChallengesURL(
     factor: Factor
   ) = "$baseUrl$getChallengesURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-      .replace(IDENTITY_PATH, factor.entityIdentity)
+      .replace(IDENTITY_PATH, factor.identity)
 }
 

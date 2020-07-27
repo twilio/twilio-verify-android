@@ -10,6 +10,6 @@ internal interface FactorDataPayload {
   val friendlyName: String
   val type: FactorType
   val serviceSid: String
-  val entity: String
+  val identity: String
   val config: Map<String, String>
 }

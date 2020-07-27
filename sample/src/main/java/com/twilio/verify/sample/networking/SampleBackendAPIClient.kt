@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.sample.networking
 
-import com.twilio.verify.sample.model.EnrollmentResponse
+import com.twilio.verify.sample.model.AccessTokenResponse
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -18,17 +18,17 @@ import java.io.IOException
 
 interface SampleBackendAPIClient {
   @POST @FormUrlEncoded
-  fun enrollment(
+  fun accessTokens(
     @Field("identity") identity: String,
     @Url url: String
-  ): Call<EnrollmentResponse>?
+  ): Call<AccessTokenResponse>?
 }
 
 @JvmOverloads fun backendAPIClient(
-  enrollmentUrl: String,
+  accessTokenUrl: String,
   okHttpClient: OkHttpClient = OkHttpClient()
 ): SampleBackendAPIClient {
-  val url = enrollmentUrl.toHttpUrl()
+  val url = accessTokenUrl.toHttpUrl()
   val retrofit = Retrofit.Builder()
       .baseUrl("${url.scheme}://${url.host}")
       .addConverterFactory(GsonConverterFactory.create())
@@ -37,27 +37,27 @@ interface SampleBackendAPIClient {
   return retrofit.create(SampleBackendAPIClient::class.java)
 }
 
-fun SampleBackendAPIClient.getEnrollmentResponse(
+fun SampleBackendAPIClient.getAccessTokenResponse(
   identity: String,
-  enrollmentUrl: String,
-  success: (EnrollmentResponse) -> Unit,
+  accessTokenUrl: String,
+  success: (AccessTokenResponse) -> Unit,
   error: (Throwable) -> Unit
 ) {
-  val call = enrollment(identity, enrollmentUrl)
-  call?.enqueue(object : retrofit2.Callback<EnrollmentResponse> {
+  val call = accessTokens(identity, accessTokenUrl)
+  call?.enqueue(object : retrofit2.Callback<AccessTokenResponse> {
     override fun onFailure(
-      call: Call<EnrollmentResponse>,
+      call: Call<AccessTokenResponse>,
       t: Throwable
     ) {
       error(t)
     }
 
     override fun onResponse(
-      call: Call<EnrollmentResponse>,
-      response: Response<EnrollmentResponse>
+      call: Call<AccessTokenResponse>,
+      response: Response<AccessTokenResponse>
     ) {
       try {
-        val enrollmentResponse =
+        val accessTokenResponse =
           response.body()
               ?.takeIf {
                 !it.token.isNullOrBlank() && !it.factorType.isNullOrBlank()
@@ -66,7 +66,7 @@ fun SampleBackendAPIClient.getEnrollmentResponse(
               response.errorBody()
                   ?.string() ?: "Invalid response"
           )
-        success(enrollmentResponse)
+        success(accessTokenResponse)
       } catch (e: Exception) {
         error(e)
       }

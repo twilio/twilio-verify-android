@@ -36,7 +36,7 @@ internal class FactorFacade(
       when (factorPayload) {
         is PushFactorPayload -> {
           pushFactory.create(
-              factorPayload.enrollmentJwe, factorPayload.friendlyName, factorPayload.pushToken,
+              factorPayload.accessToken, factorPayload.friendlyName, factorPayload.pushToken,
               factorPayload.serviceSid, factorPayload.identity, onSuccess, onError
           )
         }

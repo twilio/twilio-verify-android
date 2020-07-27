@@ -19,9 +19,9 @@ import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.view.showError
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
+import kotlinx.android.synthetic.main.fragment_create_factor.accessTokenUrlInput
 import kotlinx.android.synthetic.main.fragment_create_factor.content
 import kotlinx.android.synthetic.main.fragment_create_factor.createFactor
-import kotlinx.android.synthetic.main.fragment_create_factor.enrollmentUrlInput
 import kotlinx.android.synthetic.main.fragment_create_factor.identityInput
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -74,28 +74,28 @@ class CreateFactorFragment : Fragment() {
       !this::token.isInitialized ->
         IllegalArgumentException("Invalid push token").showError(content)
       identityInput.text.toString()
-          .isEmpty() -> IllegalArgumentException("Invalid entity identity").showError(
+          .isEmpty() -> IllegalArgumentException("Invalid identity").showError(
           content
       )
-      enrollmentUrlInput.text.toString()
-          .isEmpty() || enrollmentUrlInput.text.toString()
+      accessTokenUrlInput.text.toString()
+          .isEmpty() || accessTokenUrlInput.text.toString()
           .toHttpUrlOrNull() == null -> IllegalArgumentException(
-          "Invalid enrollment url"
+          "Invalid access token url"
       ).showError(
           content
       )
       else -> {
-        createFactor(identityInput.text.toString(), enrollmentUrlInput.text.toString())
+        createFactor(identityInput.text.toString(), accessTokenUrlInput.text.toString())
       }
     }
   }
 
   private fun createFactor(
     identity: String,
-    enrollmentUrl: String
+    accessTokenUrl: String
   ) {
     createFactor.isEnabled = false
-    val createFactorData = CreateFactorData(identity, "$identity's factor", token, enrollmentUrl)
+    val createFactorData = CreateFactorData(identity, "$identity's factor", token, accessTokenUrl)
     factorViewModel.createFactor(createFactorData)
   }
 

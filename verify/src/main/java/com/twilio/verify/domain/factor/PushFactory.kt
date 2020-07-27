@@ -31,7 +31,7 @@ internal class PushFactory(
   private val context: Context
 ) {
   fun create(
-    jwe: String,
+    accessToken: String,
     friendlyName: String,
     pushToken: String,
     serviceSid: String,
@@ -46,7 +46,7 @@ internal class PushFactory(
       val config = config(pushToken)
       val factorBuilder = CreateFactorPayload(
           friendlyName, PUSH, serviceSid,
-          identity, config, binding, jwe
+          identity, config, binding, accessToken
       )
 
       fun onFactorCreated(factor: Factor) {
@@ -110,7 +110,7 @@ internal class PushFactory(
   ) {
     fun updateFactor(pushFactor: PushFactor) {
       val updateFactorPayload = UpdateFactorPayload(
-          pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.entityIdentity,
+          pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.identity,
           config(pushToken), pushFactor.sid
       )
       factorProvider.update(updateFactorPayload, success, error)

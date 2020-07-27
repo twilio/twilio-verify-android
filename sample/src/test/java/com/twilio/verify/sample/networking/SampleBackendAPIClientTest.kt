@@ -27,15 +27,15 @@ class SampleBackendAPIClientTest {
   fun before() {
     mockWebServer = MockWebServer()
     mockWebServer.start()
-    url = mockWebServer.url("/enroll")
+    url = mockWebServer.url("/accessTokens")
         .toString()
     sampleBackendAPIClient = backendAPIClient(url)
   }
 
   @Test
-  fun `Enrollment with success response should return enrollment response`() {
+  fun `Access token with success response should return access token response`() {
     val identity = "identity"
-    val tokenValue = "jweToken"
+    val tokenValue = "accessToken"
     val serviceSidValue = "serviceSidValue"
     val factorTypeValue = "push"
     val identityValue = "identityValue"
@@ -49,11 +49,11 @@ class SampleBackendAPIClientTest {
         .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getEnrollmentResponse(identity, url, { enrollmentResponse ->
-      assertEquals(tokenValue, enrollmentResponse.token)
-      assertEquals(serviceSidValue, enrollmentResponse.serviceSid)
-      assertEquals(factorTypeValue, enrollmentResponse.factorType)
-      assertEquals(identityValue, enrollmentResponse.identity)
+    sampleBackendAPIClient.getAccessTokenResponse(identity, url, { accessTokenResponse ->
+      assertEquals(tokenValue, accessTokenResponse.token)
+      assertEquals(serviceSidValue, accessTokenResponse.serviceSid)
+      assertEquals(factorTypeValue, accessTokenResponse.factorType)
+      assertEquals(identityValue, accessTokenResponse.identity)
       idlingResource.operationFinished()
     }, {
       fail()
@@ -63,7 +63,7 @@ class SampleBackendAPIClientTest {
   }
 
   @Test
-  fun `Enrollment with success response but with invalid response code should return throw exception`() {
+  fun `Access token with success response but with invalid response code should return throw exception`() {
     val identity = "identity"
     val bodyJson = JSONObject().apply {
       put("field", "value")
@@ -72,7 +72,7 @@ class SampleBackendAPIClientTest {
         .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getEnrollmentResponse(identity, url, {
+    sampleBackendAPIClient.getAccessTokenResponse(identity, url, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->
@@ -83,7 +83,7 @@ class SampleBackendAPIClientTest {
   }
 
   @Test
-  fun `Enrollment with error response should return throw exception`() {
+  fun `Access token with error response should return throw exception`() {
     val identity = "identity"
     val bodyJson = JSONObject().apply {
       put("error", "25000")
@@ -93,7 +93,7 @@ class SampleBackendAPIClientTest {
         .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getEnrollmentResponse(identity, url, {
+    sampleBackendAPIClient.getAccessTokenResponse(identity, url, {
       fail()
       idlingResource.operationFinished()
     }, { exception ->

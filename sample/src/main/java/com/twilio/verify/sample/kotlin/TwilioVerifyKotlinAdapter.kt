@@ -13,10 +13,10 @@ import com.twilio.verify.models.UpdatePushFactorPayload
 import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
-import com.twilio.verify.sample.model.EnrollmentResponse
+import com.twilio.verify.sample.model.AccessTokenResponse
 import com.twilio.verify.sample.model.getFactorType
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
-import com.twilio.verify.sample.networking.getEnrollmentResponse
+import com.twilio.verify.sample.networking.getAccessTokenResponse
 import com.twilio.verify.sample.push.NewChallenge
 import com.twilio.verify.sample.push.VerifyEventBus
 
@@ -32,9 +32,9 @@ class TwilioVerifyKotlinAdapter(
     error: (Throwable) -> Unit
   ) {
     try {
-      sampleBackendAPIClient.getEnrollmentResponse(
-          createFactorData.identity, createFactorData.enrollmentUrl, { enrollmentResponse ->
-        val factorPayload = getFactorPayload(createFactorData, enrollmentResponse)
+      sampleBackendAPIClient.getAccessTokenResponse(
+          createFactorData.identity, createFactorData.accessTokenUrl, { accessTokenResponse ->
+        val factorPayload = getFactorPayload(createFactorData, accessTokenResponse)
         twilioVerify.createFactor(factorPayload, { factor ->
           verifyFactor(factor, success, error)
         }, error)
@@ -91,15 +91,15 @@ class TwilioVerifyKotlinAdapter(
   }
 
   private fun getFactorPayload(
-    createFactorData: CreateFactorData,
-    enrollmentResponse: EnrollmentResponse
+      createFactorData: CreateFactorData,
+      accessTokenResponse: AccessTokenResponse
   ): FactorPayload {
-    return when (enrollmentResponse.getFactorType()) {
+    return when (accessTokenResponse.getFactorType()) {
       PUSH -> PushFactorPayload(
-          createFactorData.factorName, enrollmentResponse.serviceSid,
-          enrollmentResponse.identity, createFactorData.pushToken, enrollmentResponse.token
+          createFactorData.factorName, accessTokenResponse.serviceSid,
+          accessTokenResponse.identity, createFactorData.pushToken, accessTokenResponse.token
       )
-      else -> throw IllegalStateException("Unexpected value: " + enrollmentResponse.factorType)
+      else -> throw IllegalStateException("Unexpected value: " + accessTokenResponse.factorType)
     }
   }
 

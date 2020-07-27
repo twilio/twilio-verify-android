@@ -11,7 +11,7 @@ interface Factor {
   val friendlyName: String
   val accountSid: String
   val serviceSid: String
-  val entityIdentity: String
+  val identity: String
   val type: FactorType
   val createdAt: Date
 }
