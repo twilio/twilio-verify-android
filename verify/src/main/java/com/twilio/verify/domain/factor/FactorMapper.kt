@@ -25,7 +25,7 @@ internal const val credentialSidKey = "credential_sid"
 internal const val friendlyNameKey = "friendly_name"
 internal const val accountSidKey = "account_sid"
 internal const val serviceSidKey = "service_sid"
-internal const val entityIdentityKey = "entity_identity"
+internal const val identity = "entity_identity"
 internal const val keyPairAliasKey = "key_pair"
 internal const val dateCreatedKey = "date_created"
 
@@ -37,14 +37,14 @@ internal class FactorMapper {
     factorPayload: FactorDataPayload
   ): Factor {
     val serviceSid = factorPayload.serviceSid
-    val entityIdentity = factorPayload.entity
-    if (serviceSid.isEmpty() || entityIdentity.isEmpty()) {
+    val identity = factorPayload.identity
+    if (serviceSid.isEmpty() || identity.isEmpty()) {
       throw TwilioVerifyException(
-          IllegalArgumentException("ServiceSid or EntityIdentity is null or empty"), MapperError
+          IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
       )
     }
     return when (factorPayload.type) {
-      PUSH -> toPushFactor(serviceSid, entityIdentity, jsonObject)
+      PUSH -> toPushFactor(serviceSid, identity, jsonObject)
     }
   }
 
@@ -68,16 +68,16 @@ internal class FactorMapper {
       throw TwilioVerifyException(e, MapperError)
     }
     val serviceSid = jsonObject.optString(serviceSidKey)
-    val entityIdentity = jsonObject.optString(entityIdentityKey)
-    if (serviceSid.isNullOrEmpty() || entityIdentity.isNullOrEmpty()) {
+    val identity = jsonObject.optString(identity)
+    if (serviceSid.isNullOrEmpty() || identity.isNullOrEmpty()) {
       throw TwilioVerifyException(
-          IllegalArgumentException("ServiceSid or EntityIdentity is null or empty"), MapperError
+          IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
       )
     }
     return when (jsonObject.getString(typeKey)) {
       PUSH.factorTypeName -> toPushFactor(
           serviceSid,
-          entityIdentity,
+          identity,
           jsonObject
       ).apply {
         keyPairAlias = jsonObject.optString(keyPairAliasKey)
@@ -96,7 +96,7 @@ internal class FactorMapper {
           .put(friendlyNameKey, factor.friendlyName)
           .put(accountSidKey, factor.accountSid)
           .put(serviceSidKey, factor.serviceSid)
-          .put(entityIdentityKey, factor.entityIdentity)
+          .put(identity, factor.identity)
           .put(typeKey, factor.type.factorTypeName)
           .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias)
           .put(statusKey, factor.status.value)
@@ -111,7 +111,7 @@ internal class FactorMapper {
   @Throws(TwilioVerifyException::class)
   private fun toPushFactor(
     serviceSid: String,
-    entityIdentity: String,
+    identity: String,
     jsonObject: JSONObject
   ): PushFactor {
     return try {
@@ -120,7 +120,7 @@ internal class FactorMapper {
           friendlyName = jsonObject.getString(friendlyNameKey),
           accountSid = jsonObject.getString(accountSidKey),
           serviceSid = serviceSid,
-          entityIdentity = entityIdentity,
+          identity = identity,
           status = FactorStatus.values()
               .find { it.value == jsonObject.getString(statusKey) }
               ?: Unverified,

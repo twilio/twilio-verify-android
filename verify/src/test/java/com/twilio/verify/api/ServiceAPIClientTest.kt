@@ -66,7 +66,7 @@ class ServiceAPIClientTest {
     val factorSid = "sid"
     val factorServiceSid = "serviceSid"
     val factor: Factor = mock() {
-      on { entityIdentity } doReturn identity
+      on { this.identity } doReturn identity
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
@@ -94,7 +94,7 @@ class ServiceAPIClientTest {
     val factorSid = "sid"
     val factorServiceSid = "serviceSid"
     val factor: Factor = mock() {
-      on { entityIdentity } doReturn identity
+      on { this.identity } doReturn identity
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
@@ -128,7 +128,7 @@ class ServiceAPIClientTest {
     val factorSid = "sid"
     val factorServiceSid = "serviceSid"
     val factor: Factor = mock() {
-      on { entityIdentity } doReturn identity
+      on { this.identity } doReturn identity
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
@@ -170,7 +170,7 @@ class ServiceAPIClientTest {
     val factorSid = "sid"
     val factorServiceSid = "serviceSid"
     val factor: Factor = mock() {
-      on { entityIdentity } doReturn identity
+      on { this.identity } doReturn identity
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
@@ -208,7 +208,7 @@ class ServiceAPIClientTest {
     val factorSid = "sid"
     val factorServiceSid = "serviceSid"
     val factor: Factor = mock() {
-      on { entityIdentity } doReturn identity
+      on { this.identity } doReturn identity
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }
@@ -232,7 +232,7 @@ class ServiceAPIClientTest {
     val factorSid = "sid"
     val factorServiceSid = "serviceSid"
     val factor: Factor = mock() {
-      on { entityIdentity } doReturn identity
+      on { this.identity } doReturn identity
       on { sid } doReturn factorSid
       on { serviceSid } doReturn factorServiceSid
     }

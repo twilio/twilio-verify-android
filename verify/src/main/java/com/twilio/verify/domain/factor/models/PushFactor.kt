@@ -15,7 +15,7 @@ internal class PushFactor(
   override val friendlyName: String,
   override val accountSid: String,
   override val serviceSid: String,
-  override val entityIdentity: String,
+  override val identity: String,
   override var status: FactorStatus = Unverified,
   override val createdAt: Date,
   val config: Config

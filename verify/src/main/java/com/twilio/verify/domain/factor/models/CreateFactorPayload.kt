@@ -9,8 +9,8 @@ internal data class CreateFactorPayload(
   override val friendlyName: String,
   override val type: FactorType,
   override val serviceSid: String,
-  override val entity: String,
+  override val identity: String,
   override val config: Map<String, String>,
   val binding: Map<String, String>,
-  val jwe: String
+  val accessToken: String
 ) : FactorDataPayload

@@ -135,7 +135,7 @@ class PushChallengeProcessorTest {
     val factorSid = "sid123"
     val accountSid = "accountSid"
     val serviceSid = "serviceSid"
-    val entityId = "entityId"
+    val identity = "identity"
     val hiddenDetails = "hiddenDetails"
     val newStatus = Denied
     val status = Pending
@@ -156,7 +156,7 @@ class PushChallengeProcessorTest {
     whenever(factor.sid).thenReturn(factorSid)
     whenever(factor.accountSid).thenReturn(accountSid)
     whenever(factor.serviceSid).thenReturn(serviceSid)
-    whenever(factor.entityIdentity).thenReturn(entityId)
+    whenever(factor.identity).thenReturn(identity)
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(challenge)

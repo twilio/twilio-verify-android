@@ -13,20 +13,13 @@ android {
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles 'consumer-rules.pro'
+    buildConfigField "String", 'BASE_URL', "\"https://verify.twilio.com/v2/\""
   }
 
   buildTypes {
     release {
       minifyEnabled false
-      buildConfigField "String", 'BASE_URL', "\"https://verify.twilio.com/v2/\""
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-    }
-    debug {
-      buildConfigField "String", 'BASE_URL', "\"https://verify.stage.twilio.com/v2/\""
-    }
-    dev {
-      buildConfigField "String", 'BASE_URL', "\"https://verify.dev.twilio.com/v2/\""
-      matchingFallbacks = ['debug']
     }
   }
   testOptions.unitTests.includeAndroidResources = true

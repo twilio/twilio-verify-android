@@ -82,7 +82,7 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.create(CreateFactorPayload(
-        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
+        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "accessToken"
     ), { jsonObject ->
       assertEquals(response, jsonObject.toString())
     }, {
@@ -105,7 +105,7 @@ class FactorAPIClientTest {
       }
     }
     factorAPIClient.create(CreateFactorPayload(
-        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
+        "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "accessToken"
     ), {
       fail()
     }, { exception ->
@@ -117,7 +117,7 @@ class FactorAPIClientTest {
   fun `Error creating a factor should call error`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "jwe"
+          "factor name", PUSH, "serviceSid", "entitySid", emptyMap(), emptyMap(), "accessToken"
       )
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     factorAPIClient.create(factorPayload, {
@@ -132,10 +132,10 @@ class FactorAPIClientTest {
   @Test
   fun `Create factor request should match to the expected params`() {
     val serviceSid = "serviceSid"
-    val entity = "entityId"
+    val identity = "identity"
     val expectedURL = "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSid, true)
         .replace(
-            IDENTITY_PATH, entity
+            IDENTITY_PATH, identity
         )
     val friendlyNameMock = "Test"
     val factorTypeMock = PUSH
@@ -158,7 +158,7 @@ class FactorAPIClientTest {
       CreateFactorPayload(
           friendlyNameMock, factorTypeMock,
           serviceSid,
-          entity, config, binding, "jwe"
+          identity, config, binding, "accessToken"
       )
 
     factorAPIClient.create(factorPayload, {}, {})
@@ -179,7 +179,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Verify a factor with a success response should call success`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val response = "{\"key\":\"value\"}"
@@ -212,7 +212,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Verify a factor with out of sync time should sync time and redo the request`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val response = "{\"key\":\"value\"}"
@@ -258,7 +258,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Verify a factor with out of sync time should retry only another time`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
@@ -300,7 +300,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Verify a factor with an error response should not call success`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val expectedException = NetworkException(
@@ -343,10 +343,10 @@ class FactorAPIClientTest {
     val friendlyNameMock = "friendlyName"
     val accountSidMock = "accountSid"
     val serviceSidMock = "serviceSid"
-    val entityIdentityMock = "entityIdentity"
+    val identityMock = "identity"
     val authPayloadMock = "authPayload"
     val expectedURL = "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
-        .replace(IDENTITY_PATH, entityIdentityMock)
+        .replace(IDENTITY_PATH, identityMock)
         .replace(FACTOR_SID_PATH, sidMock)
     val expectedBody = mapOf(AUTH_PAYLOAD_PARAM to authPayloadMock)
     val factor =
@@ -355,7 +355,7 @@ class FactorAPIClientTest {
           friendlyNameMock,
           accountSidMock,
           serviceSidMock,
-          entityIdentityMock,
+          identityMock,
           Unverified,
           Date(),
           config = Config("credentialSid")
@@ -381,7 +381,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Update factor with a success response should call success`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val response = "{\"key\":\"value\"}"
@@ -411,7 +411,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Update factor with out of sync time should sync time and redo the request`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val response = "{\"key\":\"value\"}"
@@ -454,7 +454,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Update factor with out of sync time should retry only another time`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val factor =
@@ -494,7 +494,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Update a factor with an error response shouldn't call success`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val factor =
@@ -534,11 +534,11 @@ class FactorAPIClientTest {
     val sidMock = "sid"
     val serviceSidMock = "serviceSid"
     val friendlyNameMock = "Test"
-    val entityIdentityMock = "entityIdentity"
+    val identityMock = "identity"
     val pushToken = "ABCD"
     val factorTypeMock = PUSH
     val expectedURL = "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSidMock, true)
-        .replace(IDENTITY_PATH, entityIdentityMock)
+        .replace(IDENTITY_PATH, identityMock)
         .replace(FACTOR_SID_PATH, sidMock)
 
     val config = mapOf(
@@ -549,13 +549,13 @@ class FactorAPIClientTest {
     )
     val factor =
       PushFactor(
-          sidMock, "friendlyName", "accountSid", serviceSidMock, entityIdentityMock, Verified,
+          sidMock, "friendlyName", "accountSid", serviceSidMock, identityMock, Verified,
           Date(), config = Config("credentialSid")
       )
     val factorPayload =
       UpdateFactorPayload(
           friendlyNameMock, factorTypeMock, serviceSidMock,
-          entityIdentityMock, config, sidMock
+          identityMock, config, sidMock
       )
 
     val expectedBody = mapOf(
@@ -583,7 +583,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Delete a factor with a success response should call success`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val response = "{\"key\":\"value\"}"
@@ -620,7 +620,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Delete a factor with out of sync time should sync time and redo the request`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val response = "{\"key\":\"value\"}"
@@ -671,7 +671,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Delete a factor with out of sync time should retry only another time`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val factor =
@@ -709,7 +709,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Delete a factor with an error response should not call success`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val factor =
@@ -743,7 +743,7 @@ class FactorAPIClientTest {
 
   @Test
   fun `Delete a factor with an exception should not call success`() {
-    val identity = "entityIdentity"
+    val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
     val factor =

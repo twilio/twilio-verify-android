@@ -42,12 +42,12 @@ class AuthenticationProviderTest {
     val friendlyName = "friendlyName"
     val accountSid = "accountSid"
     val serviceSid = "serviceSid"
-    val entityIdentity = "entityIdentity"
+    val identity = "identity"
     val credentialSid = "credentialSid"
     val status = FactorStatus.Unverified
     val factor =
       PushFactor(
-          factorSid, friendlyName, accountSid, serviceSid, entityIdentity, status, Date(),
+          factorSid, friendlyName, accountSid, serviceSid, identity, status, Date(),
           Config(credentialSid)
       ).apply {
         keyPairAlias = "test"
@@ -76,12 +76,12 @@ class AuthenticationProviderTest {
     val friendlyName = "friendlyName"
     val accountSid = "accountSid"
     val serviceSid = "serviceSid"
-    val entityIdentity = "entityIdentity"
+    val identity = "identity"
     val credentialSid = "credentialSid"
     val status = FactorStatus.Unverified
     val factor =
       PushFactor(
-          factorSid, friendlyName, accountSid, serviceSid, entityIdentity, status, Date(),
+          factorSid, friendlyName, accountSid, serviceSid, identity, status, Date(),
           Config(credentialSid)
       ).apply {
         keyPairAlias = null

@@ -29,7 +29,7 @@ class FactorViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : Vi
 
   fun createFactor(createFactorData: CreateFactorData) {
     twilioVerifyAdapter.createFactor(
-        createFactorData, backendAPIClient(createFactorData.enrollmentUrl), {
+        createFactorData, backendAPIClient(createFactorData.accessTokenUrl), {
       factor.value = Factor(it)
     }, {
       factor.value = FactorError(it)

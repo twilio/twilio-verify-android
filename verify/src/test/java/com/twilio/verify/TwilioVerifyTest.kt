@@ -141,7 +141,7 @@ class TwilioVerifyTest {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
-    val jwe =
+    val accessToken =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -151,7 +151,7 @@ class TwilioVerifyTest {
           "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
           "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorPayload =
-      PushFactorPayload("friendly name", factorServiceSid, factorIdentity, "pushToken", jwe)
+      PushFactorPayload("friendly name", factorServiceSid, factorIdentity, "pushToken", accessToken)
     idlingResource.startOperation()
     twilioVerify.createFactor(factorPayload, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
@@ -431,7 +431,7 @@ class TwilioVerifyTest {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
-    val jwe =
+    val accessToken =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
           "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
           "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
@@ -441,7 +441,7 @@ class TwilioVerifyTest {
           "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
           "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorPayload =
-      PushFactorPayload("friendly name", factorServiceSid, factorIdentity, "pushToken", jwe)
+      PushFactorPayload("friendly name", factorServiceSid, factorIdentity, "pushToken", accessToken)
     idlingResource.startOperation()
     twilioVerify.createFactor(factorPayload, { factor ->
       this.factor = factor
