@@ -6,7 +6,7 @@ orbs:
 references:
 
   workspace: &workspace
-    ~/code
+    .
 
   executor: &executor
     android/android
@@ -89,7 +89,7 @@ jobs:
       - run: ls
       - run: pwd
       - persist_to_workspace:
-          root: .
+          root: *workspace
           paths:
             - builds
   unit_tests:
