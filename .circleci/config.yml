@@ -10,16 +10,7 @@ references:
 
   executor: &executor
     android/android
-  ## Docker configuration
-  # android_config: &android_config
-  #   working_directory: *workspace
-  #   docker:
-  #     - image: circleci/android:api-28
-  #   environment:
-  #     - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-  #     - JVM_OPTS: -Xmx3200m
-  #   resource_class: large
-
+    
   ## Cache
   gradle_key: &gradle_key
     jars-{{ checksum "build.gradle" }}-{{ checksum "verify/build.gradle" }}-{{ checksum "security/build.gradle" }}
@@ -77,8 +68,8 @@ jobs:
     executor: *executor
     steps:
       - setup
-      - attach_workspace:
-          at: *workspace
+      # - attach_workspace:
+      #     at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
       - *assemble_build
@@ -86,8 +77,6 @@ jobs:
       - run: mkdir -p builds
       - run: cp verify/build/outputs/apk/androidTest/debug/verify-debug-androidTest.apk builds
       - run: cp security/build/outputs/apk/androidTest/debug/security-debug-androidTest.apk builds
-      - run: ls
-      - run: pwd
       - persist_to_workspace:
           root: *workspace
           paths:
@@ -101,7 +90,6 @@ jobs:
       - run:
           name: Running Unit Tests
           command: bundle exec fastlane unit_tests
-          # command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
       - *save_gradle_cache
   security_instrumentation_tests_single_device:
     executor: *executor
@@ -111,7 +99,6 @@ jobs:
           at: *workspace
       - *store_google_service_account
       - *authorize_gcloud
-      - run: ls
       - run:
           name: Run security integration tests on single device
           command: 
@@ -120,11 +107,10 @@ jobs:
     executor: *executor
     steps:
       - checkout
-      # - attach_workspace:
-          # at: *workspace
+      - attach_workspace:
+          at: *workspace
       - *store_google_service_account
       - *authorize_gcloud
-      - run: ls
       - run:
           name: Run verify integration tests on single device
           command: 
