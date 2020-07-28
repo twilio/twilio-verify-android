@@ -1,19 +1,24 @@
-version: 2
+version: 2.1
+
+orbs:
+ android: circleci/android@0.2.0
 
 references:
 
   workspace: &workspace
     ~/code
 
+  executor: &executor
+    android/android
   ## Docker configuration
-  android_config: &android_config
-    working_directory: *workspace
-    docker:
-      - image: circleci/android:api-28
-    environment:
-      - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-      - JVM_OPTS: -Xmx3200m
-    resource_class: large
+  # android_config: &android_config
+  #   working_directory: *workspace
+  #   docker:
+  #     - image: circleci/android:api-28
+  #   environment:
+  #     - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+  #     - JVM_OPTS: -Xmx3200m
+  #   resource_class: large
 
   ## Cache
   gradle_key: &gradle_key
@@ -38,7 +43,8 @@ references:
   assemble_build: &assemble_build
     run:
       name: Assemble Build
-      command: ./gradlew assembleDebug assembleDebugAndroidTest :security::assembleDebugAndroidTest
+      command: fastlane assemble
+      # command: ./gradlew assembleDebug assembleDebugAndroidTest :security::assembleDebugAndroidTest
 
   #Firebase Test Lab
   store_google_service_account: &store_google_service_account
@@ -52,10 +58,23 @@ references:
       command: |
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
         sudo gcloud --quiet config set project twilio-firebase-266721
+commands:
+  setup:
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-gems-{{ checksum "Gemfile.lock" }}
+      - run:
+          name: Install Gems
+          command: bundle check || bundle install --path vendor/bundle
+      - save_cache:
+          key: v1-gems-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
 
 jobs:
   assemble_build:
-    <<: *android_config
+    executor: *executor
     steps:
       - checkout
       - attach_workspace:
@@ -72,7 +91,7 @@ jobs:
           paths:
             - builds
   unit_tests:
-    <<: *android_config
+    executor: *executor
     steps:
       - checkout
       - *restore_gradle_cache
@@ -82,7 +101,7 @@ jobs:
           command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
       - *save_gradle_cache
   security_instrumentation_tests_single_device:
-    <<: *android_config
+    executor: *executor
     steps:
       - checkout
       - attach_workspace:
@@ -94,7 +113,7 @@ jobs:
           command: 
             sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ~/code/ftl/dummy.apk --test ~/code/builds/security-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
   verify_instrumentation_tests_single_device:
-    <<: *android_config
+    executor: *executor
     steps:
       - checkout
       - attach_workspace:
@@ -106,7 +125,7 @@ jobs:
           command: 
             sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ~/code/ftl/dummy.apk --test ~/code/builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
   security_instrumentation_tests_multiple_devices:
-    <<: *android_config
+    executor: *executor
     steps:
       - checkout
       - attach_workspace:
@@ -121,7 +140,7 @@ jobs:
           command:
             sudo gcloud firebase test android run --project twilio-firebase-266721 ftl/security-ftl-config.yaml:twilio-security-tests
   verify_instrumentation_tests_multiple_devices:
-    <<: *android_config
+    executor: *executor
     steps:
       - checkout
       - attach_workspace:
