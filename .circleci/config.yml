@@ -76,7 +76,7 @@ jobs:
   assemble_build:
     executor: *executor
     steps:
-      - checkout
+      - setup
       - attach_workspace:
           at: *workspace
       - *restore_gradle_cache
@@ -93,12 +93,13 @@ jobs:
   unit_tests:
     executor: *executor
     steps:
-      - checkout
+      - setup
       - *restore_gradle_cache
       - *decrypt_google_services
       - run:
           name: Running Unit Tests
-          command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
+          command: fastlane test
+          # command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
       - *save_gradle_cache
   security_instrumentation_tests_single_device:
     executor: *executor
