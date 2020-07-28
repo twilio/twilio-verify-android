@@ -86,6 +86,8 @@ jobs:
       - run: mkdir -p ~/code/builds
       - run: cp verify/build/outputs/apk/androidTest/debug/verify-debug-androidTest.apk ~/code/builds
       - run: cp security/build/outputs/apk/androidTest/debug/security-debug-androidTest.apk ~/code/builds
+      - run: ls
+      - run: pwd
       - persist_to_workspace:
           root: .
           paths:
@@ -98,7 +100,7 @@ jobs:
       - *decrypt_google_services
       - run:
           name: Running Unit Tests
-          command: fastlane unit_tests
+          command: bundle exec fastlane unit_tests
           # command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
       - *save_gradle_cache
   security_instrumentation_tests_single_device:
