@@ -43,7 +43,7 @@ references:
   assemble_build: &assemble_build
     run:
       name: Assemble Build
-      command: fastlane assemble
+      command: bundle exec fastlane assemble
       # command: ./gradlew assembleDebug assembleDebugAndroidTest :security::assembleDebugAndroidTest
 
   #Firebase Test Lab
@@ -98,7 +98,7 @@ jobs:
       - *decrypt_google_services
       - run:
           name: Running Unit Tests
-          command: fastlane test
+          command: fastlane unit_tests
           # command: ./gradlew testDebugUnitTest --no-daemon --max-workers 2
       - *save_gradle_cache
   security_instrumentation_tests_single_device:
