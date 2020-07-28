@@ -77,15 +77,15 @@ jobs:
     executor: *executor
     steps:
       - setup
-      - attach_workspace:
-          at: *workspace
+      # - attach_workspace:
+          # at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
       - *assemble_build
       - *save_gradle_cache
-      - run: mkdir -p ~/code/builds
-      - run: cp verify/build/outputs/apk/androidTest/debug/verify-debug-androidTest.apk ~/code/builds
-      - run: cp security/build/outputs/apk/androidTest/debug/security-debug-androidTest.apk ~/code/builds
+      - run: mkdir -p builds
+      - run: cp verify/build/outputs/apk/androidTest/debug/verify-debug-androidTest.apk builds
+      - run: cp security/build/outputs/apk/androidTest/debug/security-debug-androidTest.apk builds
       - run: ls
       - run: pwd
       - persist_to_workspace:
