@@ -77,8 +77,8 @@ jobs:
     executor: *executor
     steps:
       - setup
-      # - attach_workspace:
-          # at: *workspace
+      - attach_workspace:
+          at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
       - *assemble_build
