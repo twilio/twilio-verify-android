@@ -4,13 +4,12 @@ orbs:
  android: circleci/android@0.2.0
 
 references:
-
   workspace: &workspace
     .
 
   executor: &executor
     android/android
-    
+
   ## Cache
   gradle_key: &gradle_key
     jars-{{ checksum "build.gradle" }}-{{ checksum "verify/build.gradle" }}-{{ checksum "security/build.gradle" }}
@@ -35,7 +34,6 @@ references:
     run:
       name: Assemble Build
       command: bundle exec fastlane assemble
-      # command: ./gradlew assembleDebug assembleDebugAndroidTest :security::assembleDebugAndroidTest
 
   #Firebase Test Lab
   store_google_service_account: &store_google_service_account
