@@ -12,7 +12,7 @@ references:
 
   ## Cache
   gradle_key: &gradle_key
-    jars-{{ checksum "build.gradle" }}-{{ checksum "verify/build.gradle" }}-{{ checksum "security/build.gradle" }}
+    jars-{{ checksum "build.gradle.kts" }}-{{ checksum "verify/build.gradle.kts" }}-{{ checksum "security/build.gradle.kts" }}
 
   restore_gradle_cache: &restore_gradle_cache
     restore_cache:

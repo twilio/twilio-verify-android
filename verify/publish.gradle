@@ -3,7 +3,7 @@
  */
 
 apply plugin: 'maven'
-apply from: '../version.gradle'
+apply from: '../version.gradle.kts'
 
 ext.mavenRepo = (project.hasProperty('maven.repo') ?
     project.property("maven.repo") : '')
@@ -24,7 +24,8 @@ uploadArchives {
             password: mavenPassword
         )
       }
-      pom.version = generateVersionName()
+//      pom.version = generateVersionName()
+      pom.version = "1.0.1"
       pom.groupId = pomGroup
       pom.artifactId = pomArtifactId
       pom.packaging = pomPackaging
@@ -35,7 +36,7 @@ uploadArchives {
 task bintrayLibraryReleaseCandidateUpload(type: GradleBuild) {
   description = 'Publish Verify SDK release candidate to internal bintray'
   group = 'Publishing'
-  buildFile = file('build.gradle')
+  buildFile = file('build.gradle.kts')
   tasks = ['assembleRelease', 'uploadArchives']
   startParameter.projectProperties += gradle.startParameter.projectProperties + [
       'releaseCandidate': true,
@@ -48,11 +49,16 @@ task bintrayLibraryReleaseCandidateUpload(type: GradleBuild) {
 task bintrayLibraryReleaseUpload(type: GradleBuild) {
   description = 'Publish Verify SDK release to bintray'
   group = 'Publishing'
-  buildFile = file('build.gradle')
+  buildFile = file('build.gradle.kts')
   tasks = ['assembleRelease', 'uploadArchives']
   startParameter.projectProperties += gradle.startParameter.projectProperties + [
       'maven.repo': 'https://api.bintray.com/maven/twilio/releases/twilio-verify-android/;publish=1',
       'maven.username': getProjectProperty("BINTRAY_USER"),
       'maven.password': getProjectProperty("BINTRAY_APIKEY")
   ]
+}
+
+String getProjectProperty (prop) {
+  String value = project . hasProperty (prop) ? project.property(prop) : System.getenv(prop)
+  return value != null ? value : "";
 }

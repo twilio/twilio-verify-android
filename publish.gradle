@@ -1,7 +1,7 @@
-task bintrayLibraryReleaseCandidateUpload(type: GradleBuild,
-        dependsOn: ':security:bintrayLibraryReleaseCandidateUpload',
-        ':verify:bintrayLibraryReleaseCandidateUpload')
-
-task bintrayLibraryReleaseUpload(type: GradleBuild,
-        dependsOn: ':security:bintrayLibraryReleaseUpload',
-        ':verify:bintrayLibraryReleaseUpload')
+//task bintrayLibraryReleaseCandidateUpload(type: GradleBuild,
+////        dependsOn: ':security:bintrayLibraryReleaseCandidateUpload',
+////        ':verify:bintrayLibraryReleaseCandidateUpload')
+////
+////task bintrayLibraryReleaseUpload(type: GradleBuild,
+////        dependsOn: ':security:bintrayLibraryReleaseUpload',
+////        ':verify:bintrayLibraryReleaseUpload')
