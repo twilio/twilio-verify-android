@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath(Config.Dependencies.androidTools)
-        classpath(kotlin(Config.Dependencies.kotlin, Versions.kotlin))
+        classpath(kotlin(Config.Dependencies.kotlin, Config.Versions.kotlin))
         classpath(Config.Dependencies.googleServices)
         classpath(Config.Dependencies.firebasePerformance)
         // NOTE: Do not place your application dependencies here; they belong
@@ -22,8 +22,8 @@ allprojects {
         maven {
             url = uri("https://twilio.bintray.com/internal-releases")
             credentials {
-                username = Versions.projectProperty(project, "BINTRAY_USER")
-                password = Versions.projectProperty(project, "BINTRAY_APIKEY")
+                username = Config.projectProperty(project, "BINTRAY_USER")
+                password = Config.projectProperty(project, "BINTRAY_APIKEY")
             }
         }
     }

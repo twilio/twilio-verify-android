@@ -6,14 +6,14 @@ plugins {
   id(Config.Plugins.firebasePerformance)
 }
 apply("../version.gradle.kts")
-val verifyVersionName = extra.get("verifyVersionName") as String
+val verifyVersionName: String by project
 android {
-  val verifyVersionCode = extra.get("verifyVersionCode") as Int
-  compileSdkVersion(28)
+  val verifyVersionCode: Int by project
+  compileSdkVersion(Config.Versions.compileSDKVersion)
   defaultConfig {
     applicationId = "com.twilio.verify.sample"
-    minSdkVersion(23)
-    targetSdkVersion(28)
+    minSdkVersion(Config.Versions.minSDKVersion)
+    targetSdkVersion(Config.Versions.targetSDKVersion)
     versionCode = verifyVersionCode
     versionName = verifyVersionName
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -48,7 +48,7 @@ dependencies {
   releaseImplementation("com.twilio:twilio-verify-android:$verifyVersionName")
   implementation("com.squareup.retrofit2:retrofit:2.9.0")
   implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}")
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Config.Versions.kotlin}")
   implementation("androidx.appcompat:appcompat:1.1.0")
   implementation("androidx.core:core-ktx:1.2.0")
   implementation("androidx.constraintlayout:constraintlayout:1.1.3")

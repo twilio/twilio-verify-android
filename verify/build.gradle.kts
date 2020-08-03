@@ -1,17 +1,19 @@
 apply("publish.gradle.kts")
 plugins {
-  id("com.android.library")
+  id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
 }
 android {
-  compileSdkVersion(28)
+  compileSdkVersion(Config.Versions.compileSDKVersion)
 
   defaultConfig {
-    minSdkVersion(23)
-    targetSdkVersion(28)
-    versionCode = Versioning.versionCode
-    versionName = Versioning.versionName
+    val verifyVersionName: String by project
+    val verifyVersionCode: Int by project
+    minSdkVersion(Config.Versions.minSDKVersion)
+    targetSdkVersion(Config.Versions.targetSDKVersion)
+    versionCode = verifyVersionCode
+    versionName = verifyVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
