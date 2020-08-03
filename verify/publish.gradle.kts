@@ -6,11 +6,11 @@ apply(plugin = "maven")
 apply(from = "../version.gradle.kts")
 
 val mavenRepo =
-  if (project.hasProperty(Constants.Maven.repo)) project.property(Constants.Maven.repo) else ""
-val mavenUsername = if (project.hasProperty(Constants.Maven.username))
-  project.property(Constants.Maven.username) else ""
-val mavenPassword = if (project.hasProperty(Constants.Maven.password))
-  project.property(Constants.Maven.password) else ""
+  if (project.hasProperty(UploadConstants.Maven.repo)) project.property(UploadConstants.Maven.repo) else ""
+val mavenUsername = if (project.hasProperty(UploadConstants.Maven.username))
+  project.property(UploadConstants.Maven.username) else ""
+val mavenPassword = if (project.hasProperty(UploadConstants.Maven.password))
+  project.property(UploadConstants.Maven.password) else ""
 val verifyVersionName: String by project
 val pomPackaging: String by project
 val pomGroup: String by project
@@ -25,23 +25,23 @@ tasks {
       withConvention(MavenRepositoryHandlerConvention::class) {
         mavenDeployer {
           withGroovyBuilder {
-            Constants.Bintray.repository(
-                Constants.Bintray.url to uri(
+            UploadConstants.Bintray.repository(
+                UploadConstants.Bintray.url to uri(
                     mavenRepo ?: ""
                 )
             ) {
-              Constants.Bintray.authentication(
-                  Constants.Bintray.userName to mavenUsername,
-                  Constants.Bintray.password to mavenPassword
+              UploadConstants.Bintray.authentication(
+                  UploadConstants.Bintray.userName to mavenUsername,
+                  UploadConstants.Bintray.password to mavenPassword
               )
             }
           }
           pom.project {
             withGroovyBuilder {
-              Constants.Bintray.version(verifyVersionName)
-              Constants.Bintray.groupId(pomGroup)
-              Constants.Bintray.artifactId(pomArtifactId)
-              Constants.Bintray.packaging(pomPackaging)
+              UploadConstants.Bintray.version(verifyVersionName)
+              UploadConstants.Bintray.groupId(pomGroup)
+              UploadConstants.Bintray.artifactId(pomArtifactId)
+              UploadConstants.Bintray.packaging(pomPackaging)
             }
           }
         }
@@ -56,10 +56,10 @@ task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
   buildFile = file("build.gradle.kts")
   tasks = listOf("assembleRelease", "uploadArchives")
   startParameter.projectProperties.plusAssign(
-      gradle.startParameter.projectProperties + Constants.Bintray.credentials(
+      gradle.startParameter.projectProperties + UploadConstants.Bintray.credentials(
           project,
           "https://api.bintray.com/maven/twilio/internal-releases/twilio-verify-android/;publish=1",
-          Constants.Bintray.user, Constants.Bintray.apiKey
+          UploadConstants.Bintray.user, UploadConstants.Bintray.apiKey
       )
   )
 }
@@ -71,10 +71,10 @@ task("bintrayLibraryReleaseUpload", GradleBuild::class) {
   tasks = listOf("assembleRelease", "uploadArchives")
 
   startParameter.projectProperties.plusAssign(
-      gradle.startParameter.projectProperties + Constants.Bintray.credentials(
+      gradle.startParameter.projectProperties + UploadConstants.Bintray.credentials(
           project,
           "https://api.bintray.com/maven/twilio/releases/twilio-verify-android/;publish=1",
-          Constants.Bintray.user, Constants.Bintray.apiKey
+          UploadConstants.Bintray.user, UploadConstants.Bintray.apiKey
       )
   )
 }

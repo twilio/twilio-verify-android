@@ -33,7 +33,7 @@ references:
   assemble_build: &assemble_build
     run:
       name: Assemble Build
-      command: ./gradlew assembleDebug assembleDebugAndroidTest :security::assembleDebugAndroidTest
+      command: bundle exec fastlane assemble
 
   #Firebase Test Lab
   store_google_service_account: &store_google_service_account
