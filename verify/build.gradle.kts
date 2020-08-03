@@ -1,4 +1,4 @@
-apply("publish.gradle")
+apply("publish.gradle.kts")
 plugins {
   id("com.android.library")
   id(Config.Plugins.kotlinAndroid)
@@ -31,9 +31,10 @@ android {
 }
 
 dependencies {
+  val securityVersion: String by rootProject
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(Modules.security))
-  releaseImplementation("com.twilio:twilio-security-android:$rootProject.ext.securityVersion")
+  releaseImplementation("com.twilio:twilio-security-android:$securityVersion")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
   androidTestImplementation("androidx.test.ext:junit:1.1.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
