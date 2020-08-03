@@ -4,13 +4,12 @@ import org.gradle.api.Project
  * Copyright (c) 2020, Twilio Inc.
  */
 
-object UploadConstants {
-    object Maven {
-        const val plugin = "maven"
-        const val repo = "maven.repo"
-        const val username = "maven.username"
-        const val password = "maven.password"
-    }
+object MavenPublish {
+
+    const val plugin = "maven"
+    const val repo = "maven.repo"
+    const val username = "maven.username"
+    const val password = "maven.password"
 
     object Bintray {
         const val repository = "repository"
@@ -33,9 +32,9 @@ object UploadConstants {
             password: String
         ): Map<String, String> {
             return mapOf(
-                Maven.repo to repositoryURL,
-                Maven.username to projectProperty(project, user),
-                Maven.password to projectProperty(project, password)
+                repo to repositoryURL,
+                username to projectProperty(project, user),
+                password to projectProperty(project, password)
             )
         }
 
