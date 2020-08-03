@@ -33,7 +33,7 @@ references:
   assemble_build: &assemble_build
     run:
       name: Assemble Build
-      command: bundle exec fastlane assemble
+      command: ./gradlew assembleDebug assembleDebugAndroidTest :security::assembleDebugAndroidTest
 
   #Firebase Test Lab
   store_google_service_account: &store_google_service_account
@@ -66,8 +66,6 @@ jobs:
     executor: *executor
     steps:
       - setup
-      # - attach_workspace:
-      #     at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
       - *assemble_build
