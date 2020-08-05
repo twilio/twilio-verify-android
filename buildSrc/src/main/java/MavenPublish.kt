@@ -8,8 +8,8 @@ object MavenPublish {
 
     const val plugin = "maven"
     const val repo = "maven.repo"
-    const val username = "maven.username"
-    const val password = "maven.password"
+    const val mavenUsername = "maven.username"
+    const val mavenPassword = "maven.password"
 
     object Bintray {
         const val repository = "repository"
@@ -29,12 +29,15 @@ object MavenPublish {
             project: Project,
             repositoryURL: String,
             user: String,
-            password: String
+            pass: String
         ): Map<String, String> {
+
+            println("Sergio: ${projectProperty(project, user)}")
+            println("Sergio: ${projectProperty(project, pass)}")
             return mapOf(
                 repo to repositoryURL,
-                username to projectProperty(project, user),
-                password to projectProperty(project, password)
+                mavenUsername to projectProperty(project, user),
+                mavenPassword to projectProperty(project, pass)
             )
         }
 
@@ -49,4 +52,13 @@ object MavenPublish {
             return value ?: ""
         }
     }
+
+    fun mavenRepo(project: Project) =
+        if (project.hasProperty(repo)) project.property(repo) as String else ""
+
+    fun mavenUsername(project: Project) =
+        if (project.hasProperty(mavenUsername)) project.property(mavenUsername) as String else ""
+
+    fun mavenPassword(project: Project) =
+        if (project.hasProperty(mavenPassword)) project.property(mavenPassword) as String else ""
 }

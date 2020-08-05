@@ -74,12 +74,6 @@ tasks.dokkaHtml {
 //endregion
 
 //region Publish
-val mavenRepo =
-  if (project.hasProperty(MavenPublish.repo)) project.property(MavenPublish.repo) else ""
-val mavenUsername = if (project.hasProperty(MavenPublish.username))
-  project.property(MavenPublish.username) else ""
-val mavenPassword = if (project.hasProperty(MavenPublish.password))
-  project.property(MavenPublish.password) else ""
 val pomPackaging: String by project
 val pomGroup: String by project
 val pomArtifactId: String by project
@@ -95,12 +89,12 @@ tasks {
           withGroovyBuilder {
             MavenPublish.Bintray.repository(
               MavenPublish.Bintray.url to uri(
-                mavenRepo ?: ""
+                MavenPublish.mavenRepo(project)
               )
             ) {
               MavenPublish.Bintray.authentication(
-                MavenPublish.Bintray.userName to mavenUsername,
-                MavenPublish.Bintray.password to mavenPassword
+                MavenPublish.Bintray.userName to MavenPublish.mavenUsername(project),
+                MavenPublish.Bintray.password to MavenPublish.mavenPassword(project)
               )
             }
           }
