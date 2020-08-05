@@ -40,9 +40,10 @@ android {
 }
 
 dependencies {
+  val verifyVersion = "0.0.2"
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(Modules.verify))
-  releaseImplementation("com.twilio:twilio-verify-android:+")
+  releaseImplementation("com.twilio:twilio-verify-android:$verifyVersion")
   implementation("com.squareup.retrofit2:retrofit:2.9.0")
   implementation("com.squareup.retrofit2:converter-gson:2.9.0")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Config.Versions.kotlin}")

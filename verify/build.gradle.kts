@@ -20,7 +20,6 @@ fun generateVersionCode(): Int {
     .toInt()
   return build * 1000
 }
-
 val verifyVersionName = generateVersionName()
 val verifyVersionCode = generateVersionCode()
 
@@ -64,10 +63,19 @@ tasks.dokkaHtml {
   outputDirectory = "../docs/${verifyVersionName}"
   disableAutoconfiguration = false
   dokkaSourceSets {
-    configureEach{
+    configureEach {
       includeNonPublic = false
       reportUndocumented = true
       skipEmptyPackages = true
+    }
+  }
+
+  doLast {
+    ant.withGroovyBuilder {
+      "copy"(
+        "file" to "index.html",
+        "todir" to "../docs/${verifyVersionName}"
+      )
     }
   }
 }
@@ -143,9 +151,10 @@ task("bintrayLibraryReleaseUpload", GradleBuild::class) {
 //endregion
 
 dependencies {
+  val securityVersion = "0.0.2"
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(Modules.security))
-  releaseImplementation("com.twilio:twilio-security-android:+")
+  releaseImplementation("com.twilio:twilio-security-android:$securityVersion")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
   androidTestImplementation("androidx.test.ext:junit:1.1.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
