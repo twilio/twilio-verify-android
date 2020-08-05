@@ -20,6 +20,7 @@ object Config {
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val firebasePerformance = "com.google.firebase.firebase-perf"
+    const val versionBumper = "com.twilio.versionbumper"
   }
 
   object Versions {

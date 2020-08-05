@@ -4,23 +4,12 @@ plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
+  id(Config.Plugins.versionBumper)
 }
 //endregion
 
-val versionMajor: String by project
-val versionMinor: String by project
-val versionPatch: String by project
-
-fun generateSecurityVersionName() = "${versionMajor}.${versionMinor}.${versionPatch}"
-fun generateSecurityVersionCode(): Int {
-  val version = generateSecurityVersionName()
-  val build = version.replace(".", "")
-      .toInt()
-  return build * 1000
-}
-
-val securityVersionName = generateSecurityVersionName()
-val securityVersionCode = generateSecurityVersionCode()
+val securityVersionName = versionBumper.versionName
+val securityVersionCode = versionBumper.versionCode
 
 //region Android
 android {

@@ -4,6 +4,7 @@ plugins {
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.firebasePerformance)
+  id(Config.Plugins.versionBumper)
 }
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
@@ -11,8 +12,8 @@ android {
     applicationId = "com.twilio.verify.sample"
     minSdkVersion(Config.Versions.minSDKVersion)
     targetSdkVersion(Config.Versions.targetSDKVersion)
-    versionCode = 1000
-    versionName = "1.0.0"
+    versionCode = versionBumper.versionCode
+    versionName = versionBumper.versionName
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
   signingConfigs {

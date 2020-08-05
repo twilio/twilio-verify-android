@@ -5,23 +5,12 @@ plugins {
   id(Config.Plugins.kotlinAndroidExtensions)
   id("org.jetbrains.dokka")
   id(MavenPublish.plugin)
+  id(Config.Plugins.versionBumper)
 }
 //endregion
 
-val versionMajor: String by project
-val versionMinor: String by project
-val versionPatch: String by project
-
-fun generateVersionName() = "${versionMajor}.${versionMinor}.${versionPatch}"
-
-fun generateVersionCode(): Int {
-  val version = generateVersionName()
-  val build = version.replace(".", "")
-    .toInt()
-  return build * 1000
-}
-val verifyVersionName = generateVersionName()
-val verifyVersionCode = generateVersionCode()
+val verifyVersionName = versionBumper.versionName
+val verifyVersionCode = versionBumper.versionCode
 
 //region Android
 android {
