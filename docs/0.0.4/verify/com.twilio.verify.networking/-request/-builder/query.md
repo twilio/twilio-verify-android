@@ -1,0 +1,11 @@
+//[verify](../../../index.md)/[com.twilio.verify.networking](../../index.md)/[Request](../index.md)/[Builder](index.md)/[query](query.md)
+
+
+
+# query  
+[androidJvm]  
+Content  
+fun [query](query.md)(query: [Map](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html)<[String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), [Any](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)??>): [Request.Builder](index.md)  
+
+
+

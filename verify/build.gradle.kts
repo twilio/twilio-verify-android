@@ -65,6 +65,29 @@ tasks.dokkaHtml {
   }
 }
 
+tasks.dokkaJekyll {
+  outputDirectory = "docs/${verifyVersionName}"
+  disableAutoconfiguration = false
+  dokkaSourceSets {
+    configureEach{
+      includeNonPublic = false
+      reportUndocumented = true
+    }
+  }
+}
+
+tasks.dokkaGfm {
+  outputDirectory = "docs/${verifyVersionName}"
+  disableAutoconfiguration = false
+  dokkaSourceSets {
+    configureEach{
+      includeNonPublic = false
+      reportUndocumented = true
+    }
+  }
+}
+
+
 val mavenRepo =
   if (project.hasProperty(MavenPublish.repo)) project.property(MavenPublish.repo) else ""
 val mavenUsername = if (project.hasProperty(MavenPublish.username))
