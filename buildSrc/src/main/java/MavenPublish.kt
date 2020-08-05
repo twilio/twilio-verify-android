@@ -31,9 +31,6 @@ object MavenPublish {
             user: String,
             pass: String
         ): Map<String, String> {
-
-            println("Sergio: ${projectProperty(project, user)}")
-            println("Sergio: ${projectProperty(project, pass)}")
             return mapOf(
                 repo to repositoryURL,
                 mavenUsername to projectProperty(project, user),
