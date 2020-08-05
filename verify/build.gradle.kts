@@ -78,7 +78,7 @@ tasks.dokkaJekyll {
 }
 
 tasks.dokkaGfm {
-  outputDirectory = "docs/${verifyVersionName}"
+  outputDirectory = "../docs/${verifyVersionName}"
   disableAutoconfiguration = false
   dokkaSourceSets {
     configureEach{
