@@ -55,7 +55,7 @@ val dokkaHtmlJar by tasks.register<Jar>("dokkaHtmlJar") {
 }
 
 tasks.dokkaHtml {
-  outputDirectory = "docs/${verifyVersionName}"
+  outputDirectory = "../docs/${verifyVersionName}"
   disableAutoconfiguration = false
   dokkaSourceSets {
     configureEach{
@@ -65,29 +65,6 @@ tasks.dokkaHtml {
     }
   }
 }
-
-tasks.dokkaJekyll {
-  outputDirectory = "docs/${verifyVersionName}"
-  disableAutoconfiguration = false
-  dokkaSourceSets {
-    configureEach{
-      includeNonPublic = false
-      reportUndocumented = true
-    }
-  }
-}
-
-tasks.dokkaGfm {
-  outputDirectory = "../docs/${verifyVersionName}"
-  disableAutoconfiguration = false
-  dokkaSourceSets {
-    configureEach{
-      includeNonPublic = false
-      reportUndocumented = true
-    }
-  }
-}
-
 
 val mavenRepo =
   if (project.hasProperty(MavenPublish.repo)) project.property(MavenPublish.repo) else ""
