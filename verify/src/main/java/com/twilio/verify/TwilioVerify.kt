@@ -90,7 +90,7 @@ interface TwilioVerify {
   )
 
   /**
-   * Gets all **Challenges** associated to a **Factor** with the given **ChallengeListPayload**
+   * Gets all Challenges associated to a **Factor** with the given **ChallengeListPayload**
    * @param challengeListPayload: Describes the information needed to fetch all the **Challenges**
    * @param success: Block to be called when the operation succeeds, returns a ChallengeList
    * which contains the Challenges and the metadata associated to the request
