@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.data
 
-interface StorageProvider {
+internal interface StorageProvider {
 
   fun save(
     key: String,

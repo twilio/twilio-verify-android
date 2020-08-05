@@ -15,7 +15,7 @@ typealias SafeSuccess = () -> Unit
 
 private val executorService: ExecutorService = Executors.newFixedThreadPool(10)
 
-fun <T> execute(
+internal fun <T> execute(
   success: (T) -> Unit,
   error: (TwilioVerifyException) -> Unit,
   block: (onSuccess: SafeSuccessResult<T>, onError: SafeError<TwilioVerifyException>) -> Unit
@@ -23,7 +23,7 @@ fun <T> execute(
   executorService.execute(Task(block, success, error))
 }
 
-fun execute(
+internal fun execute(
   success: () -> Unit,
   error: (TwilioVerifyException) -> Unit,
   block: (onSuccess: SafeSuccess, onError: SafeError<TwilioVerifyException>) -> Unit
@@ -38,7 +38,7 @@ fun execute(
   )
 }
 
-class Task<T, E : Exception>(
+internal class Task<T, E : Exception>(
   private val block: (onSuccess: SafeSuccessResult<T>, onError: SafeError<E>) -> Unit,
   private val success: (T) -> Unit,
   private val error: (E) -> Unit,

@@ -3,7 +3,7 @@
  */
 package com.twilio.verify.data
 
-interface KeyStorage {
+internal interface KeyStorage {
   fun create(alias: String): String
   fun sign(
     alias: String,

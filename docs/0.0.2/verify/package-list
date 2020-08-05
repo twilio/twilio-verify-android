@@ -2,9 +2,6 @@ $dokka.format:html
 $dokka.linkExtension:html
 
 com.twilio.verify
-com.twilio.verify.data
-com.twilio.verify.data.jwt
 com.twilio.verify.models
 com.twilio.verify.networking
-com.twilio.verify.threading
 
