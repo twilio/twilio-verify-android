@@ -1,3 +1,4 @@
+//region Plugins
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
@@ -5,6 +6,7 @@ plugins {
   id("org.jetbrains.dokka")
   id(MavenPublish.plugin)
 }
+//endregion
 
 val versionMajor: String by project
 val versionMinor: String by project
@@ -22,6 +24,7 @@ fun generateVersionCode(): Int {
 val verifyVersionName = generateVersionName()
 val verifyVersionCode = generateVersionCode()
 
+//region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
 
@@ -47,12 +50,15 @@ android {
   }
   testOptions.unitTests.isIncludeAndroidResources = true
 }
+//endregion
 
+//region KDoc
 val dokkaHtmlJar by tasks.register<Jar>("dokkaHtmlJar") {
   dependsOn(tasks.dokkaHtml)
   from(tasks.dokkaHtml.get().getOutputDirectoryAsFile())
   archiveClassifier.set("html-doc")
 }
+
 
 tasks.dokkaHtml {
   outputDirectory = "../docs/${verifyVersionName}"
@@ -65,7 +71,9 @@ tasks.dokkaHtml {
     }
   }
 }
+//endregion
 
+//region Publish
 val mavenRepo =
   if (project.hasProperty(MavenPublish.repo)) project.property(MavenPublish.repo) else ""
 val mavenUsername = if (project.hasProperty(MavenPublish.username))
@@ -138,12 +146,12 @@ task("bintrayLibraryReleaseUpload", GradleBuild::class) {
     )
   )
 }
+//endregion
 
 dependencies {
-  val securityVersion: String by rootProject
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(Modules.security))
-  releaseImplementation("com.twilio:twilio-security-android:$securityVersion")
+  releaseImplementation("com.twilio:twilio-security-android:+")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
   androidTestImplementation("androidx.test.ext:junit:1.1.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")

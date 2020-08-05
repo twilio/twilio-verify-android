@@ -5,9 +5,7 @@ plugins {
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.firebasePerformance)
 }
-//val verifyVersionName: String by project
 android {
-//  val verifyVersionCode: Int by project
   compileSdkVersion(Config.Versions.compileSDKVersion)
   defaultConfig {
     applicationId = "com.twilio.verify.sample"
@@ -44,7 +42,7 @@ android {
 dependencies {
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(Modules.verify))
-  releaseImplementation("com.twilio:twilio-verify-android:1.0.0")
+  releaseImplementation("com.twilio:twilio-verify-android:+")
   implementation("com.squareup.retrofit2:retrofit:2.9.0")
   implementation("com.squareup.retrofit2:converter-gson:2.9.0")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Config.Versions.kotlin}")
