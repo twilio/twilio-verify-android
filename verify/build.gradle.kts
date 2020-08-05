@@ -61,6 +61,7 @@ tasks.dokkaHtml {
     configureEach{
       includeNonPublic = false
       reportUndocumented = true
+      skipEmptyPackages = true
     }
   }
 }
