@@ -6,27 +6,27 @@ package com.twilio.verify.models
 import java.util.Date
 
 /**
- * Describes the information of a **Factor**
+ * Describes the information of a **Factor**.
  */
 interface Factor {
   /**
-   * Status of the Factor
+   * Status of the Factor.
    */
   var status: FactorStatus
   /**
-   * Id of the Factor
+   * The unique SID identifier of the Factor.
    */
   val sid: String
   /**
-   * Friendly name of the factor, can be used for display purposes
+   * Friendly name of the factor, can be used for display purposes.
    */
   val friendlyName: String
   /**
-   * Id of the account to which the Factor is related
+   * The unique SID of the Account that created the Service resource.
    */
   val accountSid: String
   /**
-   * Id of the service to which the Factor is related
+   * The unique SID identifier of the Service to which the Factor is related.
    */
   val serviceSid: String
   /**
@@ -35,25 +35,25 @@ interface Factor {
    */
   val identity: String
   /**
-   * Type of the Factor
+   * Type of the Factor. Currently only `push` is supported
    */
   val type: FactorType
   /**
-   * Indicates the creation date of the Factor
+   * Indicates the creation date of the Factor.
    */
   val createdAt: Date
 }
 
 /**
- * Describes the verification status of a factor
+ * Describes the verification status of a factor.
  */
 enum class FactorStatus(val value: String) {
   /**
-   * The factor is verified and is ready to recevie challenges
+   * The factor is verified and is ready to recevie challenges.
    */
   Verified("verified"),
   /**
-   * The factor is not yet verified and can't receive challenges
+   * The factor is not yet verified and can't receive challenges.
    */
   Unverified("unverified")
 }
