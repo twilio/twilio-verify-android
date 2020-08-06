@@ -1,4 +1,8 @@
-package com.twilio.verify.models
+package com.twilio.verify.domain.challenge.models
+
+import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.Metadata
 
 /**
  * Describes the information of a **ChallengeList**

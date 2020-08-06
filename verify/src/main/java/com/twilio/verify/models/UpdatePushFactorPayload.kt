@@ -9,7 +9,7 @@ package com.twilio.verify.models
  */
 data class UpdatePushFactorPayload(
   /**
-   * Factor sid
+   * Factor Sid
    */
   override val sid: String,
   /**

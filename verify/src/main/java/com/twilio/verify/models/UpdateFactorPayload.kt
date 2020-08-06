@@ -9,7 +9,7 @@ package com.twilio.verify.models
  */
 interface UpdateFactorPayload {
   /**
-   * Factor sid
+   * Factor Sid
    */
   val sid: String
 }

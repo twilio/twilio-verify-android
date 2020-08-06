@@ -2,6 +2,7 @@ $dokka.format:html
 $dokka.linkExtension:html
 
 com.twilio.verify
+com.twilio.verify.domain.challenge.models
 com.twilio.verify.models
 com.twilio.verify.networking
 
