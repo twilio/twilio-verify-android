@@ -41,13 +41,6 @@ android {
 //endregion
 
 //region KDoc
-val dokkaHtmlJar by tasks.register<Jar>("dokkaHtmlJar") {
-  dependsOn(tasks.dokkaHtml)
-  from(tasks.dokkaHtml.get().getOutputDirectoryAsFile())
-  archiveClassifier.set("html-doc")
-}
-
-
 tasks.dokkaHtml {
   outputDirectory = "../docs/${verifyVersionName}"
   disableAutoconfiguration = false
@@ -107,6 +100,22 @@ tasks {
       }
     }
   }
+}
+
+val dokkaHtmlJar by tasks.creating(Jar::class) {
+  dependsOn(tasks.dokkaHtml)
+  from(tasks.dokkaHtml.get().getOutputDirectoryAsFile())
+  archiveClassifier.set("html-doc")
+}
+
+val sourcesJar by tasks.creating(Jar::class) {
+  archiveClassifier.set("sources")
+  from(android.sourceSets.getByName("main").java.srcDirs)
+}
+
+artifacts {
+  archives(dokkaHtmlJar)
+  archives(sourcesJar)
 }
 
 task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
