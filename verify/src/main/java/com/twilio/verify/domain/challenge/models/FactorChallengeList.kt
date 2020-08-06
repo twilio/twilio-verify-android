@@ -7,7 +7,7 @@ import com.twilio.verify.models.Metadata
 /**
  * Describes the information of a **ChallengeList**
  */
-class FactorChallengeList(
+internal class FactorChallengeList(
   /**
    * List of Challenges that matches the parameters of the **ChallengeListPayload** used
    */

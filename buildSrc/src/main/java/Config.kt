@@ -20,6 +20,7 @@ object Config {
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val firebasePerformance = "com.google.firebase.firebase-perf"
+    const val dokka = "org.jetbrains.dokka"
   }
 
   object Versions {
@@ -30,6 +31,7 @@ object Config {
     const val compileSDKVersion = 28
     const val minSDKVersion = 23
     const val targetSDKVersion = 28
+    const val dokka = "1.4.0-rc"
   }
 
   fun projectProperty(

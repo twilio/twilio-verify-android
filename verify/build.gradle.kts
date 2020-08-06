@@ -3,7 +3,7 @@ plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
-  id("org.jetbrains.dokka")
+  id(Config.Plugins.dokka)
   id(MavenPublish.plugin)
 }
 //endregion

@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 apply(from = "publish.gradle.kts")
 plugins {
-    id("org.jetbrains.dokka") version "1.4.0-rc"
+    id(Config.Plugins.dokka) version Config.Versions.dokka
 }
 
 buildscript {
