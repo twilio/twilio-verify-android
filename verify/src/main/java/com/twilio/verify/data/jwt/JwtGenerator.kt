@@ -17,7 +17,7 @@ internal const val jwtType = "JWT"
 internal const val ALGORITHM_KEY = "alg"
 internal const val FLAGS = URL_SAFE or NO_PADDING or NO_WRAP
 
-class JwtGenerator(private val jwtSigner: JwtSigner) {
+internal class JwtGenerator(private val jwtSigner: JwtSigner) {
   fun generateJWT(
     signerTemplate: SignerTemplate,
     header: JSONObject,

@@ -54,7 +54,7 @@ interface TwilioVerify {
   )
 
   /**
-   * Updates a **Factor** from a **FactorPayload**
+   * Updates a **Factor** from a **UpdateFactorPayload**
    * @param updateFactorPayload: Describes the information needed to update a factor
    * @param success: Block to be called when the operation succeeds, returns the updated Factor
    * @param error: Block to be called when the operation fails with the cause of failure
@@ -76,9 +76,9 @@ interface TwilioVerify {
   )
 
   /**
-   * Gets a **Challenge** with the given challenge id and factor id
-   * @param challengeSid: Id of the Challenge requested
-   * @param factorSid: id of the Factor to which the Challenge corresponds
+   * Gets a **Challenge** with the given challenge sid and factor sid
+   * @param challengeSid: Sid of the Challenge requested
+   * @param factorSid: Sid of the Factor to which the Challenge corresponds
    * @param success: Block to be called when the operation succeeds, returns the requested Challenge
    * @param error: Block to be called when the operation fails with the cause of failure
    */
@@ -90,7 +90,7 @@ interface TwilioVerify {
   )
 
   /**
-   * Gets all **Challenges** associated to a **Factor** with the given **ChallengeListPayload**
+   * Gets all Challenges associated to a **Factor** with the given **ChallengeListPayload**
    * @param challengeListPayload: Describes the information needed to fetch all the **Challenges**
    * @param success: Block to be called when the operation succeeds, returns a ChallengeList
    * which contains the Challenges and the metadata associated to the request
@@ -115,8 +115,8 @@ interface TwilioVerify {
   )
 
   /**
-   * Deletes a **Factor** with the given **id**
-   * @param factorSid: Id of the **Factor** to be deleted
+   * Deletes a **Factor** with the given **sid**
+   * @param factorSid: Sid of the **Factor** to be deleted
    * @param success: Block to be called when the operation succeeds
    * @param error: Block to be called when the operation fails with the cause of failure
    */

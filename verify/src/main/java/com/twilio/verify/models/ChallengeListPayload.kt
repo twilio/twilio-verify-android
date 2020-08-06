@@ -1,11 +1,11 @@
 package com.twilio.verify.models
 
 /**
- * escribes the information required to fetch a **ChallengeList**
+ * Describes the information required to fetch a **ChallengeList**
  */
 class ChallengeListPayload(
   /**
-   * Id of the factor to which the Challenge is related
+   * The unique SID identifier of the Factor to which the **ChallengeList** is related
    */
   val factorSid: String,
   /**
@@ -17,7 +17,7 @@ class ChallengeListPayload(
    */
   val status: ChallengeStatus? = null,
   /**
-   *
+   * Token used to retrieve the next page in the pagination arrangement
    */
   val pageToken: String? = null
 )

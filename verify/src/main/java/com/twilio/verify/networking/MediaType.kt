@@ -3,7 +3,7 @@ package com.twilio.verify.networking
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-enum class MediaTypeValue(val type: String) {
+internal enum class MediaTypeValue(val type: String) {
   UrlEncoded("application/x-www-form-urlencoded"),
   Json("application/json")
 }

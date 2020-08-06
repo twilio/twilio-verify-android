@@ -1,4 +1,6 @@
-package com.twilio.verify.models
+package com.twilio.verify.domain.challenge.models
+
+import com.twilio.verify.models.Metadata
 
 internal class ChallengeListMetadata(
   override val page: Int,
