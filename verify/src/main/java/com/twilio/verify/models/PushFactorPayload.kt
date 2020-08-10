@@ -6,7 +6,7 @@ package com.twilio.verify.models
 /**
  * Describes the information required to create a Factor which type is Push
  *
- * @property friendlyName: Friendly name of the factor, you can use this for display purposes
+ * @property friendlyName: A human readable description of this resource, up to 64 characters. For a push factor, this can be the device's name.
  * @property serviceSid: Service id
  * @property identity: Identifies the user, should be an UUID you should not use PII (Personal Identifiable Information)
  * because the systems that will process this attribute assume it is not directly identifying information
