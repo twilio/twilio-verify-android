@@ -18,7 +18,7 @@ interface Factor {
    */
   val sid: String
   /**
-   * Friendly name of the factor, can be used for display purposes.
+   * A human readable description of this resource, up to 64 characters. For a push factor, this can be the device's name.
    */
   val friendlyName: String
   /**

@@ -14,8 +14,6 @@ private const val AUTHENTICATION_TOKEN_CODE = 68007
 /**
  * Exception types returned by the TwilioVerify SDK. It encompasses different types of errors that have their own associated reasons and codes.
  *
- * @constructor
- *
  * @param cause associated reason of the exception.
  * @param errorCode associated error code of the exception.
  */
