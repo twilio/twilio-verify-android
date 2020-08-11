@@ -11,6 +11,7 @@ object Config {
     const val googleServices = "com.google.gms:google-services:${Versions.googleServices}"
     const val firebasePerformance =
       "com.google.firebase:perf-plugin:${Versions.firebasePerformance}"
+    const val versionBumper = "com.twilio:versionbumper:${Versions.versionBumper}"
   }
 
   object Plugins {
@@ -21,6 +22,7 @@ object Config {
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val firebasePerformance = "com.google.firebase.firebase-perf"
     const val dokka = "org.jetbrains.dokka"
+    const val versionBumper = "com.twilio.versionbumper"
   }
 
   object Versions {
@@ -28,6 +30,7 @@ object Config {
     const val gradle = "3.6.3"
     const val googleServices = "4.3.3"
     const val firebasePerformance = "1.3.1"
+    const val versionBumper = "0.0.1"
     const val compileSDKVersion = 28
     const val minSDKVersion = 23
     const val targetSDKVersion = 28

@@ -8,12 +8,14 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven { url = uri("https://twilio.bintray.com/releases") }
     }
     dependencies {
         classpath(Config.Dependencies.androidTools)
         classpath(kotlin(Config.Dependencies.kotlin, Config.Versions.kotlin))
         classpath(Config.Dependencies.googleServices)
         classpath(Config.Dependencies.firebasePerformance)
+        classpath(Config.Dependencies.versionBumper)
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
