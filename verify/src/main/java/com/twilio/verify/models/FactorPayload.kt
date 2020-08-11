@@ -10,7 +10,7 @@ package com.twilio.verify.models
  * @property serviceSid: The unique SID identifier of the Service.
  * @property identity: Identifies the user, should be an UUID you should not use PII (Personal Identifiable Information)
  * because the systems that will process this attribute assume it is not directly identifying information.
- * @property factorType: Type of the factor. Currently only `push` is supported.
+ * @property factorType: Type of the factor. @see <FactorType>.
  */
 
 interface FactorPayload {

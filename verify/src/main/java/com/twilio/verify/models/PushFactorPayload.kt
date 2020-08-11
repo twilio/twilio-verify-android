@@ -15,12 +15,12 @@ package com.twilio.verify.models
  * @property factorType: Type of the factor
  */
 class PushFactorPayload(
-    override val friendlyName: String,
-    override val serviceSid: String,
-    override val identity: String,
-    val pushToken: String,
-    val accessToken: String
+  override val friendlyName: String,
+  override val serviceSid: String,
+  override val identity: String,
+  val pushToken: String,
+  val accessToken: String
 ) : FactorPayload {
-    override val factorType: FactorType
-        get() = FactorType.PUSH
+  override val factorType: FactorType
+    get() = FactorType.PUSH
 }
