@@ -3,4 +3,4 @@
  */
 package com.twilio.verify.data
 
-class StorageException(message: String) : Exception(message)
+internal class StorageException(message: String) : Exception(message)

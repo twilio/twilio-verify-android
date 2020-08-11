@@ -60,7 +60,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
   }
 }
 
-fun getSignerTemplate(
+internal fun getSignerTemplate(
   alias: String,
   shouldExist: Boolean = true
 ): SignerTemplate = ECP256SignerTemplate(alias, shouldExist = shouldExist)

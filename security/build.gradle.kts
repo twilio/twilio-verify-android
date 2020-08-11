@@ -1,19 +1,25 @@
-apply("publish.gradle.kts")
+//region Plugins
 plugins {
+  id(MavenPublish.plugin)
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
+  id(Config.Plugins.versionBumper)
 }
+//endregion
+
+val securityVersionName = versionBumper.versionName
+val securityVersionCode = versionBumper.versionCode
+
+//region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
 
   defaultConfig {
-    val securityVersion: String by project
-    val securityVersionCode: Int by project
     minSdkVersion(Config.Versions.minSDKVersion)
     targetSdkVersion(Config.Versions.targetSDKVersion)
     versionCode = securityVersionCode
-    versionName = securityVersion
+    versionName = securityVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
@@ -29,6 +35,73 @@ android {
     }
   }
 }
+//endregion
+
+//region Publish
+val pomPackaging: String by project
+val pomGroup: String by project
+val pomArtifactId: String by project
+/*
+ * Maven upload configuration that can be used for any maven repo
+ */
+tasks {
+  "uploadArchives"(Upload::class) {
+    repositories {
+      withConvention(MavenRepositoryHandlerConvention::class) {
+        mavenDeployer {
+          withGroovyBuilder {
+            MavenPublish.Bintray.repository(
+                MavenPublish.Bintray.url to uri(MavenPublish.mavenRepo(project))
+            ) {
+              MavenPublish.Bintray.authentication(
+                  MavenPublish.Bintray.userName to MavenPublish.mavenUsername(project),
+                  MavenPublish.Bintray.password to MavenPublish.mavenPassword(project)
+              )
+            }
+          }
+          pom.project {
+            withGroovyBuilder {
+              MavenPublish.Bintray.version(securityVersionName)
+              MavenPublish.Bintray.groupId(pomGroup)
+              MavenPublish.Bintray.artifactId(pomArtifactId)
+              MavenPublish.Bintray.packaging(pomPackaging)
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
+  description = "Publish Security SDK release candidate to internal bintray"
+  group = MavenPublish.Bintray.group
+  buildFile = file("build.gradle.kts")
+  tasks = listOf("assembleRelease", "uploadArchives")
+  startParameter.projectProperties.plusAssign(
+      gradle.startParameter.projectProperties +
+          MavenPublish.Bintray.credentials(
+              project,
+              "https://api.bintray.com/maven/twilio/internal-releases/twilio-security-android/;publish=1",
+              MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
+          )
+  )
+}
+
+task("bintrayLibraryReleaseUpload", GradleBuild::class) {
+  description = "Publish Security SDK release to bintray"
+  group = MavenPublish.Bintray.group
+  buildFile = file("build.gradle.kts")
+  tasks = listOf("assembleRelease", "uploadArchives")
+  startParameter.projectProperties.plusAssign(
+      gradle.startParameter.projectProperties + MavenPublish.Bintray.credentials(
+          project,
+          "https://api.bintray.com/maven/twilio/releases/twilio-security-android/;publish=1",
+          MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
+      )
+  )
+}
+//endregion
 
 dependencies {
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))

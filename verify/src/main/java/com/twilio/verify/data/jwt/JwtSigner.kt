@@ -10,7 +10,7 @@ import kotlin.math.max
 
 private const val ES256_SIGNATURE_LENGTH = 64
 
-class JwtSigner(private val keyStorage: KeyStorage) {
+internal class JwtSigner(private val keyStorage: KeyStorage) {
 
   fun sign(
     signerTemplate: SignerTemplate,
