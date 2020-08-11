@@ -10,7 +10,7 @@ import java.util.Date
  */
 interface Challenge {
   /**
-   * Id of the Challange
+   * The unique SID identifier of the Challenge
    */
   val sid: String
   /**
@@ -22,7 +22,7 @@ interface Challenge {
    */
   val hiddenDetails: String
   /**
-   * Id of the factor to which the Challenge is related
+   * Sid of the factor to which the Challenge is related
    */
   val factorSid: String
   /**
@@ -30,7 +30,7 @@ interface Challenge {
    */
   val status: ChallengeStatus
   /**
-   * Indicates the creation date of the Chalenge
+   * Indicates the creation date of the Challenge
    */
   val createdAt: Date
   /**

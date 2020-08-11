@@ -8,15 +8,15 @@ package com.twilio.verify.models
  */
 class UpdatePushChallengePayload(
   /**
-   * Id of the Factor to which the Challenge is related
+   * Sid of the Factor to which the Challenge is related
    */
   override val factorSid: String,
   /**
-   * Id of the Challenge to be updated
+   * Sid of the Challenge to be updated
    */
   override val challengeSid: String,
   /**
-   * Id of the Challenge to be updated
+   * New status of the challenge
    */
   val status: ChallengeStatus
 ) : UpdateChallengePayload
