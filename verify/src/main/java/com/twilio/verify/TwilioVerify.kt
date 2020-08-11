@@ -31,9 +31,9 @@ import com.twilio.verify.networking.NetworkProvider
 interface TwilioVerify {
   /**
    * Creates a **Factor** from a **FactorPayload**
-   * @param factorPayload: Describes Information needed to create a Factor
-   * @param success: Block to be called when the operation succeeds, returns the created Factor
-   * @param error: Block to be called when the operation fails with the cause of failure
+   * @param factorPayload Describes Information needed to create a Factor
+   * @param success Block to be called when the operation succeeds, returns the created Factor
+   * @param error Block to be called when the operation fails with the cause of failure
    */
   fun createFactor(
     factorPayload: FactorPayload,
@@ -43,9 +43,9 @@ interface TwilioVerify {
 
   /**
    * Verifies a **Factor** from a **VerifyFactorPayload**
-   * @param factorPayload: Describes the information needed to verify a factor
-   * @param success: Block to be called when the operation succeeds, returns the verified Factor
-   * @param error: Block to be called when the operation fails with the cause of failure
+   * @param factorPayload Describes the information needed to verify a factor
+   * @param success Block to be called when the operation succeeds, returns the verified Factor
+   * @param error Block to be called when the operation fails with the cause of failure
    */
   fun verifyFactor(
     verifyFactorPayload: VerifyFactorPayload,
@@ -55,9 +55,9 @@ interface TwilioVerify {
 
   /**
    * Updates a **Factor** from a **UpdateFactorPayload**
-   * @param updateFactorPayload: Describes the information needed to update a factor
-   * @param success: Block to be called when the operation succeeds, returns the updated Factor
-   * @param error: Block to be called when the operation fails with the cause of failure
+   * @param updateFactorPayload Describes the information needed to update a factor
+   * @param success Block to be called when the operation succeeds, returns the updated Factor
+   * @param error Block to be called when the operation fails with the cause of failure
    */
   fun updateFactor(
     updateFactorPayload: UpdateFactorPayload,
@@ -67,8 +67,8 @@ interface TwilioVerify {
 
   /**
    * Gets all **Factors** created by the app
-   * @param success: Block to be called when the operation succeeds, returns a List of Factor
-   * @param error: Block to be called when the operation fails with the cause of failure
+   * @param success Block to be called when the operation succeeds, returns a List of Factor
+   * @param error Block to be called when the operation fails with the cause of failure
    */
   fun getAllFactors(
     success: (List<Factor>) -> Unit,
@@ -77,10 +77,10 @@ interface TwilioVerify {
 
   /**
    * Gets a **Challenge** with the given challenge sid and factor sid
-   * @param challengeSid: Sid of the Challenge requested
-   * @param factorSid: Sid of the Factor to which the Challenge corresponds
-   * @param success: Block to be called when the operation succeeds, returns the requested Challenge
-   * @param error: Block to be called when the operation fails with the cause of failure
+   * @param challengeSid Sid of the Challenge requested
+   * @param factorSid Sid of the Factor to which the Challenge corresponds
+   * @param success Block to be called when the operation succeeds, returns the requested Challenge
+   * @param error Block to be called when the operation fails with the cause of failure
    */
   fun getChallenge(
     challengeSid: String,
@@ -91,10 +91,10 @@ interface TwilioVerify {
 
   /**
    * Gets all Challenges associated to a **Factor** with the given **ChallengeListPayload**
-   * @param challengeListPayload: Describes the information needed to fetch all the **Challenges**
-   * @param success: Block to be called when the operation succeeds, returns a ChallengeList
+   * @param challengeListPayload Describes the information needed to fetch all the **Challenges**
+   * @param success Block to be called when the operation succeeds, returns a ChallengeList
    * which contains the Challenges and the metadata associated to the request
-   * @param error: Block to be called when the operation fails with the cause of failure
+   * @param error Block to be called when the operation fails with the cause of failure
    */
   fun getAllChallenges(
     challengeListPayload: ChallengeListPayload,
@@ -104,9 +104,9 @@ interface TwilioVerify {
 
   /**
    * Updates a **Challenge** from a **UpdateChallengePayload**
-   * @param updateChallengePayload: Describes the information needed to update a challenge
-   * @param success: Block to be called when the operation succeeds
-   * @param error: Block to be called when the operation fails with the cause of failure
+   * @param updateChallengePayload Describes the information needed to update a challenge
+   * @param success Block to be called when the operation succeeds
+   * @param error Block to be called when the operation fails with the cause of failure
    */
   fun updateChallenge(
     updateChallengePayload: UpdateChallengePayload,
@@ -116,9 +116,9 @@ interface TwilioVerify {
 
   /**
    * Deletes a **Factor** with the given **sid**
-   * @param factorSid: Sid of the **Factor** to be deleted
-   * @param success: Block to be called when the operation succeeds
-   * @param error: Block to be called when the operation fails with the cause of failure
+   * @param factorSid Sid of the **Factor** to be deleted
+   * @param success Block to be called when the operation succeeds
+   * @param error Block to be called when the operation fails with the cause of failure
    */
   fun deleteFactor(
     factorSid: String,
@@ -155,7 +155,7 @@ interface TwilioVerify {
 
     /**
      * Builds an instance of TwilioVerifyManager
-     * @throws TwilioVerifyException: When building TwilioVerifyManager fails
+     * @throws TwilioVerifyException When building TwilioVerifyManager fails
      * @return Instance of twilioVerifyManager
      */
     @Throws(TwilioVerifyException::class)
