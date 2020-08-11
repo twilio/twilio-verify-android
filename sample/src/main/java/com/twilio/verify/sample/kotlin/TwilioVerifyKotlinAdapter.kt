@@ -12,8 +12,8 @@ import com.twilio.verify.models.PushFactorPayload
 import com.twilio.verify.models.UpdatePushFactorPayload
 import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.sample.TwilioVerifyAdapter
-import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.model.AccessTokenResponse
+import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.model.getFactorType
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
 import com.twilio.verify.sample.networking.getAccessTokenResponse
@@ -91,8 +91,8 @@ class TwilioVerifyKotlinAdapter(
   }
 
   private fun getFactorPayload(
-      createFactorData: CreateFactorData,
-      accessTokenResponse: AccessTokenResponse
+    createFactorData: CreateFactorData,
+    accessTokenResponse: AccessTokenResponse
   ): FactorPayload {
     return when (accessTokenResponse.getFactorType()) {
       PUSH -> PushFactorPayload(
