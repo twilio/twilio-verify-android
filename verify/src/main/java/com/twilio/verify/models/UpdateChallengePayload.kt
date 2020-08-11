@@ -8,11 +8,11 @@ package com.twilio.verify.models
  */
 interface UpdateChallengePayload {
   /**
-   * Id of the Factor to which the Challenge is related
+   * Sid of the Factor to which the Challenge is related
    */
   val factorSid: String
   /**
-   * Id of the Challenge to be updated
+   * Sid of the Challenge to be updated
    */
   val challengeSid: String
 }

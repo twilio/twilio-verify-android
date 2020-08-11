@@ -6,7 +6,7 @@ import java.util.Date
  * Copyright (c) 2020, Twilio Inc.
  */
 
-interface Service {
+internal interface Service {
   val sid: String
   val createdDate: Date
   val updatedDate: Date
