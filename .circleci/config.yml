@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
  android: circleci/android@0.2.0
+ codecov: codecov/codecov@1.0.2
 
 references:
   workspace: &workspace
@@ -116,7 +117,9 @@ jobs:
           from: security/build/test-results/testDebugUnitTest/
           to: test-results/security
       - store_test_results:
-          path: "test-results"    
+          path: "test-results"
+      - codecov/upload:
+          file: verify/build/reports/code-coverage/xml
   security_instrumentation_tests_single_device:
     executor: *executor
     steps:

@@ -38,11 +38,14 @@ private val executionDataTree = fileTree("${project.buildDir}")
 }
 
 fun JacocoReportsContainer.reports() {
-  xml.isEnabled = false
   csv.isEnabled = false
+  xml.apply {
+    isEnabled = true
+    destination = file("${buildDir}/reports/code-coverage/xml")
+  }
   html.apply {
     isEnabled = true
-    destination = file("${buildDir}/reports/code-coverage")
+    destination = file("${buildDir}/reports/code-coverage/html")
   }
 }
 
