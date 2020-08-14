@@ -47,6 +47,14 @@ references:
       command: |
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
         sudo gcloud --quiet config set project twilio-firebase-266721
+  #Reporting
+  sdk_sizer:
+    run:
+      name: Size impact report
+      command: bundle exec fastlane sdk_sizer
+    store_artifacts:
+      path: "verify/build/outputs/SizeReport"
+      destination: SizeReport
 commands:
   setup:
     steps:
@@ -165,3 +173,6 @@ workflows:
           requires:
             - unit_tests 
             - verify_instrumentation_tests_single_device
+      - sdk_sizer:
+          requires:
+            - verify_instrumentation_tests_multiple_devices

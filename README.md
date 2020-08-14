@@ -1,4 +1,5 @@
 # Twilio Verify Android
+[![CircleCI](https://circleci.com/gh/twilio/twilio-verify-android.svg?style=svg)](https://circleci.com/gh/twilio/twilio-verify-android)
 
 ## Table of Contents
 
@@ -27,10 +28,10 @@ None
 <a name='Requirements'></a>
 
 ## Requirements
-* Android Studio 3.6 or higher
+* Android Studio 4.0 or higher
 * Java 8
 * Android 6.0 (23) SDK or higher
-* Gradle 5.6.4
+* Gradle 6.3
 * Kotlin 1.3.72
 
 <a name='Installation'></a>
@@ -38,6 +39,7 @@ None
 ## Installation
 
 ### Add library
+[![Download](https://api.bintray.com/packages/twilio/releases/twilio-verify-android/images/download.svg) ](https://bintray.com/twilio/releases/twilio-verify-android/_latestVersion)
 In the build.gradle file, add the library
 
 ```implementation 'com.twilio:twilio-verify-android:(insert latest version)'```
