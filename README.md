@@ -1,5 +1,4 @@
 # Twilio Verify Android
-[![CircleCI](https://circleci.com/gh/twilio/twilio-verify-android.svg?style=svg)](https://circleci.com/gh/twilio/twilio-verify-android)
 
 ## Table of Contents
 
