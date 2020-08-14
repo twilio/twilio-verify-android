@@ -39,6 +39,7 @@ None
 
 ### Add library
 [![Download](https://api.bintray.com/packages/twilio/releases/twilio-verify-android/images/download.svg) ](https://bintray.com/twilio/releases/twilio-verify-android/_latestVersion)
+
 In the build.gradle file, add the library
 
 ```implementation 'com.twilio:twilio-verify-android:(insert latest version)'```
