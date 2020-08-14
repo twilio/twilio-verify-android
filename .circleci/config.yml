@@ -87,6 +87,15 @@ jobs:
           name: Running Unit Tests
           command: bundle exec fastlane unit_tests
       - *save_gradle_cache
+      - store_artifacts:
+          path: "verify/build/reports"
+          destination: verify-test-coverage
+      - store_artifacts:
+          path: "sample/build/reports"
+          destination: sampleapp-test-coverage
+      - store_artifacts:
+          path: "security/build/reports"
+          destination: security-test-coverage        
   security_instrumentation_tests_single_device:
     executor: *executor
     steps:
