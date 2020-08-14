@@ -158,7 +158,7 @@ task("generateSizeReport") {
   group = "Reporting"
 
   doLast {
-    var videoAndroidSizeReport = "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
+    var sizeReport = "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
             "\n" +
             "| ABI             | APK Size Impact |\n" +
             "| --------------- | --------------- |\n"
@@ -168,13 +168,13 @@ task("generateSizeReport") {
     val releaseOutput = apkscaleOutput[0] as Map<*, *>
     val sizes = releaseOutput["size"] as Map<String,String>
     sizes.forEach { (arch, sizeImpact) ->
-      videoAndroidSizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
+      sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
     }
     val sizeReportDir = "$buildDir/outputs/SizeReport"
     mkdir(sizeReportDir)
     val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()} Size Impact Report.txt")
     targetFile.createNewFile()
-    targetFile.writeText(videoAndroidSizeReport)
+    targetFile.writeText(sizeReport)
   }
 }
 //endregion
