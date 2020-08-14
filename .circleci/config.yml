@@ -168,15 +168,13 @@ workflows:
             - assemble_build
       - security_instrumentation_tests_single_device:
           requires:
-            - assemble_build
+            - unit_tests
       - verify_instrumentation_tests_single_device:
           requires:
-            - assemble_build
+            - unit_tests
       - security_instrumentation_tests_multiple_devices:
           requires:
-            - unit_tests 
             - security_instrumentation_tests_single_device
       - verify_instrumentation_tests_multiple_devices:
           requires:
-            - unit_tests 
             - verify_instrumentation_tests_single_device
