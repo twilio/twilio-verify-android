@@ -39,7 +39,6 @@ private val executionDataTree = fileTree("${project.buildDir}")
 
 fun JacocoReportsContainer.reports() {
   xml.isEnabled = false
-  html.isEnabled = true
   csv.isEnabled = false
   html.apply {
     isEnabled = true
