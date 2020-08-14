@@ -48,13 +48,10 @@ references:
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
         sudo gcloud --quiet config set project twilio-firebase-266721
   #Reporting
-  sdk_sizer:
+  sdk_sizer: &sdk_sizer
     run:
       name: Size impact report
       command: bundle exec fastlane sdk_sizer
-    store_artifacts:
-      path: "verify/build/outputs/SizeReport"
-      destination: SizeReport
 commands:
   setup:
     steps:
@@ -149,7 +146,17 @@ jobs:
           name: Run verify integration tests on multiple devices
           command:
             sudo gcloud firebase test android run --project twilio-firebase-266721 ftl/verify-ftl-config.yaml:twilio-verify-tests
-
+  sdk_size_report:
+    executor: *executor
+    steps:
+      - setup
+      - *restore_gradle_cache
+      - *decrypt_google_services
+      - *sdk_sizer
+      - *save_gradle_cache
+      - store_artifacts:
+          path: "verify/build/outputs/SizeReport"
+          destination: SizeReport
 workflows:
   version: 2
 
@@ -173,6 +180,6 @@ workflows:
           requires:
             - unit_tests 
             - verify_instrumentation_tests_single_device
-      - sdk_sizer:
+      - sdk_size_report:
           requires:
             - verify_instrumentation_tests_multiple_devices
