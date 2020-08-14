@@ -11,15 +11,17 @@ private val classDirectoriesTree = fileTree("${project.buildDir}") {
       "**/intermediates/javac/debug/*/classes/**", // Android Gradle Plugin 3.2.x support.
       "**/tmp/kotlin-classes/debug/**"
   )
-
   exclude(
       "**/R.class",
       "**/R\$*.class",
+      "**/*\$1*",
       "**/BuildConfig.*",
       "**/Manifest*.*",
       "**/*Test*.*",
       "android/**/*.*",
-      "**/models/**"
+      "**/models/**",
+      "**/*\$Lambda$*.*",
+      "**/*\$inlined$*.*"
   )
 }
 
@@ -41,14 +43,8 @@ fun JacocoReportsContainer.reports() {
   csv.isEnabled = false
   html.apply {
     isEnabled = true
-    destination = file("${buildDir}/reports/jacoco/jacocoTestReport/html")
+    destination = file("${buildDir}/reports/code-coverage")
   }
-}
-
-fun JacocoCoverageVerification.setDirectories() {
-  sourceDirectories.setFrom(sourceDirectoriesTree)
-  classDirectories.setFrom(classDirectoriesTree)
-  executionData.setFrom(executionDataTree)
 }
 
 fun JacocoReport.setDirectories() {
@@ -57,31 +53,44 @@ fun JacocoReport.setDirectories() {
   executionData.setFrom(executionDataTree)
 }
 
+fun JacocoCoverageVerification.setDirectories() {
+  sourceDirectories.setFrom(sourceDirectoriesTree)
+  classDirectories.setFrom(classDirectoriesTree)
+  executionData.setFrom(executionDataTree)
+}
+
 val jacocoGroup = "verification"
-tasks.register<JacocoReport>("jacocoAndroidTestReport") {
+tasks.register<JacocoReport>("jacocoTestReport") {
   group = jacocoGroup
   description = "Code coverage report for both Android and Unit tests."
-  dependsOn("testDebugUnitTest", "createDebugCoverageReport")
+  dependsOn("testDebugUnitTest")
   reports {
     reports()
   }
   setDirectories()
 }
 
-tasks.register<JacocoCoverageVerification>("jacocoAndroidCoverageVerification") {
+val minimumCoverage = "0.8".toBigDecimal()
+tasks.register<JacocoCoverageVerification>("jacocoCoverageVerification") {
   group = jacocoGroup
   description = "Code coverage verification for Android both Android and Unit tests."
-  dependsOn("testDebugUnitTest", "createDebugCoverageReport")
+  dependsOn("testDebugUnitTest")
   violationRules {
     rule {
       limit {
-        minimum = "0.8".toBigDecimal()
+        minimum = minimumCoverage
       }
     }
     rule {
       element = "CLASS"
+      excludes = listOf(
+          "**.FactorFacade.Builder",
+          "**.ServiceFacade.Builder",
+          "**.ChallengeFacade.Builder",
+          "**.Task"
+      )
       limit {
-        minimum = "0.75".toBigDecimal()
+        minimum = minimumCoverage
       }
     }
   }

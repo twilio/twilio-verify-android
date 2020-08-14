@@ -1,3 +1,4 @@
+apply(from = "../jacoco.gradle.kts")
 plugins {
   id(Config.Plugins.androidApplication)
   id(Config.Plugins.googleServices)
@@ -5,6 +6,7 @@ plugins {
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.firebasePerformance)
   id(Config.Plugins.versionBumper)
+  jacoco
 }
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
@@ -33,11 +35,15 @@ android {
       )
       signingConfig = signingConfigs.getByName("release")
     }
+    getByName("debug") {
+      isTestCoverageEnabled = true
+    }
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
+  testOptions.unitTests.isIncludeAndroidResources = true
 }
 
 dependencies {
