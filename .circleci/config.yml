@@ -60,7 +60,16 @@ commands:
           key: v1-gems-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-
+  move_directory:
+    parameters:
+      from:
+        description: directory to move
+        type: string
+      to:
+        description: destination directory
+        type: string
+    steps:
+      - run: cp -R <<parameters.from>> <<parameters.to>>              
 jobs:
   assemble_build:
     executor: *executor
@@ -97,9 +106,15 @@ jobs:
           path: "security/build/reports"
           destination: security-test-coverage
       - run: mkdir -p test-results
-      - run: cp -R verify/build/test-results/testDebugUnitTest/ test-results/verify
-      - run: cp -R sample/build/test-results/testDebugUnitTest/ test-results/sampleapp
-      - run: cp -R security/build/test-results/testDebugUnitTest/ test-results/security
+      - move_directory:
+          from: verify/build/test-results/testDebugUnitTest/
+          to: test-results/verify
+      - move_directory:
+          from: sample/build/test-results/testDebugUnitTest/
+          to: test-results/sampleapp
+      - move_directory:
+          from: security/build/test-results/testDebugUnitTest/
+          to: test-results/security
       - store_test_results:
           path: "test-results"    
   security_instrumentation_tests_single_device:
