@@ -1,4 +1,5 @@
 //region Plugins
+apply(from = "../jacoco.gradle.kts")
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
@@ -6,6 +7,7 @@ plugins {
   id(Config.Plugins.dokka)
   id(MavenPublish.plugin)
   id(Config.Plugins.versionBumper)
+  jacoco
 }
 //endregion
 
@@ -34,6 +36,9 @@ android {
           getDefaultProguardFile("proguard-android-optimize.txt"),
           "proguard-rules.pro"
       )
+    }
+    getByName("debug") {
+      isTestCoverageEnabled = true
     }
   }
   testOptions.unitTests.isIncludeAndroidResources = true
