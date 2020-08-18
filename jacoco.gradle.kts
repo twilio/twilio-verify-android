@@ -22,7 +22,8 @@ private val classDirectoriesTree = fileTree("${project.buildDir}") {
       "android/**/*.*",
       "**/models/**",
       "**/*\$Lambda$*.*",
-      "**/*\$inlined$*.*"
+      "**/*\$inlined$*.*",
+      "jdk.internal.*"
   )
 }
 
