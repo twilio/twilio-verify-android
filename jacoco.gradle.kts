@@ -1,7 +1,7 @@
 tasks.withType<Test> {
   configure<JacocoTaskExtension> {
     isIncludeNoLocationClasses = true
-    exclude("jdk.internal.*")
+    excludes = listOf("jdk.internal.*")
   }
 }
 
@@ -22,8 +22,7 @@ private val classDirectoriesTree = fileTree("${project.buildDir}") {
       "android/**/*.*",
       "**/models/**",
       "**/*\$Lambda$*.*",
-      "**/*\$inlined$*.*",
-      "jdk.internal.*"
+      "**/*\$inlined$*.*"
   )
 }
 

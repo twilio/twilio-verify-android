@@ -57,8 +57,8 @@ tasks.dokkaHtml {
   doLast {
     ant.withGroovyBuilder {
       "copy"(
-        "file" to "index.html",
-        "todir" to "../docs/${verifyVersionName}"
+          "file" to "index.html",
+          "todir" to "../docs/${verifyVersionName}"
       )
     }
   }
@@ -80,13 +80,13 @@ tasks {
         mavenDeployer {
           withGroovyBuilder {
             MavenPublish.Bintray.repository(
-              MavenPublish.Bintray.url to uri(
-                MavenPublish.mavenRepo(project)
-              )
+                MavenPublish.Bintray.url to uri(
+                    MavenPublish.mavenRepo(project)
+                )
             ) {
               MavenPublish.Bintray.authentication(
-                MavenPublish.Bintray.userName to MavenPublish.mavenUsername(project),
-                MavenPublish.Bintray.password to MavenPublish.mavenPassword(project)
+                  MavenPublish.Bintray.userName to MavenPublish.mavenUsername(project),
+                  MavenPublish.Bintray.password to MavenPublish.mavenPassword(project)
               )
             }
           }
@@ -106,7 +106,10 @@ tasks {
 
 val dokkaHtmlJar by tasks.creating(Jar::class) {
   dependsOn(tasks.dokkaHtml)
-  from(tasks.dokkaHtml.get().getOutputDirectoryAsFile())
+  from(
+      tasks.dokkaHtml.get()
+          .getOutputDirectoryAsFile()
+  )
   archiveClassifier.set("html-doc")
 }
 
@@ -117,7 +120,7 @@ val sourcesJar by tasks.creating(Jar::class) {
 
 artifacts {
   archives(dokkaHtmlJar)
-  archives(sourcesJar)
+    archives(sourcesJar)
 }
 
 task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
@@ -126,11 +129,11 @@ task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
   buildFile = file("build.gradle.kts")
   tasks = listOf("assembleRelease", "uploadArchives")
   startParameter.projectProperties.plusAssign(
-    gradle.startParameter.projectProperties + MavenPublish.Bintray.credentials(
-      project,
-      "https://api.bintray.com/maven/twilio/internal-releases/twilio-verify-android/;publish=1",
-      MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
-    )
+      gradle.startParameter.projectProperties + MavenPublish.Bintray.credentials(
+          project,
+          "https://api.bintray.com/maven/twilio/internal-releases/twilio-verify-android/;publish=1",
+          MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
+      )
   )
 }
 
@@ -141,11 +144,11 @@ task("bintrayLibraryReleaseUpload", GradleBuild::class) {
   tasks = listOf("assembleRelease", "uploadArchives")
 
   startParameter.projectProperties.plusAssign(
-    gradle.startParameter.projectProperties + MavenPublish.Bintray.credentials(
-      project,
-      "https://api.bintray.com/maven/twilio/releases/twilio-verify-android/;publish=1",
-      MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
-    )
+      gradle.startParameter.projectProperties + MavenPublish.Bintray.credentials(
+          project,
+          "https://api.bintray.com/maven/twilio/releases/twilio-verify-android/;publish=1",
+          MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
+      )
   )
 }
 //endregion
@@ -163,7 +166,8 @@ dependencies {
   androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
   testImplementation("junit:junit:4.12")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-  testImplementation("org.robolectric:robolectric:4.3.1")
+  testImplementation("org.robolectric:robolectric:4.4-beta-1")
   testImplementation("androidx.test:core:1.2.0")
+  testImplementation("org.hamcrest:hamcrest-library:1.3")
   testImplementation("org.mockito:mockito-inline:2.28.2")
 }
