@@ -8,6 +8,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -17,6 +18,7 @@ import java.io.IOException
  * Copyright (c) 2020, Twilio Inc.
  */
 @RunWith(RobolectricTestRunner::class)
+@Ignore
 class SampleBackendAPIClientTest {
   private lateinit var mockWebServer: MockWebServer
   private lateinit var sampleBackendAPIClient: SampleBackendAPIClient
