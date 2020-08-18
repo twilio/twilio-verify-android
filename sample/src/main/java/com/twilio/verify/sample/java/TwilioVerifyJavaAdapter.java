@@ -14,8 +14,8 @@ import com.twilio.verify.models.VerifyFactorPayload;
 import com.twilio.verify.models.VerifyPushFactorPayload;
 import com.twilio.verify.sample.TwilioVerifyAdapter;
 import com.twilio.verify.sample.model.CreateFactorData;
-import com.twilio.verify.sample.model.EnrollmentResponse;
-import com.twilio.verify.sample.model.EnrollmentResponseKt;
+import com.twilio.verify.sample.model.AccessTokenResponse;
+import com.twilio.verify.sample.model.AccessTokenResponseKt;
 import com.twilio.verify.sample.networking.SampleBackendAPIClient;
 import com.twilio.verify.sample.networking.SampleBackendAPIClientKt;
 import com.twilio.verify.sample.push.NewChallenge;
@@ -41,9 +41,9 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
       @NotNull SampleBackendAPIClient sampleBackendAPIClient,
       @NotNull final Function1<? super Factor, Unit> success,
       @NotNull final Function1<? super Throwable, Unit> error) {
-    SampleBackendAPIClientKt.getEnrollmentResponse(sampleBackendAPIClient,
-        createFactorData.getIdentity(), createFactorData.getEnrollmentUrl(), enrollmentResponse -> {
-          FactorPayload factorPayload = getFactorPayload(createFactorData, enrollmentResponse);
+    SampleBackendAPIClientKt.getAccessTokenResponse(sampleBackendAPIClient,
+        createFactorData.getIdentity(), createFactorData.getAccessTokenUrl(), accessTokenResponse -> {
+          FactorPayload factorPayload = getFactorPayload(createFactorData, accessTokenResponse);
           twilioVerify.createFactor(factorPayload,
               factor -> {
                 verifyFactor(factor, success, error);
@@ -108,15 +108,15 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
       };
 
   private FactorPayload getFactorPayload(CreateFactorData createFactorData,
-                                         EnrollmentResponse enrollmentResponse) {
-    switch (EnrollmentResponseKt.getFactorType(enrollmentResponse)) {
+                                         AccessTokenResponse accessTokenResponse) {
+    switch (AccessTokenResponseKt.getFactorType(accessTokenResponse)) {
       case PUSH:
         return new PushFactorPayload(createFactorData.getFactorName(),
-            enrollmentResponse.getServiceSid(),
-            enrollmentResponse.getIdentity(), createFactorData.getPushToken(),
-            enrollmentResponse.getToken());
+            accessTokenResponse.getServiceSid(),
+            accessTokenResponse.getIdentity(), createFactorData.getPushToken(),
+            accessTokenResponse.getToken());
       default:
-        throw new IllegalStateException("Unexpected value: " + enrollmentResponse.getFactorType());
+        throw new IllegalStateException("Unexpected value: " + accessTokenResponse.getFactorType());
     }
   }
 

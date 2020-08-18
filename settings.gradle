@@ -1,2 +1,0 @@
-include ':sample', ':verify', ':security'
-rootProject.name='TwilioVerify'

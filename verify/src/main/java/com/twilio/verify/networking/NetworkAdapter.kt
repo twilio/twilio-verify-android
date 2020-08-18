@@ -9,7 +9,6 @@ import javax.net.ssl.HttpsURLConnection
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-
 class NetworkAdapter : NetworkProvider {
 
   override fun execute(
@@ -21,7 +20,7 @@ class NetworkAdapter : NetworkProvider {
     try {
       httpUrlConnection = request.url.openConnection() as HttpsURLConnection
       httpUrlConnection.requestMethod = request.httpMethod.method
-      for ((key, value) in request.headers) {
+      request.headers.forEach { (key, value) ->
         httpUrlConnection.setRequestProperty(key, value)
       }
       if (request.getParams()
@@ -38,14 +37,21 @@ class NetworkAdapter : NetworkProvider {
         os.close()
       }
       val responseCode = httpUrlConnection.responseCode
-      if (responseCode < 300) {
-        val response = httpUrlConnection.inputStream.bufferedReader()
-            .use { it.readText() }
-        success(Response(body = response, headers = httpUrlConnection.headerFields))
-      } else {
-        val errorResponse = httpUrlConnection.errorStream.bufferedReader()
-            .use { it.readText() }
-        error(NetworkException(responseCode, errorResponse))
+      when {
+        responseCode < 300 -> {
+          val response = httpUrlConnection.inputStream.bufferedReader()
+              .use { it.readText() }
+          success(Response(body = response, headers = httpUrlConnection.headerFields))
+        }
+        else -> {
+          val errorBody = httpUrlConnection.errorStream.bufferedReader()
+              .use { it.readText() }
+          error(
+              NetworkException(
+                  FailureResponse(responseCode, errorBody, httpUrlConnection.headerFields)
+              )
+          )
+        }
       }
     } catch (e: Exception) {
       error(NetworkException(e))

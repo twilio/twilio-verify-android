@@ -53,7 +53,7 @@ class FactorRepositoryTest {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(),
-        emptyMap(), "jwe"
+        emptyMap(), "accessToken"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -83,7 +83,7 @@ class FactorRepositoryTest {
   fun `No response from API creating a factor should call error`() {
     val factorPayload = CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "entitySid123",
-        emptyMap(), emptyMap(), "jwe"
+        emptyMap(), emptyMap(), "accessToken"
     )
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
@@ -103,7 +103,7 @@ class FactorRepositoryTest {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "entitySid123",
-        emptyMap(), emptyMap(), "jwe"
+        emptyMap(), emptyMap(), "accessToken"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -128,7 +128,7 @@ class FactorRepositoryTest {
     val sid = "sid123"
     val factorPayload = CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "entitySid123",
-        emptyMap(), emptyMap(), "jwe"
+        emptyMap(), emptyMap(), "accessToken"
     )
     val response = JSONObject()
         .put(sidKey, sid)
@@ -229,7 +229,7 @@ class FactorRepositoryTest {
         "friendlyName",
         "accountSid",
         "serviceSid",
-        "entityIdentity",
+        "identity",
         FactorStatus.Unverified,
         Date(),
         Config("credentialSid")
@@ -269,7 +269,7 @@ class FactorRepositoryTest {
         "friendlyName",
         "accountSid",
         "serviceSid",
-        "entityIdentity",
+        "identity",
         FactorStatus.Unverified,
         Date(),
         Config("credentialSid")

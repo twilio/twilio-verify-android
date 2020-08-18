@@ -6,8 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.idling.CountingIdlingResource
 import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.data.provider
-import com.twilio.verify.domain.factor.ENC_SUFFIX
-import com.twilio.verify.domain.factor.VERIFY_SUFFIX
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.internal.TlsUtil.localhost

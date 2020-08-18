@@ -5,7 +5,6 @@ package com.twilio.verify.networking
  */
 
 interface NetworkProvider {
-  @Throws(NetworkException::class)
   fun execute(
     request: Request,
     success: (response: Response) -> Unit,
@@ -15,14 +14,24 @@ interface NetworkProvider {
 
 class NetworkException constructor(
   message: String?,
-  cause: Throwable?
+  cause: Throwable?,
+  val failureResponse: FailureResponse?
 ) : Exception(message, cause) {
   constructor(
-    statusCode: Int,
-    errorResponse: String?
-  ) : this("Network exception with status code $statusCode and body: $errorResponse", null)
+    failureResponse: FailureResponse?
+  ) : this(
+      "Network exception with status code ${failureResponse?.responseCode} and body: ${failureResponse?.errorBody}",
+      null,
+      failureResponse
+  )
 
   constructor(cause: Throwable) : this(
-      cause.message, cause
+      cause.message, cause, null
   )
 }
+
+class FailureResponse(
+  val responseCode: Int,
+  val errorBody: String?,
+  val headers: Map<String, List<String>>?
+)

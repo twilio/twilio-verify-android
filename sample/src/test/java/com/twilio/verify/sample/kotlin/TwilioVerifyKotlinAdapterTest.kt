@@ -20,7 +20,7 @@ import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.sample.IdlingResource
 import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.model.CreateFactorData
-import com.twilio.verify.sample.model.EnrollmentResponse
+import com.twilio.verify.sample.model.AccessTokenResponse
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
 import com.twilio.verify.sample.push.NewChallenge
 import com.twilio.verify.sample.push.VerifyEventBus
@@ -54,15 +54,15 @@ class TwilioVerifyKotlinAdapterTest {
   }
 
   @Test
-  fun `Create factor with invalid JWE should return exception`() {
+  fun `Create factor with invalid access token should return exception`() {
     val expectedException: RuntimeException = mock()
     val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
-    val mockCall: Call<EnrollmentResponse> = mock {
-      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+    val mockCall: Call<AccessTokenResponse> = mock {
+      argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
         on { enqueue(capture()) }.thenThrow(expectedException)
       }
     }
-    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+    whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
         mockCall
     )
     idlingResource.startOperation()
@@ -80,18 +80,18 @@ class TwilioVerifyKotlinAdapterTest {
   fun `Create factor with an error should return exception`() {
     val expectedException: TwilioVerifyException = mock()
     val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
-    val mockCall: Call<EnrollmentResponse> = mock { mockCall ->
-      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+    val mockCall: Call<AccessTokenResponse> = mock { mockCall ->
+      argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
         on { enqueue(capture()) }.then {
           firstValue.onResponse(
               mockCall, Response.success(
-              EnrollmentResponse("jwe", "serviceSid", "identity", PUSH.factorTypeName)
+              AccessTokenResponse("accessToken", "serviceSid", "identity", PUSH.factorTypeName)
           )
           )
         }
       }
     }
-    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+    whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
         mockCall
     )
     argumentCaptor<(Exception) -> Unit>().apply {
@@ -111,24 +111,24 @@ class TwilioVerifyKotlinAdapterTest {
   }
 
   @Test
-  fun `Create factor with valid JWE and Push type should return factor verified`() {
+  fun `Create factor with valid access token and Push type should return factor verified`() {
     val expectedFactor: Factor = mock() {
       on { type } doReturn PUSH
       on { sid } doReturn "factorSid"
     }
     val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
-    val mockCall: Call<EnrollmentResponse> = mock { mockCall ->
-      argumentCaptor<(Callback<EnrollmentResponse>)>().apply {
+    val mockCall: Call<AccessTokenResponse> = mock { mockCall ->
+      argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
         on { enqueue(capture()) }.then {
           firstValue.onResponse(
               mockCall, Response.success(
-              EnrollmentResponse("jwe", "serviceSid", "identity", PUSH.factorTypeName)
+              AccessTokenResponse("accessToken", "serviceSid", "identity", PUSH.factorTypeName)
           )
           )
         }
       }
     }
-    whenever(sampleBackendAPIClient.enrollment(eq(createFactorData.identity), any())).thenReturn(
+    whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
         mockCall
     )
     argumentCaptor<(Factor) -> Unit>().apply {

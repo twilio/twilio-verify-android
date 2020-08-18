@@ -51,8 +51,24 @@ class NetworkAdapterTest {
     networkAdapter.execute(request, {
       assertEquals(expectedResponse, it.body)
       assertEquals(expectedHeaders, it.headers)
-    }, {
+    }, error = {
       fail()
+    })
+  }
+
+  @Test
+  fun `Request with invalid authentication response code without date header should return error`() {
+    val url: URL = mock()
+    val urlConnection: HttpsURLConnection = mock()
+    `when`(request.url).thenReturn(url)
+    `when`(request.httpMethod).thenReturn(HttpMethod.Post)
+    `when`(url.openConnection()).thenReturn(urlConnection)
+    `when`(urlConnection.responseCode).thenReturn(401)
+    val expectedResponse = "Error"
+    val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
+    `when`(urlConnection.errorStream).thenReturn(errorStream)
+    networkAdapter.execute(request, { fail() }, error = { exception ->
+      assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
     })
   }
 
@@ -67,7 +83,7 @@ class NetworkAdapterTest {
     val expectedResponse = "Error"
     val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
     `when`(urlConnection.errorStream).thenReturn(errorStream)
-    networkAdapter.execute(request, { fail() }, { exception ->
+    networkAdapter.execute(request, { fail() }, error = { exception ->
       assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
     })
   }
@@ -79,7 +95,7 @@ class NetworkAdapterTest {
     `when`(request.httpMethod).thenReturn(HttpMethod.Post)
     val expectedException: IOException = mock()
     `when`(url.openConnection()).thenThrow(expectedException)
-    networkAdapter.execute(request, { fail() }, { exception ->
+    networkAdapter.execute(request, { fail() }, error = { exception ->
       assertEquals(expectedException, exception.cause)
     })
   }

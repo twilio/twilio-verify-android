@@ -3,18 +3,15 @@ package com.twilio.verify.api
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.data.DateAdapter
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
-import com.twilio.verify.networking.Authentication
-import com.twilio.verify.networking.BasicAuthorization
+import com.twilio.verify.networking.*
 import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.HttpMethod.Post
-import com.twilio.verify.networking.NetworkAdapter
-import com.twilio.verify.networking.NetworkException
-import com.twilio.verify.networking.NetworkProvider
-import com.twilio.verify.networking.Request
-import com.twilio.verify.networking.RequestHelper
+import com.twilio.verify.storagePreferences
 import org.json.JSONObject
 
 /*
@@ -44,8 +41,11 @@ internal class FactorAPIClient(
   private val networkProvider: NetworkProvider = NetworkAdapter(),
   private val context: Context,
   private val authentication: Authentication,
-  private val baseUrl: String
-) {
+  private val baseUrl: String,
+  dateProvider: DateProvider = DateAdapter(
+      storagePreferences(context)
+  )
+) : BaseAPIClient(dateProvider) {
 
   fun create(
     createFactorPayload: CreateFactorPayload,
@@ -56,7 +56,7 @@ internal class FactorAPIClient(
       val requestHelper =
         RequestHelper(
             context,
-            BasicAuthorization(AUTHENTICATION_USER, createFactorPayload.jwe)
+            BasicAuthorization(AUTHENTICATION_USER, createFactorPayload.accessToken)
         )
       val request = Request.Builder(
           requestHelper,
@@ -65,9 +65,9 @@ internal class FactorAPIClient(
           .httpMethod(Post)
           .body(createFactorBody(createFactorPayload))
           .build()
-      networkProvider.execute(request, {
+      networkProvider.execute(request, success = {
         success(JSONObject(it.body))
-      }, { exception ->
+      }, error = { exception ->
         error(TwilioVerifyException(exception, NetworkError))
       })
     } catch (e: TwilioVerifyException) {
@@ -83,27 +83,30 @@ internal class FactorAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      val authToken = authentication.generateJWT(factor)
-      val requestHelper =
-        RequestHelper(
-            context,
-            BasicAuthorization(AUTHENTICATION_USER, authToken)
-        )
-      val request = Request.Builder(requestHelper, verifyFactorURL(factor))
-          .httpMethod(Post)
-          .body(verifyFactorBody(authPayload))
-          .build()
-      networkProvider.execute(request, {
-        success(JSONObject(it.body))
-      }, { exception ->
-        error(TwilioVerifyException(exception, NetworkError))
-      })
-    } catch (e: TwilioVerifyException) {
-      error(e)
-    } catch (e: Exception) {
-      error(TwilioVerifyException(NetworkException(e), NetworkError))
+    fun verifyFactor(retries: Int = retryTimes) {
+      try {
+        val authToken = authentication.generateJWT(factor)
+        val requestHelper =
+          RequestHelper(
+              context,
+              BasicAuthorization(AUTHENTICATION_USER, authToken)
+          )
+        val request = Request.Builder(requestHelper, verifyFactorURL(factor))
+            .httpMethod(Post)
+            .body(verifyFactorBody(authPayload))
+            .build()
+        networkProvider.execute(request, {
+          success(JSONObject(it.body))
+        }, { exception ->
+          validateException(exception, ::verifyFactor, retries, error)
+        })
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      } catch (e: Exception) {
+        error(TwilioVerifyException(NetworkException(e), NetworkError))
+      }
     }
+    verifyFactor()
   }
 
   fun update(
@@ -112,29 +115,31 @@ internal class FactorAPIClient(
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      val authToken = authentication.generateJWT(factor)
-      val requestHelper =
-        RequestHelper(
-            context,
-            BasicAuthorization(AUTHENTICATION_USER, authToken)
-        )
-      val request =
-        Request.Builder(requestHelper, updateFactorURL(factor))
-            .httpMethod(Post)
-            .body(updateFactorBody(updateFactorPayload))
-            .build()
-      networkProvider.execute(request, {
-        success(JSONObject(it.body))
-      }, { exception ->
-        error(TwilioVerifyException(exception, NetworkError))
-      })
-    } catch (e: TwilioVerifyException) {
-      error(e)
-    } catch (e: Exception) {
-      error(TwilioVerifyException(NetworkException(e), NetworkError))
+    fun updateFactor(retries: Int = retryTimes) {
+      try {
+        val authToken = authentication.generateJWT(factor)
+        val requestHelper =
+          RequestHelper(
+              context,
+              BasicAuthorization(AUTHENTICATION_USER, authToken)
+          )
+        val request =
+          Request.Builder(requestHelper, updateFactorURL(factor))
+              .httpMethod(Post)
+              .body(updateFactorBody(updateFactorPayload))
+              .build()
+        networkProvider.execute(request, {
+          success(JSONObject(it.body))
+        }, { exception ->
+          validateException(exception, ::updateFactor, retries, error)
+        })
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      } catch (e: Exception) {
+        error(TwilioVerifyException(NetworkException(e), NetworkError))
+      }
     }
-
+    updateFactor()
   }
 
   fun delete(
@@ -142,47 +147,50 @@ internal class FactorAPIClient(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    try {
-      val authToken = authentication.generateJWT(factor)
-      val requestHelper =
-        RequestHelper(
-            context,
-            BasicAuthorization(AUTHENTICATION_USER, authToken)
-        )
-      val request = Request.Builder(requestHelper, deleteFactorURL(factor))
-          .httpMethod(Delete)
-          .build()
-      networkProvider.execute(request, {
-        success()
-      }, { exception ->
-        error(TwilioVerifyException(exception, NetworkError))
-      })
-    } catch (e: TwilioVerifyException) {
-      error(e)
-    } catch (e: Exception) {
-      error(TwilioVerifyException(NetworkException(e), NetworkError))
+    fun deleteFactor(retries: Int = retryTimes) {
+      try {
+        val authToken = authentication.generateJWT(factor)
+        val requestHelper =
+          RequestHelper(
+              context,
+              BasicAuthorization(AUTHENTICATION_USER, authToken)
+          )
+        val request = Request.Builder(requestHelper, deleteFactorURL(factor))
+            .httpMethod(Delete)
+            .build()
+        networkProvider.execute(request, {
+          success()
+        }, { exception ->
+          validateException(exception, ::deleteFactor, retries, error)
+        })
+      } catch (e: TwilioVerifyException) {
+        error(e)
+      } catch (e: Exception) {
+        error(TwilioVerifyException(NetworkException(e), NetworkError))
+      }
     }
+    deleteFactor()
   }
 
   private fun createFactorURL(createFactorPayload: CreateFactorPayload): String =
     "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, createFactorPayload.serviceSid, true)
-        .replace(IDENTITY_PATH, createFactorPayload.entity)
+        .replace(IDENTITY_PATH, createFactorPayload.identity)
 
   private fun verifyFactorURL(factor: Factor): String =
     "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(IDENTITY_PATH, factor.entityIdentity)
+        .replace(IDENTITY_PATH, factor.identity)
         .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun deleteFactorURL(factor: Factor): String =
     "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(IDENTITY_PATH, factor.entityIdentity)
+        .replace(IDENTITY_PATH, factor.identity)
         .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun updateFactorURL(
     factor: Factor
   ): String =
     "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-        .replace(IDENTITY_PATH, factor.entityIdentity)
+        .replace(IDENTITY_PATH, factor.identity)
         .replace(
             FACTOR_SID_PATH, factor.sid
         )

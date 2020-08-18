@@ -5,9 +5,11 @@ package com.twilio.verify.domain.factor
 
 import android.content.Context
 import com.twilio.security.storage.encryptedPreferences
+import com.twilio.verify.ENC_SUFFIX
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.VERIFY_SUFFIX
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.Storage
@@ -23,9 +25,6 @@ import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.threading.execute
 
-internal const val VERIFY_SUFFIX = "verify"
-internal const val ENC_SUFFIX = "enc"
-
 internal class FactorFacade(
   private val pushFactory: PushFactory,
   private val factorProvider: FactorProvider
@@ -39,7 +38,7 @@ internal class FactorFacade(
       when (factorPayload) {
         is PushFactorPayload -> {
           pushFactory.create(
-              factorPayload.enrollmentJwe, factorPayload.friendlyName, factorPayload.pushToken,
+              factorPayload.accessToken, factorPayload.friendlyName, factorPayload.pushToken,
               factorPayload.serviceSid, factorPayload.identity, onSuccess, onError
           )
         }

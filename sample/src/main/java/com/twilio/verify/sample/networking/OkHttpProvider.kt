@@ -3,6 +3,7 @@
  */
 package com.twilio.verify.sample.networking
 
+import com.twilio.verify.networking.FailureResponse
 import com.twilio.verify.networking.HttpMethod.Delete
 import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.HttpMethod.Put
@@ -49,13 +50,13 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
             } ?: run {
               error(
                   NetworkException(
-                      response.code,
-                      response.body?.string()
+                      FailureResponse(
+                          response.code, response.body?.string(), response.headers.toMultimap()
+                      )
                   )
               )
             }
           }
-
         })
   }
 

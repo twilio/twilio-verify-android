@@ -36,7 +36,7 @@ class FactorMapperTest {
   fun `Map a valid response from API with factorPayload should return a factor`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entityId123", emptyMap(), emptyMap(), "jwe"
+          "factor name", PUSH, "serviceSid123", "identity123", emptyMap(), emptyMap(), "accessToken"
       )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
@@ -48,7 +48,7 @@ class FactorMapperTest {
     val factor = factorMapper.fromApi(jsonObject, factorPayload) as PushFactor
     assertEquals(factorPayload.type, factor.type)
     assertEquals(factorPayload.serviceSid, factor.serviceSid)
-    assertEquals(factorPayload.entity, factor.entityIdentity)
+    assertEquals(factorPayload.identity, factor.identity)
     assertEquals(jsonObject.getString(sidKey), factor.sid)
     assertEquals(jsonObject.getString(friendlyNameKey), factor.friendlyName)
     assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
@@ -60,7 +60,7 @@ class FactorMapperTest {
   fun `Map an incomplete response from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "accessToken"
       )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
@@ -83,7 +83,7 @@ class FactorMapperTest {
   @Test
   fun `Map a response with invalid serviceSid in payload from API should throw an exception`() {
     val factorPayload =
-      CreateFactorPayload("factor name", PUSH, "", "entitySid123", emptyMap(), emptyMap(), "jwe")
+      CreateFactorPayload("factor name", PUSH, "", "entitySid123", emptyMap(), emptyMap(), "accessToken")
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
         .put(friendlyNameKey, "factor name")
@@ -98,7 +98,7 @@ class FactorMapperTest {
   fun `Map a response without factor sid from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "accessToken"
       )
     val jsonObject = JSONObject()
         .put(friendlyNameKey, "factor name")
@@ -113,7 +113,7 @@ class FactorMapperTest {
   fun `Map a response without entity sid from API should throw an exception`() {
     val factorPayload =
       CreateFactorPayload(
-          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "jwe"
+          "factor name", PUSH, "serviceSid123", "entitySid123", emptyMap(), emptyMap(), "accessToken"
       )
     val jsonObject = JSONObject()
         .put(sidKey, "sid123")
@@ -133,7 +133,7 @@ class FactorMapperTest {
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(serviceSidKey, "serviceSid123")
-        .put(entityIdentityKey, "entityId123")
+        .put(identity, "identity123")
         .put(typeKey, PUSH.factorTypeName)
         .put(keyPairAliasKey, "keyPairAlias123")
         .put(statusKey, Unverified.value)
@@ -158,7 +158,7 @@ class FactorMapperTest {
         .put(accountSidKey, "accountSid123")
         .put(typeKey, PUSH.factorTypeName)
         .put(keyPairAliasKey, "keyPairAlias123")
-        .put(entityIdentityKey, "entityId123")
+        .put(identity, "identity123")
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
@@ -172,7 +172,7 @@ class FactorMapperTest {
         .put(friendlyNameKey, "factor name")
         .put(accountSidKey, "accountSid123")
         .put(serviceSidKey, "serviceSid123")
-        .put(entityIdentityKey, "entityId123")
+        .put(identity, "identity123")
         .put(typeKey, "test")
         .put(keyPairAliasKey, "keyPairAlias123")
     exceptionRule.expect(TwilioVerifyException::class.java)
@@ -194,7 +194,7 @@ class FactorMapperTest {
   fun `Map a factor to JSON should return complete factor data as JSONObject`() {
     val factor = PushFactor(
         sid = "sid123", friendlyName = "factor name", accountSid = "accountSid123",
-        serviceSid = "serviceSid123", entityIdentity = "entityIdentity123", status = Unverified,
+        serviceSid = "serviceSid123", identity = "identity123", status = Unverified,
         createdAt = Date(), config = Config("credentialSid")
     ).apply { keyPairAlias = "keyPairAlias123" }
     val json = factorMapper.toJSON(factor)
@@ -204,7 +204,7 @@ class FactorMapperTest {
     assertEquals(factor.sid, jsonObject.getString(sidKey))
     assertEquals(factor.friendlyName, jsonObject.getString(friendlyNameKey))
     assertEquals(factor.accountSid, jsonObject.getString(accountSidKey))
-    assertEquals(factor.entityIdentity, jsonObject.getString(entityIdentityKey))
+    assertEquals(factor.identity, jsonObject.getString(identity))
     assertEquals(factor.keyPairAlias, jsonObject.getString(keyPairAliasKey))
     assertEquals(toRFC3339Date(factor.createdAt), jsonObject.getString(dateCreatedKey))
   }

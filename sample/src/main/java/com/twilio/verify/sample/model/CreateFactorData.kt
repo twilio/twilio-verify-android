@@ -4,5 +4,5 @@ data class CreateFactorData(
   val identity: String,
   val factorName: String,
   val pushToken: String,
-  val enrollmentUrl: String
+  val accessTokenUrl: String
 )

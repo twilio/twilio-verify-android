@@ -62,7 +62,7 @@ See [Verify Push Quickstart](https://www.twilio.com/docs/verify/quickstarts/push
 ### To run the Sample App:
 * Clone the repo
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
-* Get the Enrollment JWE generation URL from your backend [(Running the Sample backend)](#SampleBackend). You will use it for creating a factor
+* Get the Access Token generation URL from your backend [(Running the Sample backend)](#SampleBackend). You will use it for creating a factor
 * Run the `sample` module using `release` as build variant
 
 <a name='FirebaseConfiguration'></a>
@@ -78,6 +78,8 @@ In order to run the sample app, you have to create a project and application in 
 ## Running the Sample backend
 
 * Clone this repo: https://github.com/twilio/verify-push-sample-backend
+* Configure a [Notify Service](https://www.twilio.com/docs/verify/quickstarts/push-android#configure-or-select-a-notify-service) for the sample app, using the same [Firebase project](#FirebaseConfiguration) you configured
+* Configure a [Verify Service](https://www.twilio.com/docs/verify/quickstarts/push-android#configure-a-verify-service), using the Notify service for the sample app
 * Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/master/README.md)
 
 <a name='UsingSampleApp'></a>
@@ -86,14 +88,14 @@ In order to run the sample app, you have to create a project and application in 
 
 ### Adding a factor
 * Press Create factor in the factor list (main view)
-* Enter the entity identity to use. This value should be an UUID that identifies the user to prevent PII information use
-* Enter the enrollment URL (Enrollment JWE generation URL, including the path, e.g. https://yourapp.ngrok.io/enroll)
+* Enter the identity to use. This value should be an UUID that identifies the user to prevent PII information use
+* Enter the Access token URL (Access token generation URL, including the path, e.g. https://yourapp.ngrok.io/accessTokens)
 * Press Create factor
 * Copy the factor Sid
 
 ### Sending a challenge
 * Go to Create Push Challenge page (/challenge path in your sample backend)
-* Enter the entity `identity` you used in factor creation
+* Enter the `identity` you used in factor creation
 * Enter the `Factor Sid` you added
 * Enter a `message`. You will see the message in the push notification and in the challenge view
 * Enter details to the challenge. You will see them in the challenge view. You can add more details using the `Add more Details` button

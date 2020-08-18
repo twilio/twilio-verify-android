@@ -1,5 +1,6 @@
 package com.twilio.verify.networking
 
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.AuthenticationTokenError
 import com.twilio.verify.data.getSignerTemplate
@@ -21,7 +22,10 @@ internal const val expKey = "exp"
 internal const val iatKey = "nbf"
 internal const val contentType = "twilio-pba;v=1"
 
-internal class AuthenticationProvider(private val jwtGenerator: JwtGenerator) : Authentication {
+internal class AuthenticationProvider(
+  private val jwtGenerator: JwtGenerator,
+  private val dateProvider: DateProvider
+) : Authentication {
 
   override fun generateJWT(
     factor: Factor
@@ -52,12 +56,10 @@ internal class AuthenticationProvider(private val jwtGenerator: JwtGenerator) : 
     JSONObject().apply {
       put(subKey, factor.accountSid)
       put(
-          expKey, TimeUnit.MILLISECONDS.toSeconds(
-          System.currentTimeMillis()
-      ) + TimeUnit.MINUTES.toSeconds(
+          expKey, dateProvider.getCurrentTime() + TimeUnit.MINUTES.toSeconds(
           jwtValidFor
       )
       )
-      put(iatKey, TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()))
+      put(iatKey, dateProvider.getCurrentTime())
     }
 }
