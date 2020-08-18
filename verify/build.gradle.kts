@@ -195,4 +195,5 @@ dependencies {
   testImplementation("org.robolectric:robolectric:4.3.1")
   testImplementation("androidx.test:core:1.2.0")
   testImplementation("org.mockito:mockito-inline:2.28.2")
+  testImplementation("org.mockito:mockito-core:3.1.0")
 }
