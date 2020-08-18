@@ -1,6 +1,7 @@
 tasks.withType<Test> {
   configure<JacocoTaskExtension> {
     isIncludeNoLocationClasses = true
+    exclude("jdk.internal.*")
   }
 }
 
