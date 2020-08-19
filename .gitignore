@@ -80,6 +80,9 @@ fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
 
+# jacoco
+jacoco.exec
+
 # Version control
 vcs.xml
 

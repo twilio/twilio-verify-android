@@ -27,10 +27,17 @@ platform :android do
     )
   end
   
-  desc "Runs all the tests"
+  desc "Runs all the tests with coverage"
   lane :unit_tests do
     gradle(
-      task: "testDebugUnitTest"
+      tasks: ["jacocoTestReport", ":verify:jacocoCoverageVerification"]
     )
   end
+
+  desc "Size impact report"
+    lane :sdk_sizer do
+      gradle(
+        task: "generateSizeReport"
+      )
+    end
 end

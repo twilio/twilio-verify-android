@@ -1,4 +1,5 @@
 //region Plugins
+apply(from = "../jacoco.gradle.kts")
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
@@ -6,6 +7,8 @@ plugins {
   id(Config.Plugins.dokka)
   id(MavenPublish.plugin)
   id(Config.Plugins.versionBumper)
+  jacoco
+  id(Config.Plugins.apkscale)
 }
 //endregion
 
@@ -104,7 +107,10 @@ tasks {
 
 val dokkaHtmlJar by tasks.creating(Jar::class) {
   dependsOn(tasks.dokkaHtml)
-  from(tasks.dokkaHtml.get().getOutputDirectoryAsFile())
+  from(
+      tasks.dokkaHtml.get()
+          .getOutputDirectoryAsFile()
+  )
   archiveClassifier.set("html-doc")
 }
 
@@ -146,6 +152,36 @@ task("bintrayLibraryReleaseUpload", GradleBuild::class) {
     )
   )
 }
+
+apkscale {
+  abis = setOf("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
+}
+
+task("generateSizeReport") {
+  dependsOn("assembleRelease", "measureSize")
+  description = "Calculate Verify SDK Size Impact"
+  group = "Reporting"
+
+  doLast {
+    var sizeReport = "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
+            "\n" +
+            "| ABI             | APK Size Impact |\n" +
+            "| --------------- | --------------- |\n"
+    val apkscaleOutputFile = file("$buildDir/apkscale/build/outputs/reports/apkscale.json")
+    val jsonSlurper = groovy.json.JsonSlurper()
+    val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
+    val releaseOutput = apkscaleOutput[0] as Map<*, *>
+    val sizes = releaseOutput["size"] as Map<String,String>
+    sizes.forEach { (arch, sizeImpact) ->
+      sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
+    }
+    val sizeReportDir = "$buildDir/outputs/SizeReport"
+    mkdir(sizeReportDir)
+    val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()} Size Impact Report.txt")
+    targetFile.createNewFile()
+    targetFile.writeText(sizeReport)
+  }
+}
 //endregion
 
 dependencies {
@@ -161,7 +197,8 @@ dependencies {
   androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
   testImplementation("junit:junit:4.12")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-  testImplementation("org.robolectric:robolectric:4.3.1")
+  testImplementation("org.robolectric:robolectric:4.4-beta-1")
   testImplementation("androidx.test:core:1.2.0")
+  testImplementation("org.hamcrest:hamcrest-library:1.3")
   testImplementation("org.mockito:mockito-inline:2.28.2")
 }
