@@ -1,10 +1,12 @@
 //region Plugins
+apply(from = "../jacoco.gradle.kts")
 plugins {
   id(MavenPublish.plugin)
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.versionBumper)
+  jacoco
 }
 //endregion
 
