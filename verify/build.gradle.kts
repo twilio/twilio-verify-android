@@ -8,6 +8,7 @@ plugins {
   id(MavenPublish.plugin)
   id(Config.Plugins.versionBumper)
   jacoco
+  id(Config.Plugins.apkscale)
 }
 //endregion
 
@@ -150,6 +151,36 @@ task("bintrayLibraryReleaseUpload", GradleBuild::class) {
       MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
     )
   )
+}
+
+apkscale {
+  abis = setOf("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
+}
+
+task("generateSizeReport") {
+  dependsOn("assembleRelease", "measureSize")
+  description = "Calculate Verify SDK Size Impact"
+  group = "Reporting"
+
+  doLast {
+    var sizeReport = "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
+            "\n" +
+            "| ABI             | APK Size Impact |\n" +
+            "| --------------- | --------------- |\n"
+    val apkscaleOutputFile = file("$buildDir/apkscale/build/outputs/reports/apkscale.json")
+    val jsonSlurper = groovy.json.JsonSlurper()
+    val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
+    val releaseOutput = apkscaleOutput[0] as Map<*, *>
+    val sizes = releaseOutput["size"] as Map<String,String>
+    sizes.forEach { (arch, sizeImpact) ->
+      sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
+    }
+    val sizeReportDir = "$buildDir/outputs/SizeReport"
+    mkdir(sizeReportDir)
+    val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()} Size Impact Report.txt")
+    targetFile.createNewFile()
+    targetFile.writeText(sizeReport)
+  }
 }
 //endregion
 

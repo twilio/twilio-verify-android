@@ -5,4 +5,4 @@ pluginManagement {
     }
 }
 rootProject.name = "TwilioVerify"
-include(Modules.sample, Modules.verify, Modules.security)
+include(":sample", ":verify", ":security")

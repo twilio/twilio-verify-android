@@ -33,4 +33,11 @@ platform :android do
       tasks: ["jacocoTestReport", ":verify:jacocoCoverageVerification"]
     )
   end
+
+  desc "Size impact report"
+    lane :sdk_sizer do
+      gradle(
+        task: "generateSizeReport"
+      )
+    end
 end
