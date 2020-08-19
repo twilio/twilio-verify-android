@@ -19,7 +19,6 @@ import javax.net.ssl.HttpsURLConnection
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-@RunWith(RobolectricTestRunner::class)
 class NetworkAdapterTest {
 
   private lateinit var networkAdapter: NetworkAdapter

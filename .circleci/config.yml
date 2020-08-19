@@ -65,7 +65,68 @@ commands:
           key: v1-gems-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-
+  move_directory:
+    parameters:
+      from:
+        description: directory to move
+        type: string
+      to:
+        description: destination directory
+        type: string
+    steps:
+      - run: cp -R <<parameters.from>> <<parameters.to>>
+  upload_codecov:
+    parameters:
+      file:
+        default: ""
+        description: Path to the code coverage data file to upload.
+        type: string
+      flags:
+        default: ""
+        description: Flag the upload to group coverage metrics (e.g. unittests | integration | ui,chrome)
+        type: string
+      token:
+        default: ${CODECOV_TOKEN}
+        description: Set the private repository token as the value of the variable CODECOV_TOKEN using CircleCI Environment Variables.
+        type: string
+      upload_name:
+        default: ${CIRCLE_BUILD_NUM}
+        description: Custom defined name of the upload. Visible in Codecov UI
+        type: string
+      url:
+        default: https://codecov.io/bash
+        description: Custom url to submit the codecov result. Default to "https://codecov.io/bash"
+        type: string
+      when:
+        default: always
+        description: When should this step run?
+        type: string
+    steps:
+      - when:
+          condition: << parameters.file >>
+          steps:
+            - run:
+                command: |
+                    curl -s << parameters.url >> | bash -s -- \
+                      -f "<< parameters.file >>" \
+                      -t "<< parameters.token >>" \
+                      -n "<< parameters.upload_name >>" \
+                      -F "<< parameters.flags >>" \
+                      -Z || echo 'Codecov upload failed'
+                name: Upload Coverage Results
+                when: << parameters.when >>
+      - unless:
+          condition: << parameters.file >>
+          steps:
+            - run:
+                command: |
+                    curl -s << parameters.url >> | bash -s -- \
+                      -t "<< parameters.token >>" \
+                      -n "<< parameters.upload_name >>" \
+                      -F "<< parameters.flags >>" \
+                      -Z || echo 'Codecov upload failed'
+                name: Upload Coverage Results
+                when: << parameters.when >>       
 jobs:
   assemble_build:
     executor: *executor
@@ -92,6 +153,30 @@ jobs:
           name: Running Unit Tests
           command: bundle exec fastlane unit_tests
       - *save_gradle_cache
+      - store_artifacts:
+          path: "verify/build/reports"
+          destination: verify-test-coverage
+      - store_artifacts:
+          path: "sample/build/reports"
+          destination: sampleapp-test-coverage
+      - store_artifacts:
+          path: "security/build/reports"
+          destination: security-test-coverage
+      - run: mkdir -p test-results
+      - move_directory:
+          from: verify/build/test-results/testDebugUnitTest/
+          to: test-results/verify
+      - move_directory:
+          from: sample/build/test-results/testDebugUnitTest/
+          to: test-results/sampleapp
+      - move_directory:
+          from: security/build/test-results/testDebugUnitTest/
+          to: test-results/security
+      - store_test_results:
+          path: "test-results"
+      - upload_codecov:
+          file: verify/build/reports/code-coverage/xml
+          flags: unittests
   security_instrumentation_tests_single_device:
     executor: *executor
     steps:
@@ -168,19 +253,16 @@ workflows:
             - assemble_build
       - security_instrumentation_tests_single_device:
           requires:
-            - assemble_build
+            - unit_tests
       - verify_instrumentation_tests_single_device:
           requires:
-            - assemble_build
+            - unit_tests
       - security_instrumentation_tests_multiple_devices:
           requires:
-            - unit_tests 
             - security_instrumentation_tests_single_device
       - verify_instrumentation_tests_multiple_devices:
           requires:
-            - unit_tests 
             - verify_instrumentation_tests_single_device
       - sdk_size_report:
           requires:
-            - unit_tests
             - verify_instrumentation_tests_single_device

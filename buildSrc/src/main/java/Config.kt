@@ -12,6 +12,7 @@ object Config {
     const val firebasePerformance =
       "com.google.firebase:perf-plugin:${Versions.firebasePerformance}"
     const val versionBumper = "com.twilio:versionbumper:${Versions.versionBumper}"
+    const val jacoco = "org.jacoco:org.jacoco.core:${Versions.jacoco}"
     const val apkscale = "com.twilio:apkscale:${Versions.apkscale}"
   }
 
@@ -37,6 +38,7 @@ object Config {
     const val minSDKVersion = 23
     const val targetSDKVersion = 29
     const val dokka = "1.4.0-rc"
+    const val jacoco = "0.8.5"
     const val apkscale = "0.1.0"
   }
 
