@@ -16,12 +16,12 @@ class DeleteFactorTests : BaseFactorTest() {
   @Test
   fun testDeleteFactorWithValidFactorShouldCallSuccess() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
-    assertTrue(sharedPreferences.contains(factor!!.sid))
+    assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
     enqueueMockResponse(200)
     idlingResource.increment()
     twilioVerify.deleteFactor(factor!!.sid, {
       assertFalse(keyStore.containsAlias(factor!!.keyPairAlias))
-      assertFalse(sharedPreferences.contains(factor!!.sid))
+      assertFalse(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
       idlingResource.decrement()
     }, { e ->
       fail(e.message)
@@ -33,7 +33,7 @@ class DeleteFactorTests : BaseFactorTest() {
   @Test
   fun testDeleteFactorWithInvalidAPIResponseShouldCallError() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
-    assertTrue(sharedPreferences.contains(factor!!.sid))
+    assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
     val expectedException = TwilioVerifyException(
         NetworkException(null, null, null),
         NetworkError

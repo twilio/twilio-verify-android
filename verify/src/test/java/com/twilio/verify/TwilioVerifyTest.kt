@@ -4,7 +4,6 @@
 package com.twilio.verify
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
@@ -97,7 +96,6 @@ class TwilioVerifyTest {
   private val providerName = "AndroidKeyStore"
   private val idlingResource = IdlingResource()
   private lateinit var context: Context
-  private lateinit var preferences: SharedPreferences
   private val factorIdentity = "factor identity"
   private val factorServiceSid = "factor service Sid"
 
@@ -115,8 +113,6 @@ class TwilioVerifyTest {
       }
     }
     Security.insertProviderAt(provider, 0)
-    preferences =
-      context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
     twilioVerify =
       TwilioVerify.Builder(context)
           .networkProvider(networkProvider)
@@ -125,9 +121,6 @@ class TwilioVerifyTest {
 
   @After
   fun tearDown() {
-    preferences.edit()
-        .clear()
-        .apply()
     values.clear()
   }
 
@@ -160,6 +153,7 @@ class TwilioVerifyTest {
     twilioVerify.createFactor(factorPayload, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
       assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
+      assertTrue(values.containsKey(factor.sid))
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
@@ -188,6 +182,7 @@ class TwilioVerifyTest {
     idlingResource.startOperation()
     twilioVerify.updateFactor(updatePushFactorPayload, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
+      assertTrue(values.containsKey(factor.sid))
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
@@ -212,6 +207,7 @@ class TwilioVerifyTest {
     idlingResource.startOperation()
     twilioVerify.verifyFactor(verifyFactorPayload, { factor ->
       assertEquals(jsonObject.getString(sidKey), factor.sid)
+      assertTrue(values.containsKey(factor.sid))
       idlingResource.operationFinished()
     }, { exception ->
       fail(exception.message)
@@ -401,7 +397,7 @@ class TwilioVerifyTest {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
     assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
-    assertTrue(preferences.contains(factorSid))
+    assertTrue(values.containsKey(factorSid))
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response("", emptyMap()))
@@ -409,7 +405,6 @@ class TwilioVerifyTest {
     }
     idlingResource.startOperation()
     twilioVerify.deleteFactor(factorSid, {
-      assertFalse(preferences.contains(factorSid))
       assertFalse(values.contains(factorSid))
       assertFalse(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
       idlingResource.operationFinished()
@@ -561,11 +556,13 @@ class TestEncryptedStorage {
   fun <T : Any> getAll(
     kClass: KClass<T>
   ): List<T> {
-    return values.filterValues {
-      it::class.javaObjectType.isAssignableFrom(
-          kClass.javaObjectType
-      )
-    }.values as List<T>
+    return values.toList()
+        .filter {
+          it.second::class.javaObjectType.isAssignableFrom(
+              kClass.javaObjectType
+          )
+        }
+        .map { it.second } as List<T>
   }
 
   @Implementation
