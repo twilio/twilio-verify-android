@@ -60,7 +60,7 @@ platform :android do
       tag_name: tag,
       description: notes,
       is_prerelease: true,
-      commitish: "sfierro/changelog"
+      commitish: "main"
     )
 
     sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
