@@ -1,19 +1,20 @@
 //region Plugins
 apply(from = "../jacoco.gradle.kts")
+apply(from = "versionCode.gradle.kts")
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.dokka)
   id(MavenPublish.plugin)
-  id(Config.Plugins.versionBumper)
+  // id(Config.Plugins.versionBumper)
   jacoco
   id(Config.Plugins.apkscale)
 }
 //endregion
 
-val verifyVersionName = versionBumper.versionName
-val verifyVersionCode = versionBumper.versionCode
+val verifyVersionName: String by extra
+val verifyVersionCode: String by extra
 //region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
@@ -21,7 +22,7 @@ android {
   defaultConfig {
     minSdkVersion(Config.Versions.minSDKVersion)
     targetSdkVersion(Config.Versions.targetSDKVersion)
-    versionCode = verifyVersionCode
+    versionCode = verifyVersionCode.toInt()
     versionName = verifyVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -180,10 +181,6 @@ task("generateSizeReport") {
     targetFile.createNewFile()
     targetFile.writeText(sizeReport)
   }
-}
-
-task("getVersion") {
-  println(verifyVersionName)
 }
 //endregion
 
