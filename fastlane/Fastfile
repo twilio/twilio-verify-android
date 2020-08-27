@@ -72,7 +72,7 @@ platform :android do
       commitish: "main"
     )
 
-    sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
+   # sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
   end
 
   desc "test"
