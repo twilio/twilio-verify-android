@@ -283,4 +283,9 @@ workflows:
             - verify_instrumentation_tests_single_device
       - release_sdk:
           requires:
-            - assemble_build
+            - security_instrumentation_tests_multiple_devices
+            - verify_instrumentation_tests_multiple_devices
+          filters:
+            branches:
+              only:
+                - sfierro/ACCSEC-18585-Changelog

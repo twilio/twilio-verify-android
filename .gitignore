@@ -13,7 +13,6 @@
 .externalNativeBuild
 .cxx
 google-services.json
-.google-services.json
 ._google-services.json
 secrets.tar
 vendor/
