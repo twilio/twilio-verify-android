@@ -132,7 +132,7 @@ platform :android do
         tag_prefix = '*'
         next unless verify(title: title, tag_prefix: tag_prefix)
 
-        build(flavor: app_flavor)
+        build()
 
         post_deploy()
       end
