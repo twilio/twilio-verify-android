@@ -49,7 +49,7 @@ platform :android do
       format: 'markdown', 
       commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
     tag = next_version
-
+    puts(notes)
     add_git_tag(tag: tag)
     push_git_tags(tag: tag)
 
@@ -60,7 +60,7 @@ platform :android do
       tag_name: tag,
       description: notes,
       is_prerelease: true,
-      commitish: "sfierro/changelog"
+      commitish: "main"
     )
 
     sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
