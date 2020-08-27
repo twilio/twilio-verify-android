@@ -46,7 +46,7 @@ platform :android do
     is_releaseable = analyze_commits(
         match: "*",
         releases: {
-            fix: 'patch',
+           fix: 'patch',
             feat: 'minor',
             'BREAKING CHANGE': 'major'
         }
