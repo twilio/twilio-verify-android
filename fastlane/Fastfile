@@ -44,12 +44,12 @@ platform :android do
   desc "Generates release tag, release notes and updates CHANGELOG.md"
   lane :post_deploy do
     is_releaseable = analyze_commits(
-          match: "*",
-          releases: {
+        match: "*",
+        releases: {
             fix: 'patch',
             feat: 'minor',
             'BREAKING CHANGE': 'major'
-          }
+        }
     )
     #is_releaseable = analyze_commits(match: "*")
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
