@@ -58,11 +58,11 @@ platform :android do
       name: tag,
       tag_name: tag,
       description: notes,
-      is_prerelease: true,
       commitish: "main"
     )
     UI.message("Updating CHANGELOG.md")
     sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
+    git_commit(path: ['./verify/gradle.properties', './CHANGELOG.md'], message: 'chore: version bump [skip ci]')
   end
 
   desc "Verify next release"
@@ -104,6 +104,7 @@ platform :android do
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
     ensure_git_status_clean
     # Increment version in Verify module
+    UI.message("Updating verify/gradle.properties")
     gradle(task: "-q :verify:incrementVersion", properties: { 'version_number' => next_version })
   end
 

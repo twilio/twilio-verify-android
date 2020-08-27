@@ -1,13 +1,12 @@
 //region Plugins
 apply(from = "../jacoco.gradle.kts")
-apply(from = "versionCode.gradle.kts")
+apply(from = "version.gradle.kts")
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.dokka)
   id(MavenPublish.plugin)
-  // id(Config.Plugins.versionBumper)
   jacoco
   id(Config.Plugins.apkscale)
 }
@@ -34,8 +33,8 @@ android {
     getByName("release") {
       isMinifyEnabled = false
       proguardFiles(
-          getDefaultProguardFile("proguard-android-optimize.txt"),
-          "proguard-rules.pro"
+        getDefaultProguardFile("proguard-android-optimize.txt"),
+        "proguard-rules.pro"
       )
     }
   }
@@ -108,8 +107,8 @@ tasks {
 val dokkaHtmlJar by tasks.creating(Jar::class) {
   dependsOn(tasks.dokkaHtml)
   from(
-      tasks.dokkaHtml.get()
-          .getOutputDirectoryAsFile()
+    tasks.dokkaHtml.get()
+      .getOutputDirectoryAsFile()
   )
   archiveClassifier.set("html-doc")
 }
@@ -163,15 +162,16 @@ task("generateSizeReport") {
   group = "Reporting"
 
   doLast {
-    var sizeReport = "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
-            "\n" +
-            "| ABI             | APK Size Impact |\n" +
-            "| --------------- | --------------- |\n"
+    var sizeReport =
+      "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
+          "\n" +
+          "| ABI             | APK Size Impact |\n" +
+          "| --------------- | --------------- |\n"
     val apkscaleOutputFile = file("$buildDir/apkscale/build/outputs/reports/apkscale.json")
     val jsonSlurper = groovy.json.JsonSlurper()
     val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
     val releaseOutput = apkscaleOutput[0] as Map<*, *>
-    val sizes = releaseOutput["size"] as Map<String,String>
+    val sizes = releaseOutput["size"] as Map<String, String>
     sizes.forEach { (arch, sizeImpact) ->
       sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
     }
