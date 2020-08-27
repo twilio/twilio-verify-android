@@ -43,15 +43,6 @@ platform :android do
 
   desc "Generates release tag, release notes and updates CHANGELOG.md"
   lane :post_deploy do
-    #is_releaseable = analyze_commits(
-    #    match: "*",
-    #    releases: {
-    #      fix: 'patch',
-    #      feat: 'minor',
-    #      'BREAKING CHANGE': 'major'
-    #    }
-    #)
-    #is_releaseable = analyze_commits(match: "*")
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
     notes = conventional_changelog(
       format: 'markdown', 
@@ -70,84 +61,50 @@ platform :android do
       is_prerelease: true,
       commitish: "main"
     )
-
-   sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-  end
-
-  desc "test"
-  lane :sergio do
-  is_releaseable = analyze_commits(
-          match: "*",
-          releases: {
-            fix: 'patch',
-            feat: 'minor',
-            'BREAKING CHANGE': 'major'
-          }
-      )
-    next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-    puts(next_version)
-    gradle(task: "-q :verify:incrementVersion", properties: { 'version_number' => next_version })
+    UI.message("Updating CHANGELOG.md)
+    sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
   end
 
   desc "Verify next release"
-    lane :verify do |options|
-      # Git status has to be clean
-      ensure_git_status_clean
-      # if the build is run on local machine
-      if !is_ci? then
-        # it sends slack message about the deploy was triggered
-        # slack(message: "#{title} deploy was triggered on local machine")
-        UI.message("#{options[:title]} deploy was triggered on local machine")
-        # Clean project
-        gradle(task: "clean")
-        # yarn lint && yarn jest && yarn flow
-        # check_code_quality
-      else
-        # We don't need to do this on CI because repo is fresh
-        # slack(message: "#{options[:title]} deploy was triggered on CircleCI")
-        UI.message("#{options[:title]} deploy was triggered on CircleCI")
-      end
-
-      # Check if there is any change since last version
-      is_releaseable = analyze_commits(
-        match: options[:tag_prefix],
-        releases: {
-          fix: 'patch',
-          feat: 'minor',
-          'BREAKING CHANGE': 'major'
-        }
-      )
-
-      unless is_releaseable
-        # slack(message: "Skip deploying #{options[:title]}. No changes since last one!")
-        UI.important("Skip deploying #{options[:title]}. No changes since last one!")
-      end
-
-      is_releaseable
+  lane :verify do |options|
+    ensure_git_status_clean
+    if !is_ci? then
+      UI.message("#{options[:title]} deploy was triggered on local machine")
+      gradle(task: "clean")
+    else
+      UI.message("#{options[:title]} deploy was triggered on CircleCI")
     end
 
-    desc "Build a new production version"
-      lane :release do |options|
-        title = 'Android Release'
-        tag_prefix = '*'
-        next unless verify(title: title, tag_prefix: tag_prefix)
+    # Check if there is any change since last version
+    is_releaseable = analyze_commits(
+      match: options[:tag_prefix],
+      releases: {
+        fix: 'patch',
+        feat: 'minor',
+        'BREAKING CHANGE': 'major'
+      }
+    )
+    unless is_releaseable
+      UI.important("Skip deploying #{options[:title]}. No changes since last one!")
+    end
+    is_releaseable
+  end
 
-        build()
-
-        post_deploy()
-      end
-
-
-      desc "Build an android release"
-        lane :build do |options|
-          next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-          ensure_git_status_clean
-          # Increment version in Android project
-          gradle(task: "-q :verify:incrementVersion", properties: { 'version_number' => next_version })
-          # Build app
-          #gradle(task: "bundle", flavor: options[:flavor], build_type: 'Release')
-          # Return new version code
-          #version_code.lines.last.to_i
-        end
+  desc "Build a new production version"
+  lane :release do |options|
+    title = 'Android Verify Push Release'
+    tag_prefix = '*'
+    next unless verify(title: title, tag_prefix: tag_prefix)
+    incrementVersion()
+    post_deploy()
+  end
+  
+  desc "Build an android release"
+  lane :incrementVersion do |options|
+    next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
+    ensure_git_status_clean
+    # Increment version in Verify module
+    gradle(task: "-q :verify:incrementVersion", properties: { 'version_number' => next_version })
+  end
 
 end
