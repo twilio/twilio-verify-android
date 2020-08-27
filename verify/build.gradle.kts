@@ -14,7 +14,6 @@ plugins {
 
 val verifyVersionName = versionBumper.versionName
 val verifyVersionCode = versionBumper.versionCode
-
 //region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
@@ -181,6 +180,10 @@ task("generateSizeReport") {
     targetFile.createNewFile()
     targetFile.writeText(sizeReport)
   }
+}
+
+task("getVersion") {
+  println(verifyVersionName)
 }
 //endregion
 
