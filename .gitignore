@@ -13,6 +13,10 @@
 .externalNativeBuild
 .cxx
 google-services.json
+.google-services.json
+secrets.tar
+vendor/
+.bundle/
 
 # Built application files
 *.apk

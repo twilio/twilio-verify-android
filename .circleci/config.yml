@@ -283,5 +283,4 @@ workflows:
             - verify_instrumentation_tests_single_device
       - release_sdk:
           requires:
-            - security_instrumentation_tests_multiple_devices
-            - verify_instrumentation_tests_multiple_devices
+            - assemble_build
