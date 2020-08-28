@@ -46,7 +46,7 @@ merge:
   # before bulldozer can merge a pull request. This is useful if you want to
   # require extra testing for automated merges, but not for manual merges.
   required_statuses:
-    - "ci/ci/circleci: assemble_build"
+    - "ci/circleci: assemble_build"
     - "ci/circleci: unit_tests"
     - "ci/circleci: security_instrumentation_tests_single_device"
     - "ci/circleci: security_instrumentation_tests_multiple_devices"
