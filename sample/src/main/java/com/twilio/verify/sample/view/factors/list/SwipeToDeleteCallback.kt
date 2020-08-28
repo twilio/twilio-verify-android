@@ -18,7 +18,7 @@ class SwipeToDeleteCallback(
   private val icon: Drawable,
   private val background: ColorDrawable = ColorDrawable(Color.RED)
 ) : SimpleCallback(
-    0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+  0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
 ) {
   override fun onMove(
     recyclerView: RecyclerView,
@@ -48,7 +48,7 @@ class SwipeToDeleteCallback(
   ) {
     super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
     val itemView: View = viewHolder.itemView
-    val backgroundCornerOffset = 20 //so background is behind the rounded corners of itemView
+    val backgroundCornerOffset = 20 // so background is behind the rounded corners of itemView
     val iconMargin: Int = (itemView.height - icon.intrinsicHeight) / 2
     val iconTop: Int = itemView.top + (itemView.height - icon.intrinsicHeight) / 2
     val iconBottom = iconTop + icon.intrinsicHeight
@@ -58,8 +58,8 @@ class SwipeToDeleteCallback(
         val iconRight: Int = itemView.left + iconMargin
         icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
         background.setBounds(
-            itemView.left, itemView.top,
-            itemView.left + dX.toInt() + backgroundCornerOffset, itemView.bottom
+          itemView.left, itemView.top,
+          itemView.left + dX.toInt() + backgroundCornerOffset, itemView.bottom
         )
       }
       dX < 0 -> { // Swiping to the left
@@ -67,8 +67,8 @@ class SwipeToDeleteCallback(
         val iconRight: Int = itemView.right - iconMargin
         icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
         background.setBounds(
-            itemView.right + dX.toInt() - backgroundCornerOffset,
-            itemView.top, itemView.right, itemView.bottom
+          itemView.right + dX.toInt() - backgroundCornerOffset,
+          itemView.top, itemView.right, itemView.bottom
         )
       }
       else -> { // view is unSwiped

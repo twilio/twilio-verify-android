@@ -19,8 +19,8 @@ import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.sample.IdlingResource
 import com.twilio.verify.sample.TwilioVerifyAdapter
-import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.model.AccessTokenResponse
+import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.networking.SampleBackendAPIClient
 import com.twilio.verify.sample.push.NewChallenge
 import com.twilio.verify.sample.push.VerifyEventBus
@@ -63,16 +63,20 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
-        mockCall
+      mockCall
     )
     idlingResource.startOperation()
-    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.createFactor(
+      createFactorData, sampleBackendAPIClient,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -84,15 +88,16 @@ class TwilioVerifyKotlinAdapterTest {
       argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
         on { enqueue(capture()) }.then {
           firstValue.onResponse(
-              mockCall, Response.success(
+            mockCall,
+            Response.success(
               AccessTokenResponse("accessToken", "serviceSid", "identity", PUSH.factorTypeName)
-          )
+            )
           )
         }
       }
     }
     whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
-        mockCall
+      mockCall
     )
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(twilioVerify.createFactor(any(), any(), capture())).then {
@@ -100,13 +105,17 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.createFactor(
+      createFactorData, sampleBackendAPIClient,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -121,15 +130,16 @@ class TwilioVerifyKotlinAdapterTest {
       argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
         on { enqueue(capture()) }.then {
           firstValue.onResponse(
-              mockCall, Response.success(
+            mockCall,
+            Response.success(
               AccessTokenResponse("accessToken", "serviceSid", "identity", PUSH.factorTypeName)
-          )
+            )
           )
         }
       }
     }
     whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
-        mockCall
+      mockCall
     )
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(twilioVerify.createFactor(any(), capture(), any())).then {
@@ -145,14 +155,18 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.createFactor(createFactorData, sampleBackendAPIClient, { factor ->
-      assertEquals(expectedVerifiedFactor, factor)
-      assertEquals(expectedVerifiedFactor.status, Verified)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.createFactor(
+      createFactorData, sampleBackendAPIClient,
+      { factor ->
+        assertEquals(expectedVerifiedFactor, factor)
+        assertEquals(expectedVerifiedFactor.status, Verified)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -168,13 +182,17 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.verifyFactor(verifyFactorPayload, { factor ->
-      assertEquals(expectedFactor, factor)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.verifyFactor(
+      verifyFactorPayload,
+      { factor ->
+        assertEquals(expectedFactor, factor)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -189,13 +207,17 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.verifyFactor(verifyFactorPayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.verifyFactor(
+      verifyFactorPayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -204,10 +226,12 @@ class TwilioVerifyKotlinAdapterTest {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
     twilioVerifyAdapter.showChallenge(challengeSid, factorSid)
-    verify(verifyEventBus).send(check { challengeEvent ->
-      assertTrue(challengeEvent is NewChallenge)
-      assertEquals(challengeSid, (challengeEvent as NewChallenge).challengeSid)
-    })
+    verify(verifyEventBus).send(
+      check { challengeEvent ->
+        assertTrue(challengeEvent is NewChallenge)
+        assertEquals(challengeSid, (challengeEvent as NewChallenge).challengeSid)
+      }
+    )
   }
 
   @Test
@@ -221,13 +245,17 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.getChallenge(challengeSid, factorSid, { challenge ->
-      assertEquals(expectedChallenge, challenge)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.getChallenge(
+      challengeSid, factorSid,
+      { challenge ->
+        assertEquals(expectedChallenge, challenge)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -242,13 +270,17 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.getChallenge(challengeSid, factorSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.getChallenge(
+      challengeSid, factorSid,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -262,12 +294,16 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.updateChallenge(updateChallengePayload, {
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.updateChallenge(
+      updateChallengePayload,
+      {
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -282,13 +318,17 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyAdapter.updateChallenge(updateChallengePayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyAdapter.updateChallenge(
+      updateChallengePayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 }

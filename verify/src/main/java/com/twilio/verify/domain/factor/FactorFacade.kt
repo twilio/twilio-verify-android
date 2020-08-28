@@ -36,8 +36,8 @@ internal class FactorFacade(
       when (factorPayload) {
         is PushFactorPayload -> {
           pushFactory.create(
-              factorPayload.accessToken, factorPayload.friendlyName, factorPayload.pushToken,
-              factorPayload.serviceSid, factorPayload.identity, onSuccess, onError
+            factorPayload.accessToken, factorPayload.friendlyName, factorPayload.pushToken,
+            factorPayload.serviceSid, factorPayload.identity, onSuccess, onError
           )
         }
       }
@@ -53,7 +53,7 @@ internal class FactorFacade(
       when (verifyFactorPayload) {
         is VerifyPushFactorPayload -> {
           pushFactory.verify(
-              verifyFactorPayload.sid, onSuccess, onError
+            verifyFactorPayload.sid, onSuccess, onError
           )
         }
       }
@@ -69,7 +69,7 @@ internal class FactorFacade(
       when (updateFactorPayload) {
         is UpdatePushFactorPayload -> {
           pushFactory.update(
-              updateFactorPayload.sid, updateFactorPayload.pushToken, onSuccess, onError
+            updateFactorPayload.sid, updateFactorPayload.pushToken, onSuccess, onError
           )
         }
       }
@@ -83,8 +83,8 @@ internal class FactorFacade(
   ) {
     try {
       factorProvider.get(factorSid)
-          ?.let { success(it) } ?: throw TwilioVerifyException(
-          StorageException("Factor not found"), StorageError
+        ?.let { success(it) } ?: throw TwilioVerifyException(
+        StorageException("Factor not found"), StorageError
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -98,9 +98,9 @@ internal class FactorFacade(
   ) {
     try {
       factorProvider.getAll()
-          .find { it.serviceSid == serviceSid }
-          ?.let { success(it) } ?: throw TwilioVerifyException(
-          StorageException("Factor not found"), StorageError
+        .find { it.serviceSid == serviceSid }
+        ?.let { success(it) } ?: throw TwilioVerifyException(
+        StorageException("Factor not found"), StorageError
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -156,31 +156,31 @@ internal class FactorFacade(
     fun build(): FactorFacade {
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for context"), InitializationError
+          IllegalArgumentException("Illegal value for context"), InitializationError
         )
       }
       if (!this::networking.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for network provider"),
-            InitializationError
+          IllegalArgumentException("Illegal value for network provider"),
+          InitializationError
         )
       }
       if (!this::keyStore.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for key storage"),
-            InitializationError
+          IllegalArgumentException("Illegal value for key storage"),
+          InitializationError
         )
       }
       if (!this::url.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for base url"),
-            InitializationError
+          IllegalArgumentException("Illegal value for base url"),
+          InitializationError
         )
       }
       if (!this::authentication.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for authentication"),
-            InitializationError
+          IllegalArgumentException("Illegal value for authentication"),
+          InitializationError
         )
       }
       val factorAPIClient = FactorAPIClient(networking, appContext, authentication, url)

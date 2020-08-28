@@ -29,12 +29,15 @@ internal fun execute(
   block: (onSuccess: SafeSuccess, onError: SafeError<TwilioVerifyException>) -> Unit
 ) {
   executorService.execute(
-      Task<Unit, TwilioVerifyException>({ onSuccess, onError ->
+    Task<Unit, TwilioVerifyException>(
+      { onSuccess, onError ->
         block(
-            { onSuccess(Unit) },
-            onError
+          { onSuccess(Unit) },
+          onError
         )
-      }, { success() }, error)
+      },
+      { success() }, error
+    )
   )
 }
 
@@ -43,10 +46,10 @@ internal class Task<T, E : Exception>(
   private val success: (T) -> Unit,
   private val error: (E) -> Unit,
   private val handler: Handler? = Looper.myLooper()
-      ?.takeIf { it == Looper.getMainLooper() }
-      ?.let {
-        Handler(it)
-      }
+    ?.takeIf { it == Looper.getMainLooper() }
+    ?.let {
+      Handler(it)
+    }
 ) : Runnable {
   override fun run() {
     block(::safeSuccess, ::safeError)

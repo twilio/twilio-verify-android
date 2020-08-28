@@ -106,7 +106,7 @@ In order to run the sample app, you have to create a project and application in 
 * Enter a `message`. You will see the message in the push notification and in the challenge view
 * Enter details to the challenge. You will see them in the challenge view. You can add more details using the `Add more Details` button
 * Press `Create challenge` button
-* You will receive a push notification showing the challenge message in your device. 
+* You will receive a push notification showing the challenge message in your device.
 * The app will show the challenge info below the factor information, in a `Challenge` section
 * Approve or deny the challenge
 * After the challenge is updated, you will see the challenge status in the backend's `Create Push Challenge` view

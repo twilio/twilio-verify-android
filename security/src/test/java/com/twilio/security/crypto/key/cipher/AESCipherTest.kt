@@ -10,6 +10,10 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.AndroidKeyStoreOperations
 import com.twilio.security.crypto.KeyException
+import java.security.AlgorithmParameters
+import java.security.Provider
+import javax.crypto.SecretKey
+import kotlin.random.Random.Default.nextBytes
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -19,10 +23,6 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.security.AlgorithmParameters
-import java.security.Provider
-import javax.crypto.SecretKey
-import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class AESCipherTest {
@@ -57,13 +57,14 @@ class AESCipherTest {
       on { provider }.doReturn(provider)
     }
     val expectedEncryptedData = EncryptedData(
-        AlgorithmParametersSpec(
-            algorithmParameters.encoded, algorithmParameters.provider.name,
-            algorithmParameters.algorithm
-        ), encrypted.toByteArray()
+      AlgorithmParametersSpec(
+        algorithmParameters.encoded, algorithmParameters.provider.name,
+        algorithmParameters.algorithm
+      ),
+      encrypted.toByteArray()
     )
     whenever(androidKeyStoreOperations.encrypt(eq(data), eq(cipherAlgorithm), any())).thenReturn(
-        expectedEncryptedData
+      expectedEncryptedData
     )
     val encryptedData = aesCipher.encrypt(data)
     assertEquals(expectedEncryptedData, encryptedData)
@@ -74,13 +75,13 @@ class AESCipherTest {
     val data = "test".toByteArray()
     val error: RuntimeException = mock()
     whenever(androidKeyStoreOperations.encrypt(eq(data), eq(cipherAlgorithm), any())).thenThrow(
-        error
+      error
     )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            RuntimeException::class.java
-        )
+      Matchers.instanceOf(
+        RuntimeException::class.java
+      )
     )
     aesCipher.encrypt(data)
   }
@@ -95,18 +96,19 @@ class AESCipherTest {
       on { provider }.doReturn(provider)
     }
     val expectedEncryptedData = EncryptedData(
-        AlgorithmParametersSpec(
-            algorithmParameters.encoded, algorithmParameters.provider.name,
-            algorithmParameters.algorithm
-        ), encrypted.toByteArray()
+      AlgorithmParametersSpec(
+        algorithmParameters.encoded, algorithmParameters.provider.name,
+        algorithmParameters.algorithm
+      ),
+      encrypted.toByteArray()
     )
     whenever(
-        androidKeyStoreOperations.decrypt(eq(expectedEncryptedData), eq(cipherAlgorithm), any())
+      androidKeyStoreOperations.decrypt(eq(expectedEncryptedData), eq(cipherAlgorithm), any())
     ).thenReturn(data.toByteArray())
     val decrypted = aesCipher.decrypt(expectedEncryptedData)
     assertTrue(
-        data.toByteArray()
-            .contentEquals(decrypted)
+      data.toByteArray()
+        .contentEquals(decrypted)
     )
   }
 
@@ -119,20 +121,21 @@ class AESCipherTest {
       on { provider }.doReturn(provider)
     }
     val expectedEncryptedData = EncryptedData(
-        AlgorithmParametersSpec(
-            algorithmParameters.encoded, algorithmParameters.provider.name,
-            algorithmParameters.algorithm
-        ), encrypted.toByteArray()
+      AlgorithmParametersSpec(
+        algorithmParameters.encoded, algorithmParameters.provider.name,
+        algorithmParameters.algorithm
+      ),
+      encrypted.toByteArray()
     )
     val error: RuntimeException = mock()
     whenever(
-        androidKeyStoreOperations.decrypt(eq(expectedEncryptedData), eq(cipherAlgorithm), any())
+      androidKeyStoreOperations.decrypt(eq(expectedEncryptedData), eq(cipherAlgorithm), any())
     ).thenThrow(error)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            RuntimeException::class.java
-        )
+      Matchers.instanceOf(
+        RuntimeException::class.java
+      )
     )
     aesCipher.decrypt(expectedEncryptedData)
   }

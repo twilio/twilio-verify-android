@@ -21,25 +21,30 @@ class ChallengeTests : BaseFactorTest() {
     val updateChallengePayload = UpdatePushChallengePayload(factor!!.sid, challengeSid, status)
     val response = JSONObject(APIResponses.getValidPendingChallengeResponse())
     val headers = response.keys()
-        .asSequence()
-        .toList()
-        .joinToString(
-            signatureFieldsHeaderSeparator
-        )
+      .asSequence()
+      .toList()
+      .joinToString(
+        signatureFieldsHeaderSeparator
+      )
     enqueueMockResponse(
-        200, response.toString(), headers = mapOf(
+      200, response.toString(),
+      headers = mapOf(
         signatureFieldsHeader to listOf(headers)
-    )
+      )
     )
     enqueueMockResponse(200, "")
     enqueueMockResponse(200, APIResponses.getValidApprovedChallengeResponse())
     idlingResource.increment()
-    twilioVerify.updateChallenge(updateChallengePayload, {
-      idlingResource.decrement()
-    }, { e ->
-      fail(e.message)
-      idlingResource.decrement()
-    })
+    twilioVerify.updateChallenge(
+      updateChallengePayload,
+      {
+        idlingResource.decrement()
+      },
+      { e ->
+        fail(e.message)
+        idlingResource.decrement()
+      }
+    )
     idlingResource.waitForResource()
   }
 }

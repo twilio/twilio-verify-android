@@ -22,7 +22,8 @@ internal class DefaultSerializer : Serializer {
       is Double,
       is Boolean,
       is Float,
-      is Long -> value.toString()
+      is Long ->
+        value.toString()
           .toByteArray()
       else -> throw IllegalArgumentException("Value type not supported")
     }
@@ -35,24 +36,25 @@ internal class DefaultSerializer : Serializer {
     return when {
       kClass.isAssignableFrom(String::class) -> String(data) as? T
       kClass.isAssignableFrom(Int::class) -> String(
-          data
+        data
       ).toInt() as? T
       kClass.isAssignableFrom(Double::class) -> String(
-          data
+        data
       ).toDouble() as? T
-      kClass.isAssignableFrom(Boolean::class) -> String(
+      kClass.isAssignableFrom(Boolean::class) ->
+        String(
           data
-      ).takeIf {
-        it.equals("false", ignoreCase = true) || it.equals(
+        ).takeIf {
+          it.equals("false", ignoreCase = true) || it.equals(
             "true", ignoreCase = true
-        )
-      }
+          )
+        }
           ?.toBoolean() as? T
       kClass.isAssignableFrom(Float::class) -> String(
-          data
+        data
       ).toFloat() as? T
       kClass.isAssignableFrom(Long::class) -> String(
-          data
+        data
       ).toLong() as? T
       else -> throw IllegalArgumentException("Value type not supported")
     }

@@ -24,15 +24,19 @@ internal class ServiceFacade(
     success: (Service) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactorByServiceSid(serviceSid, { factor ->
-      execute(success, error) { onSuccess, onError ->
-        try {
-          serviceProvider.get(serviceSid, factor, onSuccess, onError)
-        } catch (e: TwilioVerifyException) {
-          onError(e)
+    factorFacade.getFactorByServiceSid(
+      serviceSid,
+      { factor ->
+        execute(success, error) { onSuccess, onError ->
+          try {
+            serviceProvider.get(serviceSid, factor, onSuccess, onError)
+          } catch (e: TwilioVerifyException) {
+            onError(e)
+          }
         }
-      }
-    }, error)
+      },
+      error
+    )
   }
 
   class Builder {
@@ -60,31 +64,31 @@ internal class ServiceFacade(
     fun build(): ServiceFacade {
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for context"), InitializationError
+          IllegalArgumentException("Illegal value for context"), InitializationError
         )
       }
       if (!this::networking.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for network provider"),
-            InitializationError
+          IllegalArgumentException("Illegal value for network provider"),
+          InitializationError
         )
       }
       if (!this::url.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for base url"),
-            InitializationError
+          IllegalArgumentException("Illegal value for base url"),
+          InitializationError
         )
       }
       if (!this::factorFacade.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for factor facade"),
-            InitializationError
+          IllegalArgumentException("Illegal value for factor facade"),
+          InitializationError
         )
       }
       if (!this::authentication.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for authentication"),
-            InitializationError
+          IllegalArgumentException("Illegal value for authentication"),
+          InitializationError
         )
       }
       val serviceAPIClient = ServiceAPIClient(networking, appContext, authentication, url)

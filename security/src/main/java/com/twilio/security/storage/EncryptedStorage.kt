@@ -42,7 +42,7 @@ fun encryptedPreferences(
 ): EncryptedStorage {
   val keyManager = keyManager()
   val secretKeyProvider = SecretKeyCipher(
-      AESGCMNoPaddingCipherTemplate(storageAlias), keyManager
+    AESGCMNoPaddingCipherTemplate(storageAlias), keyManager
   )
   if (!keyManager.contains(storageAlias) && sharedPreferences.all.isEmpty()) {
     secretKeyProvider.create()

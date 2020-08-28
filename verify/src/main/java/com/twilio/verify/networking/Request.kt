@@ -1,9 +1,9 @@
 package com.twilio.verify.networking
 
 import android.net.Uri
-import org.json.JSONObject
 import java.net.MalformedURLException
 import java.net.URL
+import org.json.JSONObject
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -20,7 +20,7 @@ class Request internal constructor(
     return when {
       body == null -> ""
       headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type -> queryParams(
-          body
+        body
       )
       headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.Json.type -> jsonParams(body)
       else -> ""
@@ -31,10 +31,9 @@ class Request internal constructor(
     val builder = Uri.Builder()
     for ((key, value) in params) {
       builder.appendQueryParameter(key, value.toString())
-
     }
     return builder.build()
-        .encodedQuery
+      .encodedQuery
   }
 
   private fun jsonParams(params: Map<String, Any?>): String {
@@ -65,26 +64,26 @@ class Request internal constructor(
 
     @Throws(MalformedURLException::class)
     fun build() = Request(
-        httpMethod,
-        URL(addQueryParams()),
-        body,
-        headers?.let {
-          requestHelper.commonHeaders(httpMethod)
-              .plus(it)
-        } ?: requestHelper.commonHeaders(httpMethod),
-        tag ?: ""
+      httpMethod,
+      URL(addQueryParams()),
+      body,
+      headers?.let {
+        requestHelper.commonHeaders(httpMethod)
+          .plus(it)
+      } ?: requestHelper.commonHeaders(httpMethod),
+      tag ?: ""
     )
 
     private fun addQueryParams(): String {
       val builder = Uri.parse(url)
-          .buildUpon()
+        .buildUpon()
       query?.let {
         for ((key, value) in it) {
           builder.appendQueryParameter(key, value.toString())
         }
       }
       return builder.build()
-          .toString()
+        .toString()
     }
   }
 }

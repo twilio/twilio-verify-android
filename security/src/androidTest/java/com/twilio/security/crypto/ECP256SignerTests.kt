@@ -6,28 +6,28 @@ package com.twilio.security.crypto
 import com.twilio.security.crypto.key.signer.ECSigner
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
+import java.security.KeyPair
+import java.security.KeyPairGenerator
+import java.security.KeyStore
+import java.security.Signature
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.security.KeyPair
-import java.security.KeyPairGenerator
-import java.security.KeyStore
-import java.security.Signature
 
 class ECP256SignerTests {
 
   private val keyStore = KeyStore.getInstance(providerName)
-      .apply { load(null) }
+    .apply { load(null) }
   private val androidKeyManager = keyManager()
   private lateinit var alias: String
 
   @Before
   fun setup() {
     alias = System.currentTimeMillis()
-        .toString()
+      .toString()
     if (keyStore.containsAlias(alias)) {
       keyStore.deleteEntry(alias)
     }
@@ -48,9 +48,9 @@ class ECP256SignerTests {
     assertTrue(keyStore.containsAlias(alias))
     assertNotNull((signer as? ECSigner)?.keyPair)
     assertTrue(
-        keyStore.getCertificate(alias)?.publicKey?.encoded?.contentEquals(
-            (signer as ECSigner).keyPair.public.encoded
-        ) == true
+      keyStore.getCertificate(alias)?.publicKey?.encoded?.contentEquals(
+        (signer as ECSigner).keyPair.public.encoded
+      ) == true
     )
   }
 
@@ -63,9 +63,9 @@ class ECP256SignerTests {
     assertTrue(keyStore.containsAlias(alias))
     assertNotNull((signer as? ECSigner)?.keyPair)
     assertTrue(
-        keyPair.public.encoded?.contentEquals(
-            (signer as ECSigner).keyPair.public.encoded
-        ) == true
+      keyPair.public.encoded?.contentEquals(
+        (signer as ECSigner).keyPair.public.encoded
+      ) == true
     )
   }
 
@@ -77,11 +77,11 @@ class ECP256SignerTests {
     val signer = androidKeyManager.signer(template)
     val signature = signer.sign(data)
     val valid = Signature.getInstance(template.signatureAlgorithm)
-        .run {
-          initVerify(keyPair.public)
-          update(data)
-          verify(signature)
-        }
+      .run {
+        initVerify(keyPair.public)
+        update(data)
+        verify(signature)
+      }
     assertTrue(valid)
   }
 
@@ -91,7 +91,7 @@ class ECP256SignerTests {
     val signer = androidKeyManager.signer(template)
     assertTrue(keyStore.containsAlias(alias))
     val expectedPublicKey = keyStore.getCertificate(alias)
-        .publicKey.encoded
+      .publicKey.encoded
     assertTrue(signer.getPublic().contentEquals(expectedPublicKey))
   }
 
@@ -101,11 +101,11 @@ class ECP256SignerTests {
     val template = ECP256SignerTemplate(alias)
     val keyPair = createKeyPair(template)
     val signature = Signature.getInstance(template.signatureAlgorithm)
-        .run {
-          initSign(keyPair.private)
-          update(data)
-          sign()
-        }
+      .run {
+        initSign(keyPair.private)
+        update(data)
+        sign()
+      }
     val signer = androidKeyManager.signer(template)
     val valid = signer.verify(data, signature)
     assertTrue(valid)
@@ -122,7 +122,7 @@ class ECP256SignerTests {
 
   private fun createKeyPair(template: SignerTemplate): KeyPair {
     val keyPairGenerator = KeyPairGenerator.getInstance(
-        template.algorithm, providerName
+      template.algorithm, providerName
     )
     keyPairGenerator.initialize(template.keyGenParameterSpec)
     return keyPairGenerator.generateKeyPair()

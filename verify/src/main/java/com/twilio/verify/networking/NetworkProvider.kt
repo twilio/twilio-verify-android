@@ -20,13 +20,13 @@ class NetworkException constructor(
   constructor(
     failureResponse: FailureResponse?
   ) : this(
-      "Network exception with status code ${failureResponse?.responseCode} and body: ${failureResponse?.errorBody}",
-      null,
-      failureResponse
+    "Network exception with status code ${failureResponse?.responseCode} and body: ${failureResponse?.errorBody}",
+    null,
+    failureResponse
   )
 
   constructor(cause: Throwable) : this(
-      cause.message, cause, null
+    cause.message, cause, null
   )
 }
 

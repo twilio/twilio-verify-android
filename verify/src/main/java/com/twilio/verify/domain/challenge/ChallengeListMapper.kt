@@ -3,13 +3,13 @@ package com.twilio.verify.domain.challenge
 import android.net.Uri
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
-import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.domain.challenge.models.ChallengeListMetadata
 import com.twilio.verify.domain.challenge.models.FactorChallengeList
+import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeList
+import java.text.ParseException
 import org.json.JSONException
 import org.json.JSONObject
-import java.text.ParseException
 
 internal const val challengesKey = "challenges"
 internal const val metaKey = "meta"
@@ -34,26 +34,26 @@ internal class ChallengeListMapper(
       val meta = jsonObject.getJSONObject(metaKey)
       val metadata =
         ChallengeListMetadata(
-            // page from API starts in zero
-            page = meta.getInt(pageKey),
-            pageSize = meta.getInt(pageSizeKey),
-            previousPageToken = meta.optString(previousPageKey)
-                ?.let {
-                  Uri.parse(it)
-                      .getQueryParameter(
-                          pageTokenKey
-                      )
-                },
-            nextPageToken = meta.optString(nextPageKey)
-                ?.let {
-                  Uri.parse(it)
-                      .getQueryParameter(
-                          pageTokenKey
-                      )
-                }
+          // page from API starts in zero
+          page = meta.getInt(pageKey),
+          pageSize = meta.getInt(pageSizeKey),
+          previousPageToken = meta.optString(previousPageKey)
+            ?.let {
+              Uri.parse(it)
+                .getQueryParameter(
+                  pageTokenKey
+                )
+            },
+          nextPageToken = meta.optString(nextPageKey)
+            ?.let {
+              Uri.parse(it)
+                .getQueryParameter(
+                  pageTokenKey
+                )
+            }
         )
       return FactorChallengeList(
-          challenges, metadata
+        challenges, metadata
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)

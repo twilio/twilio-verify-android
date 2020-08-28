@@ -55,13 +55,17 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getChallenge(sid, factorSid, { challenge ->
-      assertEquals(expectedChallenge, challenge)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    challengeFacade.getChallenge(
+      sid, factorSid,
+      { challenge ->
+        assertEquals(expectedChallenge, challenge)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -82,13 +86,17 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getChallenge(sid, factorSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    challengeFacade.getChallenge(
+      sid, factorSid,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -103,13 +111,17 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getChallenge(sid, factorSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    challengeFacade.getChallenge(
+      sid, factorSid,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -127,20 +139,24 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<() -> Unit>().apply {
       whenever(
-          pushChallengeProcessor.update(
-              eq(challengeSid), eq(expectedFactor), eq(status), capture(), any()
-          )
+        pushChallengeProcessor.update(
+          eq(challengeSid), eq(expectedFactor), eq(status), capture(), any()
+        )
       ).then {
         firstValue.invoke()
       }
     }
     idlingResource.startOperation()
-    challengeFacade.updateChallenge(updateChallengePayload, {
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    challengeFacade.updateChallenge(
+      updateChallengePayload,
+      {
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -159,21 +175,25 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
-          pushChallengeProcessor.update(
-              eq(challengeSid), eq(expectedFactor), eq(status), any(), capture()
-          )
+        pushChallengeProcessor.update(
+          eq(challengeSid), eq(expectedFactor), eq(status), any(), capture()
+        )
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
     idlingResource.startOperation()
-    challengeFacade.updateChallenge(updateChallengePayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    challengeFacade.updateChallenge(
+      updateChallengePayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -190,13 +210,17 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.updateChallenge(updateChallengePayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    challengeFacade.updateChallenge(
+      updateChallengePayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -212,13 +236,17 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.updateChallenge(updateChallengePayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      idlingResource.operationFinished()
-    })
+    challengeFacade.updateChallenge(
+      updateChallengePayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -236,19 +264,23 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(ChallengeList) -> Unit>().apply {
       whenever(
-          repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), capture(), any())
+        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), capture(), any())
       ).then {
         firstValue.invoke(expectedChallengeList)
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getAllChallenges(challengeListPayload, { list ->
-      assertEquals(expectedChallengeList, list)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    challengeFacade.getAllChallenges(
+      challengeListPayload,
+      { list ->
+        assertEquals(expectedChallengeList, list)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -266,19 +298,23 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
-          repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), any(), capture())
+        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), any(), capture())
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getAllChallenges(challengeListPayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    challengeFacade.getAllChallenges(
+      challengeListPayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -294,13 +330,17 @@ class ChallengeFacadeTest {
       }
     }
     idlingResource.startOperation()
-    challengeFacade.getAllChallenges(challengeListPayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    challengeFacade.getAllChallenges(
+      challengeListPayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 }

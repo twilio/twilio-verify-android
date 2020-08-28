@@ -13,9 +13,9 @@ import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Expired
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Detail
+import java.text.ParseException
 import org.json.JSONException
 import org.json.JSONObject
-import java.text.ParseException
 
 internal const val sidKey = "sid"
 internal const val messageKey = "message"
@@ -43,8 +43,8 @@ internal class ChallengeMapper {
       val createdDate = jsonObject.getString(createdDateKey)
       val updatedDate = jsonObject.getString(updatedDateKey)
       val status = ChallengeStatus.values()
-          .find { it.value == jsonObject.getString(statusKey) }
-          ?: Expired
+        .find { it.value == jsonObject.getString(statusKey) }
+        ?: Expired
       val signatureFields = if (status == Pending && signatureFieldsHeader != null) {
         signatureFieldsHeader.split(signatureFieldsHeaderSeparator)
       } else {
@@ -56,15 +56,15 @@ internal class ChallengeMapper {
         null
       }
       return FactorChallenge(
-          sid = jsonObject.getString(sidKey), response = response,
-          signatureFields = signatureFields,
-          factorSid = jsonObject.getString(factorSidKey),
-          expirationDate = fromRFC3339Date(jsonObject.getString(expirationDateKey)),
-          createdAt = fromRFC3339Date(createdDate),
-          updatedAt = fromRFC3339Date(updatedDate),
-          challengeDetails = toChallengeDetails(details),
-          hiddenDetails = jsonObject.getString(hiddenDetailsKey),
-          status = status
+        sid = jsonObject.getString(sidKey), response = response,
+        signatureFields = signatureFields,
+        factorSid = jsonObject.getString(factorSidKey),
+        expirationDate = fromRFC3339Date(jsonObject.getString(expirationDateKey)),
+        createdAt = fromRFC3339Date(createdDate),
+        updatedAt = fromRFC3339Date(updatedDate),
+        challengeDetails = toChallengeDetails(details),
+        hiddenDetails = jsonObject.getString(hiddenDetailsKey),
+        status = status
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)
@@ -77,23 +77,23 @@ internal class ChallengeMapper {
     val detailsJson = JSONObject(details)
     val message = detailsJson.getString(messageKey)
     val fields = detailsJson.optJSONArray(fieldsKey)
-        ?.takeIf { it.length() > 0 }
-        ?.let {
-          val fields = mutableListOf<Detail>()
-          for (i in 0 until it.length()) {
-            val jsonObject = it.getJSONObject(i)
-            fields.add(
-                Detail(
-                    jsonObject.getString(labelKey),
-                    jsonObject.getString(valueKey)
-                )
+      ?.takeIf { it.length() > 0 }
+      ?.let {
+        val fields = mutableListOf<Detail>()
+        for (i in 0 until it.length()) {
+          val jsonObject = it.getJSONObject(i)
+          fields.add(
+            Detail(
+              jsonObject.getString(labelKey),
+              jsonObject.getString(valueKey)
             )
-          }
-          fields
-        } ?: listOf<Detail>()
+          )
+        }
+        fields
+      } ?: listOf<Detail>()
     val date = detailsJson.optString(dateKey)
-        ?.takeIf { it.isNotEmpty() }
-        ?.let { fromRFC3339Date(it) }
+      ?.takeIf { it.isNotEmpty() }
+      ?.let { fromRFC3339Date(it) }
     return ChallengeDetails(message, fields, date)
   }
 }

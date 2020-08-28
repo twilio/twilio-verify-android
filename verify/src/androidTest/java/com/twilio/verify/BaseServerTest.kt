@@ -6,14 +6,14 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.idling.CountingIdlingResource
 import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.data.provider
+import java.security.KeyStore
+import javax.net.ssl.HttpsURLConnection
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.internal.TlsUtil.localhost
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import java.security.KeyStore
-import javax.net.ssl.HttpsURLConnection
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -37,30 +37,30 @@ open class BaseServerTest {
     mockWebServer.start()
     context = ApplicationProvider.getApplicationContext()
     sharedPreferences = context
-        .getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
+      .getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
     keyStore = KeyStore.getInstance(provider)
-        .apply {
-          load(null)
-        }
+      .apply {
+        load(null)
+      }
     twilioVerify = Builder(context)
-        .baseUrl(
-            mockWebServer.url("/")
-                .toString()
-        )
-        .build()
+      .baseUrl(
+        mockWebServer.url("/")
+          .toString()
+      )
+      .build()
   }
 
   @After
   open fun tearDown() {
     mockWebServer.shutdown()
     sharedPreferences.edit()
-        .clear()
-        .apply()
+      .clear()
+      .apply()
     keyStore.aliases()
-        .toList()
-        .forEach {
-          keyStore.deleteEntry(it)
-        }
+      .toList()
+      .forEach {
+        keyStore.deleteEntry(it)
+      }
   }
 
   fun enqueueMockResponse(

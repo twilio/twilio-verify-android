@@ -50,13 +50,17 @@ class PushChallengeProcessorTest {
         firstValue.invoke(expectedChallenge)
       }
     }
-    pushChallengeProcessor.get(sid, factor, { challenge ->
-      assertEquals(expectedChallenge, challenge)
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.get(
+      sid, factor,
+      { challenge ->
+        assertEquals(expectedChallenge, challenge)
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -71,13 +75,17 @@ class PushChallengeProcessorTest {
         firstValue.invoke(expectedException)
       }
     }
-    pushChallengeProcessor.get(sid, factor, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.get(
+      sid, factor,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -91,9 +99,11 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      response.keys()
         .asSequence()
-        .toList(), response
+        .toList(),
+      response
     ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
@@ -106,12 +116,12 @@ class PushChallengeProcessorTest {
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(
-          challengeProvider.update(
-              eq(challenge),
-              eq(verifyJwt),
-              capture(),
-              any()
-          )
+        challengeProvider.update(
+          eq(challenge),
+          eq(verifyJwt),
+          capture(),
+          any()
+        )
       ).then {
         firstValue.invoke(updatedChallenge)
       }
@@ -120,12 +130,16 @@ class PushChallengeProcessorTest {
     whenever(jwtGenerator.generateJWT(any(), any(), any())).thenReturn(verifyJwt)
     whenever(updatedChallenge.status).thenReturn(status)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, status, {
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, status,
+      {
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -146,9 +160,11 @@ class PushChallengeProcessorTest {
       put(hiddenDetailsKey, hiddenDetails)
     }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), hiddenDetails, factorSid, status, mock(), mock(), mock(), response.keys()
+      sid, mock(), hiddenDetails, factorSid, status, mock(), mock(), mock(),
+      response.keys()
         .asSequence()
-        .toList(), response
+        .toList(),
+      response
     ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
@@ -164,12 +180,12 @@ class PushChallengeProcessorTest {
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(
-          challengeProvider.update(
-              eq(challenge),
-              eq(verifyJwt),
-              capture(),
-              any()
-          )
+        challengeProvider.update(
+          eq(challenge),
+          eq(verifyJwt),
+          capture(),
+          any()
+        )
       ).then {
         firstValue.invoke(updatedChallenge)
       }
@@ -178,15 +194,22 @@ class PushChallengeProcessorTest {
     whenever(jwtGenerator.generateJWT(any(), any(), any())).thenReturn(verifyJwt)
     whenever(updatedChallenge.status).thenReturn(newStatus)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, newStatus, {
-      verify(jwtGenerator).generateJWT(check {
-        assertEquals(alias, it.alias)
-      }, any(), any())
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, newStatus,
+      {
+        verify(jwtGenerator).generateJWT(
+          check {
+            assertEquals(alias, it.alias)
+          },
+          any(), any()
+        )
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -203,13 +226,17 @@ class PushChallengeProcessorTest {
       }
     }
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -226,13 +253,17 @@ class PushChallengeProcessorTest {
       }
     }
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, pushFactor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, pushFactor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -250,13 +281,17 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(null)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalStateException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalStateException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -274,13 +309,17 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn("")
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalStateException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalStateException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -294,7 +333,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response = response
+      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response = response
     ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -304,13 +343,17 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalStateException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalStateException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -324,7 +367,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), emptyList(), response
+      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), emptyList(), response
     ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -334,13 +377,17 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalStateException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalStateException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -354,7 +401,8 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      response.keys()
         .asSequence()
         .toList()
     ).apply { this.factor = factor }
@@ -366,13 +414,17 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalStateException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalStateException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -386,9 +438,11 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      response.keys()
         .asSequence()
-        .toList(), JSONObject()
+        .toList(),
+      JSONObject()
     ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -398,13 +452,17 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalStateException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalStateException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -418,9 +476,11 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      response.keys()
         .asSequence()
-        .toList() + "test", response
+        .toList() + "test",
+      response
     ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -430,13 +490,17 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is JSONException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is JSONException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -450,9 +514,11 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-        sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response.keys()
+      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      response.keys()
         .asSequence()
-        .toList(), response
+        .toList(),
+      response
     ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -462,16 +528,20 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     whenever(jwtGenerator.generateJWT(any(), any(), any())).thenThrow(
-        IllegalArgumentException("Invalid signature")
+      IllegalArgumentException("Invalid signature")
     )
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, Approved, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -493,12 +563,12 @@ class PushChallengeProcessorTest {
     }
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(
-          challengeProvider.update(
-              eq(challenge),
-              eq(verifyJwt),
-              capture(),
-              any()
-          )
+        challengeProvider.update(
+          eq(challenge),
+          eq(verifyJwt),
+          capture(),
+          any()
+        )
       ).then {
         firstValue.invoke(updatedChallenge)
       }
@@ -507,13 +577,17 @@ class PushChallengeProcessorTest {
     whenever(jwtGenerator.generateJWT(any(), any(), any())).thenReturn(verifyJwt)
     whenever(updatedChallenge.status).thenReturn(Denied)
     idlingResource.startOperation()
-    pushChallengeProcessor.update(sid, factor, status, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is IllegalStateException)
-      idlingResource.operationFinished()
-    })
+    pushChallengeProcessor.update(
+      sid, factor, status,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is IllegalStateException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 }

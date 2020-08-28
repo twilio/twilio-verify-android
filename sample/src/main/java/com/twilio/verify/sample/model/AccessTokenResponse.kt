@@ -14,6 +14,6 @@ data class AccessTokenResponse(
 )
 
 fun AccessTokenResponse.getFactorType(): FactorType = FactorType.values()
-    .associateBy(FactorType::factorTypeName)[factorType] ?: throw IllegalArgumentException(
-    "Invalid response"
+  .associateBy(FactorType::factorTypeName)[factorType] ?: throw IllegalArgumentException(
+  "Invalid response"
 )

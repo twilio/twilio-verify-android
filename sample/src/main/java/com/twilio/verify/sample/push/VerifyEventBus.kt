@@ -40,9 +40,9 @@ object VerifyEventBus {
   ) =
     CoroutineScope(context).launch {
       bus.asFlow()
-          .filter { it is T }
-          .map { it as T }
-          .collect { consume(it) }
+        .filter { it is T }
+        .map { it as T }
+        .collect { consume(it) }
     }
 }
 

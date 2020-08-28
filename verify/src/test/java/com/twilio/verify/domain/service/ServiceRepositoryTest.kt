@@ -49,11 +49,15 @@ class ServiceRepositoryTest {
       }
     }
     whenever(serviceMapper.fromApi(response)).thenReturn(service)
-    serviceRepository.get(serviceSid, factor, {
-      assertEquals(service, it)
-    }, {
-      fail()
-    })
+    serviceRepository.get(
+      serviceSid, factor,
+      {
+        assertEquals(service, it)
+      },
+      {
+        fail()
+      }
+    )
   }
 
   @Test
@@ -66,9 +70,12 @@ class ServiceRepositoryTest {
         firstValue.invoke(expectedException)
       }
     }
-    serviceRepository.get(serviceSid, factor, { fail() }, { exception ->
-      assertEquals(expectedException, exception)
-    })
+    serviceRepository.get(
+      serviceSid, factor, { fail() },
+      { exception ->
+        assertEquals(expectedException, exception)
+      }
+    )
   }
 
   @Test
@@ -88,8 +95,11 @@ class ServiceRepositoryTest {
       }
     }
     whenever(serviceMapper.fromApi(response)).thenThrow(expectedException)
-    serviceRepository.get(serviceSid, factor, { fail() }, { exception ->
-      assertEquals(expectedException, exception)
-    })
+    serviceRepository.get(
+      serviceSid, factor, { fail() },
+      { exception ->
+        assertEquals(expectedException, exception)
+      }
+    )
   }
 }

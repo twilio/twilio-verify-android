@@ -8,6 +8,8 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.Request
+import java.io.IOException
+import java.net.URL
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Headers
@@ -20,8 +22,6 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.io.IOException
-import java.net.URL
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -51,24 +51,28 @@ class OkHttpProviderTest {
       }
     }
     val response = Response.Builder()
-        .body(responseBody)
-        .headers(headersBuilder.build())
-        .message("message")
-        .code(200)
-        .protocol(mock())
-        .request(mock())
-        .build()
+      .body(responseBody)
+      .headers(headersBuilder.build())
+      .message("message")
+      .code(200)
+      .protocol(mock())
+      .request(mock())
+      .build()
     argumentCaptor<(Callback)>().apply {
       whenever(call.enqueue(capture())).then {
         lastValue.onResponse(call, response)
       }
     }
-    okHttpProvider.execute(request, {
-      assertEquals(bodyJson.toString(), it.body)
-      assertEquals(expectedHeaders, it.headers)
-    }, error = {
-      fail()
-    })
+    okHttpProvider.execute(
+      request,
+      {
+        assertEquals(bodyJson.toString(), it.body)
+        assertEquals(expectedHeaders, it.headers)
+      },
+      error = {
+        fail()
+      }
+    )
   }
 
   @Test
@@ -84,22 +88,26 @@ class OkHttpProviderTest {
       on { string() } doReturn bodyJson.toString()
     }
     val response = Response.Builder()
-        .body(responseBody)
-        .message("message")
-        .code(400)
-        .protocol(mock())
-        .request(mock())
-        .build()
+      .body(responseBody)
+      .message("message")
+      .code(400)
+      .protocol(mock())
+      .request(mock())
+      .build()
     argumentCaptor<(Callback)>().apply {
       whenever(call.enqueue(capture())).then {
         lastValue.onResponse(call, response)
       }
     }
-    okHttpProvider.execute(request, {
-      fail()
-    }, error = {
-      assertEquals(NetworkException::class, it::class)
-    })
+    okHttpProvider.execute(
+      request,
+      {
+        fail()
+      },
+      error = {
+        assertEquals(NetworkException::class, it::class)
+      }
+    )
   }
 
   @Test
@@ -116,10 +124,14 @@ class OkHttpProviderTest {
         lastValue.onFailure(call, expectedException)
       }
     }
-    okHttpProvider.execute(request, {
-      fail()
-    }, error = {
-      assertEquals(expectedException, it.cause)
-    })
+    okHttpProvider.execute(
+      request,
+      {
+        fail()
+      },
+      error = {
+        assertEquals(expectedException, it.cause)
+      }
+    )
   }
 }
