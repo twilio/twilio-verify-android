@@ -48,6 +48,7 @@ merge:
   required_statuses:
     - "ci/circleci: assemble_build"
     - "ci/circleci: unit_tests"
+    - "ci/circleci: sdk_size_report"
     - "ci/circleci: security_instrumentation_tests_single_device"
     - "ci/circleci: security_instrumentation_tests_multiple_devices"
     - "ci/circleci: verify_instrumentation_tests_single_device"
