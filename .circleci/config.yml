@@ -1,18 +1,18 @@
 version: 2.1
 
 orbs:
- android: circleci/android@0.2.1
+  android: circleci/android@0.2.1
 
 references:
   workspace: &workspace
-    .
+               .
 
   executor: &executor
-    android/android
+              android/android
 
   ## Cache
   gradle_key: &gradle_key
-    jars-{{ checksum "build.gradle.kts" }}-{{ checksum "verify/build.gradle.kts" }}-{{ checksum "security/build.gradle.kts" }}
+                jars-{{ checksum "build.gradle.kts" }}-{{ checksum "verify/build.gradle.kts" }}-{{ checksum "security/build.gradle.kts" }}
 
   restore_gradle_cache: &restore_gradle_cache
     restore_cache:
@@ -52,6 +52,10 @@ references:
     run:
       name: Size impact report
       command: bundle exec fastlane sdk_sizer
+  lint_checker: &lint_checker
+    run:
+      name: Check android, kotlin and java style convention
+      command: bundle exec fastlane lint_checker
 commands:
   setup:
     steps:
@@ -107,12 +111,12 @@ commands:
           steps:
             - run:
                 command: |
-                    curl -s << parameters.url >> | bash -s -- \
-                      -f "<< parameters.file >>" \
-                      -t "<< parameters.token >>" \
-                      -n "<< parameters.upload_name >>" \
-                      -F "<< parameters.flags >>" \
-                      -Z || echo 'Codecov upload failed'
+                  curl -s << parameters.url >> | bash -s -- \
+                    -f "<< parameters.file >>" \
+                    -t "<< parameters.token >>" \
+                    -n "<< parameters.upload_name >>" \
+                    -F "<< parameters.flags >>" \
+                    -Z || echo 'Codecov upload failed'
                 name: Upload Coverage Results
                 when: << parameters.when >>
       - unless:
@@ -120,13 +124,13 @@ commands:
           steps:
             - run:
                 command: |
-                    curl -s << parameters.url >> | bash -s -- \
-                      -t "<< parameters.token >>" \
-                      -n "<< parameters.upload_name >>" \
-                      -F "<< parameters.flags >>" \
-                      -Z || echo 'Codecov upload failed'
+                  curl -s << parameters.url >> | bash -s -- \
+                    -t "<< parameters.token >>" \
+                    -n "<< parameters.upload_name >>" \
+                    -F "<< parameters.flags >>" \
+                    -Z || echo 'Codecov upload failed'
                 name: Upload Coverage Results
-                when: << parameters.when >>       
+                when: << parameters.when >>
 jobs:
   assemble_build:
     executor: *executor
@@ -187,7 +191,7 @@ jobs:
       - *authorize_gcloud
       - run:
           name: Run security integration tests on single device
-          command: 
+          command:
             sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ftl/dummy.apk --test builds/security-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
   verify_instrumentation_tests_single_device:
     executor: *executor
@@ -199,7 +203,7 @@ jobs:
       - *authorize_gcloud
       - run:
           name: Run verify integration tests on single device
-          command: 
+          command:
             sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ftl/dummy.apk --test builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
   security_instrumentation_tests_multiple_devices:
     executor: *executor
@@ -242,6 +246,23 @@ jobs:
       - store_artifacts:
           path: "verify/build/outputs/SizeReport"
           destination: SizeReport
+  lint:
+    executor: *executor
+    steps:
+      - setup
+      - *restore_gradle_cache
+      - *decrypt_google_services
+      - *lint_checker
+      - *save_gradle_cache
+      - store_artifacts:
+          path: "verify/build/reports"
+          destination: verify-test-coverage
+      - store_artifacts:
+          path: "sample/build/reports"
+          destination: sampleapp-test-coverage
+      - store_artifacts:
+          path: "security/build/reports"
+          destination: security-test-coverage
 workflows:
   version: 2
 

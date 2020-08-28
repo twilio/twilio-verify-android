@@ -44,7 +44,7 @@ platform :android do
   desc "Check android, kotlin and java style convention"
   lane :lint_checker do
     gradle(
-      tasks: ["spotlessCheck"]
+      tasks: ["ktlint", ":verify:lint", ":security:lint", "spotlessCheck"]
     )
   end
 end
