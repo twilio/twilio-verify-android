@@ -5,6 +5,8 @@ package com.twilio.verify.data
 
 internal interface StorageProvider {
 
+  val version: Int
+
   fun save(
     key: String,
     value: String
@@ -14,3 +16,12 @@ internal interface StorageProvider {
   fun getAll(): List<String>
   fun remove(key: String)
 }
+
+interface Migration {
+  val startVersion: Int
+  val endVersion: Int
+
+  fun migrate(data: List<String>): List<Entry>
+}
+
+data class Entry(val key: String, val newValue: String)

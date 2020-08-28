@@ -191,7 +191,8 @@ internal class FactorFacade(
       val encryptedSharedPreferences =
         appContext.getSharedPreferences("$storageName.$ENC_SUFFIX", Context.MODE_PRIVATE)
       val encryptedStorage = encryptedPreferences(storageName, encryptedSharedPreferences)
-      val storage = Storage(sharedPreferences, encryptedStorage)
+      val factorMigrations = FactorMigrations(sharedPreferences)
+      val storage = Storage(sharedPreferences, encryptedStorage, factorMigrations.migrations())
       val repository = FactorRepository(factorAPIClient, storage)
       val pushFactory = PushFactory(repository, keyStore, appContext)
       return FactorFacade(pushFactory, repository)

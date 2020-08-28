@@ -2,10 +2,14 @@ package com.twilio.verify
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.idling.CountingIdlingResource
+import com.twilio.security.storage.EncryptedStorage
+import com.twilio.security.storage.encryptedPreferences
 import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.data.provider
+import com.twilio.verify.models.Factor
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.internal.TlsUtil.localhost
@@ -13,6 +17,7 @@ import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import java.security.KeyStore
+import java.security.MessageDigest
 import javax.net.ssl.HttpsURLConnection
 
 /*
@@ -28,6 +33,7 @@ open class BaseServerTest {
   lateinit var encryptedSharedPreferences: SharedPreferences
   lateinit var keyStore: KeyStore
   protected val idlingResource = CountingIdlingResource(this.javaClass.simpleName)
+  lateinit var encryptedStorage: EncryptedStorage
 
   @Before
   open fun before() {
@@ -44,6 +50,8 @@ open class BaseServerTest {
         .getSharedPreferences(
             "$storageName.$ENC_SUFFIX", Context.MODE_PRIVATE
         )
+    encryptedStorage =
+      encryptedPreferences("${context.packageName}.$VERIFY_SUFFIX", encryptedSharedPreferences)
     keyStore = KeyStore.getInstance(provider)
         .apply {
           load(null)
@@ -103,4 +111,9 @@ fun CountingIdlingResource.waitForResource(
     }
   }
   assertTrue(isIdleNow)
+}
+
+internal fun getFactorKey(factor: Factor): String {
+  val messageDigest = MessageDigest.getInstance("SHA-256")
+  return Base64.encodeToString(messageDigest.digest(factor.sid.toByteArray()), Base64.DEFAULT)
 }
