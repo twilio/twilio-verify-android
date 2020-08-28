@@ -269,14 +269,19 @@ workflows:
   workflow:
     jobs:
       - assemble_build
+      - lint:
+          requires:
+            - assemble_build
       - unit_tests:
           requires:
             - assemble_build
       - security_instrumentation_tests_single_device:
           requires:
+            - lint
             - unit_tests
       - verify_instrumentation_tests_single_device:
           requires:
+            - lint
             - unit_tests
       - security_instrumentation_tests_multiple_devices:
           requires:
