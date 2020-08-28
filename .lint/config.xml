@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+  <issue id="UnknownNullness" severity="ignore" />
+  <issue id="NewerVersionAvailable" severity="informational" />
+  <issue id="GradleDependency" severity="informational" />
+</lint>

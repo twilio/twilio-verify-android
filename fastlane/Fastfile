@@ -35,9 +35,16 @@ platform :android do
   end
 
   desc "Size impact report"
-    lane :sdk_sizer do
-      gradle(
-        task: "generateSizeReport"
-      )
-    end
+  lane :sdk_sizer do
+    gradle(
+      task: "generateSizeReport"
+    )
+  end
+
+  desc "Check android, kotlin and java style convention"
+  lane :lint_checker do
+    gradle(
+      tasks: ["spotlessCheck"]
+    )
+  end
 end
