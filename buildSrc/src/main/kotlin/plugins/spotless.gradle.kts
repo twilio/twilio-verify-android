@@ -16,7 +16,8 @@ configure<SpotlessExtension> {
             ".gradle/**",
             ".gradle-cache/**",
             "**/tools/**",
-            "**/build/**"
+            "**/build/**",
+            "vendor/**"
           )
         )
       )
