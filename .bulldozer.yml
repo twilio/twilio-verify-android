@@ -45,17 +45,17 @@ merge:
   # "required_statuses" is a list of additional status contexts that must pass
   # before bulldozer can merge a pull request. This is useful if you want to
   # require extra testing for automated merges, but not for manual merges.
-  required_statuses:
-    - "ci/circleci: assemble_build"
-    - "ci/circleci: unit_tests"
-    - "ci/circleci: sdk_size_report"
-    - "ci/circleci: security_instrumentation_tests_single_device"
-    - "ci/circleci: security_instrumentation_tests_multiple_devices"
-    - "ci/circleci: verify_instrumentation_tests_single_device"
-    - "ci/circleci: verify_instrumentation_tests_multiple_devices"
+  #required_statuses:
+  #  - "ci/circleci: assemble_build"
+  #  - "ci/circleci: unit_tests"
+  #  - "ci/circleci: sdk_size_report"
+  #  - "ci/circleci: security_instrumentation_tests_single_device"
+  #  - "ci/circleci: security_instrumentation_tests_multiple_devices"
+  #  - "ci/circleci: verify_instrumentation_tests_single_device"
+  #  - "ci/circleci: verify_instrumentation_tests_multiple_devices"
 
   # If true, bulldozer will delete branches after their pull requests merge.
-  delete_after_merge: true
+  #delete_after_merge: true
 
 # "update" defines how and when to update pull request branches. Unlike with
 # merges, if this section is missing, bulldozer will not update any pull requests.
