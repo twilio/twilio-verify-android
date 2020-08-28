@@ -1,5 +1,6 @@
 #!/bin/sh
 echo "Validating commit message convention"
+
 commit_regex='^(docs|fix|feat|chore|refactor|perf|test)(?:\((.*)\))?(!?)\: (.*)'
 if ! grep -iqE "$commit_regex" "$1"; then
     echo "*********************************************"
