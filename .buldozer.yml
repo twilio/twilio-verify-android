@@ -10,32 +10,13 @@ merge:
   trigger:
     # Pull requests with any of these labels (case-insensitive) are added to
     # the trigger.
-    labels: ["merge when ready"]
-
-    # Pull requests where the body or any comment contains any of these
-    # substrings are added to the trigger.
-    comment_substrings: ["==MERGE_WHEN_READY=="]
-
-    # Pull requests where any comment matches one of these exact strings are
-    # added to the trigger.
-    comments: ["Please merge this pull request!"]
-
-    # Pull requests where the body contains any of these substrings are added
-    # to the trigger.
-    pr_body_substrings: ["==MERGE_WHEN_READY=="]
-
-    # Pull requests targeting any of these branches are added to the trigger.
-    branches: ["develop"]
-
-    # Pull requests targeting branches matching any of these regular expressions are added to the trigger.
-    branch_patterns: ["feature/.*"]
+    labels: ["MERGE WHEN READY"]
 
   # "ignore" defines the set of pull request ignored by bulldozer. If the
   # section is missing, bulldozer considers all pull requests. It takes the
   # same keys as the "trigger" section.
   ignore:
     labels: ["DO NOT MERGE YET"]
-    comment_substrings: ["==DO_NOT_MERGE=="]
 
   # "method" defines the merge method. The available options are "merge",
   # "rebase", "squash", and "ff-only".
