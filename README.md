@@ -3,6 +3,7 @@
 [![Download](https://api.bintray.com/packages/twilio/releases/twilio-verify-android/images/download.svg) ](https://bintray.com/twilio/releases/twilio-verify-android/_latestVersion)
 [![CircleCI](https://circleci.com/gh/twilio/twilio-verify-android.svg?style=shield&circle-token=e5c76e91c300be6dcdd3db05a57bb4f01304415e)](https://circleci.com/gh/twilio/twilio-verify-android)
 [![codecov](https://codecov.io/gh/twilio/twilio-verify-android/branch/main/graph/badge.svg?token=o1ZcrAfoc0)](https://codecov.io/gh/twilio/twilio-verify-android)
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 [![License](https://img.shields.io/badge/License-Apache%202-blue.svg?logo=law)](https://github.com/twilio/twilio-verify-android/blob/main/LICENSE)
 
 ## Table of Contents
