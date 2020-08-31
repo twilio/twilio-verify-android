@@ -41,8 +41,43 @@ platform :android do
     )
   end
 
+  desc "Release a new production version"
+  lane :release do
+    title = 'Android Verify Push Release'
+    tag_prefix = '*'
+    next unless verify(title: title, tag_prefix: tag_prefix)
+    incrementVersion()
+    # TODO: missing part generate api docs and release to bintray
+    post_release()
+  end
+
+  desc "Verify next release"
+    lane :verify do |options|
+      ensure_git_status_clean
+      if !is_ci? then
+        UI.message("#{options[:title]} deploy was triggered on local machine")
+        gradle(task: "clean")
+      else
+        UI.message("#{options[:title]} deploy was triggered on CircleCI")
+      end
+
+      # Check if there is any change since last version
+      is_releaseable = analyze_commits(
+        match: options[:tag_prefix],
+        releases: {
+          fix: 'patch',
+          feat: 'minor',
+          'BREAKING CHANGE': 'major'
+        }
+      )
+      unless is_releaseable
+        UI.important("Skip deploying #{options[:title]}. No changes since last one!")
+      end
+      is_releaseable
+    end
+
   desc "Generates release tag, release notes and updates CHANGELOG.md"
-  lane :post_deploy do
+  lane :post_release do
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
     notes = conventional_changelog(
       format: 'markdown', 
@@ -62,45 +97,11 @@ platform :android do
     )
     UI.message("Updating CHANGELOG.md")
     sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-    git_commit(path: ['./verify/gradle.properties', './CHANGELOG.md'], message: "chore: Version bump to #{next_version} [skip ci]")
+    git_commit(path: ['./verify/gradle.properties', './CHANGELOG.md'], message: "skip: Version bump to #{next_version} [skip ci]")
     push_to_git_remote
   end
-
-  desc "Verify next release"
-  lane :verify do |options|
-    ensure_git_status_clean
-    if !is_ci? then
-      UI.message("#{options[:title]} deploy was triggered on local machine")
-      gradle(task: "clean")
-    else
-      UI.message("#{options[:title]} deploy was triggered on CircleCI")
-    end
-
-    # Check if there is any change since last version
-    is_releaseable = analyze_commits(
-      match: options[:tag_prefix],
-      releases: {
-        fix: 'patch',
-        feat: 'minor',
-        'BREAKING CHANGE': 'major'
-      }
-    )
-    unless is_releaseable
-      UI.important("Skip deploying #{options[:title]}. No changes since last one!")
-    end
-    is_releaseable
-  end
-
-  desc "Build a new production version"
-  lane :release do |options|
-    title = 'Android Verify Push Release'
-    tag_prefix = '*'
-    next unless verify(title: title, tag_prefix: tag_prefix)
-    incrementVersion()
-    post_deploy()
-  end
   
-  desc "Build an android release"
+  desc "Increment version"
   lane :incrementVersion do |options|
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
     ensure_git_status_clean

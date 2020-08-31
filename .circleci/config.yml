@@ -281,11 +281,12 @@ workflows:
       - sdk_size_report:
           requires:
             - verify_instrumentation_tests_single_device
-      - release_sdk:
-          requires:
-            - security_instrumentation_tests_multiple_devices
-            - verify_instrumentation_tests_multiple_devices
-          filters:
-            branches:
-              only:
-                - sfierro/ACCSEC-18585-Changelog
+      # Uncomment this part when all the steps to release a new version are done
+      #- release_sdk:
+      #    requires:
+      #      - security_instrumentation_tests_multiple_devices
+      #      - verify_instrumentation_tests_multiple_devices
+      #    filters:
+      #      branches:
+      #        only:
+      #          - main
