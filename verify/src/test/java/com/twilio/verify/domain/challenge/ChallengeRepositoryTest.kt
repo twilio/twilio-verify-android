@@ -51,25 +51,29 @@ class ChallengeRepositoryTest {
       put(statusKey, Pending.value)
     }
     val expectedSignatureFieldsHeader = expectedResponse.keys()
-        .asSequence()
-        .toList()
-        .joinToString(
-            signatureFieldsHeaderSeparator
-        )
+      .asSequence()
+      .toList()
+      .joinToString(
+        signatureFieldsHeaderSeparator
+      )
     argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(expectedResponse, expectedSignatureFieldsHeader)
       }
     }
     whenever(challengeMapper.fromApi(expectedResponse, expectedSignatureFieldsHeader)).thenReturn(
-        challenge
+      challenge
     )
     whenever(factor.sid).thenReturn(factorSid)
     whenever(challenge.factorSid).thenReturn(factorSid)
-    challengeRepository.get(sid, factor, {
-      assertEquals(challenge, it)
-      verify(challenge).factor = factor
-    }, { fail() })
+    challengeRepository.get(
+      sid, factor,
+      {
+        assertEquals(challenge, it)
+        verify(challenge).factor = factor
+      },
+      { fail() }
+    )
   }
 
   @Test
@@ -82,9 +86,12 @@ class ChallengeRepositoryTest {
         firstValue.invoke(expectedException)
       }
     }
-    challengeRepository.get(sid, factor, { fail() }, { exception ->
-      assertEquals(expectedException, exception)
-    })
+    challengeRepository.get(
+      sid, factor, { fail() },
+      { exception ->
+        assertEquals(expectedException, exception)
+      }
+    )
   }
 
   @Test
@@ -99,11 +106,11 @@ class ChallengeRepositoryTest {
       put(statusKey, Pending.value)
     }
     val expectedSignatureFieldsHeader = response.keys()
-        .asSequence()
-        .toList()
-        .joinToString(
-            signatureFieldsHeaderSeparator
-        )
+      .asSequence()
+      .toList()
+      .joinToString(
+        signatureFieldsHeaderSeparator
+      )
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
@@ -111,11 +118,14 @@ class ChallengeRepositoryTest {
       }
     }
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenThrow(
-        expectedException
+      expectedException
     )
-    challengeRepository.get(sid, factor, { fail() }, { exception ->
-      assertEquals(expectedException, exception)
-    })
+    challengeRepository.get(
+      sid, factor, { fail() },
+      { exception ->
+        assertEquals(expectedException, exception)
+      }
+    )
   }
 
   @Test
@@ -132,11 +142,11 @@ class ChallengeRepositoryTest {
       put(statusKey, Pending.value)
     }
     val expectedSignatureFieldsHeader = response.keys()
-        .asSequence()
-        .toList()
-        .joinToString(
-            signatureFieldsHeaderSeparator
-        )
+      .asSequence()
+      .toList()
+      .joinToString(
+        signatureFieldsHeaderSeparator
+      )
     argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(response, expectedSignatureFieldsHeader)
@@ -145,9 +155,12 @@ class ChallengeRepositoryTest {
     whenever(factor.sid).thenReturn(factorSid)
     whenever(challenge.factorSid).thenReturn(factorSid)
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(challenge)
-    challengeRepository.get(sid, factor, { fail() }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-    })
+    challengeRepository.get(
+      sid, factor, { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
@@ -164,11 +177,11 @@ class ChallengeRepositoryTest {
       put(statusKey, Pending.value)
     }
     val expectedSignatureFieldsHeader = response.keys()
-        .asSequence()
-        .toList()
-        .joinToString(
-            signatureFieldsHeaderSeparator
-        )
+      .asSequence()
+      .toList()
+      .joinToString(
+        signatureFieldsHeaderSeparator
+      )
     argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(response, expectedSignatureFieldsHeader)
@@ -177,9 +190,12 @@ class ChallengeRepositoryTest {
     whenever(factor.sid).thenReturn("factorSid234")
     whenever(challenge.factorSid).thenReturn(factorSid)
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(challenge)
-    challengeRepository.get(sid, factor, { fail() }, { exception ->
-      assertTrue(exception.cause is IllegalArgumentException)
-    })
+    challengeRepository.get(
+      sid, factor, { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
@@ -198,11 +214,11 @@ class ChallengeRepositoryTest {
       put(statusKey, Pending.value)
     }
     val expectedSignatureFieldsHeader = response.keys()
-        .asSequence()
-        .toList()
-        .joinToString(
-            signatureFieldsHeaderSeparator
-        )
+      .asSequence()
+      .toList()
+      .joinToString(
+        signatureFieldsHeaderSeparator
+      )
     argumentCaptor<() -> Unit>().apply {
       whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
         firstValue.invoke()
@@ -219,12 +235,16 @@ class ChallengeRepositoryTest {
     whenever(challenge.status).thenReturn(Pending)
     whenever(challenge.sid).thenReturn(sid)
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(
-        updatedChallenge
+      updatedChallenge
     )
-    challengeRepository.update(challenge, payload, {
-      assertEquals(updatedChallenge, it)
-      verify(updatedChallenge).factor = factor
-    }, { fail() })
+    challengeRepository.update(
+      challenge, payload,
+      {
+        assertEquals(updatedChallenge, it)
+        verify(updatedChallenge).factor = factor
+      },
+      { fail() }
+    )
   }
 
   @Test
@@ -238,8 +258,9 @@ class ChallengeRepositoryTest {
       }
     }
     challengeRepository.update(
-        challenge, payload, { fail() },
-        { exception -> assertTrue(exception.cause is IllegalArgumentException) })
+      challenge, payload, { fail() },
+      { exception -> assertTrue(exception.cause is IllegalArgumentException) }
+    )
   }
 
   @Test
@@ -253,8 +274,9 @@ class ChallengeRepositoryTest {
       }
     }
     challengeRepository.update(
-        challenge, payload, { fail() },
-        { exception -> assertTrue(exception.cause is IllegalArgumentException) })
+      challenge, payload, { fail() },
+      { exception -> assertTrue(exception.cause is IllegalArgumentException) }
+    )
   }
 
   @Test
@@ -266,17 +288,21 @@ class ChallengeRepositoryTest {
     val challengeList: ChallengeList = mock()
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(
-          apiClient.getAll(
-              eq(factor), eq(status.value), eq(pageSize), anyOrNull(), capture(), any()
-          )
+        apiClient.getAll(
+          eq(factor), eq(status.value), eq(pageSize), anyOrNull(), capture(), any()
+        )
       ).then {
         firstValue.invoke(response)
       }
     }
     whenever(challengeListMapper.fromApi(response)).thenReturn(challengeList)
-    challengeRepository.getAll(factor, status, pageSize, null, {
-      assertEquals(challengeList, it)
-    }, { fail() })
+    challengeRepository.getAll(
+      factor, status, pageSize, null,
+      {
+        assertEquals(challengeList, it)
+      },
+      { fail() }
+    )
   }
 
   @Test
@@ -288,16 +314,20 @@ class ChallengeRepositoryTest {
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(
-          apiClient.getAll(
-              eq(factor), eq(status.value), eq(pageSize), anyOrNull(), capture(), any()
-          )
+        apiClient.getAll(
+          eq(factor), eq(status.value), eq(pageSize), anyOrNull(), capture(), any()
+        )
       ).then {
         firstValue.invoke(response)
       }
     }
     whenever(challengeListMapper.fromApi(response)).thenThrow(expectedException)
-    challengeRepository.getAll(factor, status, pageSize, null, {
-      fail()
-    }, { assertEquals(expectedException, it) })
+    challengeRepository.getAll(
+      factor, status, pageSize, null,
+      {
+        fail()
+      },
+      { assertEquals(expectedException, it) }
+    )
   }
 }

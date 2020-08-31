@@ -18,55 +18,55 @@ private const val AUTHENTICATION_TOKEN_CODE = 68007
  * @param errorCode associated error code of the exception.
  */
 class TwilioVerifyException(
-    cause: Throwable,
-    errorCode: ErrorCode
+  cause: Throwable,
+  errorCode: ErrorCode
 ) : Exception(errorCode.message, cause) {
 
+  /**
+   * Error codes
+   *
+   * @property message error description.
+   */
+  enum class ErrorCode(val message: String) {
     /**
-     * Error codes
-     *
-     * @property message error description.
+     * An error occurred while calling the API. 68001.
      */
-    enum class ErrorCode(val message: String) {
-        /**
-         * An error occurred while calling the API. 68001.
-         */
-        NetworkError("{$NETWORK_CODE} Exception while calling the API"),
+    NetworkError("{$NETWORK_CODE} Exception while calling the API"),
 
-        /**
-         * An error occurred while mapping an entity. 68002
-         *
-         */
-        MapperError("{$MAPPER_CODE} Exception while mapping an entity"),
+    /**
+     * An error occurred while mapping an entity. 68002
+     *
+     */
+    MapperError("{$MAPPER_CODE} Exception while mapping an entity"),
 
-        /**
-         * An error occurred while storing/loading an entity. 68003
-         *
-         */
-        StorageError("{$STORAGE_CODE} Exception while storing/loading an entity"),
+    /**
+     * An error occurred while storing/loading an entity. 68003
+     *
+     */
+    StorageError("{$STORAGE_CODE} Exception while storing/loading an entity"),
 
-        /**
-         * An error occurred while loading input. 68004
-         *
-         */
-        InputError("{$INPUT_CODE} Exception while loading input"),
+    /**
+     * An error occurred while loading input. 68004
+     *
+     */
+    InputError("{$INPUT_CODE} Exception while loading input"),
 
-        /**
-         * An error occurred while storing/loading keypairs. 68005
-         *
-         */
-        KeyStorageError("{$KEY_STORAGE_CODE} Exception while storing/loading key pairs"),
+    /**
+     * An error occurred while storing/loading keypairs. 68005
+     *
+     */
+    KeyStorageError("{$KEY_STORAGE_CODE} Exception while storing/loading key pairs"),
 
-        /**
-         * An error occurred while initializing a class. 68006
-         *
-         */
-        InitializationError("{$INITIALIZATION_CODE} Exception while initializing"),
+    /**
+     * An error occurred while initializing a class. 68006
+     *
+     */
+    InitializationError("{$INITIALIZATION_CODE} Exception while initializing"),
 
-        /**
-         * An error occurred while generating a token. 68007
-         *
-         */
-        AuthenticationTokenError("{$AUTHENTICATION_TOKEN_CODE} Exception while generating token")
-    }
+    /**
+     * An error occurred while generating a token. 68007
+     *
+     */
+    AuthenticationTokenError("{$AUTHENTICATION_TOKEN_CODE} Exception while generating token")
+  }
 }

@@ -18,11 +18,15 @@ class ChallengeViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) :
     sid: String,
     factorSid: String
   ) {
-    twilioVerifyAdapter.getChallenge(sid, factorSid, {
-      challenge.value = Challenge(it)
-    }, {
-      challenge.value = ChallengeError(it)
-    })
+    twilioVerifyAdapter.getChallenge(
+      sid, factorSid,
+      {
+        challenge.value = Challenge(it)
+      },
+      {
+        challenge.value = ChallengeError(it)
+      }
+    )
   }
 
   fun getChallenge(): LiveData<ChallengeResult> {
@@ -34,11 +38,14 @@ class ChallengeViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) :
     status: ChallengeStatus
   ) {
     twilioVerifyAdapter.updateChallenge(
-        UpdatePushChallengePayload(challenge.factorSid, challenge.sid, status), {
-      loadChallenge(challenge.sid, challenge.factorSid)
-    }, {
-      this.challenge.value = ChallengeError(it)
-    })
+      UpdatePushChallengePayload(challenge.factorSid, challenge.sid, status),
+      {
+        loadChallenge(challenge.sid, challenge.factorSid)
+      },
+      {
+        this.challenge.value = ChallengeError(it)
+      }
+    )
   }
 }
 

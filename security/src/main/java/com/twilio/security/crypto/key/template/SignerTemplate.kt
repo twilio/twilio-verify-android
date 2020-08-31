@@ -20,9 +20,9 @@ data class ECP256SignerTemplate(
   override val algorithm = KeyProperties.KEY_ALGORITHM_EC
   override val keyGenParameterSpec: KeyGenParameterSpec =
     Builder(alias, KeyProperties.PURPOSE_SIGN).setAlgorithmParameterSpec(
-        ECGenParameterSpec("secp256r1")
+      ECGenParameterSpec("secp256r1")
     )
-        .setDigests(KeyProperties.DIGEST_SHA256)
-        .build()
+      .setDigests(KeyProperties.DIGEST_SHA256)
+      .build()
   override val signatureAlgorithm = "SHA256withECDSA"
 }

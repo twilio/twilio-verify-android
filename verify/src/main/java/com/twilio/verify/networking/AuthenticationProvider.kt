@@ -1,14 +1,14 @@
 package com.twilio.verify.networking
 
-import com.twilio.verify.data.DateProvider
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.AuthenticationTokenError
+import com.twilio.verify.data.DateProvider
 import com.twilio.verify.data.getSignerTemplate
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
-import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+import org.json.JSONObject
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -56,9 +56,10 @@ internal class AuthenticationProvider(
     JSONObject().apply {
       put(subKey, factor.accountSid)
       put(
-          expKey, dateProvider.getCurrentTime() + TimeUnit.MINUTES.toSeconds(
+        expKey,
+        dateProvider.getCurrentTime() + TimeUnit.MINUTES.toSeconds(
           jwtValidFor
-      )
+        )
       )
       put(iatKey, dateProvider.getCurrentTime())
     }

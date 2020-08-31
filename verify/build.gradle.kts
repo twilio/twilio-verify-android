@@ -39,12 +39,16 @@ android {
     }
   }
   testOptions.unitTests.isIncludeAndroidResources = true
+  lintOptions {
+    lintConfig = rootProject.file(".lint/config.xml")
+    isCheckAllWarnings = true
+  }
 }
 //endregion
 
 //region KDoc
 tasks.dokkaHtml {
-  outputDirectory = "../docs/${verifyVersionName}"
+  outputDirectory = "../docs/$verifyVersionName"
   disableAutoconfiguration = false
   dokkaSourceSets {
     configureEach {
@@ -58,7 +62,7 @@ tasks.dokkaHtml {
     ant.withGroovyBuilder {
       "copy"(
         "file" to "index.html",
-        "todir" to "../docs/${verifyVersionName}"
+        "todir" to "../docs/$verifyVersionName"
       )
     }
   }
@@ -197,7 +201,7 @@ dependencies {
   androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
   testImplementation("junit:junit:4.12")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-  testImplementation("org.robolectric:robolectric:4.4-beta-1")
+  testImplementation("org.robolectric:robolectric:4.4")
   testImplementation("androidx.test:core:1.2.0")
   testImplementation("org.hamcrest:hamcrest-library:1.3")
   testImplementation("org.mockito:mockito-inline:2.28.2")

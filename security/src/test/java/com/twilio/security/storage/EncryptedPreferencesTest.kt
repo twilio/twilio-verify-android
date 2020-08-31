@@ -12,6 +12,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.storage.key.SecretKeyProvider
+import kotlin.reflect.KClass
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -21,7 +22,6 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.reflect.KClass
 
 @RunWith(RobolectricTestRunner::class)
 class EncryptedPreferencesTest {
@@ -50,7 +50,7 @@ class EncryptedPreferencesTest {
     whenever(editor.putString(eq(generateKeyDigest(key)), any())).thenReturn(editor)
     encryptedPreferences.put(key, value)
     verify(editor).putString(
-        generateKeyDigest(key), Base64.encodeToString(value.toByteArray(), Base64.DEFAULT)
+      generateKeyDigest(key), Base64.encodeToString(value.toByteArray(), Base64.DEFAULT)
     )
     verify(editor).apply()
   }
@@ -66,9 +66,9 @@ class EncryptedPreferencesTest {
     whenever(secretKeyProvider.encrypt(any())).thenThrow(exception)
     exceptionRule.expect(StorageException::class.java)
     exceptionRule.expectCause(
-        instanceOf(
-            RuntimeException::class.java
-        )
+      instanceOf(
+        RuntimeException::class.java
+      )
     )
     encryptedPreferences.put(key, value)
   }
@@ -79,10 +79,10 @@ class EncryptedPreferencesTest {
     val originalValue = "value"
     val rawValue = originalValue.toByteArray()
     whenever(preferences.getString(generateKeyDigest(key), null)).thenReturn(
-        Base64.encodeToString(
-            rawValue,
-            Base64.DEFAULT
-        )
+      Base64.encodeToString(
+        rawValue,
+        Base64.DEFAULT
+      )
     )
     whenever(secretKeyProvider.decrypt(rawValue)).thenReturn(rawValue)
     whenever(serializer.fromByteArray(rawValue, String::class)).thenReturn(originalValue)
@@ -96,9 +96,9 @@ class EncryptedPreferencesTest {
     whenever(preferences.getString(key, null)).thenReturn(null)
     exceptionRule.expect(StorageException::class.java)
     exceptionRule.expectCause(
-        instanceOf(
-            IllegalArgumentException::class.java
-        )
+      instanceOf(
+        IllegalArgumentException::class.java
+      )
     )
     encryptedPreferences.get(key, String::class)
   }
@@ -108,18 +108,18 @@ class EncryptedPreferencesTest {
     val key = "key"
     val rawValue = "abc".toByteArray()
     whenever(preferences.getString(key, null)).thenReturn(
-        Base64.encodeToString(
-            rawValue,
-            Base64.DEFAULT
-        )
+      Base64.encodeToString(
+        rawValue,
+        Base64.DEFAULT
+      )
     )
     whenever(secretKeyProvider.decrypt(any())).thenReturn(rawValue)
     whenever(serializer.fromByteArray(rawValue, Int::class)).thenReturn(null)
     exceptionRule.expect(StorageException::class.java)
     exceptionRule.expectCause(
-        instanceOf(
-            IllegalArgumentException::class.java
-        )
+      instanceOf(
+        IllegalArgumentException::class.java
+      )
     )
     encryptedPreferences.get(key, Int::class)
   }
@@ -137,9 +137,9 @@ class EncryptedPreferencesTest {
     val rawValue3 = getSerializedValue(originalValue3, String::class)
 
     val entries = mapOf<String, String>(
-        key1 to Base64.encodeToString(rawValue1, Base64.DEFAULT),
-        key2 to Base64.encodeToString(rawValue2, Base64.DEFAULT),
-        key3 to Base64.encodeToString(rawValue3, Base64.DEFAULT)
+      key1 to Base64.encodeToString(rawValue1, Base64.DEFAULT),
+      key2 to Base64.encodeToString(rawValue2, Base64.DEFAULT),
+      key3 to Base64.encodeToString(rawValue3, Base64.DEFAULT)
     )
     entries.forEach { (key, value) ->
       whenever(preferences.getString(key, null)).thenReturn(value)
@@ -188,12 +188,13 @@ class EncryptedPreferencesTest {
   ): ByteArray {
     val value = if (kClass.isAssignableFrom(originalValue::class)) originalValue as? T else null
     whenever(
-        serializer.fromByteArray(
-            originalValue.toString()
-                .toByteArray(), kClass
-        )
+      serializer.fromByteArray(
+        originalValue.toString()
+          .toByteArray(),
+        kClass
+      )
     ).thenReturn(value)
     return originalValue.toString()
-        .toByteArray()
+      .toByteArray()
   }
 }

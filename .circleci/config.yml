@@ -53,6 +53,10 @@ references:
     run:
       name: Size impact report
       command: bundle exec fastlane sdk_sizer
+  lint_checker: &lint_checker
+    run:
+      name: Check android, kotlin and java style convention
+      command: bundle exec fastlane lint_checker
 
   #Release
   release: &release
@@ -249,6 +253,23 @@ jobs:
       - store_artifacts:
           path: "verify/build/outputs/SizeReport"
           destination: SizeReport
+  lint:
+    executor: *executor
+    steps:
+      - setup
+      - *restore_gradle_cache
+      - *decrypt_google_services
+      - *lint_checker
+      - *save_gradle_cache
+      - store_artifacts:
+          path: "verify/build/reports"
+          destination: verify-test-coverage
+      - store_artifacts:
+          path: "sample/build/reports"
+          destination: sampleapp-test-coverage
+      - store_artifacts:
+          path: "security/build/reports"
+          destination: security-test-coverage
   release_sdk:
     executor: *executor
     steps:
@@ -263,14 +284,19 @@ workflows:
   workflow:
     jobs:
       - assemble_build
+      - lint:
+          requires:
+            - assemble_build
       - unit_tests:
           requires:
             - assemble_build
       - security_instrumentation_tests_single_device:
           requires:
+            - lint
             - unit_tests
       - verify_instrumentation_tests_single_device:
           requires:
+            - lint
             - unit_tests
       - security_instrumentation_tests_multiple_devices:
           requires:

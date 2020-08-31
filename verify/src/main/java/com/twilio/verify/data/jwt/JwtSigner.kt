@@ -54,20 +54,20 @@ internal class JwtSigner(private val keyStorage: KeyStorage) {
     var rawLen = max(i, j)
     rawLen = max(rawLen, outputLength / 2)
     if (derSignature[offset - 1].toInt()
-            .and(0xff) != (derSignature.size - offset)
-        || derSignature[offset - 1].toInt()
-            .and(0xff) != (2 + rLength + 2 + sLength)
-        || derSignature[offset] != 2.toByte()
-        || derSignature[offset + 2 + rLength] != 2.toByte()
+      .and(0xff) != (derSignature.size - offset) ||
+      derSignature[offset - 1].toInt()
+        .and(0xff) != (2 + rLength + 2 + sLength) ||
+      derSignature[offset] != 2.toByte() ||
+      derSignature[offset + 2 + rLength] != 2.toByte()
     ) {
       throw IllegalArgumentException("Invalid ECDSA signature format")
     }
     val concatSignature = ByteArray(2 * rawLen)
     System.arraycopy(
-        derSignature, offset + 2 + rLength - i, concatSignature, rawLen - i, i
+      derSignature, offset + 2 + rLength - i, concatSignature, rawLen - i, i
     )
     System.arraycopy(
-        derSignature, offset + 2 + rLength + 2 + sLength - j, concatSignature, 2 * rawLen - j, j
+      derSignature, offset + 2 + rLength + 2 + sLength - j, concatSignature, 2 * rawLen - j, j
     )
     return concatSignature
   }

@@ -69,8 +69,8 @@ class StorageTest {
     val key = "key123"
     val value = "value123"
     sharedPreferences.edit()
-        .putString(key, value)
-        .apply()
+      .putString(key, value)
+      .apply()
     assertEquals(value, storage.get(key))
   }
 
@@ -78,8 +78,8 @@ class StorageTest {
   fun `Get a non existing value should return null`() {
     val key = "key123"
     sharedPreferences.edit()
-        .remove(key)
-        .apply()
+      .remove(key)
+      .apply()
     assertNull(storage.get(key))
   }
 
@@ -99,17 +99,17 @@ class StorageTest {
   fun `Get all values with a list of not only strings should filter`() {
     val keyValues = mapOf("sid1" to "value1", "sid2" to "value2", "sid3" to 123)
     keyValues.filter { it.value is String }
-        .forEach {
-          sharedPreferences.edit()
-              .putString(it.key, it.value as String)
-              .apply()
-        }
+      .forEach {
+        sharedPreferences.edit()
+          .putString(it.key, it.value as String)
+          .apply()
+      }
     keyValues.filter { it.value is Int }
-        .forEach {
-          sharedPreferences.edit()
-              .putInt(it.key, it.value as Int)
-              .apply()
-        }
+      .forEach {
+        sharedPreferences.edit()
+          .putInt(it.key, it.value as Int)
+          .apply()
+      }
 
     assertEquals(keyValues.size, sharedPreferences.all.size)
     assertEquals(keyValues.values.filterIsInstance<String>().size, storage.getAll().size)
@@ -120,8 +120,8 @@ class StorageTest {
     val key = "key123"
     val value = "value123"
     sharedPreferences.edit()
-        .putString(key, value)
-        .apply()
+      .putString(key, value)
+      .apply()
     assertNotNull(storage.get(key))
     storage.remove(key)
     assertNull(storage.get(key))

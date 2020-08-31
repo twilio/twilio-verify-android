@@ -24,8 +24,10 @@ internal fun fromRFC3339Date(date: String): Date {
     val firstPart: String = date.substring(0, date.lastIndexOf('-'))
     var secondPart: String = date.substring(date.lastIndexOf('-'))
 
-    secondPart = (secondPart.substring(0, secondPart.indexOf(':'))
-        + secondPart.substring(secondPart.indexOf(':') + 1))
+    secondPart = (
+      secondPart.substring(0, secondPart.indexOf(':')) +
+        secondPart.substring(secondPart.indexOf(':') + 1)
+      )
     val dateString = firstPart + secondPart
     return dateFormatterTimeZone.parse(dateString)
   } catch (e: ParseException) {

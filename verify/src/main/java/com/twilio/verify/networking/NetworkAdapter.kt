@@ -24,12 +24,12 @@ class NetworkAdapter : NetworkProvider {
         httpUrlConnection.setRequestProperty(key, value)
       }
       if (request.getParams()
-              ?.isNotEmpty() == true
+        ?.isNotEmpty() == true
       ) {
         httpUrlConnection.doOutput = true
         val os: OutputStream = httpUrlConnection.outputStream
         val writer = BufferedWriter(
-            OutputStreamWriter(os, "UTF-8")
+          OutputStreamWriter(os, "UTF-8")
         )
         writer.write(request.getParams())
         writer.flush()
@@ -40,16 +40,16 @@ class NetworkAdapter : NetworkProvider {
       when {
         responseCode < 300 -> {
           val response = httpUrlConnection.inputStream.bufferedReader()
-              .use { it.readText() }
+            .use { it.readText() }
           success(Response(body = response, headers = httpUrlConnection.headerFields))
         }
         else -> {
           val errorBody = httpUrlConnection.errorStream.bufferedReader()
-              .use { it.readText() }
+            .use { it.readText() }
           error(
-              NetworkException(
-                  FailureResponse(responseCode, errorBody, httpUrlConnection.headerFields)
-              )
+            NetworkException(
+              FailureResponse(responseCode, errorBody, httpUrlConnection.headerFields)
+            )
           )
         }
       }

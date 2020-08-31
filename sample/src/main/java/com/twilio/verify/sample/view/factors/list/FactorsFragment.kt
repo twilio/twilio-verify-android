@@ -45,23 +45,26 @@ class FactorsFragment : Fragment() {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(requireContext())
       ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete)
-          ?.let {
-            val itemTouchHelper = ItemTouchHelper(
-                SwipeToDeleteCallback(
-                    ::delete, it
-                )
+        ?.let {
+          val itemTouchHelper = ItemTouchHelper(
+            SwipeToDeleteCallback(
+              ::delete, it
             )
-            itemTouchHelper.attachToRecyclerView(this)
-          }
+          )
+          itemTouchHelper.attachToRecyclerView(this)
+        }
     }
     factorsViewModel.getFactors()
-        .observe(viewLifecycleOwner, Observer {
+      .observe(
+        viewLifecycleOwner,
+        Observer {
           when (it) {
             is FactorList -> showFactors(it.factors)
             is FactorsError -> it.exception.showError(content)
             is DeleteFactorError -> it.exception.showError(content)
           }
-        })
+        }
+      )
     loadFactors()
   }
 
@@ -76,7 +79,7 @@ class FactorsFragment : Fragment() {
   private fun showFactors(list: List<Factor>) {
     viewAdapter = FactorsAdapter(list) {
       val bundle = bundleOf(
-          ARG_FACTOR_SID to it.sid
+        ARG_FACTOR_SID to it.sid
       )
       findNavController().navigate(R.id.action_show_challenges, bundle)
     }

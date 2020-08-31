@@ -41,6 +41,13 @@ platform :android do
     )
   end
 
+  desc "Check android, kotlin and java style convention"
+  lane :lint_checker do
+    gradle(
+      tasks: ["ktlint", ":verify:lint", ":security:lint", "spotlessCheck"]
+    )
+  end
+
   desc "Release a new production version"
   lane :release do
     title = 'Android Verify Push Release'

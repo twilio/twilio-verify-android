@@ -32,11 +32,15 @@ internal class ChallengeFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
-      factorFacade.getFactor(factorSid, { factor ->
-        when (factor) {
-          is PushFactor -> pushChallengeProcessor.get(sid, factor, onSuccess, onError)
-        }
-      }, onError)
+      factorFacade.getFactor(
+        factorSid,
+        { factor ->
+          when (factor) {
+            is PushFactor -> pushChallengeProcessor.get(sid, factor, onSuccess, onError)
+          }
+        },
+        onError
+      )
     }
   }
 
@@ -46,11 +50,15 @@ internal class ChallengeFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
-      factorFacade.getFactor(updateChallengePayload.factorSid, { factor ->
-        when (factor) {
-          is PushFactor -> updatePushChallenge(updateChallengePayload, factor, onSuccess, onError)
-        }
-      }, onError)
+      factorFacade.getFactor(
+        updateChallengePayload.factorSid,
+        { factor ->
+          when (factor) {
+            is PushFactor -> updatePushChallenge(updateChallengePayload, factor, onSuccess, onError)
+          }
+        },
+        onError
+      )
     }
   }
 
@@ -59,17 +67,24 @@ internal class ChallengeFacade(
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    factorFacade.getFactor(challengeListPayload.factorSid, { factor ->
-      execute(success, error) { onSuccess, onError ->
-        repository.getAll(
+    factorFacade.getFactor(
+      challengeListPayload.factorSid,
+      { factor ->
+        execute(success, error) { onSuccess, onError ->
+          repository.getAll(
             factor, challengeListPayload.status, challengeListPayload.pageSize,
-            challengeListPayload.pageToken, { list ->
-          onSuccess(list)
-        }, { exception ->
-          onError(exception)
-        })
-      }
-    }, error)
+            challengeListPayload.pageToken,
+            { list ->
+              onSuccess(list)
+            },
+            { exception ->
+              onError(exception)
+            }
+          )
+        }
+      },
+      error
+    )
   }
 
   private fun updatePushChallenge(
@@ -80,13 +95,14 @@ internal class ChallengeFacade(
   ) {
     try {
       val status = (updateChallengePayload as? UpdatePushChallengePayload)?.status
-          ?: throw TwilioVerifyException(
-              IllegalArgumentException(
-                  "Invalid update challenge input for factor ${factor.type}"
-              ), InputError
-          )
+        ?: throw TwilioVerifyException(
+          IllegalArgumentException(
+            "Invalid update challenge input for factor ${factor.type}"
+          ),
+          InputError
+        )
       pushChallengeProcessor.update(
-          updateChallengePayload.challengeSid, factor, status, success, error
+        updateChallengePayload.challengeSid, factor, status, success, error
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -121,37 +137,37 @@ internal class ChallengeFacade(
     fun build(): ChallengeFacade {
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for context"), InitializationError
+          IllegalArgumentException("Illegal value for context"), InitializationError
         )
       }
       if (!this::networking.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for network provider"),
-            InitializationError
+          IllegalArgumentException("Illegal value for network provider"),
+          InitializationError
         )
       }
       if (!this::generator.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for JWT generator"),
-            InitializationError
+          IllegalArgumentException("Illegal value for JWT generator"),
+          InitializationError
         )
       }
       if (!this::factorProvider.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for factor provider"),
-            InitializationError
+          IllegalArgumentException("Illegal value for factor provider"),
+          InitializationError
         )
       }
       if (!this::url.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for base url"),
-            InitializationError
+          IllegalArgumentException("Illegal value for base url"),
+          InitializationError
         )
       }
       if (!this::authentication.isInitialized) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Illegal value for authentication"),
-            InitializationError
+          IllegalArgumentException("Illegal value for authentication"),
+          InitializationError
         )
       }
       val challengeAPIClient = ChallengeAPIClient(networking, appContext, authentication, url)

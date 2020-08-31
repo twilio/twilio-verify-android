@@ -36,6 +36,11 @@ android {
       )
     }
   }
+
+  lintOptions {
+    lintConfig = rootProject.file(".lint/config.xml")
+    isCheckAllWarnings = true
+  }
 }
 //endregion
 

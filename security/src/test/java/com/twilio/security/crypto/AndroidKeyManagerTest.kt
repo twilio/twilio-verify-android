@@ -13,6 +13,11 @@ import com.twilio.security.crypto.key.cipher.AESCipher
 import com.twilio.security.crypto.key.signer.ECSigner
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
+import java.security.KeyPair
+import java.security.PrivateKey
+import java.security.PublicKey
+import javax.crypto.SecretKey
+import kotlin.random.Random.Default.nextBytes
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -22,11 +27,6 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.security.KeyPair
-import java.security.PrivateKey
-import java.security.PublicKey
-import javax.crypto.SecretKey
-import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class AndroidKeyManagerTest {
@@ -61,7 +61,7 @@ class AndroidKeyManagerTest {
     whenever(keyPair.private).thenReturn(privateKey)
     whenever(publicKey.encoded).thenReturn(encoded)
     whenever(androidKeyStore.contains(alias)).thenReturn(false)
-        .thenReturn(true)
+      .thenReturn(true)
     whenever(androidKeyStore.createKeyPair(algorithm, keyGenParameterSpec)).thenReturn(keyPair)
     whenever(androidKeyStore.getKeyPair(alias)).thenReturn(keyPair)
     val signer = androidKeyManager.signer(template)
@@ -107,14 +107,14 @@ class AndroidKeyManagerTest {
     whenever(keyPair.private).thenReturn(privateKey)
     whenever(publicKey.encoded).thenReturn(encoded)
     whenever(androidKeyStore.contains(alias)).thenReturn(false)
-        .thenReturn(true)
+      .thenReturn(true)
     whenever(androidKeyStore.createKeyPair(algorithm, keyGenParameterSpec)).thenReturn(keyPair)
     whenever(androidKeyStore.getKeyPair(alias)).thenReturn(null)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            IllegalArgumentException::class.java
-        )
+      Matchers.instanceOf(
+        IllegalArgumentException::class.java
+      )
     )
     androidKeyManager.signer(template)
   }
@@ -143,14 +143,14 @@ class AndroidKeyManagerTest {
     whenever(publicKey1.encoded).thenReturn(encoded1)
     whenever(publicKey2.encoded).thenReturn(encoded2)
     whenever(androidKeyStore.contains(alias)).thenReturn(false)
-        .thenReturn(true)
+      .thenReturn(true)
     whenever(androidKeyStore.createKeyPair(algorithm, keyGenParameterSpec)).thenReturn(keyPair1)
     whenever(androidKeyStore.getKeyPair(alias)).thenReturn(keyPair2)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            IllegalArgumentException::class.java
-        )
+      Matchers.instanceOf(
+        IllegalArgumentException::class.java
+      )
     )
     androidKeyManager.signer(template)
   }
@@ -164,9 +164,9 @@ class AndroidKeyManagerTest {
     whenever(androidKeyStore.getKeyPair(alias)).thenReturn(null)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            IllegalArgumentException::class.java
-        )
+      Matchers.instanceOf(
+        IllegalArgumentException::class.java
+      )
     )
     androidKeyManager.signer(template)
   }
@@ -180,9 +180,9 @@ class AndroidKeyManagerTest {
     whenever(androidKeyStore.contains(alias)).thenReturn(false)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            IllegalStateException::class.java
-        )
+      Matchers.instanceOf(
+        IllegalStateException::class.java
+      )
     )
     androidKeyManager.signer(template)
   }
@@ -197,9 +197,9 @@ class AndroidKeyManagerTest {
     whenever(androidKeyStore.getKeyPair(alias)).thenThrow(error)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            RuntimeException::class.java
-        )
+      Matchers.instanceOf(
+        RuntimeException::class.java
+      )
     )
     androidKeyManager.signer(template)
   }
@@ -217,7 +217,7 @@ class AndroidKeyManagerTest {
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
     whenever(template.keyGenParameterSpec).thenReturn(keyGenParameterSpec)
     whenever(androidKeyStore.contains(alias)).thenReturn(false)
-        .thenReturn(true)
+      .thenReturn(true)
     whenever(androidKeyStore.createKey(algorithm, keyGenParameterSpec)).thenReturn(key)
     whenever(androidKeyStore.getSecretKey(alias)).thenReturn(key)
     val cipher = androidKeyManager.cipher(template)
@@ -254,14 +254,14 @@ class AndroidKeyManagerTest {
     whenever(template.cipherAlgorithm).thenReturn(cipherAlgorithm)
     whenever(template.keyGenParameterSpec).thenReturn(keyGenParameterSpec)
     whenever(androidKeyStore.contains(alias)).thenReturn(false)
-        .thenReturn(true)
+      .thenReturn(true)
     whenever(androidKeyStore.createKey(algorithm, keyGenParameterSpec)).thenReturn(key1)
     whenever(androidKeyStore.getSecretKey(alias)).thenReturn(key2)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            IllegalArgumentException::class.java
-        )
+      Matchers.instanceOf(
+        IllegalArgumentException::class.java
+      )
     )
     androidKeyManager.cipher(template)
   }
@@ -276,9 +276,9 @@ class AndroidKeyManagerTest {
     whenever(androidKeyStore.getSecretKey(alias)).thenReturn(null)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            IllegalArgumentException::class.java
-        )
+      Matchers.instanceOf(
+        IllegalArgumentException::class.java
+      )
     )
     androidKeyManager.cipher(template)
   }
@@ -292,9 +292,9 @@ class AndroidKeyManagerTest {
     whenever(androidKeyStore.contains(alias)).thenReturn(false)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            IllegalStateException::class.java
-        )
+      Matchers.instanceOf(
+        IllegalStateException::class.java
+      )
     )
     androidKeyManager.cipher(template)
   }
@@ -323,9 +323,9 @@ class AndroidKeyManagerTest {
     whenever(androidKeyStore.deleteEntry(alias)).thenThrow(error)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            RuntimeException::class.java
-        )
+      Matchers.instanceOf(
+        RuntimeException::class.java
+      )
     )
     androidKeyManager.delete(alias)
   }

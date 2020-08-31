@@ -64,4 +64,3 @@ interface TwilioVerifyAdapter {
 
   fun updatePushToken(token: String)
 }
-

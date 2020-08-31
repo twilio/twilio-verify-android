@@ -66,7 +66,7 @@ internal class FactorRepository(
     }
 
     val factor = get(updateFactorPayload.factorSid) ?: throw TwilioVerifyException(
-        StorageException("Factor not found"), StorageError
+      StorageException("Factor not found"), StorageError
     )
     apiClient.update(factor, updateFactorPayload, ::updateFactor, error)
   }
@@ -86,20 +86,20 @@ internal class FactorRepository(
   @Throws(TwilioVerifyException::class)
   override fun get(sid: String): Factor? =
     storage.get(sid)
-        ?.let {
-          factorMapper.fromStorage(it)
-        }
+      ?.let {
+        factorMapper.fromStorage(it)
+      }
 
   @Throws(TwilioVerifyException::class)
   override fun save(factor: Factor): Factor {
     storage.save(factor.sid, factorMapper.toJSON(factor))
     return get(factor.sid) ?: throw TwilioVerifyException(
-        StorageException("Factor not found"), StorageError
+      StorageException("Factor not found"), StorageError
     )
   }
 
   @Throws(TwilioVerifyException::class)
   override fun getAll(): List<Factor> =
     storage.getAll()
-        .mapNotNull { factorMapper.fromStorage(it) }
+      .mapNotNull { factorMapper.fromStorage(it) }
 }

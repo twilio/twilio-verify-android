@@ -1,6 +1,7 @@
 package com.twilio.verify.sample.networking
 
 import com.twilio.verify.sample.IdlingResource
+import java.io.IOException
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
@@ -12,7 +13,6 @@ import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.io.IOException
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -30,7 +30,7 @@ class SampleBackendAPIClientTest {
     mockWebServer = MockWebServer()
     mockWebServer.start()
     url = mockWebServer.url("/accessTokens")
-        .toString()
+      .toString()
     sampleBackendAPIClient = backendAPIClient(url)
   }
 
@@ -48,19 +48,23 @@ class SampleBackendAPIClientTest {
       put("identity", identityValue)
     }
     val mockResponse = MockResponse().setResponseCode(200)
-        .setBody(bodyJson.toString())
+      .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getAccessTokenResponse(identity, url, { accessTokenResponse ->
-      assertEquals(tokenValue, accessTokenResponse.token)
-      assertEquals(serviceSidValue, accessTokenResponse.serviceSid)
-      assertEquals(factorTypeValue, accessTokenResponse.factorType)
-      assertEquals(identityValue, accessTokenResponse.identity)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    sampleBackendAPIClient.getAccessTokenResponse(
+      identity, url,
+      { accessTokenResponse ->
+        assertEquals(tokenValue, accessTokenResponse.token)
+        assertEquals(serviceSidValue, accessTokenResponse.serviceSid)
+        assertEquals(factorTypeValue, accessTokenResponse.factorType)
+        assertEquals(identityValue, accessTokenResponse.identity)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -71,16 +75,20 @@ class SampleBackendAPIClientTest {
       put("field", "value")
     }
     val mockResponse = MockResponse().setResponseCode(200)
-        .setBody(bodyJson.toString())
+      .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getAccessTokenResponse(identity, url, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception is IOException)
-      idlingResource.operationFinished()
-    })
+    sampleBackendAPIClient.getAccessTokenResponse(
+      identity, url,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception is IOException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -92,16 +100,20 @@ class SampleBackendAPIClientTest {
       put("message", "Error")
     }
     val mockResponse = MockResponse().setResponseCode(500)
-        .setBody(bodyJson.toString())
+      .setBody(bodyJson.toString())
     mockWebServer.enqueue(mockResponse)
     idlingResource.startOperation()
-    sampleBackendAPIClient.getAccessTokenResponse(identity, url, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception is IOException)
-      idlingResource.operationFinished()
-    })
+    sampleBackendAPIClient.getAccessTokenResponse(
+      identity, url,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception is IOException)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 }

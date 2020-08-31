@@ -20,13 +20,17 @@ class UpdateFactorTests : BaseFactorTest() {
     val updatePushFactorPayload = UpdatePushFactorPayload(factor!!.sid, "pushToken")
     enqueueMockResponse(200, APIResponses.updateFactorValidResponse())
     idlingResource.increment()
-    twilioVerify.updateFactor(updatePushFactorPayload, {
-      assertEquals(factor!!.sid, it.sid)
-      idlingResource.decrement()
-    }, { e ->
-      fail(e.message)
-      idlingResource.decrement()
-    })
+    twilioVerify.updateFactor(
+      updatePushFactorPayload,
+      {
+        assertEquals(factor!!.sid, it.sid)
+        idlingResource.decrement()
+      },
+      { e ->
+        fail(e.message)
+        idlingResource.decrement()
+      }
+    )
     idlingResource.waitForResource()
   }
 
@@ -34,18 +38,22 @@ class UpdateFactorTests : BaseFactorTest() {
   fun testUpdatePushFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
     val updatePushFactorPayload = UpdatePushFactorPayload(factor!!.sid, "pushToken")
     val expectedException = TwilioVerifyException(
-        NetworkException(null, null, null),
-        NetworkError
+      NetworkException(null, null, null),
+      NetworkError
     )
     enqueueMockResponse(400, APIResponses.updateFactorValidResponse())
     idlingResource.increment()
-    twilioVerify.updateFactor(updatePushFactorPayload, {
-      fail()
-      idlingResource.decrement()
-    }, { exception ->
-      assertEquals(expectedException.message, exception.message)
-      idlingResource.decrement()
-    })
+    twilioVerify.updateFactor(
+      updatePushFactorPayload,
+      {
+        fail()
+        idlingResource.decrement()
+      },
+      { exception ->
+        assertEquals(expectedException.message, exception.message)
+        idlingResource.decrement()
+      }
+    )
     idlingResource.waitForResource()
   }
 
@@ -53,18 +61,22 @@ class UpdateFactorTests : BaseFactorTest() {
   fun testUpdatePushFactorWithInvalidAPIResponseBodyShouldThrowMapperError() {
     val updatePushFactorPayload = UpdatePushFactorPayload(factor!!.sid, "pushToken")
     val expectedException = TwilioVerifyException(
-        IllegalArgumentException(null, null),
-        MapperError
+      IllegalArgumentException(null, null),
+      MapperError
     )
     enqueueMockResponse(200, APIResponses.updateFactorInvalidResponse())
     idlingResource.increment()
-    twilioVerify.updateFactor(updatePushFactorPayload, {
-      fail()
-      idlingResource.decrement()
-    }, { exception ->
-      assertEquals(expectedException.message, exception.message)
-      idlingResource.decrement()
-    })
+    twilioVerify.updateFactor(
+      updatePushFactorPayload,
+      {
+        fail()
+        idlingResource.decrement()
+      },
+      { exception ->
+        assertEquals(expectedException.message, exception.message)
+        idlingResource.decrement()
+      }
+    )
     idlingResource.waitForResource()
   }
 }

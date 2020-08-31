@@ -11,8 +11,8 @@ object TwilioVerifyKotlinProvider {
   ): TwilioVerifyKotlinAdapter {
     if (!this::twilioVerifyAdapter.isInitialized) {
       twilioVerifyAdapter = TwilioVerifyKotlinAdapter(
-          TwilioVerify.Builder(applicationContext)
-              .build()
+        TwilioVerify.Builder(applicationContext)
+          .build()
       )
     }
     return twilioVerifyAdapter

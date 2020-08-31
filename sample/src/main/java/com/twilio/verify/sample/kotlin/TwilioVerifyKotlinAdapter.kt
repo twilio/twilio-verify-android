@@ -33,12 +33,18 @@ class TwilioVerifyKotlinAdapter(
   ) {
     try {
       sampleBackendAPIClient.getAccessTokenResponse(
-          createFactorData.identity, createFactorData.accessTokenUrl, { accessTokenResponse ->
-        val factorPayload = getFactorPayload(createFactorData, accessTokenResponse)
-        twilioVerify.createFactor(factorPayload, { factor ->
-          verifyFactor(factor, success, error)
-        }, error)
-      }, error
+        createFactorData.identity, createFactorData.accessTokenUrl,
+        { accessTokenResponse ->
+          val factorPayload = getFactorPayload(createFactorData, accessTokenResponse)
+          twilioVerify.createFactor(
+            factorPayload,
+            { factor ->
+              verifyFactor(factor, success, error)
+            },
+            error
+          )
+        },
+        error
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -54,9 +60,9 @@ class TwilioVerifyKotlinAdapter(
   ) {
     when (factor.type) {
       PUSH -> twilioVerify.verifyFactor(
-          VerifyPushFactorPayload(factor.sid),
-          success,
-          error
+        VerifyPushFactorPayload(factor.sid),
+        success,
+        error
       )
     }
   }
@@ -69,11 +75,14 @@ class TwilioVerifyKotlinAdapter(
   }
 
   override fun updatePushToken(token: String) {
-    twilioVerify.getAllFactors({ factors ->
-      for (factor in factors) {
-        updateFactor(factor, token)
-      }
-    }, ::handleError)
+    twilioVerify.getAllFactors(
+      { factors ->
+        for (factor in factors) {
+          updateFactor(factor, token)
+        }
+      },
+      ::handleError
+    )
   }
 
   private fun updateFactor(
@@ -96,8 +105,8 @@ class TwilioVerifyKotlinAdapter(
   ): FactorPayload {
     return when (accessTokenResponse.getFactorType()) {
       PUSH -> PushFactorPayload(
-          createFactorData.factorName, accessTokenResponse.serviceSid,
-          accessTokenResponse.identity, createFactorData.pushToken, accessTokenResponse.token
+        createFactorData.factorName, accessTokenResponse.serviceSid,
+        accessTokenResponse.identity, createFactorData.pushToken, accessTokenResponse.token
       )
       else -> throw IllegalStateException("Unexpected value: " + accessTokenResponse.factorType)
     }
@@ -107,4 +116,3 @@ class TwilioVerifyKotlinAdapter(
     exception.printStackTrace()
   }
 }
-

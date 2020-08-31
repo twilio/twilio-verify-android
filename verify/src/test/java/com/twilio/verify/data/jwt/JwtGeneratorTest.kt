@@ -9,13 +9,13 @@ import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.verify.data.encodeToBase64UTF8String
 import com.twilio.verify.domain.factor.DEFAULT_ALG
 import com.twilio.verify.networking.subKey
+import kotlin.random.Random.Default.nextBytes
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -35,11 +35,13 @@ class JwtGeneratorTest {
       put(subKey, "sub")
     }
     val message = "${encodeToBase64UTF8String(
-        header.toString()
-            .toByteArray(), FLAGS
+      header.toString()
+        .toByteArray(),
+      FLAGS
     )}.${encodeToBase64UTF8String(
-        payload.toString()
-            .toByteArray(), FLAGS
+      payload.toString()
+        .toByteArray(),
+      FLAGS
     )}"
     val signature = nextBytes(10)
     whenever(jwtSigner.sign(signerTemplate, message)).thenReturn(signature)

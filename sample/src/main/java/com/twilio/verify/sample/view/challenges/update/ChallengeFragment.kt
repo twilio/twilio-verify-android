@@ -17,6 +17,7 @@ import com.twilio.verify.sample.viewmodel.ChallengeError
 import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
+import java.text.DateFormat
 import kotlinx.android.synthetic.main.fragment_challenge.approveChallenge
 import kotlinx.android.synthetic.main.fragment_challenge.challengeActionsGroup
 import kotlinx.android.synthetic.main.fragment_challenge.challengeInfo
@@ -24,7 +25,6 @@ import kotlinx.android.synthetic.main.fragment_challenge.content
 import kotlinx.android.synthetic.main.fragment_challenge.denyChallenge
 import kotlinx.android.synthetic.main.view_factor.factorInfo
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.text.DateFormat
 
 const val ARG_CHALLENGE_SID = "challengeSid"
 const val ARG_FACTOR_SID = "factorSid"
@@ -39,10 +39,10 @@ class ChallengeFragment : Fragment() {
     super.onCreate(savedInstanceState)
     arguments?.let {
       challengeSid = it.getString(
-          ARG_CHALLENGE_SID
+        ARG_CHALLENGE_SID
       ) ?: ""
       factorSid = it.getString(
-          ARG_FACTOR_SID
+        ARG_FACTOR_SID
       ) ?: ""
     }
   }
@@ -59,21 +59,27 @@ class ChallengeFragment : Fragment() {
     super.onActivityCreated(savedInstanceState)
     if (challengeSid.isNotEmpty() && factorSid.isNotEmpty()) {
       factorViewModel.getFactor()
-          .observe(viewLifecycleOwner, Observer {
+        .observe(
+          viewLifecycleOwner,
+          Observer {
             when (it) {
               is com.twilio.verify.sample.viewmodel.Factor -> showFactor(it.factor)
               is FactorError -> it.exception.showError(content)
             }
-          })
+          }
+        )
       challengeViewModel.getChallenge()
-          .observe(viewLifecycleOwner, Observer {
+        .observe(
+          viewLifecycleOwner,
+          Observer {
             approveChallenge.isEnabled = true
             denyChallenge.isEnabled = true
             when (it) {
               is com.twilio.verify.sample.viewmodel.Challenge -> showChallenge(it.challenge)
               is ChallengeError -> it.exception.showError(content)
             }
-          })
+          }
+        )
       factorViewModel.loadFactor(factorSid)
       challengeViewModel.loadChallenge(challengeSid, factorSid)
     }
@@ -87,10 +93,10 @@ class ChallengeFragment : Fragment() {
     challengeActionsGroup?.visibility =
       if (challenge.status == ChallengeStatus.Pending) View.VISIBLE else View.GONE
     val info = "${challenge.string(context)}\nUpdated at: " +
-        "${DateUtils.formatSameDayTime(
-            challenge.updatedAt.time, System.currentTimeMillis(), DateFormat.MEDIUM,
-            DateFormat.MEDIUM
-        )}\n" + challenge.challengeDetails.string(context)
+      "${DateUtils.formatSameDayTime(
+        challenge.updatedAt.time, System.currentTimeMillis(), DateFormat.MEDIUM,
+        DateFormat.MEDIUM
+      )}\n" + challenge.challengeDetails.string(context)
     challengeInfo?.text = info
     approveChallenge?.setOnClickListener {
       updateChallenge(challenge, ChallengeStatus.Approved)

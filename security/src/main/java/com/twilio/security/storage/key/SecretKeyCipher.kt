@@ -16,16 +16,16 @@ class SecretKeyCipher(
 
   override fun encrypt(data: ByteArray): ByteArray {
     return keyManager.cipher(template)
-        .encrypt(data)
-        .let {
-          toByteArray(it)
-        }
+      .encrypt(data)
+      .let {
+        toByteArray(it)
+      }
   }
 
   override fun decrypt(data: ByteArray): ByteArray {
     val encryptedData = fromByteArray(data)
     return keyManager.cipher(template)
-        .decrypt(encryptedData)
+      .decrypt(encryptedData)
   }
 
   override fun delete() {

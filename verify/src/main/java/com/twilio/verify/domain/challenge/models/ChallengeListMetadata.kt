@@ -8,4 +8,3 @@ internal class ChallengeListMetadata(
   override val previousPageToken: String?,
   override val nextPageToken: String?
 ) : Metadata
-
