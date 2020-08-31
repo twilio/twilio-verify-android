@@ -1,19 +1,20 @@
 //region Plugins
 apply(from = "../jacoco.gradle.kts")
-apply(from = "version.gradle.kts")
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.dokka)
   id(MavenPublish.plugin)
+  id(Config.Plugins.versionBumper)
   jacoco
   id(Config.Plugins.apkscale)
 }
 //endregion
 
-val verifyVersionName: String by extra
-val verifyVersionCode: String by extra
+val verifyVersionName = versionBumper.versionName
+val verifyVersionCode = versionBumper.versionCode
+
 //region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
@@ -21,7 +22,7 @@ android {
   defaultConfig {
     minSdkVersion(Config.Versions.minSDKVersion)
     targetSdkVersion(Config.Versions.targetSDKVersion)
-    versionCode = verifyVersionCode.toInt()
+    versionCode = verifyVersionCode
     versionName = verifyVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -33,8 +34,8 @@ android {
     getByName("release") {
       isMinifyEnabled = false
       proguardFiles(
-        getDefaultProguardFile("proguard-android-optimize.txt"),
-        "proguard-rules.pro"
+          getDefaultProguardFile("proguard-android-optimize.txt"),
+          "proguard-rules.pro"
       )
     }
   }
@@ -111,8 +112,8 @@ tasks {
 val dokkaHtmlJar by tasks.creating(Jar::class) {
   dependsOn(tasks.dokkaHtml)
   from(
-    tasks.dokkaHtml.get()
-      .getOutputDirectoryAsFile()
+      tasks.dokkaHtml.get()
+          .getOutputDirectoryAsFile()
   )
   archiveClassifier.set("html-doc")
 }
@@ -166,11 +167,10 @@ task("generateSizeReport") {
   group = "Reporting"
 
   doLast {
-    var sizeReport =
-      "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
-          "\n" +
-          "| ABI             | APK Size Impact |\n" +
-          "| --------------- | --------------- |\n"
+    var sizeReport = "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
+            "\n" +
+            "| ABI             | APK Size Impact |\n" +
+            "| --------------- | --------------- |\n"
     val apkscaleOutputFile = file("$buildDir/apkscale/build/outputs/reports/apkscale.json")
     val jsonSlurper = groovy.json.JsonSlurper()
     val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
