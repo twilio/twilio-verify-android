@@ -1,3 +1,11 @@
+# 2.0.1 (2020-08-31)
+
+### Bug fixes
+- This should bump path version ([82a2283](https://github.com/twilio/twilio-verify-android/commit/82a2283690c596ecf2a7be76ebdc59d5c5474be1))
+
+### Building system
+- Version bump to 2.0.0 [skip ci] ([424c3d7](https://github.com/twilio/twilio-verify-android/commit/424c3d71fc65efb32a3551cc3602352b3178e5ba))
+
 # 2.0.0 (2020-08-31)
 
 ### Features
