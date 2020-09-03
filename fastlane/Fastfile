@@ -70,12 +70,7 @@ platform :android do
 
       # Check if there is any change since last version
       is_releaseable = analyze_commits(
-        match: options[:tag_prefix],
-        releases: {
-          fix: 'patch',
-          feat: 'minor',
-          'BREAKING CHANGE': 'major'
-        }
+        match: options[:tag_prefix]
       )
       unless is_releaseable
         UI.important("Skip deploying #{options[:title]}. No changes since last one!")
@@ -104,7 +99,7 @@ platform :android do
     )
     UI.message("Updating CHANGELOG.md")
     sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-    git_commit(path: ['./verify/gradle.properties', './CHANGELOG.md'], message: "skip: Version bump to #{next_version} [skip ci]")
+    git_commit(path: ['./verify/gradle.properties', './CHANGELOG.md'], message: "Version bump to #{next_version} [skip ci]")
     push_to_git_remote
   end
   
