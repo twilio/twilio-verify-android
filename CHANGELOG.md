@@ -1,3 +1,8 @@
+# 1.1.0 (2020-09-08)
+
+### Features
+- Test feature ([2870633](https://github.com/twilio/twilio-verify-android/commit/287063354804ef3d1156172e5d7dd39523f33645))
+
 # 1.0.0 (2020-09-08)
 
 ### Features
