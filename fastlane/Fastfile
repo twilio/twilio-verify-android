@@ -80,7 +80,7 @@ platform :android do
 
   desc "Generates release tag, release notes and updates CHANGELOG.md"
   lane :post_release do
-        next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
+    next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
     notes = conventional_changelog(
       format: 'markdown', 
       commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
