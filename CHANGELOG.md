@@ -1,3 +1,33 @@
+# 2.0.0 (2020-09-08)
+
+### Bug fixes
+- Fix 1 ([545ebe9](https://github.com/twilio/twilio-verify-android/commit/545ebe936f44b3e20568c960a86186420740609c))
+- **hi:** Scoped fix 2 ([fde426c5a3ad083b0ad7445122f3eee2e94dd06a](https://github.com/twilio/twilio-verify-android/commit/))
+
+### Code refactoring
+- Refactor 1 ([bbf6d7a](https://github.com/twilio/twilio-verify-android/commit/bbf6d7a07135373c70293f2703118927bf01206e))
+- Refactor test 2 ([41a2459](https://github.com/twilio/twilio-verify-android/commit/41a2459df2ffff14c22092e1e2b7679f300d92d3))
+- **test:** Scoped refactor test 3 ([23f46e7](https://github.com/twilio/twilio-verify-android/commit/23f46e7558dabbb5e15fdc8b99b7497d1befda67))
+
+### Performance improvements
+- Performance 1 ([b136aab](https://github.com/twilio/twilio-verify-android/commit/b136aab97ca2105fa38c4671cea65ae3b56ff3cd))
+- Perf 2 ([30c2d11](https://github.com/twilio/twilio-verify-android/commit/30c2d11e6a82524e77b3839a58acb41159c54ff4))
+
+### Building system
+- Chore test 1 ([8901fa1](https://github.com/twilio/twilio-verify-android/commit/8901fa1c9dbd02c44121825d84b70981b589e120))
+- Chore test 2 ([9172935](https://github.com/twilio/twilio-verify-android/commit/91729358e00e36bb2c731ab5171e020b1fe57078))
+
+### Documentation
+- Test doc1 ([9f15c15](https://github.com/twilio/twilio-verify-android/commit/9f15c15a486796163982c29862f41c0d6a471be4))
+- Test doc 2 ([037b601](https://github.com/twilio/twilio-verify-android/commit/037b601c2942448e1860828342f86c99f518df31))
+
+### Code style
+- Test style 1 ([278a5a9](https://github.com/twilio/twilio-verify-android/commit/278a5a916f1399a487d7ecc027d4e18fc017fd10))
+- Style 2 ([3ea6c21](https://github.com/twilio/twilio-verify-android/commit/3ea6c2127c86dfa2b26913c53aca88a42a6718b9))
+
+### BREAKING CHANGES
+- this is a breaking change ([fde426c5a3ad083b0ad7445122f3eee2e94dd06a](https://github.com/twilio/twilio-verify-android/commit/))
+
 # 1.1.0 (2020-09-08)
 
 ### Features
