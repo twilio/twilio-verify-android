@@ -86,7 +86,7 @@ platform :android do
       commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
     tag = next_version
     UI.important(notes)
-    add_git_tag(tag: tag)
+        add_git_tag(tag: tag)
     push_git_tags(tag: tag)
 
     set_github_release(
