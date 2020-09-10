@@ -109,7 +109,7 @@ platform :android do
 
     UI.message("Updating CHANGELOG.md")
     sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-    git_commit(path: ['./verify/gradle.properties', './CHANGELOG.md', './docs/latest', '.docs/#{next_version}/*'], message: "Version bump to #{next_version} [skip ci]")
+    git_commit(path: ['./verify/gradle.properties', './CHANGELOG.md', './docs/latest', ".docs/#{next_version}/*"], message: "Version bump to #{next_version} [skip ci]")
     push_to_git_remote
 
     #set_github_release(
