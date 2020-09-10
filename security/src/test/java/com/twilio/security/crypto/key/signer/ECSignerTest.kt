@@ -10,6 +10,9 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.AndroidKeyStoreOperations
 import com.twilio.security.crypto.KeyException
+import java.security.KeyPair
+import java.security.PrivateKey
+import java.security.PublicKey
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -19,9 +22,6 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.security.KeyPair
-import java.security.PrivateKey
-import java.security.PublicKey
 
 @RunWith(RobolectricTestRunner::class)
 class ECSignerTest {
@@ -50,7 +50,7 @@ class ECSignerTest {
     val data = "test".toByteArray()
     val expectedSignature = "signature".toByteArray()
     whenever(androidKeyStoreOperations.sign(eq(data), eq(signatureAlgorithm), any())).thenReturn(
-        expectedSignature
+      expectedSignature
     )
     val signature = ecSigner.sign(data)
     assertTrue(expectedSignature.contentEquals(signature))
@@ -61,13 +61,13 @@ class ECSignerTest {
     val data = "test".toByteArray()
     val error: RuntimeException = mock()
     whenever(androidKeyStoreOperations.sign(eq(data), eq(signatureAlgorithm), any())).thenThrow(
-        error
+      error
     )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            RuntimeException::class.java
-        )
+      Matchers.instanceOf(
+        RuntimeException::class.java
+      )
     )
     ecSigner.sign(data)
   }
@@ -78,12 +78,12 @@ class ECSignerTest {
     whenever(ecSigner.keyPair.public).thenReturn(publicKey)
     val expectedPublicKey = "publicKey"
     whenever(ecSigner.keyPair.public.encoded).thenReturn(
-        expectedPublicKey.toByteArray()
+      expectedPublicKey.toByteArray()
     )
 
     assertTrue(
-        ecSigner.getPublic()
-            .contentEquals(expectedPublicKey.toByteArray())
+      ecSigner.getPublic()
+        .contentEquals(expectedPublicKey.toByteArray())
     )
   }
 
@@ -104,7 +104,7 @@ class ECSignerTest {
     val signature = "signature".toByteArray()
     val expectedResult = true
     whenever(
-        androidKeyStoreOperations.verify(eq(data), eq(signature), eq(signatureAlgorithm), any())
+      androidKeyStoreOperations.verify(eq(data), eq(signature), eq(signatureAlgorithm), any())
     ).thenReturn(expectedResult)
     val result = ecSigner.verify(data, signature)
     assertEquals(expectedResult, result)
@@ -116,13 +116,13 @@ class ECSignerTest {
     val signature = "signature".toByteArray()
     val error: RuntimeException = mock()
     whenever(
-        androidKeyStoreOperations.verify(eq(data), eq(signature), eq(signatureAlgorithm), any())
+      androidKeyStoreOperations.verify(eq(data), eq(signature), eq(signatureAlgorithm), any())
     ).thenThrow(error)
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
-        Matchers.instanceOf(
-            RuntimeException::class.java
-        )
+      Matchers.instanceOf(
+        RuntimeException::class.java
+      )
     )
     ecSigner.verify(data, signature)
   }

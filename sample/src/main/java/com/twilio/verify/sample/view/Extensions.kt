@@ -19,30 +19,32 @@ fun Throwable.showError(
 ) {
   printStackTrace()
   Snackbar.make(content, message.toString(), BaseTransientBottomBar.LENGTH_LONG)
-      .show()
+    .show()
 }
 
 fun ChallengeDetails.string(context: Context?): String {
   return takeIf { it.date != null || it.fields.isNotEmpty() }?.let {
     "Details:\n${fields.joinToString(
-        "\n"
+      "\n"
     ) {
       "  ${it.label} = ${it.value}"
-    }}${(date?.let {
-      "  Date = ${DateUtils.formatDateTime(context, it.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME)}"
-    } ?: "")}\n"
+    }}${(
+      date?.let {
+        "  Date = ${DateUtils.formatDateTime(context, it.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME)}"
+      } ?: ""
+      )}\n"
   } ?: ""
 }
 
 fun Challenge.string(context: Context?) =
   "Sid:\n${this.sid}\nName: ${this.challengeDetails.message}\nStatus: ${this.status}\nCreated at: " +
-      "${DateUtils.formatDateTime(
-          context, createdAt.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
-      )}\nExpire on: " +
-      DateUtils.formatDateTime(
-          context, expirationDate.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
-      )
+    "${DateUtils.formatDateTime(
+      context, createdAt.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
+    )}\nExpire on: " +
+    DateUtils.formatDateTime(
+      context, expirationDate.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
+    )
 
 fun Factor.string() =
   "Sid:\n${this.sid}\nIdentity:\n${this.identity}\nName: ${this.friendlyName}" +
-      "\nStatus: ${this.status}"
+    "\nStatus: ${this.status}"

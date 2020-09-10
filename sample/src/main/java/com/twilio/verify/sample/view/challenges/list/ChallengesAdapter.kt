@@ -15,7 +15,7 @@ class ChallengesAdapter(
   private val challenges: List<Challenge>,
   private val onChallengeClick: (Challenge) -> Unit
 ) :
-    Adapter<ChallengesAdapter.ChallengeViewHolder>() {
+  Adapter<ChallengesAdapter.ChallengeViewHolder>() {
 
   override fun onCreateViewHolder(
     parent: ViewGroup,
@@ -23,7 +23,7 @@ class ChallengesAdapter(
   ): ChallengeViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     return ChallengeViewHolder(
-        inflater.inflate(layout.view_challenge, parent, false)
+      inflater.inflate(layout.view_challenge, parent, false)
     )
   }
 
@@ -42,7 +42,7 @@ class ChallengesAdapter(
 
     init {
       challengeInfo = itemView.findViewById(
-          id.challengeInfo
+        id.challengeInfo
       )
     }
 

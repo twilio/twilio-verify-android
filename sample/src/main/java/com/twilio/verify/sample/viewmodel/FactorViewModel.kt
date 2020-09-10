@@ -15,12 +15,15 @@ class FactorViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : Vi
   private val factor: MutableLiveData<FactorResult> = MutableLiveData()
 
   fun loadFactor(sid: String) {
-    twilioVerifyAdapter.getFactors({ factors ->
-      factor.value = factors.firstOrNull { it.sid == sid }
+    twilioVerifyAdapter.getFactors(
+      { factors ->
+        factor.value = factors.firstOrNull { it.sid == sid }
           ?.let { Factor(it) } ?: FactorError(IllegalArgumentException("Factor not found"))
-    }, {
-      factor.value = FactorError(it)
-    })
+      },
+      {
+        factor.value = FactorError(it)
+      }
+    )
   }
 
   fun getFactor(): LiveData<FactorResult> {
@@ -29,11 +32,14 @@ class FactorViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : Vi
 
   fun createFactor(createFactorData: CreateFactorData) {
     twilioVerifyAdapter.createFactor(
-        createFactorData, backendAPIClient(createFactorData.accessTokenUrl), {
-      factor.value = Factor(it)
-    }, {
-      factor.value = FactorError(it)
-    })
+      createFactorData, backendAPIClient(createFactorData.accessTokenUrl),
+      {
+        factor.value = Factor(it)
+      },
+      {
+        factor.value = FactorError(it)
+      }
+    )
   }
 }
 

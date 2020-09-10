@@ -32,14 +32,14 @@ internal class ChallengeRepository(
     ) {
       try {
         val challenge = challengeMapper.fromApi(response, signatureFieldsHeader)
-            .also {
-              if (it.factorSid != factor.sid) {
-                throw TwilioVerifyException(
-                    IllegalArgumentException("Wrong factor for challenge"), InputError
-                )
-              }
-              toFactorChallenge(it).factor = factor
+          .also {
+            if (it.factorSid != factor.sid) {
+              throw TwilioVerifyException(
+                IllegalArgumentException("Wrong factor for challenge"), InputError
+              )
             }
+            toFactorChallenge(it).factor = factor
+          }
         success(challenge)
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -58,16 +58,16 @@ internal class ChallengeRepository(
       factorChallenge.factor?.let {
         get(factorChallenge.sid, it, success, error)
       } ?: error(
-          TwilioVerifyException(
-              IllegalArgumentException("Invalid factor"), InputError
-          )
+        TwilioVerifyException(
+          IllegalArgumentException("Invalid factor"), InputError
+        )
       )
     }
     try {
       if (challenge.status != Pending) {
         throw TwilioVerifyException(
-            IllegalArgumentException("Responded or expired challenge can not be updated"),
-            InputError
+          IllegalArgumentException("Responded or expired challenge can not be updated"),
+          InputError
         )
       }
       toFactorChallenge(challenge).let { factorChallenge ->
@@ -99,6 +99,6 @@ internal class ChallengeRepository(
 
   private fun toFactorChallenge(challenge: Challenge) =
     (challenge as? FactorChallenge) ?: throw TwilioVerifyException(
-        IllegalArgumentException("Invalid challenge"), InputError
+      IllegalArgumentException("Invalid challenge"), InputError
     )
 }

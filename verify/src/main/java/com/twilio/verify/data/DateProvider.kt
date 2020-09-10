@@ -24,7 +24,7 @@ internal class DateAdapter(
 ) : DateProvider {
   override fun getCurrentTime(): Long {
     val timeDifference = preferences.getLong(
-        timeCorrectionKey, 0
+      timeCorrectionKey, 0
     )
     return localTime() + timeDifference
   }
@@ -41,7 +41,7 @@ internal class DateAdapter(
     val timeCorrection =
       MILLISECONDS.toSeconds(time) - localTime()
     preferences.edit()
-        .putLong(timeCorrectionKey, timeCorrection)
-        .apply()
+      .putLong(timeCorrectionKey, timeCorrection)
+      .apply()
   }
 }

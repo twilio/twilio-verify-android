@@ -4,9 +4,9 @@
 package com.twilio.verify.sample
 
 import android.os.Looper
+import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertTrue
 import org.robolectric.Shadows
-import java.util.concurrent.atomic.AtomicInteger
 
 class IdlingResource(private val counter: AtomicInteger = AtomicInteger(0)) {
   fun waitForIdle(
@@ -17,17 +17,17 @@ class IdlingResource(private val counter: AtomicInteger = AtomicInteger(0)) {
       if (counter.get() > 0) {
         Thread.sleep(waitFor)
         Shadows.shadowOf(
-            Looper.getMainLooper()
+          Looper.getMainLooper()
         )
-            .idle()
+          .idle()
       } else {
         break
       }
     }
     Shadows.shadowOf(
-        Looper.getMainLooper()
+      Looper.getMainLooper()
     )
-        .idle()
+      .idle()
     assertTrue(counter.get() == 0)
   }
 

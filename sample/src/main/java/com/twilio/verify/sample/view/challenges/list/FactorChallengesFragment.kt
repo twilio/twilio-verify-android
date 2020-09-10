@@ -55,22 +55,28 @@ class FactorChallengesFragment : Fragment() {
     super.onActivityCreated(savedInstanceState)
     viewManager = LinearLayoutManager(view?.context)
     factorViewModel.getFactor()
-        .observe(viewLifecycleOwner, Observer {
+      .observe(
+        viewLifecycleOwner,
+        Observer {
           when (it) {
             is Factor -> showFactor(it.factor)
             is FactorError -> it.exception.showError(content)
           }
-        })
+        }
+      )
     challengesViewModel.getChallenges()
-        .observe(viewLifecycleOwner, Observer {
+      .observe(
+        viewLifecycleOwner,
+        Observer {
           when (it) {
             is ChallengeList -> showChallenges(it.challenges)
             is ChallengesError -> it.exception.showError(content)
           }
-        })
+        }
+      )
     val dividerItemDecoration = DividerItemDecoration(
-        challenges.context,
-        viewManager.orientation
+      challenges.context,
+      viewManager.orientation
     )
     challenges.addItemDecoration(dividerItemDecoration)
     factorViewModel.loadFactor(factorSid)
@@ -85,8 +91,8 @@ class FactorChallengesFragment : Fragment() {
   private fun showChallenges(challenges: List<Challenge>) {
     viewAdapter = ChallengesAdapter(challenges) {
       val bundle = bundleOf(
-          ARG_FACTOR_SID to it.factorSid,
-          ARG_CHALLENGE_SID to it.sid
+        ARG_FACTOR_SID to it.factorSid,
+        ARG_CHALLENGE_SID to it.sid
       )
       findNavController().navigate(R.id.action_show_challenge, bundle)
     }

@@ -15,21 +15,18 @@ internal const val keyGeneratorMockName =
 
 class KeyGeneratorMock : KeyGeneratorSpi() {
   override fun engineInit(random: SecureRandom?) {
-
   }
 
   override fun engineInit(
     params: AlgorithmParameterSpec?,
     random: SecureRandom?
   ) {
-
   }
 
   override fun engineInit(
     keysize: Int,
     random: SecureRandom?
   ) {
-
   }
 
   override fun engineGenerateKey(): SecretKey? {

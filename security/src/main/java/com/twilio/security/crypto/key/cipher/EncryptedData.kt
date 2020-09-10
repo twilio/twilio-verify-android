@@ -62,33 +62,37 @@ private const val algorithmKey = "algorithm"
 internal fun fromByteArray(data: ByteArray): EncryptedData {
   val jsonObject = JSONObject(String(data))
   return EncryptedData(
-      fromByteArray(jsonObject.getJSONObject(algorithmParametersKey)), Base64.decode(
+    fromByteArray(jsonObject.getJSONObject(algorithmParametersKey)),
+    Base64.decode(
       jsonObject.getString(
-          encryptedKey
-      ), DEFAULT
-  )
+        encryptedKey
+      ),
+      DEFAULT
+    )
   )
 }
 
 private fun fromByteArray(jsonObject: JSONObject): AlgorithmParametersSpec {
   return AlgorithmParametersSpec(
-      Base64.decode(jsonObject.getString(encodedKey), DEFAULT), jsonObject.getString(
+    Base64.decode(jsonObject.getString(encodedKey), DEFAULT),
+    jsonObject.getString(
       providerKey
-  ), jsonObject.getString(algorithmKey)
+    ),
+    jsonObject.getString(algorithmKey)
   )
 }
 
 internal fun toByteArray(encryptedData: EncryptedData): ByteArray = JSONObject()
-    .apply {
-      put(encryptedKey, Base64.encodeToString(encryptedData.encrypted, DEFAULT))
-      put(algorithmParametersKey, toByteArray(encryptedData.algorithmParameters))
-    }
-    .toString()
-    .toByteArray()
+  .apply {
+    put(encryptedKey, Base64.encodeToString(encryptedData.encrypted, DEFAULT))
+    put(algorithmParametersKey, toByteArray(encryptedData.algorithmParameters))
+  }
+  .toString()
+  .toByteArray()
 
 private fun toByteArray(algorithmParametersSpec: AlgorithmParametersSpec): JSONObject = JSONObject()
-    .apply {
-      put(encodedKey, Base64.encodeToString(algorithmParametersSpec.encoded, DEFAULT))
-      put(providerKey, algorithmParametersSpec.provider)
-      put(algorithmKey, algorithmParametersSpec.algorithm)
-    }
+  .apply {
+    put(encodedKey, Base64.encodeToString(algorithmParametersSpec.encoded, DEFAULT))
+    put(providerKey, algorithmParametersSpec.provider)
+    put(algorithmKey, algorithmParametersSpec.algorithm)
+  }

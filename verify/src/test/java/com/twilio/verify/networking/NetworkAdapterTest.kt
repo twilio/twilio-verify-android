@@ -1,20 +1,18 @@
 package com.twilio.verify.networking
 
 import com.nhaarman.mockitokotlin2.mock
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
-import org.robolectric.RobolectricTestRunner
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Before
+import org.junit.Test
+import org.mockito.Mockito.`when`
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -47,12 +45,16 @@ class NetworkAdapterTest {
     `when`(urlConnection.responseCode).thenReturn(200)
     `when`(urlConnection.inputStream).thenReturn(inputStream)
     `when`(urlConnection.headerFields).thenReturn(expectedHeaders)
-    networkAdapter.execute(request, {
-      assertEquals(expectedResponse, it.body)
-      assertEquals(expectedHeaders, it.headers)
-    }, error = {
-      fail()
-    })
+    networkAdapter.execute(
+      request,
+      {
+        assertEquals(expectedResponse, it.body)
+        assertEquals(expectedHeaders, it.headers)
+      },
+      error = {
+        fail()
+      }
+    )
   }
 
   @Test
@@ -66,9 +68,12 @@ class NetworkAdapterTest {
     val expectedResponse = "Error"
     val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
     `when`(urlConnection.errorStream).thenReturn(errorStream)
-    networkAdapter.execute(request, { fail() }, error = { exception ->
-      assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
-    })
+    networkAdapter.execute(
+      request, { fail() },
+      error = { exception ->
+        assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
+      }
+    )
   }
 
   @Test
@@ -82,9 +87,12 @@ class NetworkAdapterTest {
     val expectedResponse = "Error"
     val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
     `when`(urlConnection.errorStream).thenReturn(errorStream)
-    networkAdapter.execute(request, { fail() }, error = { exception ->
-      assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
-    })
+    networkAdapter.execute(
+      request, { fail() },
+      error = { exception ->
+        assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
+      }
+    )
   }
 
   @Test
@@ -94,8 +102,11 @@ class NetworkAdapterTest {
     `when`(request.httpMethod).thenReturn(HttpMethod.Post)
     val expectedException: IOException = mock()
     `when`(url.openConnection()).thenThrow(expectedException)
-    networkAdapter.execute(request, { fail() }, error = { exception ->
-      assertEquals(expectedException, exception.cause)
-    })
+    networkAdapter.execute(
+      request, { fail() },
+      error = { exception ->
+        assertEquals(expectedException, exception.cause)
+      }
+    )
   }
 }

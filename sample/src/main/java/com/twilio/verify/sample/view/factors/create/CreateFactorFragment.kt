@@ -46,18 +46,22 @@ class CreateFactorFragment : Fragment() {
     }
     getPushToken()
     factorViewModel.getFactor()
-        .observe(viewLifecycleOwner, Observer {
+      .observe(
+        viewLifecycleOwner,
+        Observer {
           createFactor.isEnabled = true
           when (it) {
             is com.twilio.verify.sample.viewmodel.Factor -> onSuccess(it.factor)
             is FactorError -> it.exception.showError(content)
           }
-        })
+        }
+      )
   }
 
   private fun getPushToken() {
     FirebaseInstanceId.getInstance()
-        .instanceId.addOnCompleteListener(OnCompleteListener { task ->
+      .instanceId.addOnCompleteListener(
+        OnCompleteListener { task ->
           if (!task.isSuccessful) {
             task.exception?.let { it.showError(content) }
             return@OnCompleteListener
@@ -65,7 +69,8 @@ class CreateFactorFragment : Fragment() {
           task.result?.token?.let {
             token = it
           }
-        })
+        }
+      )
   }
 
   private fun startCreateFactor() {
@@ -74,16 +79,17 @@ class CreateFactorFragment : Fragment() {
       !this::token.isInitialized ->
         IllegalArgumentException("Invalid push token").showError(content)
       identityInput.text.toString()
-          .isEmpty() -> IllegalArgumentException("Invalid identity").showError(
-          content
+        .isEmpty() -> IllegalArgumentException("Invalid identity").showError(
+        content
       )
       accessTokenUrlInput.text.toString()
-          .isEmpty() || accessTokenUrlInput.text.toString()
-          .toHttpUrlOrNull() == null -> IllegalArgumentException(
+        .isEmpty() || accessTokenUrlInput.text.toString()
+        .toHttpUrlOrNull() == null ->
+        IllegalArgumentException(
           "Invalid access token url"
-      ).showError(
+        ).showError(
           content
-      )
+        )
       else -> {
         createFactor(identityInput.text.toString(), accessTokenUrlInput.text.toString())
       }

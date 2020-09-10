@@ -139,8 +139,8 @@ interface TwilioVerify {
     private var jwtGenerator: JwtGenerator = JwtGenerator(JwtSigner(keyStorage))
     private var authentication =
       AuthenticationProvider(
-          jwtGenerator,
-          DateAdapter(storagePreferences(context))
+        jwtGenerator,
+        DateAdapter(storagePreferences(context))
       )
 
     /**
@@ -161,27 +161,27 @@ interface TwilioVerify {
     @Throws(TwilioVerifyException::class)
     fun build(): TwilioVerify {
       val factorFacade = FactorFacade.Builder()
-          .context(context)
-          .networkProvider(networkProvider)
-          .keyStorage(keyStorage)
-          .baseUrl(baseUrl)
-          .setAuthentication(authentication)
-          .build()
+        .context(context)
+        .networkProvider(networkProvider)
+        .keyStorage(keyStorage)
+        .baseUrl(baseUrl)
+        .setAuthentication(authentication)
+        .build()
       val challengeFacade = ChallengeFacade.Builder()
-          .context(context)
-          .networkProvider(networkProvider)
-          .jwtGenerator(jwtGenerator)
-          .factorFacade(factorFacade)
-          .baseUrl(baseUrl)
-          .setAuthentication(authentication)
-          .build()
+        .context(context)
+        .networkProvider(networkProvider)
+        .jwtGenerator(jwtGenerator)
+        .factorFacade(factorFacade)
+        .baseUrl(baseUrl)
+        .setAuthentication(authentication)
+        .build()
       val serviceFacade = ServiceFacade.Builder()
-          .context(context)
-          .networkProvider(networkProvider)
-          .setFactorFacade(factorFacade)
-          .setAuthentication(authentication)
-          .baseUrl(baseUrl)
-          .build()
+        .context(context)
+        .networkProvider(networkProvider)
+        .setFactorFacade(factorFacade)
+        .setAuthentication(authentication)
+        .baseUrl(baseUrl)
+        .build()
       return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
     }
   }

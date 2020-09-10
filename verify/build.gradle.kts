@@ -1,20 +1,19 @@
 //region Plugins
 apply(from = "../jacoco.gradle.kts")
+apply(from = "version.gradle.kts")
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.dokka)
   id(MavenPublish.plugin)
-  id(Config.Plugins.versionBumper)
   jacoco
   id(Config.Plugins.apkscale)
 }
 //endregion
 
-val verifyVersionName = versionBumper.versionName
-val verifyVersionCode = versionBumper.versionCode
-
+val verifyVersionName: String by extra
+val verifyVersionCode: String by extra
 //region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
@@ -22,7 +21,7 @@ android {
   defaultConfig {
     minSdkVersion(Config.Versions.minSDKVersion)
     targetSdkVersion(Config.Versions.targetSDKVersion)
-    versionCode = verifyVersionCode
+    versionCode = verifyVersionCode.toInt()
     versionName = verifyVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -34,18 +33,22 @@ android {
     getByName("release") {
       isMinifyEnabled = false
       proguardFiles(
-          getDefaultProguardFile("proguard-android-optimize.txt"),
-          "proguard-rules.pro"
+        getDefaultProguardFile("proguard-android-optimize.txt"),
+        "proguard-rules.pro"
       )
     }
   }
   testOptions.unitTests.isIncludeAndroidResources = true
+  lintOptions {
+    lintConfig = rootProject.file(".lint/config.xml")
+    isCheckAllWarnings = true
+  }
 }
 //endregion
 
 //region KDoc
 tasks.dokkaHtml {
-  outputDirectory = "../docs/${verifyVersionName}"
+  outputDirectory = "../docs/$verifyVersionName"
   disableAutoconfiguration = false
   dokkaSourceSets {
     configureEach {
@@ -59,7 +62,7 @@ tasks.dokkaHtml {
     ant.withGroovyBuilder {
       "copy"(
         "file" to "index.html",
-        "todir" to "../docs/${verifyVersionName}"
+        "todir" to "../docs/$verifyVersionName"
       )
     }
   }
@@ -108,8 +111,8 @@ tasks {
 val dokkaHtmlJar by tasks.creating(Jar::class) {
   dependsOn(tasks.dokkaHtml)
   from(
-      tasks.dokkaHtml.get()
-          .getOutputDirectoryAsFile()
+    tasks.dokkaHtml.get()
+      .getOutputDirectoryAsFile()
   )
   archiveClassifier.set("html-doc")
 }
@@ -163,15 +166,16 @@ task("generateSizeReport") {
   group = "Reporting"
 
   doLast {
-    var sizeReport = "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
-            "\n" +
-            "| ABI             | APK Size Impact |\n" +
-            "| --------------- | --------------- |\n"
+    var sizeReport =
+      "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
+          "\n" +
+          "| ABI             | APK Size Impact |\n" +
+          "| --------------- | --------------- |\n"
     val apkscaleOutputFile = file("$buildDir/apkscale/build/outputs/reports/apkscale.json")
     val jsonSlurper = groovy.json.JsonSlurper()
     val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
     val releaseOutput = apkscaleOutput[0] as Map<*, *>
-    val sizes = releaseOutput["size"] as Map<String,String>
+    val sizes = releaseOutput["size"] as Map<String, String>
     sizes.forEach { (arch, sizeImpact) ->
       sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
     }
@@ -197,7 +201,7 @@ dependencies {
   androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
   testImplementation("junit:junit:4.12")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-  testImplementation("org.robolectric:robolectric:4.4-beta-1")
+  testImplementation("org.robolectric:robolectric:4.4")
   testImplementation("androidx.test:core:1.2.0")
   testImplementation("org.hamcrest:hamcrest-library:1.3")
   testImplementation("org.mockito:mockito-inline:2.28.2")

@@ -38,9 +38,9 @@ class MainActivity : AppCompatActivity() {
     challengeSid: String
   ) {
     val bundle = bundleOf(
-        ARG_CHALLENGE_SID to challengeSid, ARG_FACTOR_SID to factorSid
+      ARG_CHALLENGE_SID to challengeSid, ARG_FACTOR_SID to factorSid
     )
     nav_host_fragment?.findNavController()
-        ?.navigate(id.action_show_challenge, bundle)
+      ?.navigate(id.action_show_challenge, bundle)
   }
 }

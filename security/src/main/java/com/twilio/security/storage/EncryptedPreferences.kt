@@ -22,8 +22,8 @@ class EncryptedPreferences(
       val rawValue = toByteArray(value)
       val encrypted = secretKeyProvider.encrypt(rawValue)
       preferences.edit()
-          .putString(generateKeyDigest(key), Base64.encodeToString(encrypted, DEFAULT))
-          .apply()
+        .putString(generateKeyDigest(key), Base64.encodeToString(encrypted, DEFAULT))
+        .apply()
     } catch (e: Exception) {
       throw StorageException(e)
     }
@@ -36,7 +36,7 @@ class EncryptedPreferences(
   ): T {
     return try {
       getValue(generateKeyDigest(key), kClass) ?: throw IllegalArgumentException(
-          "Illegal decrypted data"
+        "Illegal decrypted data"
       )
     } catch (e: Exception) {
       throw StorageException(e)
@@ -48,15 +48,15 @@ class EncryptedPreferences(
     kClass: KClass<T>
   ): List<T> = try {
     preferences.all.filterValues { it is String }
-        .mapNotNull { entry ->
-          try {
-            getValue(
-                entry.key, kClass
-            )
-          } catch (e: Exception) {
-            null
-          }
+      .mapNotNull { entry ->
+        try {
+          getValue(
+            entry.key, kClass
+          )
+        } catch (e: Exception) {
+          null
         }
+      }
   } catch (e: Exception) {
     throw StorageException(e)
   }
@@ -66,15 +66,15 @@ class EncryptedPreferences(
   @Synchronized
   override fun remove(key: String) {
     preferences.edit()
-        .remove(generateKeyDigest(key))
-        .apply()
+      .remove(generateKeyDigest(key))
+      .apply()
   }
 
   @Synchronized
   override fun clear() {
     preferences.edit()
-        .clear()
-        .apply()
+      .clear()
+      .apply()
   }
 
   private fun <T : Any> getValue(

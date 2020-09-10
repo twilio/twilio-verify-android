@@ -22,7 +22,7 @@ class AppApplication : Application() {
   private val appModule = module {
     single<TwilioVerifyAdapter> {
       TwilioVerifyKotlinProvider.getInstance(
-          androidContext()
+        androidContext()
       )
     }
   }

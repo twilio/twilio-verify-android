@@ -45,28 +45,28 @@ internal class PushFactory(
       val binding = binding(publicKey)
       val config = config(pushToken)
       val factorBuilder = CreateFactorPayload(
-          friendlyName, PUSH, serviceSid,
-          identity, config, binding, accessToken
+        friendlyName, PUSH, serviceSid,
+        identity, config, binding, accessToken
       )
 
       fun onFactorCreated(factor: Factor) {
         (factor as? PushFactor?)?.apply {
           keyPairAlias = alias
         }
-            ?.let { pushFactor ->
-              pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }
-                  ?.let {
-                    factorProvider.save(pushFactor)
-                    success(pushFactor)
-                  } ?: run {
-                keyStorage.delete(alias)
-                error(
-                    TwilioVerifyException(
-                        IllegalStateException("Key pair not set"), KeyStorageError
-                    )
+          ?.let { pushFactor ->
+            pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }
+              ?.let {
+                factorProvider.save(pushFactor)
+                success(pushFactor)
+              } ?: run {
+              keyStorage.delete(alias)
+              error(
+                TwilioVerifyException(
+                  IllegalStateException("Key pair not set"), KeyStorageError
                 )
-              }
+              )
             }
+          }
       }
 
       factorProvider.create(factorBuilder, ::onFactorCreated) { exception ->
@@ -110,8 +110,8 @@ internal class PushFactory(
   ) {
     fun updateFactor(pushFactor: PushFactor) {
       val updateFactorPayload = UpdateFactorPayload(
-          pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.identity,
-          config(pushToken), pushFactor.sid
+        pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.identity,
+        config(pushToken), pushFactor.sid
       )
       factorProvider.update(updateFactorPayload, success, error)
     }
@@ -131,10 +131,14 @@ internal class PushFactory(
     error: (TwilioVerifyException) -> Unit
   ) {
     fun deleteFactor(pushFactor: PushFactor) {
-      factorProvider.delete(pushFactor, {
-        pushFactor.keyPairAlias?.let { keyStorage.delete(it) }
-        success()
-      }, error)
+      factorProvider.delete(
+        pushFactor,
+        {
+          pushFactor.keyPairAlias?.let { keyStorage.delete(it) }
+          success()
+        },
+        error
+      )
     }
     try {
       val factor = factorProvider.get(sid) as? PushFactor
@@ -149,9 +153,9 @@ internal class PushFactory(
   private fun generateKeyPairAlias(): String {
     val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     return (1..15)
-        .map { kotlin.random.Random.nextInt(0, charPool.size) }
-        .map(charPool::get)
-        .joinToString("")
+      .map { kotlin.random.Random.nextInt(0, charPool.size) }
+      .map(charPool::get)
+      .joinToString("")
   }
 
   private fun binding(
@@ -161,8 +165,8 @@ internal class PushFactory(
   private fun config(
     pushToken: String
   ): Map<String, String> = mapOf(
-      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-      APP_ID_KEY to context.applicationInfo.packageName,
-      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE, NOTIFICATION_TOKEN_KEY to pushToken
+    SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+    APP_ID_KEY to context.applicationInfo.packageName,
+    NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE, NOTIFICATION_TOKEN_KEY to pushToken
   )
 }

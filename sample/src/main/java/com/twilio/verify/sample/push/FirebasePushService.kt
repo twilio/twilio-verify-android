@@ -64,15 +64,15 @@ class FirebasePushService() : FirebaseMessagingService() {
         i.putExtras(bundleOf(ARG_FACTOR_SID to factorSid, ARG_CHALLENGE_SID to challengeSid))
         val pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_ONE_SHOT)
         val builder = NotificationCompat.Builder(
-            this,
-            channelId
+          this,
+          channelId
         )
-            .setContentIntent(pendingIntent)
-            .setSmallIcon(R.drawable.ic_challenge)
-            .setContentTitle(getString(R.string.new_challenge))
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+          .setContentIntent(pendingIntent)
+          .setSmallIcon(R.drawable.ic_challenge)
+          .setContentTitle(getString(R.string.new_challenge))
+          .setContentText(message)
+          .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+          .setAutoCancel(true)
         with(NotificationManagerCompat.from(this)) {
           notify(challengeSid.hashCode(), builder.build())
         }

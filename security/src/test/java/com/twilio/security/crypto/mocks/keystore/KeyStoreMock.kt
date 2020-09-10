@@ -98,7 +98,6 @@ class KeyStoreMock : KeyStoreSpi() {
     stream: InputStream?,
     password: CharArray?
   ) {
-
   }
 
   override fun engineGetCertificateChain(alias: String?): Array<Certificate> {
@@ -160,7 +159,7 @@ fun setProviderAsVerified(provider: Provider) {
     put(provider, java.lang.Boolean.TRUE as Any)
   }
   setFinalStatic(
-      jceSecurityClass.getDeclaredField("verificationResults"), verifiedProviders
+    jceSecurityClass.getDeclaredField("verificationResults"), verifiedProviders
   )
 }
 

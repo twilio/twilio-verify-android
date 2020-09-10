@@ -16,7 +16,7 @@ class FactorsAdapter(
   private val factors: List<Factor>,
   private val onFactorClick: (Factor) -> Unit
 ) :
-    Adapter<FactorViewHolder>() {
+  Adapter<FactorViewHolder>() {
 
   override fun onCreateViewHolder(
     parent: ViewGroup,
@@ -24,7 +24,7 @@ class FactorsAdapter(
   ): FactorViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     return FactorViewHolder(
-        inflater.inflate(layout.view_factor, parent, false)
+      inflater.inflate(layout.view_factor, parent, false)
     )
   }
 
@@ -45,7 +45,7 @@ class FactorsAdapter(
 
     init {
       factorInfo = itemView.findViewById(
-          id.factorInfo
+        id.factorInfo
       )
     }
 

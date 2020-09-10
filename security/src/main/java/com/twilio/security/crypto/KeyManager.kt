@@ -26,8 +26,8 @@ internal const val providerName = "AndroidKeyStore"
 
 fun keyManager(): KeyManager =
   AndroidKeyManager(
-      AndroidKeyStore(
-          KeyStore.getInstance(providerName)
-              .apply { load(null) }
-      )
+    AndroidKeyStore(
+      KeyStore.getInstance(providerName)
+        .apply { load(null) }
+    )
   )

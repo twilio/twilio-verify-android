@@ -42,9 +42,9 @@ class AndroidKeyManager(
     val keyPair =
       androidKeyStore.createKeyPair(template.algorithm, template.keyGenParameterSpec)
     return getSignerKeyPair(
-        template.alias
+      template.alias
     ).takeIf { keyPair?.public?.encoded?.contentEquals(it.public.encoded) == true }
-        ?: throw IllegalArgumentException("New private key not found")
+      ?: throw IllegalArgumentException("New private key not found")
   }
 
   private fun getSignerKeyPair(alias: String): KeyPair {
@@ -52,7 +52,7 @@ class AndroidKeyManager(
       throw IllegalArgumentException("alias not found")
     }
     return retryToGetValue { androidKeyStore.getKeyPair(alias) } ?: throw IllegalArgumentException(
-        "Key pair not found"
+      "Key pair not found"
     )
   }
 
@@ -69,7 +69,7 @@ class AndroidKeyManager(
       }
       return when (template) {
         is AESGCMNoPaddingCipherTemplate -> AESCipher(
-            key, template.cipherAlgorithm, androidKeyStore
+          key, template.cipherAlgorithm, androidKeyStore
         )
       }
     } catch (e: Exception) {
@@ -92,7 +92,7 @@ class AndroidKeyManager(
 
   private fun getCipherKey(alias: String): SecretKey {
     return retryToGetValue { getSecretKey(alias) } ?: throw IllegalArgumentException(
-        "Secret key not found"
+      "Secret key not found"
     )
   }
 
@@ -106,7 +106,7 @@ class AndroidKeyManager(
   private fun createCipherKey(template: CipherTemplate): SecretKey {
     val key = androidKeyStore.createKey(template.algorithm, template.keyGenParameterSpec)
     return getCipherKey(
-        template.alias
+      template.alias
     ).takeIf {
       key != null && key == it
     } ?: throw IllegalArgumentException("New secret key not found")

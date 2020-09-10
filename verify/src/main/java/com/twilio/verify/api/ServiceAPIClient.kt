@@ -29,7 +29,7 @@ internal class ServiceAPIClient(
   private val authentication: Authentication,
   private val baseUrl: String,
   dateProvider: DateProvider = DateAdapter(
-      storagePreferences(context)
+    storagePreferences(context)
   )
 ) : BaseAPIClient(dateProvider) {
   fun get(
@@ -42,17 +42,21 @@ internal class ServiceAPIClient(
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper = RequestHelper(
-            context,
-            BasicAuthorization(AUTHENTICATION_USER, authToken)
+          context,
+          BasicAuthorization(AUTHENTICATION_USER, authToken)
         )
         val request = Request.Builder(requestHelper, getServiceURL(serviceSid))
-            .httpMethod(Get)
-            .build()
-        networkProvider.execute(request, {
-          success(JSONObject(it.body))
-        }, { exception ->
-          validateException(exception, ::getService, retries, error)
-        })
+          .httpMethod(Get)
+          .build()
+        networkProvider.execute(
+          request,
+          {
+            success(JSONObject(it.body))
+          },
+          { exception ->
+            validateException(exception, ::getService, retries, error)
+          }
+        )
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
