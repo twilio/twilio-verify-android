@@ -14,12 +14,13 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 internal const val provider = "AndroidKeyStore"
 
 internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
-    KeyStorage {
+  KeyStorage {
   override fun create(alias: String): String {
     return try {
       encodeToBase64UTF8String(
-          manager.signer(getSignerTemplate(alias, false))
-              .getPublic(), NO_WRAP
+        manager.signer(getSignerTemplate(alias, false))
+          .getPublic(),
+        NO_WRAP
       )
     } catch (e: Exception) {
       throw TwilioVerifyException(e, KeyStorageError)
@@ -32,7 +33,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
   ): ByteArray {
     return try {
       manager.signer(getSignerTemplate(alias))
-          .sign(message.toByteArray())
+        .sign(message.toByteArray())
     } catch (e: Exception) {
       throw TwilioVerifyException(e, KeyStorageError)
     }

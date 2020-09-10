@@ -26,6 +26,7 @@ import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
+import java.net.URL
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -34,7 +35,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.net.URL
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -78,13 +78,17 @@ class ServiceAPIClientTest {
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    serviceAPIClient.get(factorServiceSid, factor, { jsonObject ->
-      assertEquals(response, jsonObject.toString())
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    serviceAPIClient.get(
+      factorServiceSid, factor,
+      { jsonObject ->
+        assertEquals(response, jsonObject.toString())
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -99,11 +103,11 @@ class ServiceAPIClientTest {
       on { serviceSid } doReturn factorServiceSid
     }
     val expectedException = NetworkException(
-        FailureResponse(
-            500,
-            null,
-            null
-        )
+      FailureResponse(
+        500,
+        null,
+        null
+      )
     )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
@@ -112,13 +116,17 @@ class ServiceAPIClientTest {
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    serviceAPIClient.get(factorServiceSid, factor, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    serviceAPIClient.get(
+      factorServiceSid, factor,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -135,16 +143,16 @@ class ServiceAPIClientTest {
 
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
     val expectedException = NetworkException(
-        FailureResponse(
-            unauthorized,
-            null,
-            mapOf(dateHeaderKey to listOf(date))
-        )
+      FailureResponse(
+        unauthorized,
+        null,
+        mapOf(dateHeaderKey to listOf(date))
+      )
     )
     val response = "{\"sid\":\"serviceSid\",\"friendly_name\":\"friendlyName\"}"
     argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>().let { (success, error) ->
       whenever(
-          networkProvider.execute(any(), success.capture(), error.capture())
+        networkProvider.execute(any(), success.capture(), error.capture())
       ).then {
         error.firstValue.invoke(expectedException)
       }.then {
@@ -153,13 +161,17 @@ class ServiceAPIClientTest {
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    serviceAPIClient.get(factorServiceSid, factor, { jsonObject ->
-      assertEquals(response, jsonObject.toString())
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    serviceAPIClient.get(
+      factorServiceSid, factor,
+      { jsonObject ->
+        assertEquals(response, jsonObject.toString())
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
   }
@@ -177,11 +189,11 @@ class ServiceAPIClientTest {
 
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
     val expectedException = NetworkException(
-        FailureResponse(
-            unauthorized,
-            null,
-            mapOf(dateHeaderKey to listOf(date))
-        )
+      FailureResponse(
+        unauthorized,
+        null,
+        mapOf(dateHeaderKey to listOf(date))
+      )
     )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
@@ -190,13 +202,17 @@ class ServiceAPIClientTest {
     }
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
-    serviceAPIClient.get(factorServiceSid, factor, { jsonObject ->
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    serviceAPIClient.get(
+      factorServiceSid, factor,
+      { jsonObject ->
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
     verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
@@ -214,15 +230,19 @@ class ServiceAPIClientTest {
     }
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
-    serviceAPIClient.get(factorServiceSid, factor, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertTrue(exception.cause is NetworkException)
-      assertTrue(exception.cause?.cause is RuntimeException)
-      assertEquals(NetworkError.message, exception.message)
-      idlingResource.operationFinished()
-    })
+    serviceAPIClient.get(
+      factorServiceSid, factor,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is NetworkException)
+        assertTrue(exception.cause?.cause is RuntimeException)
+        assertEquals(NetworkError.message, exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 

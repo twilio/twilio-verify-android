@@ -9,6 +9,7 @@ import com.twilio.verify.domain.challenge.sidKey
 import com.twilio.verify.domain.challenge.updatedDateKey
 import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
+import java.text.ParseException
 import org.hamcrest.Matchers
 import org.json.JSONException
 import org.json.JSONObject
@@ -19,7 +20,6 @@ import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.text.ParseException
 
 /*
  * Copyright (c) 2020, Twilio Inc.

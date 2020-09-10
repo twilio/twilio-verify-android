@@ -28,11 +28,13 @@ internal class JwtGenerator(private val jwtSigner: JwtSigner) {
       is ECP256SignerTemplate -> header.put(ALGORITHM_KEY, DEFAULT_ALG)
     }
     val message = "${encodeToBase64UTF8String(
-        header.toString()
-            .toByteArray(), FLAGS
+      header.toString()
+        .toByteArray(),
+      FLAGS
     )}.${encodeToBase64UTF8String(
-        payload.toString()
-            .toByteArray(), FLAGS
+      payload.toString()
+        .toByteArray(),
+      FLAGS
     )}"
     val signature = jwtSigner.sign(signerTemplate, message)
     return "$message.${encodeToBase64UTF8String(signature, FLAGS)}"

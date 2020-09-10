@@ -23,7 +23,8 @@ internal open class BaseAPIClient(private val dateProvider: DateProvider) {
   ) {
     if (retries > 0) {
       when (exception.failureResponse?.responseCode) {
-        unauthorized -> exception.failureResponse.headers?.get(dateHeaderKey)
+        unauthorized ->
+          exception.failureResponse.headers?.get(dateHeaderKey)
             ?.first()
             ?.let { date ->
               syncTime(date)

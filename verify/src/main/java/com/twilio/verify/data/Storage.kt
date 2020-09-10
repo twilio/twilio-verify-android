@@ -11,8 +11,8 @@ internal class Storage(private val sharedPreferences: SharedPreferences) : Stora
     value: String
   ) {
     sharedPreferences.edit()
-        .putString(key, value)
-        .apply()
+      .putString(key, value)
+      .apply()
   }
 
   override fun get(key: String): String? = sharedPreferences.getString(key, null)
@@ -22,7 +22,7 @@ internal class Storage(private val sharedPreferences: SharedPreferences) : Stora
 
   override fun remove(key: String) {
     sharedPreferences.edit()
-        .remove(key)
-        .apply()
+      .remove(key)
+      .apply()
   }
 }

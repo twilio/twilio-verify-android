@@ -38,9 +38,9 @@ class ServiceFacadeTest {
     val factor: Factor = mock()
     argumentCaptor<(Service) -> Unit>().apply {
       whenever(
-          serviceProvider.get(
-              eq(serviceSid), any(), capture(), any()
-          )
+        serviceProvider.get(
+          eq(serviceSid), any(), capture(), any()
+        )
       ).then {
         firstValue.invoke(expectedService)
       }
@@ -51,13 +51,17 @@ class ServiceFacadeTest {
       }
     }
     idlingResource.startOperation()
-    serviceFacade.getService(serviceSid, { service ->
-      assertEquals(expectedService, service)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    serviceFacade.getService(
+      serviceSid,
+      { service ->
+        assertEquals(expectedService, service)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -71,13 +75,17 @@ class ServiceFacadeTest {
       }
     }
     idlingResource.startOperation()
-    serviceFacade.getService(serviceSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception)
-      idlingResource.operationFinished()
-    })
+    serviceFacade.getService(
+      serviceSid,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -88,9 +96,9 @@ class ServiceFacadeTest {
     val factor: Factor = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
-          serviceProvider.get(
-              eq(serviceSid), any(), any(), capture()
-          )
+        serviceProvider.get(
+          eq(serviceSid), any(), any(), capture()
+        )
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
@@ -101,14 +109,17 @@ class ServiceFacadeTest {
       }
     }
     idlingResource.startOperation()
-    serviceFacade.getService(serviceSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    serviceFacade.getService(
+      serviceSid,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
-
 }

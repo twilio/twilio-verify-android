@@ -14,12 +14,12 @@ import com.twilio.security.crypto.key.cipher.EncryptedData
 import com.twilio.security.crypto.key.cipher.fromByteArray
 import com.twilio.security.crypto.key.cipher.toByteArray
 import com.twilio.security.crypto.key.template.CipherTemplate
+import kotlin.random.Random.Default.nextBytes
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class SecretKeyCipherTest {

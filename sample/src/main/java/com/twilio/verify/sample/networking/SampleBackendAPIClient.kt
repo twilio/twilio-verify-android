@@ -4,6 +4,7 @@
 package com.twilio.verify.sample.networking
 
 import com.twilio.verify.sample.model.AccessTokenResponse
+import java.io.IOException
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -14,7 +15,6 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 import retrofit2.http.Url
-import java.io.IOException
 
 interface SampleBackendAPIClient {
   @POST @FormUrlEncoded
@@ -30,10 +30,10 @@ interface SampleBackendAPIClient {
 ): SampleBackendAPIClient {
   val url = accessTokenUrl.toHttpUrl()
   val retrofit = Retrofit.Builder()
-      .baseUrl("${url.scheme}://${url.host}")
-      .addConverterFactory(GsonConverterFactory.create())
-      .client(okHttpClient)
-      .build()
+    .baseUrl("${url.scheme}://${url.host}")
+    .addConverterFactory(GsonConverterFactory.create())
+    .client(okHttpClient)
+    .build()
   return retrofit.create(SampleBackendAPIClient::class.java)
 }
 
@@ -59,12 +59,12 @@ fun SampleBackendAPIClient.getAccessTokenResponse(
       try {
         val accessTokenResponse =
           response.body()
-              ?.takeIf {
-                !it.token.isNullOrBlank() && !it.factorType.isNullOrBlank()
-                    && !it.identity.isNullOrBlank() && !it.serviceSid.isNullOrBlank()
-              } ?: throw IOException(
-              response.errorBody()
-                  ?.string() ?: "Invalid response"
+            ?.takeIf {
+              !it.token.isNullOrBlank() && !it.factorType.isNullOrBlank() &&
+                !it.identity.isNullOrBlank() && !it.serviceSid.isNullOrBlank()
+            } ?: throw IOException(
+            response.errorBody()
+              ?.string() ?: "Invalid response"
           )
         success(accessTokenResponse)
       } catch (e: Exception) {

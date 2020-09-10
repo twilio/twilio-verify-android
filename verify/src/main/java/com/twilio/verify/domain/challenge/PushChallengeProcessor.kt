@@ -26,11 +26,15 @@ internal class PushChallengeProcessor(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    challengeProvider.get(sid, factor, { challenge ->
-      success(challenge)
-    }, { exception ->
-      error(exception)
-    })
+    challengeProvider.get(
+      sid, factor,
+      { challenge ->
+        success(challenge)
+      },
+      { exception ->
+        error(exception)
+      }
+    )
   }
 
   fun update(
@@ -43,43 +47,47 @@ internal class PushChallengeProcessor(
     fun updateChallenge(challenge: Challenge) {
       try {
         val factorChallenge = challenge as? FactorChallenge ?: throw TwilioVerifyException(
-            IllegalArgumentException("Invalid challenge"),
-            InputError
+          IllegalArgumentException("Invalid challenge"),
+          InputError
         )
         if (challenge.factor == null || challenge.factor !is PushFactor ||
-            challenge.factor?.sid != factor.sid
+          challenge.factor?.sid != factor.sid
         ) {
           throw TwilioVerifyException(
-              IllegalArgumentException("Wrong factor for challenge"), InputError
+            IllegalArgumentException("Wrong factor for challenge"), InputError
           )
         }
         val keyPairAlias = factor.keyPairAlias?.takeIf { it.isNotBlank() }
-            ?: throw TwilioVerifyException(
-                IllegalStateException("Key pair not set"), KeyStorageError
-            )
+          ?: throw TwilioVerifyException(
+            IllegalStateException("Key pair not set"), KeyStorageError
+          )
         val signatureFields = factorChallenge.signatureFields?.takeIf { it.isNotEmpty() }
-            ?: throw TwilioVerifyException(
-                IllegalStateException("Signature fields not set"), InputError
-            )
+          ?: throw TwilioVerifyException(
+            IllegalStateException("Signature fields not set"), InputError
+          )
         val response =
           factorChallenge.response?.takeIf { it.length() > 0 } ?: throw TwilioVerifyException(
-              IllegalStateException("Challenge response not set"), InputError
+            IllegalStateException("Challenge response not set"), InputError
           )
         val authPayload =
           generateSignature(
-              signatureFields, response, status, getSignerTemplate(keyPairAlias, true)
+            signatureFields, response, status, getSignerTemplate(keyPairAlias, true)
           )
-        challengeProvider.update(challenge, authPayload, { updatedChallenge ->
-          updatedChallenge.takeIf { updatedChallenge.status == status }
+        challengeProvider.update(
+          challenge, authPayload,
+          { updatedChallenge ->
+            updatedChallenge.takeIf { updatedChallenge.status == status }
               ?.run {
                 success()
               } ?: error(
               TwilioVerifyException(
-                  IllegalStateException("Challenge was not updated"),
-                  InputError
+                IllegalStateException("Challenge was not updated"),
+                InputError
               )
-          )
-        }, error)
+            )
+          },
+          error
+        )
       } catch (e: TwilioVerifyException) {
         error(e)
       }

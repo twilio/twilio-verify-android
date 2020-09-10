@@ -59,7 +59,7 @@ class AndroidKeyStore(
     keyGenParameterSpec: KeyGenParameterSpec
   ): KeyPair? {
     val keyPairGenerator = KeyPairGenerator.getInstance(
-        algorithm, keyStore.provider.name
+      algorithm, keyStore.provider.name
     )
     keyPairGenerator.initialize(keyGenParameterSpec)
     val locale = Locale.getDefault()
@@ -77,7 +77,7 @@ class AndroidKeyStore(
     keyGenParameterSpec: KeyGenParameterSpec
   ): Key? {
     val keyGenerator = KeyGenerator.getInstance(
-        algorithm, keyStore.provider.name
+      algorithm, keyStore.provider.name
     )
     keyGenerator.init(keyGenParameterSpec)
     return keyGenerator.generateKey()
@@ -90,11 +90,11 @@ class AndroidKeyStore(
     private: PrivateKey
   ): ByteArray {
     return Signature.getInstance(signatureAlgorithm)
-        .run {
-          initSign(private)
-          update(data)
-          sign()
-        }
+      .run {
+        initSign(private)
+        update(data)
+        sign()
+      }
   }
 
   @Synchronized
@@ -104,16 +104,16 @@ class AndroidKeyStore(
     key: Key
   ): EncryptedData {
     return Cipher.getInstance(cipherAlgorithm)
-        .run {
-          init(Cipher.ENCRYPT_MODE, key)
-          EncryptedData(
-              AlgorithmParametersSpec(
-                  parameters.encoded, parameters.provider.name,
-                  parameters.algorithm
-              )
-              , doFinal(data)
-          )
-        }
+      .run {
+        init(Cipher.ENCRYPT_MODE, key)
+        EncryptedData(
+          AlgorithmParametersSpec(
+            parameters.encoded, parameters.provider.name,
+            parameters.algorithm
+          ),
+          doFinal(data)
+        )
+      }
   }
 
   @Synchronized
@@ -124,11 +124,11 @@ class AndroidKeyStore(
     public: PublicKey
   ): Boolean {
     return Signature.getInstance(signatureAlgorithm)
-        .run {
-          initVerify(public)
-          update(data)
-          verify(signature)
-        }
+      .run {
+        initVerify(public)
+        update(data)
+        verify(signature)
+      }
   }
 
   @Synchronized
@@ -138,17 +138,17 @@ class AndroidKeyStore(
     key: Key
   ): ByteArray {
     return Cipher.getInstance(cipherAlgorithm)
-        .run {
-          val algorithmParameterSpec =
-            AlgorithmParameters.getInstance(
-                data.algorithmParameters.algorithm, data.algorithmParameters.provider
-            )
-                .apply {
-                  init(data.algorithmParameters.encoded)
-                }
-          init(Cipher.DECRYPT_MODE, key, algorithmParameterSpec)
-          doFinal(data.encrypted)
-        }
+      .run {
+        val algorithmParameterSpec =
+          AlgorithmParameters.getInstance(
+            data.algorithmParameters.algorithm, data.algorithmParameters.provider
+          )
+            .apply {
+              init(data.algorithmParameters.encoded)
+            }
+        init(Cipher.DECRYPT_MODE, key, algorithmParameterSpec)
+        doFinal(data.encrypted)
+      }
   }
 
   private fun getCertificate(alias: String): Certificate? {

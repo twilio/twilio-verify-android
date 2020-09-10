@@ -13,20 +13,27 @@ class FactorsViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : V
   private val factors: MutableLiveData<Factors> = MutableLiveData()
 
   fun loadFactors() {
-    twilioVerifyAdapter.getFactors({ factorList ->
-      factors.value = FactorList(factorList.sortedByDescending { it.createdAt })
-    }, {
-      factors.value = FactorsError(it)
-    })
+    twilioVerifyAdapter.getFactors(
+      { factorList ->
+        factors.value = FactorList(factorList.sortedByDescending { it.createdAt })
+      },
+      {
+        factors.value = FactorsError(it)
+      }
+    )
   }
 
   fun deleteFactor(sid: String) {
-    twilioVerifyAdapter.deleteFactor(sid, {
-      loadFactors()
-    }, {
-      factors.value = DeleteFactorError(it)
-      loadFactors()
-    })
+    twilioVerifyAdapter.deleteFactor(
+      sid,
+      {
+        loadFactors()
+      },
+      {
+        factors.value = DeleteFactorError(it)
+        loadFactors()
+      }
+    )
   }
 
   fun getFactors(): LiveData<Factors> {

@@ -10,6 +10,8 @@ import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.security.crypto.providerName
 import com.twilio.security.storage.key.SecretKeyCipher
+import java.security.KeyStore
+import kotlin.reflect.KClass
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.After
@@ -17,14 +19,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.security.KeyStore
-import kotlin.reflect.KClass
 
 class EncryptedPreferencesTests {
 
   private val sharedPreferencesName = "TestEncryptedPreferences"
   private val keyStore = KeyStore.getInstance(providerName)
-      .apply { load(null) }
+    .apply { load(null) }
   private val androidKeyManager = keyManager()
   private lateinit var alias: String
   private lateinit var encryptedPreferences: EncryptedPreferences
@@ -35,7 +35,7 @@ class EncryptedPreferencesTests {
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
     alias = System.currentTimeMillis()
-        .toString()
+      .toString()
     if (keyStore.containsAlias(alias)) {
       keyStore.deleteEntry(alias)
     }
@@ -43,14 +43,15 @@ class EncryptedPreferencesTests {
       context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
     val secretKeyCipher =
       SecretKeyCipher(
-          AESGCMNoPaddingCipherTemplate(alias, androidKeyManager.contains(alias)),
-          androidKeyManager
+        AESGCMNoPaddingCipherTemplate(alias, androidKeyManager.contains(alias)),
+        androidKeyManager
       )
     secretKeyCipher.create()
     encryptedPreferences = EncryptedPreferences(
-        secretKeyCipher, sharedPreferences, TestObjectSerializer(
+      secretKeyCipher, sharedPreferences,
+      TestObjectSerializer(
         DefaultSerializer()
-    )
+      )
     )
   }
 
@@ -60,8 +61,8 @@ class EncryptedPreferencesTests {
       keyStore.deleteEntry(alias)
     }
     sharedPreferences.edit()
-        .clear()
-        .apply()
+      .clear()
+      .apply()
   }
 
   @Test
@@ -167,7 +168,7 @@ data class TestObject(
 )
 
 internal class TestObjectSerializer(private val defaultSerializer: DefaultSerializer) :
-    Serializer by defaultSerializer {
+  Serializer by defaultSerializer {
   override fun <T : Any> toByteArray(value: T): ByteArray {
     return when (value) {
       is TestObject -> testObjectToByteArray(value)
@@ -197,6 +198,6 @@ internal class TestObjectSerializer(private val defaultSerializer: DefaultSerial
     put("name", testObject.name)
     put("age", testObject.age)
   }
-      .toString()
-      .toByteArray()
+    .toString()
+    .toByteArray()
 }

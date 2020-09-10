@@ -12,14 +12,14 @@ import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.util.Date
-import java.util.concurrent.TimeUnit
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -47,27 +47,31 @@ class AuthenticationProviderTest {
     val status = FactorStatus.Unverified
     val factor =
       PushFactor(
-          factorSid, friendlyName, accountSid, serviceSid, identity, status, Date(),
-          Config(credentialSid)
+        factorSid, friendlyName, accountSid, serviceSid, identity, status, Date(),
+        Config(credentialSid)
       ).apply {
         keyPairAlias = "test"
       }
     val expectedDate = 1595358902L
     whenever(dateProvider.getCurrentTime()).thenReturn(expectedDate)
     authentication.generateJWT(factor)
-    verify(jwtGenerator).generateJWT(any(), check {
-      assertEquals(credentialSid, it.getString(kidKey))
-    }, check { jwt ->
-      assertEquals(accountSid, jwt.getString(subKey))
-      assertTrue(jwt.has(expKey))
-      assertTrue(jwt.has(iatKey))
-      assertEquals(jwt.getLong(iatKey), expectedDate)
-      assertEquals(
+    verify(jwtGenerator).generateJWT(
+      any(),
+      check {
+        assertEquals(credentialSid, it.getString(kidKey))
+      },
+      check { jwt ->
+        assertEquals(accountSid, jwt.getString(subKey))
+        assertTrue(jwt.has(expKey))
+        assertTrue(jwt.has(iatKey))
+        assertEquals(jwt.getLong(iatKey), expectedDate)
+        assertEquals(
           jwt.getLong(expKey), expectedDate + TimeUnit.MINUTES.toSeconds(jwtValidFor)
-      )
-      val validFor = jwt.getLong(expKey) - jwt.getLong(iatKey)
-      assertEquals(jwtValidFor, validFor / 60)
-    })
+        )
+        val validFor = jwt.getLong(expKey) - jwt.getLong(iatKey)
+        assertEquals(jwtValidFor, validFor / 60)
+      }
+    )
   }
 
   @Test(expected = TwilioVerifyException::class)
@@ -81,8 +85,8 @@ class AuthenticationProviderTest {
     val status = FactorStatus.Unverified
     val factor =
       PushFactor(
-          factorSid, friendlyName, accountSid, serviceSid, identity, status, Date(),
-          Config(credentialSid)
+        factorSid, friendlyName, accountSid, serviceSid, identity, status, Date(),
+        Config(credentialSid)
       ).apply {
         keyPairAlias = null
       }
