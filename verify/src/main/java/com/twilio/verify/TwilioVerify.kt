@@ -48,7 +48,7 @@ interface TwilioVerify {
    * @param error Block to be called when the operation fails with the cause of failure
    */
   fun verifyFactor(
-    verifyFactorPayload: VerifyFactorPayload,
+    verifyFactorPayload:VerifyFactorPayload,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
