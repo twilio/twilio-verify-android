@@ -12,7 +12,7 @@ tasks {
     description = "Check Kotlin code style."
     classpath = ktlint
     main = "com.pinterest.ktlint.Main"
-    args("--android", "src/**/*.kt")
+    args = listOf("--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/ktlint/ktlint.xml", "--android", "src/**/*.kt")
   }
 
   register<JavaExec>("ktlintFormat") {
