@@ -46,7 +46,7 @@ platform :android do
     gradle(
       tasks: ["ktlint", ":verify:lint", ":security:lint", "spotlessCheck"]
     )
-    danger()
+    danger_check()
   end
 
   desc "Release a new production version"
@@ -113,7 +113,7 @@ platform :android do
     gradle(task: "-q :verify:incrementVersion", properties: { 'version_number' => next_version })
   end
 
-  lane :danger do
+  lane :danger_check do
     danger(
       danger_id: 'Linter',
       dangerfile: 'DangerFile',
