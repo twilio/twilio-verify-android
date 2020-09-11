@@ -54,8 +54,9 @@ platform :android do
     tag_prefix = '*'
     next unless verify(title: title, tag_prefix: tag_prefix)
     incrementVersion()
+    UI.message("Releasing to Bintray")
     gradle(task: ":verify:bintrayLibraryReleaseUpload")
-    latest_doc()
+    latest_docs()
     post_release()
   end
 
@@ -80,8 +81,9 @@ platform :android do
   end
 
   desc "Generates latest API doc"
-  lane :latest_doc do
+  lane :latest_docs do
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
+    UI.message("Generating latest API docs redirect for version #{next_version}")
     sh("ln -nsf #{next_version} ../docs/latest")
   end
 
