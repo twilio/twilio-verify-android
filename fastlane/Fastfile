@@ -55,8 +55,7 @@ platform :android do
     next unless verify(title: title, tag_prefix: tag_prefix)
     incrementVersion()
     gradle(task: ":verify:bintrayLibraryReleaseUpload")
-    api_docs()
-    # TODO: missing part generate api docs and release to bintray
+    latest_doc()
     post_release()
   end
 
@@ -80,11 +79,9 @@ platform :android do
     is_releaseable
   end
 
-  desc "Generates API docs"
-  lane :api_docs do
-    #next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-    #UI.message("Generating API docs for version #{next_version}")
-    #gradle(task: ":verify:dokkaHtml")
+  desc "Generates latest API doc"
+  lane :latest_doc do
+    next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
     sh("ln -nsf #{next_version} ../docs/latest")
   end
 
