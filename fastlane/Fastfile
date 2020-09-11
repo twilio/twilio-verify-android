@@ -32,7 +32,6 @@ platform :android do
     gradle(
       tasks: ["jacocoTestReport", ":verify:jacocoCoverageVerification"]
     )
-    danger()
   end
 
   desc "Size impact report"
@@ -47,6 +46,7 @@ platform :android do
     gradle(
       tasks: ["ktlint", ":verify:lint", ":security:lint", "spotlessCheck"]
     )
+    danger()
   end
 
   desc "Release a new production version"
