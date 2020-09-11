@@ -109,17 +109,18 @@ platform :android do
 
     UI.message("Updating CHANGELOG.md")
     sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-    git_commit(path: ['./verify/gradle.properties', './CHANGELOG.md', './docs/latest', "./docs/#{next_version}/"], message: "Version bump to #{next_version} [skip ci]")
+    git_add(path: ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"])
+    sh("git commit -m \"Version bump to #{next_version} [skip ci]\"")
     push_to_git_remote
 
-    #set_github_release(
-    #  repository_name: "twilio/twilio-verify-android",
-    #  api_token: ENV["GH_TOKEN"],
-    #  name: tag,
-    #  tag_name: tag,
-    #  description: notes,
-    #  commitish: "main"
-    #)
+    set_github_release(
+      repository_name: "twilio/twilio-verify-android",
+      api_token: ENV["GH_TOKEN"],
+      name: tag,
+      tag_name: tag,
+      description: notes,
+      commitish: "main"
+    )
   end
 
 end
