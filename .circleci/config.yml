@@ -5,14 +5,14 @@ orbs:
 
 references:
   workspace: &workspace
-    .
+               .
 
   executor: &executor
-    android/android
+              android/android
 
   ## Cache
   gradle_key: &gradle_key
-    jars-{{ checksum "build.gradle.kts" }}-{{ checksum "verify/build.gradle.kts" }}-{{ checksum "security/build.gradle.kts" }}
+                jars-{{ checksum "build.gradle.kts" }}-{{ checksum "verify/build.gradle.kts" }}-{{ checksum "security/build.gradle.kts" }}
 
   restore_gradle_cache: &restore_gradle_cache
     restore_cache:
@@ -260,6 +260,9 @@ jobs:
       - *restore_gradle_cache
       - *decrypt_google_services
       - *lint_checker
+      - run:
+          name: Danger check
+          command: bundle exec fastlane danger_check
       - *save_gradle_cache
       - store_artifacts:
           path: "verify/build/reports"

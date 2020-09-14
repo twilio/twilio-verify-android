@@ -55,20 +55,15 @@ end
 
 github.dismiss_out_of_range_messages
 
-# ktlint
 checkstyle_format.base_path = Dir.pwd
 checkstyle_format.report "verify/build/reports/ktlint/ktlint.xml"
 checkstyle_format.report "security/build/reports/ktlint/ktlint.xml"
 checkstyle_format.report "sample/build/reports/ktlint/ktlint.xml"
 checkstyle_format.report "build/reports/ktlint/ktlint.xml"
-#ktlint.lint(inline_mode: true)
 
-# AndroidLint
-android_lint.report_file = "sample/build/reports/lint-results.xml"
 android_lint.report_file = "verify/build/reports/lint-results.xml"
 android_lint.report_file = "security/build/reports/lint-results.xml"
-android_lint.gradle_task = "linter"
-#android_lint.skip_gradle_task = true
+android_lint.skip_gradle_task = true
 android_lint.filtering = true
 android_lint.severity = "Error"
 android_lint.lint(inline_mode: true)
