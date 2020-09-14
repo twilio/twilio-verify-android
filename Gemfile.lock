@@ -51,7 +51,7 @@ GEM
     danger-android_lint (0.0.8)
       danger-plugin-api (~> 1.0)
       oga
-    danger-checkstyle_formatter (0.0.1)
+    danger-checkstyle_formatter (0.0.2)
       danger-plugin-api (~> 1.0)
       ox (~> 2.0)
     danger-plugin-api (1.0.0)
