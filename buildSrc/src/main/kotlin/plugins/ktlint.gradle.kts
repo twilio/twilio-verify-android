@@ -16,6 +16,7 @@ tasks {
       "--reporter=plain", "--reporter=checkstyle,output=$buildDir/reports/ktlint/ktlint.xml",
       "--android", "src/**/*.kt", "**/*.gradle.kts"
     )
+    isIgnoreExitValue = true
   }
 
   register<JavaExec>("ktlintFormat") {
