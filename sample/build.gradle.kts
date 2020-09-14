@@ -39,6 +39,7 @@ android {
 
   lintOptions {
     lintConfig = rootProject.file(".lint/config.xml")
+    xmlReport = true
     isCheckAllWarnings = true
   }
 
