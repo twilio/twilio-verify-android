@@ -13,10 +13,9 @@ tasks {
     classpath = ktlint
     main = "com.pinterest.ktlint.Main"
     args = listOf(
-      "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/ktlint/ktlint.xml",
+      "--reporter=plain", "--reporter=checkstyle,output=$buildDir/reports/ktlint/ktlint.xml",
       "--android", "src/**/*.kt", "**/*.gradle.kts"
     )
-    isIgnoreExitValue = true
   }
 
   register<JavaExec>("ktlintFormat") {

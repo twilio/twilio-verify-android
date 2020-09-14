@@ -175,7 +175,7 @@ task("generateSizeReport") {
     val jsonSlurper = groovy.json.JsonSlurper()
     val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
     val releaseOutput = apkscaleOutput[0] as Map<*, *>
-    val sizes = releaseOutput["size"] as Map<String,String>
+    val sizes = releaseOutput["size"] as Map<String, String>
     sizes.forEach { (arch, sizeImpact) ->
       sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
     }

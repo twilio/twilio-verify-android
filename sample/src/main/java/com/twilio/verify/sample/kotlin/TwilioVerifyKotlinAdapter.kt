@@ -26,7 +26,7 @@ class TwilioVerifyKotlinAdapter(
 ) : TwilioVerify by twilioVerify, TwilioVerifyAdapter {
 
   override fun createFactor(
-     createFactorData: CreateFactorData,
+    createFactorData: CreateFactorData,
     sampleBackendAPIClient: SampleBackendAPIClient,
     success: (Factor) -> Unit,
     error: (Throwable) -> Unit

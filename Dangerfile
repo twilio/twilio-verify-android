@@ -53,8 +53,9 @@ git.modified_files.each do |file|
   end
 end
 
-# ktlint
 github.dismiss_out_of_range_messages
+
+# ktlint
 checkstyle_format.base_path = Dir.pwd
 checkstyle_format.report "verify/build/reports/ktlint/ktlint.xml"
 checkstyle_format.report "security/build/reports/ktlint/ktlint.xml"
