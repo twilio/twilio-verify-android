@@ -40,3 +40,11 @@ allprojects {
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
 }
+
+task("linter") {
+  group = "Reporting"
+  dependsOn(
+    ":verify:ktlint", ":security:ktlint", ":sample:ktlint",
+    ":verify:lint", ":security:lint", ":sample:lint"
+  )
+}
