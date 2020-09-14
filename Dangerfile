@@ -64,8 +64,8 @@ github.dismiss_out_of_range_messages
 ktlint.lint(inline_mode: true)
 
 # AndroidLint
-android_lint.report_file = "verify/build/reports/lint-results.xml"
-android_lint.report_file = "security/build/reports/lint-results.xml"
+#android_lint.report_file = "verify/build/reports/lint-results.xml"
+#android_lint.report_file = "security/build/reports/lint-results.xml"
 android_lint.skip_gradle_task = true
 android_lint.filtering = true
 android_lint.severity = "Error"
