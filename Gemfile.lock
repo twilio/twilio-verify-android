@@ -54,6 +54,8 @@ GEM
     danger-checkstyle_format (0.1.1)
       danger-plugin-api (~> 1.0)
       ox (~> 2.0)
+    danger-ktlint (0.0.3)
+      danger-plugin-api (~> 1.0)
     danger-plugin-api (1.0.0)
       danger (> 2.0)
     declarative (0.0.20)
@@ -231,6 +233,7 @@ DEPENDENCIES
   danger
   danger-android_lint
   danger-checkstyle_format
+  danger-ktlint
   fastlane
   fastlane-plugin-semantic_convention_release
 
