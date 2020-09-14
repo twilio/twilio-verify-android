@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 
 class EncryptedPreferences(
   override val secretKeyProvider: SecretKeyProvider,
-   private val preferences: SharedPreferences,
+  private val preferences: SharedPreferences,
   override val serializer: Serializer
 ) : EncryptedStorage {
   @Throws(StorageException::class)

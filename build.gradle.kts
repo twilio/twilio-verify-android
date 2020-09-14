@@ -36,7 +36,6 @@ allprojects {
       }
     }
   }
-  plugins.apply(Config.Plugins.spotless)
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
 }
