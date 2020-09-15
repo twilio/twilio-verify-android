@@ -1,23 +1,3 @@
-## METHODS DECLARATION ##
-def checkForFileAndroid(file)
-  ext = File.extname(file)
-  case ext
-  # Warn when a file .gradle is modified
-  when ".gradle"
-    message("`#{file}` was modified")
-  end
-  # Warn when a FileManifest.xml is modified
-  message("`#{file}` was modified") if file =~ /AndroidManifest\.xml/
-end
-
-def exceptionMessages(file)
-  if File.file?(file)
-    message "Something went wrong checking `#{file}`. Check your Dangerfile"
-  else
-    message "One of modified files could not be read, does it really exist?"
-  end
-end
-
 # Make it more obvious that a PR is a work in progress and shouldn't be merged yet
 if github.pr_title.include? "[WIP]"
     warn("PR is classed as Work in Progress")
@@ -39,18 +19,13 @@ if github.pr_body.length < 120
   warn "Please provide a summary in the Pull Request description"
 end
 
+if github.pr_body =~ /^(docs|fix|feat|chore|style|refactor|perf|test)(?:\((.*)\))?(!?)\: (.*)/
+  warn "The Pull Request summary doesn't contains the commit message with the convention"
+end
+
 # Ensure that the PR title follows the convention
 if !(github.pr_title =~ /\[ACCSEC-([0-9])+\](.*)/)
   warn "The Pull Request title does not follow the convention [ACCSEC-0000] PR Title text"
-end
-
-#Check modified files, apply rules to them
-git.modified_files.each do |file|
-  begin
-    checkForFileAndroid(file)
-  rescue
-    exceptionMessages(file)
-  end
 end
 
 github.dismiss_out_of_range_messages

@@ -39,3 +39,7 @@ allprojects {
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
 }
+
+tasks.register("clean", Delete::class) {
+  delete(rootProject.buildDir)
+}
