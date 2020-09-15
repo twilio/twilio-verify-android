@@ -55,7 +55,7 @@ references:
       command: bundle exec fastlane sdk_sizer
   lint_checker: &lint_checker
     run:
-      name: Check android, kotlin and java style convention
+      name: Check android, kotlin style convention
       command: bundle exec fastlane lint_checker
   danger_checker: &danger_checker
     run:
