@@ -20,7 +20,7 @@ end
 
 # Ensure that the PR body contains the commit message using the convention
 if !(github.pr_body =~ /^(docs|fix|feat|chore|style|refactor|perf|test)(?:\((.*)\))?(!?)\: (.*)/)
-  warn "The Pull Request summary doesn't contains the commit message with the convention"
+  warn "The Pull Request summary does not contain the commit message convention"
 end
 
 # Ensure that the PR title follows the convention
