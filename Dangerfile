@@ -19,7 +19,7 @@ if github.pr_body.length < 120
   warn "Please provide a summary in the Pull Request description"
 end
 
-if github.pr_body =~ /^(docs|fix|feat|chore|style|refactor|perf|test)(?:\((.*)\))?(!?)\: (.*)/
+if !(github.pr_body =~ /^(docs|fix|feat|chore|style|refactor|perf|test)(?:\((.*)\))?(!?)\: (.*)/)
   warn "The Pull Request summary doesn't contains the commit message with the convention"
 end
 
