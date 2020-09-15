@@ -13,12 +13,12 @@ if git.modified_files.empty? && git.added_files.empty? && git.deleted_files.empt
   warn "This PR has no changes at all, this is likely an issue during development."
 end
 
-# Mainly to encourage writing up some reasoning about the PR, rather than
-# just leaving a title
+# Mainly to encourage writing up some reasoning about the PR, rather than just leaving a title
 if github.pr_body.length < 120
   warn "Please provide a summary in the Pull Request description"
 end
 
+# Ensure that the PR body contains the commit message using the convention
 if !(github.pr_body =~ /^(docs|fix|feat|chore|style|refactor|perf|test)(?:\((.*)\))?(!?)\: (.*)/)
   warn "The Pull Request summary doesn't contains the commit message with the convention"
 end
@@ -30,6 +30,7 @@ end
 
 github.dismiss_out_of_range_messages
 
+# Lint checks
 checkstyle_formatter.base_path = Dir.pwd
 checkstyle_formatter.report "verify/build/reports/ktlint/ktlint.xml"
 checkstyle_formatter.report "security/build/reports/ktlint/ktlint.xml"
