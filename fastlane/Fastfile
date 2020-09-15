@@ -53,7 +53,7 @@ platform :android do
     title = 'Android Verify Push Release'
     tag_prefix = '*'
     next unless verify(title: title, tag_prefix: tag_prefix)
-    incrementVersion()
+    increment_version()
     UI.message("Releasing to Bintray")
     gradle(task: ":verify:bintrayLibraryReleaseUpload")
     latest_docs()
@@ -88,7 +88,7 @@ platform :android do
   end
 
   desc "Increment version"
-  lane :incrementVersion do |options|
+  lane :increment_version do |options|
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
     ensure_git_status_clean
     # Increment version in Verify module

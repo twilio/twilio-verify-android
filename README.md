@@ -11,12 +11,15 @@
 * [About](#About)
 * [Dependencies](#Dependencies)
 * [Requirements](#Requirements)
+* [Documentation](#Documentation)
 * [Installation](#Installation)
 * [Usage](#Usage)
 * [Running the Sample app](#SampleApp)
 * [Running the sample backend](#SampleBackend)
 * [Using the sample app](#UsingSampleApp)
 * [Errors](#Errors)
+* [Update factor's push token](#UpdatePushToken)
+* [Delete a factor](#DeleteFactor)
 
 <a name='About'></a>
 
@@ -38,6 +41,11 @@ None
 * Android 6.0 (23) SDK or higher
 * Gradle 6.3
 * Kotlin 1.3.72
+
+<a name='Documentation'></a>
+
+## Documentation
+[SDK API docs](https://twilio.github.io/twilio-verify-android/latest/verify/index.html)
 
 <a name='Installation'></a>
 
@@ -124,3 +132,30 @@ Input | 68004 | Exception while loading input
 Key Storage | 68005 | Exception while storing/loading key pairs
 Initialization | 68006 | Exception while initializing an object
 Authentication Token | 68007 | Exception while generating token
+
+<a name='UpdatePushToken'></a>
+
+## Update factor's push token
+You can update the factor's push token in case it changed, calling the `TwilioVerify.updateFactor` method:
+```
+val updateFactorPayload = UpdatePushFactorPayload(factorSid, newPushtoken)
+twilioVerify.updateFactor(updateFactorPayload, { factor ->
+  // Success
+}, { exception ->
+  // Error
+})
+```
+
+Firebase provides a method to be notified when the push token is updated. See [FirebasePushService](https://github.com/twilio/twilio-verify-android/blob/main/sample/src/main/java/com/twilio/verify/sample/push/FirebasePushService.kt#L42) in the sample app. You should update the push token for all factors.
+
+<a name='DeleteFactor'></a>
+
+## Delete a factor
+You can delete a factor calling the `TwilioVerify.deleteFactor` method:
+```
+twilioVerify.deleteFactor(factorSid, {
+  // Success
+}, { exception ->
+  // Error
+})
+```
