@@ -42,7 +42,6 @@ import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
 import java.net.URL
 import java.util.Date
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
