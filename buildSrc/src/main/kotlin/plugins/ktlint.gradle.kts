@@ -3,7 +3,7 @@ package plugins
 val ktlint: Configuration by configurations.creating
 
 dependencies {
-  ktlint("com.pinterest:ktlint:0.37.0")
+  ktlint("com.pinterest:ktlint:0.37.2")
 }
 
 tasks {
@@ -12,7 +12,11 @@ tasks {
     description = "Check Kotlin code style."
     classpath = ktlint
     main = "com.pinterest.ktlint.Main"
-    args("--android", "src/**/*.kt")
+    args = listOf(
+      "--reporter=plain", "--reporter=checkstyle,output=$buildDir/reports/ktlint/ktlint.xml",
+      "--android", "src/**/*.kt", "**/*.gradle.kts"
+    )
+    isIgnoreExitValue = true
   }
 
   register<JavaExec>("ktlintFormat") {

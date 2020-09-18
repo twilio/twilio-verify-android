@@ -1,13 +1,20 @@
 root = true
 
-[*.{kt, kts}]
+[*.kt]
 indent_size = 2
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 max_line_length = 150
 end_of_line = lf
-kotlin_imports_layout = ascii
+
+[*.kts]
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 150
+end_of_line = lf
 
 [*.xml]
 indent_size = 2
