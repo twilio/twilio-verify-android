@@ -236,8 +236,9 @@ internal class FactorAPIClient(
   private fun updateFactorBody(
     updateFactorPayload: UpdateFactorPayload
   ): Map<String, String?> =
-    mapOf(
-      FRIENDLY_NAME_KEY to updateFactorPayload.friendlyName,
-      CONFIG_KEY to JSONObject(updateFactorPayload.config).toString()
-    )
+    mutableMapOf(
+      FRIENDLY_NAME_KEY to updateFactorPayload.friendlyName
+    ).apply {
+      putAll(updateFactorPayload.config.map { "$CONFIG_KEY.${it.key}" to it.value })
+    }
 }
