@@ -41,6 +41,7 @@ android {
   testOptions.unitTests.isIncludeAndroidResources = true
   lintOptions {
     lintConfig = rootProject.file(".lint/config.xml")
+    xmlReport = true
     isCheckAllWarnings = true
   }
 }
@@ -168,9 +169,9 @@ task("generateSizeReport") {
   doLast {
     var sizeReport =
       "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
-          "\n" +
-          "| ABI             | APK Size Impact |\n" +
-          "| --------------- | --------------- |\n"
+        "\n" +
+        "| ABI             | APK Size Impact |\n" +
+        "| --------------- | --------------- |\n"
     val apkscaleOutputFile = file("$buildDir/apkscale/build/outputs/reports/apkscale.json")
     val jsonSlurper = groovy.json.JsonSlurper()
     val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
