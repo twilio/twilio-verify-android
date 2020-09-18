@@ -23,7 +23,7 @@ internal const val APP_ID_KEY = "AppId"
 internal const val NOTIFICATION_PLATFORM_KEY = "NotificationPlatform"
 internal const val NOTIFICATION_TOKEN_KEY = "NotificationToken"
 internal const val ALG_KEY = "Alg"
-internal const val DEFAULT_ALG = "ES56"
+internal const val DEFAULT_ALG = "ES256"
 
 internal class PushFactory(
   private val factorProvider: FactorProvider,

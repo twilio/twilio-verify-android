@@ -160,11 +160,13 @@ class FactorAPIClientTest {
       NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
       NOTIFICATION_TOKEN_KEY to pushToken
     )
-    val expectedBody = mapOf(
-      FRIENDLY_NAME_KEY to friendlyNameMock, FACTOR_TYPE_KEY to factorTypeMock.factorTypeName,
-      BINDING_KEY to JSONObject(binding).toString(),
-      CONFIG_KEY to JSONObject(config).toString()
-    )
+    val expectedBody = mutableMapOf(
+      FRIENDLY_NAME_KEY to friendlyNameMock,
+      FACTOR_TYPE_KEY to factorTypeMock.factorTypeName
+    ).apply {
+      putAll(binding.map { "$BINDING_KEY.${it.key}" to it.value })
+      putAll(config.map { "$CONFIG_KEY.${it.key}" to it.value })
+    }
 
     val factorPayload =
       CreateFactorPayload(
