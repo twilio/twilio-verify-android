@@ -7,22 +7,22 @@ tasks.withType<Test> {
 
 private val classDirectoriesTree = fileTree("${project.buildDir}") {
   include(
-      "**/classes/**/main/**",
-      "**/intermediates/classes/debug/**",
-      "**/intermediates/javac/debug/*/classes/**", // Android Gradle Plugin 3.2.x support.
-      "**/tmp/kotlin-classes/debug/**"
+    "**/classes/**/main/**",
+    "**/intermediates/classes/debug/**",
+    "**/intermediates/javac/debug/*/classes/**", // Android Gradle Plugin 3.2.x support.
+    "**/tmp/kotlin-classes/debug/**"
   )
   exclude(
-      "**/R.class",
-      "**/R\$*.class",
-      "**/*\$1*",
-      "**/BuildConfig.*",
-      "**/Manifest*.*",
-      "**/*Test*.*",
-      "android/**/*.*",
-      "**/models/**",
-      "**/*\$Lambda$*.*",
-      "**/*\$inlined$*.*"
+    "**/R.class",
+    "**/R\$*.class",
+    "**/*\$1*",
+    "**/BuildConfig.*",
+    "**/Manifest*.*",
+    "**/*Test*.*",
+    "android/**/*.*",
+    "**/models/**",
+    "**/*\$Lambda$*.*",
+    "**/*\$inlined$*.*"
   )
 }
 
@@ -30,10 +30,10 @@ private val sourceDirectoriesTree = files("$projectDir/src/main/java")
 
 private val executionDataTree = fileTree("${project.buildDir}") {
   include(
-      "outputs/code_coverage/**/*.ec",
-      "jacoco/jacocoTestReportDebug.exec",
-      "jacoco/testDebugUnitTest.exec",
-      "jacoco/test.exec"
+    "outputs/code_coverage/**/*.ec",
+    "jacoco/jacocoTestReportDebug.exec",
+    "jacoco/testDebugUnitTest.exec",
+    "jacoco/test.exec"
   )
 }
 
@@ -86,10 +86,10 @@ tasks.register<JacocoCoverageVerification>("jacocoCoverageVerification") {
     rule {
       element = "CLASS"
       excludes = listOf(
-          "**.FactorFacade.Builder",
-          "**.ServiceFacade.Builder",
-          "**.ChallengeFacade.Builder",
-          "**.Task"
+        "**.FactorFacade.Builder",
+        "**.ServiceFacade.Builder",
+        "**.ChallengeFacade.Builder",
+        "**.Task"
       )
       limit {
         minimum = minimumCoverage

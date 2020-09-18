@@ -1,11 +1,11 @@
 task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
-    dependsOn(
-        ":security:bintrayLibraryReleaseCandidateUpload"
-    ).finalizedBy(":verify:bintrayLibraryReleaseCandidateUpload")
+  dependsOn(
+    ":security:bintrayLibraryReleaseCandidateUpload"
+  ).finalizedBy(":verify:bintrayLibraryReleaseCandidateUpload")
 }
 
 task("bintrayLibraryReleaseUpload", GradleBuild::class) {
-    dependsOn(
-        ":security:bintrayLibraryReleaseUpload"
-    ).finalizedBy(":verify:bintrayLibraryReleaseUpload")
+  dependsOn(
+    ":security:bintrayLibraryReleaseUpload"
+  ).finalizedBy(":verify:bintrayLibraryReleaseUpload")
 }

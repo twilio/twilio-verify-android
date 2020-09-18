@@ -41,10 +41,10 @@ platform :android do
     )
   end
 
-  desc "Check android, kotlin and java style convention"
+  desc "Check android, kotlin style convention"
   lane :lint_checker do
     gradle(
-      tasks: ["ktlint", ":verify:lint", ":security:lint", "spotlessCheck"]
+      tasks: ["ktlint", ":verify:lint", ":security:lint"]
     )
   end
 
@@ -123,4 +123,15 @@ platform :android do
     )
   end
 
+  desc "Danger check"
+  lane :danger_check do
+    danger(
+      danger_id: 'Linter',
+      dangerfile: 'Dangerfile',
+      github_api_token: ENV["GH_TOKEN"],
+      remove_previous_comments: true,
+      fail_on_errors: true,
+      verbose: true
+    )
+  end
 end

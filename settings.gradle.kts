@@ -1,8 +1,8 @@
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        jcenter()
-    }
+  repositories {
+    gradlePluginPortal()
+    jcenter()
+  }
 }
 rootProject.name = "TwilioVerify"
 include(":sample", ":verify", ":security")

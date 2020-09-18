@@ -55,8 +55,12 @@ references:
       command: bundle exec fastlane sdk_sizer
   lint_checker: &lint_checker
     run:
-      name: Check android, kotlin and java style convention
+      name: Check android, kotlin style convention
       command: bundle exec fastlane lint_checker
+  danger_checker: &danger_checker
+    run:
+      name: Danger check
+      command: bundle exec fastlane danger_check
 
   #Release
   release: &release
@@ -260,6 +264,7 @@ jobs:
       - *restore_gradle_cache
       - *decrypt_google_services
       - *lint_checker
+      - *danger_checker
       - *save_gradle_cache
       - store_artifacts:
           path: "verify/build/reports"
