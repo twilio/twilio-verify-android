@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
- android: circleci/android@0.2.1
+  android: circleci/android@0.2.1
 
 references:
   workspace: &workspace
@@ -47,11 +47,22 @@ references:
       command: |
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
         sudo gcloud --quiet config set project twilio-firebase-266721
+
   #Reporting
   sdk_sizer: &sdk_sizer
     run:
       name: Size impact report
       command: bundle exec fastlane sdk_sizer
+  lint_checker: &lint_checker
+    run:
+      name: Check android, kotlin and java style convention
+      command: bundle exec fastlane lint_checker
+
+  #Release
+  release: &release
+    run:
+      name: Release SDK
+      command: bundle exec fastlane release
 commands:
   setup:
     steps:
@@ -107,12 +118,12 @@ commands:
           steps:
             - run:
                 command: |
-                    curl -s << parameters.url >> | bash -s -- \
-                      -f "<< parameters.file >>" \
-                      -t "<< parameters.token >>" \
-                      -n "<< parameters.upload_name >>" \
-                      -F "<< parameters.flags >>" \
-                      -Z || echo 'Codecov upload failed'
+                  curl -s << parameters.url >> | bash -s -- \
+                    -f "<< parameters.file >>" \
+                    -t "<< parameters.token >>" \
+                    -n "<< parameters.upload_name >>" \
+                    -F "<< parameters.flags >>" \
+                    -Z || echo 'Codecov upload failed'
                 name: Upload Coverage Results
                 when: << parameters.when >>
       - unless:
@@ -120,13 +131,13 @@ commands:
           steps:
             - run:
                 command: |
-                    curl -s << parameters.url >> | bash -s -- \
-                      -t "<< parameters.token >>" \
-                      -n "<< parameters.upload_name >>" \
-                      -F "<< parameters.flags >>" \
-                      -Z || echo 'Codecov upload failed'
+                  curl -s << parameters.url >> | bash -s -- \
+                    -t "<< parameters.token >>" \
+                    -n "<< parameters.upload_name >>" \
+                    -F "<< parameters.flags >>" \
+                    -Z || echo 'Codecov upload failed'
                 name: Upload Coverage Results
-                when: << parameters.when >>       
+                when: << parameters.when >>
 jobs:
   assemble_build:
     executor: *executor
@@ -187,7 +198,7 @@ jobs:
       - *authorize_gcloud
       - run:
           name: Run security integration tests on single device
-          command: 
+          command:
             sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ftl/dummy.apk --test builds/security-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
   verify_instrumentation_tests_single_device:
     executor: *executor
@@ -199,7 +210,7 @@ jobs:
       - *authorize_gcloud
       - run:
           name: Run verify integration tests on single device
-          command: 
+          command:
             sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ftl/dummy.apk --test builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
   security_instrumentation_tests_multiple_devices:
     executor: *executor
@@ -242,20 +253,50 @@ jobs:
       - store_artifacts:
           path: "verify/build/outputs/SizeReport"
           destination: SizeReport
+  lint:
+    executor: *executor
+    steps:
+      - setup
+      - *restore_gradle_cache
+      - *decrypt_google_services
+      - *lint_checker
+      - *save_gradle_cache
+      - store_artifacts:
+          path: "verify/build/reports"
+          destination: verify-test-coverage
+      - store_artifacts:
+          path: "sample/build/reports"
+          destination: sampleapp-test-coverage
+      - store_artifacts:
+          path: "security/build/reports"
+          destination: security-test-coverage
+  release_sdk:
+    executor: *executor
+    steps:
+      - setup
+      - *restore_gradle_cache
+      - *decrypt_google_services
+      - *release
+      - *save_gradle_cache
 workflows:
   version: 2
 
   workflow:
     jobs:
       - assemble_build
+      - lint:
+          requires:
+            - assemble_build
       - unit_tests:
           requires:
             - assemble_build
       - security_instrumentation_tests_single_device:
           requires:
+            - lint
             - unit_tests
       - verify_instrumentation_tests_single_device:
           requires:
+            - lint
             - unit_tests
       - security_instrumentation_tests_multiple_devices:
           requires:
@@ -266,3 +307,12 @@ workflows:
       - sdk_size_report:
           requires:
             - verify_instrumentation_tests_single_device
+      # Uncomment this part when all the steps to release a new version are done
+      #- release_sdk:
+      #    requires:
+      #      - security_instrumentation_tests_multiple_devices
+      #      - verify_instrumentation_tests_multiple_devices
+      #    filters:
+      #      branches:
+      #        only:
+      #          - main

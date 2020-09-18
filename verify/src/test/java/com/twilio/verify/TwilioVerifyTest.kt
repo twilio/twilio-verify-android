@@ -56,6 +56,17 @@ import com.twilio.verify.models.UpdatePushFactorPayload
 import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Response
+import java.io.InputStream
+import java.io.OutputStream
+import java.security.Key
+import java.security.KeyStore
+import java.security.KeyStoreSpi
+import java.security.Provider
+import java.security.Security
+import java.security.cert.Certificate
+import java.util.Date
+import java.util.Enumeration
+import kotlin.reflect.KClass
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
@@ -71,21 +82,10 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
-import java.io.InputStream
-import java.io.OutputStream
-import java.security.Key
-import java.security.KeyStore
-import java.security.KeyStoreSpi
-import java.security.Provider
-import java.security.Security
-import java.security.cert.Certificate
-import java.util.Date
-import java.util.Enumeration
-import kotlin.reflect.KClass
 
 @RunWith(RobolectricTestRunner::class)
 @Config(
-    shadows = [TestKeystore::class, TestEncryptedStorage::class, TestSecretKeyCipher::class]
+  shadows = [TestKeystore::class, TestEncryptedStorage::class, TestSecretKeyCipher::class]
 )
 class TwilioVerifyTest {
 
@@ -103,20 +103,20 @@ class TwilioVerifyTest {
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
     provider = object : Provider(
-        providerName, 1.0, "Fake KeyStore which is used for Robolectric tests"
+      providerName, 1.0, "Fake KeyStore which is used for Robolectric tests"
     ) {
       init {
         put(
-            "KeyStore.$providerName",
-            "com.twilio.verify.KeyStoreMock"
+          "KeyStore.$providerName",
+          "com.twilio.verify.KeyStoreMock"
         )
       }
     }
     Security.insertProviderAt(provider, 0)
     twilioVerify =
       TwilioVerify.Builder(context)
-          .networkProvider(networkProvider)
-          .build()
+        .networkProvider(networkProvider)
+        .build()
   }
 
   @After
@@ -127,12 +127,12 @@ class TwilioVerifyTest {
   @Test
   fun `Create a factor should call success`() {
     val jsonObject = JSONObject()
-        .put(sidKey, "sid123")
-        .put(friendlyNameKey, "factor name")
-        .put(accountSidKey, "accountSid123")
-        .put(statusKey, Unverified.value)
-        .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
-        .put(dateCreatedKey, toRFC3339Date(Date()))
+      .put(sidKey, "sid123")
+      .put(friendlyNameKey, "factor name")
+      .put(accountSidKey, "accountSid123")
+      .put(statusKey, Unverified.value)
+      .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+      .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
@@ -140,25 +140,29 @@ class TwilioVerifyTest {
     }
     val accessToken =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-          "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-          "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-          "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-          "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-          "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-          "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-          "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
+        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
+        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
+        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
+        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
+        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
+        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
+        "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorPayload =
       PushFactorPayload("friendly name", factorServiceSid, factorIdentity, "pushToken", accessToken)
     idlingResource.startOperation()
-    twilioVerify.createFactor(factorPayload, { factor ->
-      assertEquals(jsonObject.getString(sidKey), factor.sid)
-      assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
-      assertTrue(values.containsKey(factor.sid))
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    twilioVerify.createFactor(
+      factorPayload,
+      { factor ->
+        assertEquals(jsonObject.getString(sidKey), factor.sid)
+        assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
+        assertTrue(values.containsKey(factor.sid))
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -167,12 +171,12 @@ class TwilioVerifyTest {
     val sid = "sid"
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
-        .put(sidKey, sid)
-        .put(friendlyNameKey, "factor name")
-        .put(accountSidKey, "accountSid123")
-        .put(statusKey, Verified.value)
-        .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
-        .put(dateCreatedKey, toRFC3339Date(Date()))
+      .put(sidKey, sid)
+      .put(friendlyNameKey, "factor name")
+      .put(accountSidKey, "accountSid123")
+      .put(statusKey, Verified.value)
+      .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+      .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
@@ -180,14 +184,18 @@ class TwilioVerifyTest {
     }
     val updatePushFactorPayload = UpdatePushFactorPayload(sid, "pushToken")
     idlingResource.startOperation()
-    twilioVerify.updateFactor(updatePushFactorPayload, { factor ->
-      assertEquals(jsonObject.getString(sidKey), factor.sid)
-      assertTrue(values.containsKey(factor.sid))
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    twilioVerify.updateFactor(
+      updatePushFactorPayload,
+      { factor ->
+        assertEquals(jsonObject.getString(sidKey), factor.sid)
+        assertTrue(values.containsKey(factor.sid))
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -197,22 +205,26 @@ class TwilioVerifyTest {
     val verifyFactorPayload = VerifyPushFactorPayload(sid)
     createFactor(sid, Unverified)
     val jsonObject = JSONObject()
-        .put(sidKey, sid)
-        .put(statusKey, Verified.value)
+      .put(sidKey, sid)
+      .put(statusKey, Verified.value)
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
       }
     }
     idlingResource.startOperation()
-    twilioVerify.verifyFactor(verifyFactorPayload, { factor ->
-      assertEquals(jsonObject.getString(sidKey), factor.sid)
-      assertTrue(values.containsKey(factor.sid))
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    twilioVerify.verifyFactor(
+      verifyFactorPayload,
+      { factor ->
+        assertEquals(jsonObject.getString(sidKey), factor.sid)
+        assertTrue(values.containsKey(factor.sid))
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -228,18 +240,27 @@ class TwilioVerifyTest {
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(com.twilio.verify.domain.challenge.statusKey, status.value)
-      put(detailsKey, JSONObject().apply {
-        put(messageKey, "message123")
-        put(fieldsKey, JSONObject().apply {
-          put(labelKey, "label123")
-          put(valueKey, "value123")
-        })
-        put(dateKey, "2020-02-19T16:39:57-08:00")
-      }).toString()
-      put(hiddenDetailsKey, JSONObject().apply {
-        put("key1", "value1")
-      }
-          .toString())
+      put(
+        detailsKey,
+        JSONObject().apply {
+          put(messageKey, "message123")
+          put(
+            fieldsKey,
+            JSONObject().apply {
+              put(labelKey, "label123")
+              put(valueKey, "value123")
+            }
+          )
+          put(dateKey, "2020-02-19T16:39:57-08:00")
+        }
+      ).toString()
+      put(
+        hiddenDetailsKey,
+        JSONObject().apply {
+          put("key1", "value1")
+        }
+          .toString()
+      )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     argumentCaptor<(Response) -> Unit>().apply {
@@ -248,14 +269,18 @@ class TwilioVerifyTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerify.getChallenge(challengeSid, factorSid, { challenge ->
-      assertEquals(challengeSid, challenge.sid)
-      assertEquals(status.value, challenge.status.value)
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    twilioVerify.getChallenge(
+      challengeSid, factorSid,
+      { challenge ->
+        assertEquals(challengeSid, challenge.sid)
+        assertEquals(status.value, challenge.status.value)
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -272,21 +297,33 @@ class TwilioVerifyTest {
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
       put(com.twilio.verify.domain.challenge.statusKey, status.value)
-      put(detailsKey, JSONObject().apply {
-        put(messageKey, "message123")
-        put(fieldsKey, JSONArray().apply {
-          put(0, JSONObject().apply {
-            put(labelKey, "label123")
-            put(valueKey, "value123")
-          })
-        })
-        put(dateKey, "2020-02-19T16:39:57-08:00")
-      }
-          .toString())
-      put(hiddenDetailsKey, JSONObject().apply {
-        put("key1", "value1")
-      }
-          .toString())
+      put(
+        detailsKey,
+        JSONObject().apply {
+          put(messageKey, "message123")
+          put(
+            fieldsKey,
+            JSONArray().apply {
+              put(
+                0,
+                JSONObject().apply {
+                  put(labelKey, "label123")
+                  put(valueKey, "value123")
+                }
+              )
+            }
+          )
+          put(dateKey, "2020-02-19T16:39:57-08:00")
+        }
+          .toString()
+      )
+      put(
+        hiddenDetailsKey,
+        JSONObject().apply {
+          put("key1", "value1")
+        }
+          .toString()
+      )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
 
@@ -294,32 +331,36 @@ class TwilioVerifyTest {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         when (allValues.size) {
           1 -> lastValue.invoke(
-              Response(
-                  challengeResponse(Pending).toString(), mapOf(
-                  signatureFieldsHeader to listOf(
-                      challengeResponse(Pending).keys()
-                          .asSequence()
-                          .toList()
-                          .joinToString(signatureFieldsHeaderSeparator)
-                  )
+            Response(
+              challengeResponse(Pending).toString(),
+              mapOf(
+                signatureFieldsHeader to listOf(
+                  challengeResponse(Pending).keys()
+                    .asSequence()
+                    .toList()
+                    .joinToString(signatureFieldsHeaderSeparator)
+                )
               )
-              )
+            )
           )
           2 -> lastValue.invoke(Response("", emptyMap()))
           3 -> lastValue.invoke(Response(challengeResponse(status).toString(), emptyMap()))
           else -> fail()
         }
-
       }
     }
 
     idlingResource.startOperation()
-    twilioVerify.updateChallenge(updateChallengePayload, {
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    twilioVerify.updateChallenge(
+      updateChallengePayload,
+      {
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -331,16 +372,19 @@ class TwilioVerifyTest {
       factors.add(factor)
     }
     idlingResource.startOperation()
-    twilioVerify.getAllFactors({
-      assertEquals(factors.size, it.size)
-      for (factor in factors) {
-        assertNotNull(it.firstOrNull { it.sid == factor.sid })
+    twilioVerify.getAllFactors(
+      {
+        assertEquals(factors.size, it.size)
+        for (factor in factors) {
+          assertNotNull(it.firstOrNull { it.sid == factor.sid })
+        }
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
       }
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    )
     idlingResource.waitForIdle()
   }
 
@@ -350,10 +394,10 @@ class TwilioVerifyTest {
     createFactor(factorSid, Verified)
     val challengeListPayload = ChallengeListPayload(factorSid, 1, null, null)
     val expectedChallenges = JSONArray(
-        listOf(
-            challengeJSONObject("sid123", factorSid),
-            challengeJSONObject("sid456", factorSid)
-        )
+      listOf(
+        challengeJSONObject("sid123", factorSid),
+        challengeJSONObject("sid456", factorSid)
+      )
     )
     val expectedMetadata = metaJSONObject()
     val jsonObject = JSONObject().apply {
@@ -366,29 +410,35 @@ class TwilioVerifyTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerify.getAllChallenges(challengeListPayload, { list ->
-      val firstChallenge = list.challenges.first()
-      val secondChallenge = list.challenges.last()
+    twilioVerify.getAllChallenges(
+      challengeListPayload,
+      { list ->
+        val firstChallenge = list.challenges.first()
+        val secondChallenge = list.challenges.last()
 
-      assertEquals(expectedChallenges.length(), list.challenges.size)
-      assertEquals(factorSid, firstChallenge.factorSid)
-      assertEquals(
+        assertEquals(expectedChallenges.length(), list.challenges.size)
+        assertEquals(factorSid, firstChallenge.factorSid)
+        assertEquals(
           expectedChallenges.getJSONObject(0)
-              .getString(sidKey), firstChallenge.sid
-      )
-      assertEquals(factorSid, secondChallenge.factorSid)
-      assertEquals(
+            .getString(sidKey),
+          firstChallenge.sid
+        )
+        assertEquals(factorSid, secondChallenge.factorSid)
+        assertEquals(
           expectedChallenges.getJSONObject(1)
-              .getString(sidKey), secondChallenge.sid
-      )
+            .getString(sidKey),
+          secondChallenge.sid
+        )
 
-      assertEquals(previousPageToken, list.metadata.previousPageToken)
-      assertEquals(nextPageToken, list.metadata.nextPageToken)
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+        assertEquals(previousPageToken, list.metadata.previousPageToken)
+        assertEquals(nextPageToken, list.metadata.nextPageToken)
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -404,14 +454,18 @@ class TwilioVerifyTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerify.deleteFactor(factorSid, {
-      assertFalse(values.contains(factorSid))
-      assertFalse(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    twilioVerify.deleteFactor(
+      factorSid,
+      {
+        assertFalse(values.contains(factorSid))
+        assertFalse(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -420,12 +474,12 @@ class TwilioVerifyTest {
     status: FactorStatus
   ) {
     val jsonObject = JSONObject()
-        .put(sidKey, factorSid)
-        .put(friendlyNameKey, "factor name")
-        .put(accountSidKey, "accountSid123")
-        .put(configKey, JSONObject().put(credentialSidKey, "credential sid"))
-        .put(statusKey, status.value)
-        .put(dateCreatedKey, toRFC3339Date(Date()))
+      .put(sidKey, factorSid)
+      .put(friendlyNameKey, "factor name")
+      .put(accountSidKey, "accountSid123")
+      .put(configKey, JSONObject().put(credentialSidKey, "credential sid"))
+      .put(statusKey, status.value)
+      .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
@@ -433,25 +487,29 @@ class TwilioVerifyTest {
     }
     val accessToken =
       "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
-          "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
-          "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
-          "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
-          "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
-          "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
-          "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
-          "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
+        "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
+        "Z5Ijp7ImlkZW50aXR5IjoiWUViZDE1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNSIsImZhY3RvciI6InB1c2" +
+        "giLCJyZXF1aXJlLWJpb21ldHJpY3MiOnRydWV9LCJhcGkiOnsiYXV0aHlfdjEiOlt7ImFjdCI6WyJjcmVhdGUiXS" +
+        "wicmVzIjoiL1NlcnZpY2VzL0lTYjNhNjRhZTBkMjI2MmEyYmFkNWU5ODcwYzQ0OGI4M2EvRW50aXRpZXMvWUViZD" +
+        "E1NjUzZDExNDg5YjI3YzFiNjI1NTIzMDMwMTgxNS9GYWN0b3JzIn1dfX0sImp0aSI6IlNLMDAxMGNkNzljOTg3Mz" +
+        "VlMGNkOWJiNDk2MGVmNjJmYjgtMTU4Mzg1MTI2NCIsInN1YiI6IkFDYzg1NjNkYWY4OGVkMjZmMjI3NjM4ZjU3Mz" +
+        "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorPayload =
       PushFactorPayload("friendly name", factorServiceSid, factorIdentity, "pushToken", accessToken)
     idlingResource.startOperation()
-    twilioVerify.createFactor(factorPayload, { factor ->
-      this.factor = factor
-      assertEquals(factorSid, factor.sid)
-      assertEquals(status, factor.status)
-      idlingResource.operationFinished()
-    }, { exception ->
-      fail(exception.message)
-      idlingResource.operationFinished()
-    })
+    twilioVerify.createFactor(
+      factorPayload,
+      { factor ->
+        this.factor = factor
+        assertEquals(factorSid, factor.sid)
+        assertEquals(status, factor.status)
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        fail(exception.message)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 }
@@ -466,21 +524,33 @@ private fun challengeJSONObject(
     put(createdDateKey, "2020-02-19T16:39:57-08:00")
     put(updatedDateKey, "2020-02-21T18:39:57-08:00")
     put(com.twilio.verify.domain.challenge.statusKey, Pending.value)
-    put(detailsKey, JSONObject().apply {
-      put(messageKey, "message123")
-      put(fieldsKey, JSONArray().apply {
-        put(0, JSONObject().apply {
-          put(labelKey, "label123")
-          put(valueKey, "value123")
-        })
-      })
-      put(dateKey, "2020-02-19T16:39:57-08:00")
-    }
-        .toString())
-    put(hiddenDetailsKey, JSONObject().apply {
-      put("key1", "value1")
-    }
-        .toString())
+    put(
+      detailsKey,
+      JSONObject().apply {
+        put(messageKey, "message123")
+        put(
+          fieldsKey,
+          JSONArray().apply {
+            put(
+              0,
+              JSONObject().apply {
+                put(labelKey, "label123")
+                put(valueKey, "value123")
+              }
+            )
+          }
+        )
+        put(dateKey, "2020-02-19T16:39:57-08:00")
+      }
+        .toString()
+    )
+    put(
+      hiddenDetailsKey,
+      JSONObject().apply {
+        put("key1", "value1")
+      }
+        .toString()
+    )
     put(expirationDateKey, "2020-02-27T08:50:57-08:00")
   }
 }
@@ -504,11 +574,11 @@ class TestKeystore {
   @Implementation
   fun signer(template: SignerTemplate): Signer {
     keys[template.alias] = template.alias.hashCode()
-        .toString()
+      .toString()
     val mock: Signer = mock()
     whenever(mock.getPublic()).thenReturn(keys[template.alias]?.toByteArray())
     val derSignature = "MEQCIFtun9Ioo-W-juCG7sOl8PPPuozb8cspsUtpu2TxnzP_AiAi1VpFNTr2eK-VX3b1DLHy8" +
-        "rPm3MOpTvUH14hyNr0Gfg"
+      "rPm3MOpTvUH14hyNr0Gfg"
     whenever(mock.sign(any())).thenReturn(Base64.decode(derSignature, FLAGS))
     return mock
   }
@@ -530,7 +600,6 @@ private val values = mutableMapOf<String, Any>()
 class TestSecretKeyCipher {
   @Implementation
   fun create() {
-
   }
 }
 
@@ -557,12 +626,12 @@ class TestEncryptedStorage {
     kClass: KClass<T>
   ): List<T> {
     return values.toList()
-        .filter {
-          it.second::class.javaObjectType.isAssignableFrom(
-              kClass.javaObjectType
-          )
-        }
-        .map { it.second } as List<T>
+      .filter {
+        it.second::class.javaObjectType.isAssignableFrom(
+          kClass.javaObjectType
+        )
+      }
+      .map { it.second } as List<T>
   }
 
   @Implementation
@@ -642,7 +711,6 @@ class KeyStoreMock : KeyStoreSpi() {
     stream: InputStream?,
     password: CharArray?
   ) {
-
   }
 
   override fun engineGetCertificateChain(alias: String?): Array<Certificate> {

@@ -36,8 +36,7 @@ allprojects {
       }
     }
   }
-}
-
-tasks.register("clean", Delete::class) {
-  delete(rootProject.buildDir)
+  plugins.apply(Config.Plugins.spotless)
+  plugins.apply(Config.Plugins.ktlint)
+  plugins.apply(Config.Plugins.gitHooks)
 }

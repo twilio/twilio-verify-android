@@ -21,19 +21,19 @@ internal class FactorMigrations(
       override fun migrate(data: List<String>): List<Entry> {
         val factors = sharedPreferences.all.values.filterIsInstance<String>()
         return factors.filter { factorMapper.isFactor(it) }
-            .map { JSONObject(it) }
-            .map {
-              Entry(
-                  factorMapper.getSid(it), it.toString()
-              )
+          .map { JSONObject(it) }
+          .map {
+            Entry(
+              factorMapper.getSid(it), it.toString()
+            )
+          }
+          .apply {
+            forEach {
+              sharedPreferences.edit()
+                .remove(it.key)
+                .apply()
             }
-            .apply {
-              forEach {
-                sharedPreferences.edit()
-                    .remove(it.key)
-                    .apply()
-              }
-            }
+          }
       }
     }
 

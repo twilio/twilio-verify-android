@@ -26,6 +26,9 @@ object Config {
     const val dokka = "org.jetbrains.dokka"
     const val versionBumper = "com.twilio.versionbumper"
     const val apkscale = "com.twilio.apkscale"
+    const val spotless = "plugins.spotless"
+    const val ktlint = "plugins.ktlint"
+    const val gitHooks = "plugins.git-hooks"
   }
 
   object Versions {
@@ -42,6 +45,10 @@ object Config {
     const val apkscale = "0.1.0"
   }
 
+  object Groups {
+    const val git_hooks = "git_hooks"
+  }
+
   fun projectProperty(
     project: Project,
     property: String
@@ -52,5 +59,4 @@ object Config {
       )
     return value ?: ""
   }
-
 }

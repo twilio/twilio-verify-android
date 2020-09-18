@@ -24,14 +24,14 @@ import com.twilio.verify.domain.factor.statusKey
 import com.twilio.verify.domain.factor.typeKey
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.PUSH
+import java.security.KeyStore
+import java.util.Date
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.security.KeyStore
-import java.util.Date
 
 class StorageMigrationTests {
 
@@ -46,15 +46,15 @@ class StorageMigrationTests {
   @After
   fun tearDown() {
     sharedPreferences.edit()
-        .clear()
-        .apply()
+      .clear()
+      .apply()
     encryptedSharedPreferences.edit()
-        .clear()
-        .apply()
+      .clear()
+      .apply()
     val keyStore = KeyStore.getInstance(provider)
-        .apply {
-          load(null)
-        }
+      .apply {
+        load(null)
+      }
     keyStore.deleteEntry(alias)
   }
 
@@ -62,16 +62,16 @@ class StorageMigrationTests {
   fun testMigrateFromV1ToV2() {
     val factorSids = listOf("sid123", "sid345", "sid678")
     val factors = factorSids.map { it to createFactorDataForV1(it) }
-        .toMap()
+      .toMap()
     factors.forEach {
       sharedPreferences.edit()
-          .putString(it.key, it.value)
-          .apply()
+        .putString(it.key, it.value)
+        .apply()
       assertTrue(sharedPreferences.contains(it.key))
     }
     sharedPreferences.edit()
-        .remove(CURRENT_VERSION)
-        .apply()
+      .remove(CURRENT_VERSION)
+      .apply()
     val factorMigrations = FactorMigrations(sharedPreferences)
     val storage = Storage(sharedPreferences, encryptedStorage, factorMigrations.migrations())
     factors.forEach {
@@ -83,16 +83,16 @@ class StorageMigrationTests {
 
   private fun createFactorDataForV1(sid: String): String {
     return JSONObject()
-        .put(sidKey, sid)
-        .put(friendlyNameKey, "factor name")
-        .put(accountSidKey, "accountSid123")
-        .put(serviceSidKey, "serviceSid123")
-        .put(identityKey, "identity123")
-        .put(typeKey, PUSH.factorTypeName)
-        .put(keyPairAliasKey, "keyPairAlias123")
-        .put(statusKey, Unverified.value)
-        .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
-        .put(dateCreatedKey, toRFC3339Date(Date()))
-        .toString()
+      .put(sidKey, sid)
+      .put(friendlyNameKey, "factor name")
+      .put(accountSidKey, "accountSid123")
+      .put(serviceSidKey, "serviceSid123")
+      .put(identityKey, "identity123")
+      .put(typeKey, PUSH.factorTypeName)
+      .put(keyPairAliasKey, "keyPairAlias123")
+      .put(statusKey, Unverified.value)
+      .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
+      .put(dateCreatedKey, toRFC3339Date(Date()))
+      .toString()
   }
 }

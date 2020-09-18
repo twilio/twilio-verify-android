@@ -52,13 +52,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.createFactor(factorPayload, { factor ->
-      assertEquals(expectedFactor, factor)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.createFactor(
+      factorPayload,
+      { factor ->
+        assertEquals(expectedFactor, factor)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -73,13 +77,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.createFactor(factorPayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.createFactor(
+      factorPayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -93,13 +101,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.updateFactor(updatePushFactorPayload, { factor ->
-      assertEquals(expectedFactor, factor)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.updateFactor(
+      updatePushFactorPayload,
+      { factor ->
+        assertEquals(expectedFactor, factor)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -113,13 +125,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.updateFactor(updatePushFactorPayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.updateFactor(
+      updatePushFactorPayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -133,13 +149,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.verifyFactor(verifyFactorPayload, { factor ->
-      assertEquals(expectedFactor, factor)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.verifyFactor(
+      verifyFactorPayload,
+      { factor ->
+        assertEquals(expectedFactor, factor)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -153,13 +173,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.verifyFactor(verifyFactorPayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.verifyFactor(
+      verifyFactorPayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -172,13 +196,16 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.getAllFactors({ factors ->
-      assertEquals(expectedFactors, factors)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.getAllFactors(
+      { factors ->
+        assertEquals(expectedFactors, factors)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -191,13 +218,16 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.getAllFactors({
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.getAllFactors(
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -212,13 +242,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.getChallenge(sid, factorSid, { challenge ->
-      assertEquals(expectedChallenge, challenge)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.getChallenge(
+      sid, factorSid,
+      { challenge ->
+        assertEquals(expectedChallenge, challenge)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -233,13 +267,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.getChallenge(sid, factorSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.getChallenge(
+      sid, factorSid,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -255,12 +293,16 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.updateChallenge(updateChallengePayload, {
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.updateChallenge(
+      updateChallengePayload,
+      {
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -277,13 +319,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.updateChallenge(updateChallengePayload, {
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.updateChallenge(
+      updateChallengePayload,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -297,13 +343,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.getAllChallenges(challengeListPayload, { list ->
-      assertEquals(expectedChallengeList, list)
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.getAllChallenges(
+      challengeListPayload,
+      { list ->
+        assertEquals(expectedChallengeList, list)
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -317,13 +367,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.getAllChallenges(challengeListPayload, { list ->
-      fail()
-      idlingResource.operationFinished()
-    }, { exception ->
-      assertEquals(expectedException, exception.cause)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.getAllChallenges(
+      challengeListPayload,
+      { list ->
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertEquals(expectedException, exception.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -336,12 +390,16 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.deleteFactor(factorSid, {
-      idlingResource.operationFinished()
-    }, {
-      fail()
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.deleteFactor(
+      factorSid,
+      {
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 
@@ -355,13 +413,17 @@ class TwilioVerifyManagerTest {
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.deleteFactor(factorSid, {
-      fail()
-      idlingResource.operationFinished()
-    }, {
-      assertEquals(expectedException, it.cause)
-      idlingResource.operationFinished()
-    })
+    twilioVerifyManager.deleteFactor(
+      factorSid,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      {
+        assertEquals(expectedException, it.cause)
+        idlingResource.operationFinished()
+      }
+    )
     idlingResource.waitForIdle()
   }
 }

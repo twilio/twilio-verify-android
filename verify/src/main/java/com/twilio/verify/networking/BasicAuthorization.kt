@@ -16,8 +16,8 @@ internal data class BasicAuthorization constructor(
   val header: Pair<String, String>
     get() {
       val encodedAuthorization = encodeToBase64UTF8String(
-          "${this.username}:${this.password}".toByteArray(Charsets.UTF_8),
-          Base64.NO_WRAP
+        "${this.username}:${this.password}".toByteArray(Charsets.UTF_8),
+        Base64.NO_WRAP
       )
       return AuthorizationHeader to "$BasicAuth $encodedAuthorization"
     }

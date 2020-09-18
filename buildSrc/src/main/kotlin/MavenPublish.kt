@@ -26,10 +26,10 @@ object MavenPublish {
         const val group = "Publishing"
 
         fun credentials(
-            project: Project,
-            repositoryURL: String,
-            user: String,
-            pass: String
+          project: Project,
+          repositoryURL: String,
+          user: String,
+          pass: String
         ): Map<String, String> {
             return mapOf(
                 repo to repositoryURL,
@@ -39,8 +39,8 @@ object MavenPublish {
         }
 
         private fun projectProperty(
-            project: Project,
-            property: String
+          project: Project,
+          property: String
         ): String {
             val value =
                 if (project.hasProperty(property)) project.property(property) as? String else System.getenv(

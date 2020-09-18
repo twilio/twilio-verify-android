@@ -3,6 +3,7 @@
 [![Download](https://api.bintray.com/packages/twilio/releases/twilio-verify-android/images/download.svg) ](https://bintray.com/twilio/releases/twilio-verify-android/_latestVersion)
 [![CircleCI](https://circleci.com/gh/twilio/twilio-verify-android.svg?style=shield&circle-token=e5c76e91c300be6dcdd3db05a57bb4f01304415e)](https://circleci.com/gh/twilio/twilio-verify-android)
 [![codecov](https://codecov.io/gh/twilio/twilio-verify-android/branch/main/graph/badge.svg?token=o1ZcrAfoc0)](https://codecov.io/gh/twilio/twilio-verify-android)
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 [![License](https://img.shields.io/badge/License-Apache%202-blue.svg?logo=law)](https://github.com/twilio/twilio-verify-android/blob/main/LICENSE)
 
 ## Table of Contents
@@ -10,12 +11,15 @@
 * [About](#About)
 * [Dependencies](#Dependencies)
 * [Requirements](#Requirements)
+* [Documentation](#Documentation)
 * [Installation](#Installation)
 * [Usage](#Usage)
 * [Running the Sample app](#SampleApp)
 * [Running the sample backend](#SampleBackend)
 * [Using the sample app](#UsingSampleApp)
 * [Errors](#Errors)
+* [Update factor's push token](#UpdatePushToken)
+* [Delete a factor](#DeleteFactor)
 
 <a name='About'></a>
 
@@ -37,6 +41,11 @@ None
 * Android 6.0 (23) SDK or higher
 * Gradle 6.3
 * Kotlin 1.3.72
+
+<a name='Documentation'></a>
+
+## Documentation
+[SDK API docs](https://twilio.github.io/twilio-verify-android/latest/verify/index.html)
 
 <a name='Installation'></a>
 
@@ -106,7 +115,7 @@ In order to run the sample app, you have to create a project and application in 
 * Enter a `message`. You will see the message in the push notification and in the challenge view
 * Enter details to the challenge. You will see them in the challenge view. You can add more details using the `Add more Details` button
 * Press `Create challenge` button
-* You will receive a push notification showing the challenge message in your device. 
+* You will receive a push notification showing the challenge message in your device.
 * The app will show the challenge info below the factor information, in a `Challenge` section
 * Approve or deny the challenge
 * After the challenge is updated, you will see the challenge status in the backend's `Create Push Challenge` view
@@ -123,3 +132,30 @@ Input | 68004 | Exception while loading input
 Key Storage | 68005 | Exception while storing/loading key pairs
 Initialization | 68006 | Exception while initializing an object
 Authentication Token | 68007 | Exception while generating token
+
+<a name='UpdatePushToken'></a>
+
+## Update factor's push token
+You can update the factor's push token in case it changed, calling the `TwilioVerify.updateFactor` method:
+```
+val updateFactorPayload = UpdatePushFactorPayload(factorSid, newPushtoken)
+twilioVerify.updateFactor(updateFactorPayload, { factor ->
+  // Success
+}, { exception ->
+  // Error
+})
+```
+
+Firebase provides a method to be notified when the push token is updated. See [FirebasePushService](https://github.com/twilio/twilio-verify-android/blob/main/sample/src/main/java/com/twilio/verify/sample/push/FirebasePushService.kt#L42) in the sample app. You should update the push token for all factors.
+
+<a name='DeleteFactor'></a>
+
+## Delete a factor
+You can delete a factor calling the `TwilioVerify.deleteFactor` method:
+```
+twilioVerify.deleteFactor(factorSid, {
+  // Success
+}, { exception ->
+  // Error
+})
+```

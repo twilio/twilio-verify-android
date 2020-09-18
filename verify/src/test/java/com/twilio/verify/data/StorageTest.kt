@@ -40,8 +40,8 @@ class StorageTest {
   @Before
   fun setup() {
     sharedPreferences.edit()
-        .putInt(CURRENT_VERSION, VERSION)
-        .apply()
+      .putInt(CURRENT_VERSION, VERSION)
+      .apply()
     storage = Storage(sharedPreferences, encryptedStorage, emptyList())
   }
 
@@ -185,8 +185,8 @@ class StorageTest {
     migrations: List<Migration>
   ) {
     sharedPreferences.edit()
-        .putInt(CURRENT_VERSION, startVersion)
-        .apply()
+      .putInt(CURRENT_VERSION, startVersion)
+      .apply()
     storage = Storage(sharedPreferences, encryptedStorage, migrations)
     assertEquals(endVersion, sharedPreferences.getInt(CURRENT_VERSION, 0))
   }

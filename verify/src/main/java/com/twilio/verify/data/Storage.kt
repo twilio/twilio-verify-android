@@ -36,7 +36,7 @@ internal class Storage(
 
   override fun getAll(): List<String> = try {
     encryptedStorage.getAll(String::class)
-        .takeIf { it.isNotEmpty() }
+      .takeIf { it.isNotEmpty() }
   } catch (e: Exception) {
     null
   } ?: emptyList()
@@ -72,7 +72,7 @@ internal class Storage(
 
   private fun updateVersion(version: Int) {
     sharedPreferences.edit()
-        .putInt(CURRENT_VERSION, version)
-        .apply()
+      .putInt(CURRENT_VERSION, version)
+      .apply()
   }
 }

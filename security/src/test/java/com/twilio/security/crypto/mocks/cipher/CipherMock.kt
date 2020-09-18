@@ -47,7 +47,6 @@ class AlgorithmParametersMock : AlgorithmParametersSpi() {
   override fun <T : AlgorithmParameterSpec?> engineGetParameterSpec(paramSpec: Class<T>?): T {
     throw NotImplementedError()
   }
-
 }
 
 class CipherMock : CipherSpi() {

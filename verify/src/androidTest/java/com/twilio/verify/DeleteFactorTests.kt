@@ -19,14 +19,18 @@ class DeleteFactorTests : BaseFactorTest() {
     assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
     enqueueMockResponse(200)
     idlingResource.increment()
-    twilioVerify.deleteFactor(factor!!.sid, {
-      assertFalse(keyStore.containsAlias(factor!!.keyPairAlias))
-      assertFalse(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
-      idlingResource.decrement()
-    }, { e ->
-      fail(e.message)
-      idlingResource.decrement()
-    })
+    twilioVerify.deleteFactor(
+      factor!!.sid,
+      {
+        assertFalse(keyStore.containsAlias(factor!!.keyPairAlias))
+        assertFalse(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
+        idlingResource.decrement()
+      },
+      { e ->
+        fail(e.message)
+        idlingResource.decrement()
+      }
+    )
     idlingResource.waitForResource()
   }
 
@@ -35,19 +39,23 @@ class DeleteFactorTests : BaseFactorTest() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
     assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
     val expectedException = TwilioVerifyException(
-        NetworkException(null, null, null),
-        NetworkError
+      NetworkException(null, null, null),
+      NetworkError
     )
     enqueueMockResponse(400)
     idlingResource.increment()
-    twilioVerify.deleteFactor(factor!!.sid, {
-      fail()
-      idlingResource.decrement()
-    }, { exception ->
-      assertEquals(expectedException.message, exception.message)
-      assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
-      idlingResource.decrement()
-    })
+    twilioVerify.deleteFactor(
+      factor!!.sid,
+      {
+        fail()
+        idlingResource.decrement()
+      },
+      { exception ->
+        assertEquals(expectedException.message, exception.message)
+        assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
+        idlingResource.decrement()
+      }
+    )
     idlingResource.waitForResource()
   }
 }

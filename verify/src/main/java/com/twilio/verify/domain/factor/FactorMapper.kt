@@ -40,7 +40,7 @@ internal class FactorMapper {
     val identity = factorPayload.identity
     if (serviceSid.isEmpty() || identity.isEmpty()) {
       throw TwilioVerifyException(
-          IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
+        IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
       )
     }
     return when (factorPayload.type) {
@@ -54,7 +54,7 @@ internal class FactorMapper {
   ): FactorStatus {
     return try {
       FactorStatus.values()
-          .find { it.value == jsonObject.getString(statusKey) } ?: Unverified
+        .find { it.value == jsonObject.getString(statusKey) } ?: Unverified
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)
     }
@@ -71,19 +71,20 @@ internal class FactorMapper {
     val identity = jsonObject.optString(identityKey)
     if (serviceSid.isNullOrEmpty() || identity.isNullOrEmpty()) {
       throw TwilioVerifyException(
-          IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
+        IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
       )
     }
     return when (jsonObject.getString(typeKey)) {
-      PUSH.factorTypeName -> toPushFactor(
+      PUSH.factorTypeName ->
+        toPushFactor(
           serviceSid,
           identity,
           jsonObject
-      ).apply {
-        keyPairAlias = jsonObject.optString(keyPairAliasKey)
-      }
+        ).apply {
+          keyPairAlias = jsonObject.optString(keyPairAliasKey)
+        }
       else -> throw TwilioVerifyException(
-          IllegalArgumentException("Invalid factor type from json"), MapperError
+        IllegalArgumentException("Invalid factor type from json"), MapperError
       )
     }
   }
@@ -91,7 +92,8 @@ internal class FactorMapper {
   @Throws(TwilioVerifyException::class)
   fun toJSON(factor: Factor): String {
     return when (factor.type) {
-      PUSH -> JSONObject()
+      PUSH ->
+        JSONObject()
           .put(sidKey, factor.sid)
           .put(friendlyNameKey, factor.friendlyName)
           .put(accountSidKey, factor.accountSid)
@@ -101,7 +103,7 @@ internal class FactorMapper {
           .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias)
           .put(statusKey, factor.status.value)
           .put(
-              configKey, JSONObject().put(credentialSidKey, factor.config.credentialSid)
+            configKey, JSONObject().put(credentialSidKey, factor.config.credentialSid)
           )
           .put(dateCreatedKey, toRFC3339Date(factor.createdAt))
           .toString()
@@ -116,21 +118,21 @@ internal class FactorMapper {
   ): PushFactor {
     return try {
       PushFactor(
-          sid = getSid(jsonObject),
-          friendlyName = jsonObject.getString(friendlyNameKey),
-          accountSid = jsonObject.getString(accountSidKey),
-          serviceSid = serviceSid,
-          identity = identity,
-          status = FactorStatus.values()
-              .find { it.value == jsonObject.getString(statusKey) }
-              ?: Unverified,
-          createdAt = fromRFC3339Date(
-              jsonObject.getString(dateCreatedKey)
-          ),
-          config = Config(
-              jsonObject.getJSONObject(configKey)
-                  .getString(credentialSidKey)
-          )
+        sid = jsonObject.getString(sidKey),
+        friendlyName = jsonObject.getString(friendlyNameKey),
+        accountSid = jsonObject.getString(accountSidKey),
+        serviceSid = serviceSid,
+        identity = identity,
+        status = FactorStatus.values()
+          .find { it.value == jsonObject.getString(statusKey) }
+          ?: Unverified,
+        createdAt = fromRFC3339Date(
+          jsonObject.getString(dateCreatedKey)
+        ),
+        config = Config(
+          jsonObject.getJSONObject(configKey)
+            .getString(credentialSidKey)
+        )
       )
     } catch (e: JSONException) {
       throw TwilioVerifyException(e, MapperError)

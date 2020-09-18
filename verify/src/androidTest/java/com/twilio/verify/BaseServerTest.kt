@@ -10,15 +10,15 @@ import com.twilio.security.storage.encryptedPreferences
 import com.twilio.verify.TwilioVerify.Builder
 import com.twilio.verify.data.provider
 import com.twilio.verify.models.Factor
+import java.security.KeyStore
+import java.security.MessageDigest
+import javax.net.ssl.HttpsURLConnection
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.internal.TlsUtil.localhost
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import java.security.KeyStore
-import java.security.MessageDigest
-import javax.net.ssl.HttpsURLConnection
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -45,39 +45,39 @@ open class BaseServerTest {
     context = ApplicationProvider.getApplicationContext()
     val storageName = "${context.packageName}.$VERIFY_SUFFIX"
     sharedPreferences = context
-        .getSharedPreferences(storageName, Context.MODE_PRIVATE)
+      .getSharedPreferences(storageName, Context.MODE_PRIVATE)
     encryptedSharedPreferences = context
-        .getSharedPreferences(
-            "$storageName.$ENC_SUFFIX", Context.MODE_PRIVATE
-        )
+      .getSharedPreferences(
+        "$storageName.$ENC_SUFFIX", Context.MODE_PRIVATE
+      )
     encryptedStorage =
       encryptedPreferences("${context.packageName}.$VERIFY_SUFFIX", encryptedSharedPreferences)
     keyStore = KeyStore.getInstance(provider)
-        .apply {
-          load(null)
-        }
+      .apply {
+        load(null)
+      }
     twilioVerify = Builder(context)
-        .baseUrl(
-            mockWebServer.url("/")
-                .toString()
-        )
-        .build()
+      .baseUrl(
+        mockWebServer.url("/")
+          .toString()
+      )
+      .build()
   }
 
   @After
   open fun tearDown() {
     mockWebServer.shutdown()
     sharedPreferences.edit()
-        .clear()
-        .apply()
+      .clear()
+      .apply()
     encryptedSharedPreferences.edit()
-        .clear()
-        .apply()
+      .clear()
+      .apply()
     keyStore.aliases()
-        .toList()
-        .forEach {
-          keyStore.deleteEntry(it)
-        }
+      .toList()
+      .forEach {
+        keyStore.deleteEntry(it)
+      }
   }
 
   fun enqueueMockResponse(

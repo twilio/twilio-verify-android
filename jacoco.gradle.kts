@@ -28,8 +28,7 @@ private val classDirectoriesTree = fileTree("${project.buildDir}") {
 
 private val sourceDirectoriesTree = files("$projectDir/src/main/java")
 
-private val executionDataTree = fileTree("${project.buildDir}")
-{
+private val executionDataTree = fileTree("${project.buildDir}") {
   include(
       "outputs/code_coverage/**/*.ec",
       "jacoco/jacocoTestReportDebug.exec",
@@ -42,11 +41,11 @@ fun JacocoReportsContainer.reports() {
   csv.isEnabled = false
   xml.apply {
     isEnabled = true
-    destination = file("${buildDir}/reports/code-coverage/xml")
+    destination = file("$buildDir/reports/code-coverage/xml")
   }
   html.apply {
     isEnabled = true
-    destination = file("${buildDir}/reports/code-coverage/html")
+    destination = file("$buildDir/reports/code-coverage/html")
   }
 }
 
