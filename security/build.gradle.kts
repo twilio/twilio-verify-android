@@ -84,6 +84,7 @@ tasks {
 task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
   description = "Publish Security SDK release candidate to internal bintray"
   group = MavenPublish.Bintray.group
+  buildName = "Security"
   buildFile = file("build.gradle.kts")
   tasks = listOf("assembleRelease", "uploadArchives")
   startParameter.projectProperties.plusAssign(
@@ -99,6 +100,7 @@ task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
 task("bintrayLibraryReleaseUpload", GradleBuild::class) {
   description = "Publish Security SDK release to bintray"
   group = MavenPublish.Bintray.group
+  buildName = "Security"
   buildFile = file("build.gradle.kts")
   tasks = listOf("assembleRelease", "uploadArchives")
   startParameter.projectProperties.plusAssign(
