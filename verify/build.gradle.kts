@@ -131,6 +131,7 @@ artifacts {
 task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
   description = "Publish Verify SDK release candidate to internal bintray"
   group = "Publishing"
+  buildName = "Verify"
   buildFile = file("build.gradle.kts")
   tasks = listOf("assembleRelease", "uploadArchives")
   startParameter.projectProperties.plusAssign(
@@ -145,6 +146,7 @@ task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
 task("bintrayLibraryReleaseUpload", GradleBuild::class) {
   description = "Publish Verify SDK release to bintray"
   group = "Publishing"
+  buildName = "Verify"
   buildFile = file("build.gradle.kts")
   tasks = listOf("assembleRelease", "uploadArchives")
 
