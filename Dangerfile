@@ -19,7 +19,7 @@ if github.pr_body.length < 120
 end
 
 # Ensure that the PR body contains the commit message using the convention
-if !(github.pr_body =~ /[[:<:]](docs|fix|feat|chore|style|refactor|perf|test)(?:\((.*)\))?(!?)\: (.*)/)
+if !(github.pr_body =~ /\b(?=\w)(docs|fix|feat|chore|style|refactor|perf|test)(?:\((.*)\))?(!?)\: (.*)/)
   warn "The Pull Request summary does not contain the commit message convention"
 end
 
