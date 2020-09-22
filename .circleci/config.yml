@@ -289,6 +289,10 @@ jobs:
       - setup
       - attach_workspace:
           at: *workspace
+      - run: pwd
+      - run: ls
+      - run: ls builds/
+      - run: ls builds/sizeReport
       - *restore_gradle_cache
       - *decrypt_google_services
       - *release
