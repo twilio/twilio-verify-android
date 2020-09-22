@@ -109,8 +109,8 @@ platform :android do
 
     UI.message("Updating CHANGELOG.md")
     sdk_size = sh("cat ../builds/sizeReport/TwilioVerifySizeImpactReport.txt")
-    sh("echo "#{sdk_size}\\n" | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-    sh("echo "#{notes}\\n" | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
+    sh("echo \"#{sdk_size}\\n\" | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
+    sh("echo \"#{notes}\\n\" | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
     git_add(path: ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"])
     sh("git commit -m \"Version bump to #{next_version} [skip ci]\"")
     push_to_git_remote
