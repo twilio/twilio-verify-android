@@ -184,7 +184,7 @@ task("generateSizeReport") {
     }
     val sizeReportDir = "$buildDir/outputs/SizeReport"
     mkdir(sizeReportDir)
-    val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()} Size Impact Report.txt")
+    val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()}SizeImpactReport.txt")
     targetFile.createNewFile()
     targetFile.writeText(sizeReport)
   }
