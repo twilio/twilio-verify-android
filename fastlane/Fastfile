@@ -108,7 +108,7 @@ platform :android do
     push_git_tags(tag: tag)
 
     UI.message("Updating CHANGELOG.md")
-    sdk_size = sh("cat ../SizeReport/TwilioVerifySizeImpactReport.txt")
+    sdk_size = sh("cat ../builds/sizeReport/TwilioVerifySizeImpactReport.txt")
     sh("echo '#{sdk_size}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
     sh("echo '#{notes}\\n' | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
     git_add(path: ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"])

@@ -257,9 +257,12 @@ jobs:
       - store_artifacts:
           path: "verify/build/outputs/SizeReport"
           destination: SizeReport
+      - run: mkdir -p builds/sizeReport
+      - run: cp verify/build/outputs/SizeReport builds/sizeReport
       - persist_to_workspace:
           root: *workspace
-          paths: SizeReport
+          paths:
+            - builds
   lint:
     executor: *executor
     steps:
