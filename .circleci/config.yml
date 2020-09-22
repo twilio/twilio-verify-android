@@ -255,12 +255,12 @@ jobs:
       - *sdk_sizer
       - *save_gradle_cache
       - store_artifacts:
-          path: "verify/build/outputs/SizeReport"
-          destination: SizeReport
-      - run: mkdir -p builds/sizeReport
+          path: "verify/build/outputs/sizeReport"
+          destination: sizeReport
+      - run: mkdir -p builds
       - move_directory:
-          from: verify/build/outputs/SizeReport/
-          to: builds/sizeReport
+          from: verify/build/outputs/sizeReport/
+          to: builds
       - persist_to_workspace:
           root: *workspace
           paths:

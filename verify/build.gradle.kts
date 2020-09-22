@@ -182,7 +182,7 @@ task("generateSizeReport") {
     sizes.forEach { (arch, sizeImpact) ->
       sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
     }
-    val sizeReportDir = "$buildDir/outputs/SizeReport"
+    val sizeReportDir = "$buildDir/outputs/sizeReport"
     mkdir(sizeReportDir)
     val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()}SizeImpactReport.txt")
     targetFile.createNewFile()
