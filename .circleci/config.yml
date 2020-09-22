@@ -289,10 +289,6 @@ jobs:
       - setup
       - attach_workspace:
           at: *workspace
-      - run: pwd
-      - run: ls
-      - run: ls builds/
-      - run: ls builds/sizeReport
       - *restore_gradle_cache
       - *decrypt_google_services
       - *release
@@ -302,34 +298,34 @@ workflows:
 
   workflow:
     jobs:
-      #- assemble_build
-      #- lint:
-      #    requires:
-      #      - assemble_build
-      #- unit_tests:
-      #    requires:
-      #      - assemble_build
-      #- security_instrumentation_tests_single_device:
-      #    requires:
-      #      - lint
-      #      - unit_tests
-      #- verify_instrumentation_tests_single_device:
-      #    requires:
-      #      - lint
-      #      - unit_tests
-      #- security_instrumentation_tests_multiple_devices:
-      #    requires:
-      #      - security_instrumentation_tests_single_device
-      #- verify_instrumentation_tests_multiple_devices:
-      #    requires:
-      #      - verify_instrumentation_tests_single_device
-      - sdk_size_report
-      #    requires:
-      #      - verify_instrumentation_tests_single_device
+      - assemble_build
+      - lint:
+          requires:
+            - assemble_build
+      - unit_tests:
+          requires:
+            - assemble_build
+      - security_instrumentation_tests_single_device:
+          requires:
+            - lint
+            - unit_tests
+      - verify_instrumentation_tests_single_device:
+          requires:
+            - lint
+            - unit_tests
+      - security_instrumentation_tests_multiple_devices:
+          requires:
+            - security_instrumentation_tests_single_device
+      - verify_instrumentation_tests_multiple_devices:
+          requires:
+            - verify_instrumentation_tests_single_device
+      - sdk_size_report:
+          requires:
+            - verify_instrumentation_tests_single_device
       - release_sdk:
           requires:
-            #- security_instrumentation_tests_multiple_devices
-            #- verify_instrumentation_tests_multiple_devices
+            - security_instrumentation_tests_multiple_devices
+            - verify_instrumentation_tests_multiple_devices
             - sdk_size_report
             #filters:
             #branches:

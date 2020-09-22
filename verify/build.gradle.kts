@@ -170,7 +170,7 @@ task("generateSizeReport") {
 
   doLast {
     var sizeReport =
-      "### Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
+      "### Size impact\n" +
         "\n" +
         "| ABI             | APK Size Impact |\n" +
         "| --------------- | --------------- |\n"
