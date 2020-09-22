@@ -257,6 +257,9 @@ jobs:
       - store_artifacts:
           path: "verify/build/outputs/SizeReport"
           destination: SizeReport
+      - persist_to_workspace:
+          root: *workspace
+          paths: SizeReport
   lint:
     executor: *executor
     steps:
@@ -279,6 +282,8 @@ jobs:
     executor: *executor
     steps:
       - setup
+      - attach_workspace:
+          at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
       - *release
@@ -288,35 +293,36 @@ workflows:
 
   workflow:
     jobs:
-      - assemble_build
-      - lint:
-          requires:
-            - assemble_build
-      - unit_tests:
-          requires:
-            - assemble_build
-      - security_instrumentation_tests_single_device:
-          requires:
-            - lint
-            - unit_tests
-      - verify_instrumentation_tests_single_device:
-          requires:
-            - lint
-            - unit_tests
-      - security_instrumentation_tests_multiple_devices:
-          requires:
-            - security_instrumentation_tests_single_device
-      - verify_instrumentation_tests_multiple_devices:
-          requires:
-            - verify_instrumentation_tests_single_device
+      #- assemble_build
+      #- lint:
+      #    requires:
+      #      - assemble_build
+      #- unit_tests:
+      #    requires:
+      #      - assemble_build
+      #- security_instrumentation_tests_single_device:
+      #    requires:
+      #      - lint
+      #      - unit_tests
+      #- verify_instrumentation_tests_single_device:
+      #    requires:
+      #      - lint
+      #      - unit_tests
+      #- security_instrumentation_tests_multiple_devices:
+      #    requires:
+      #      - security_instrumentation_tests_single_device
+      #- verify_instrumentation_tests_multiple_devices:
+      #    requires:
+      #      - verify_instrumentation_tests_single_device
       - sdk_size_report:
-          requires:
-            - verify_instrumentation_tests_single_device
+      #    requires:
+      #      - verify_instrumentation_tests_single_device
       - release_sdk:
           requires:
-            - security_instrumentation_tests_multiple_devices
-            - verify_instrumentation_tests_multiple_devices
-          filters:
-            branches:
-              only:
-                - main
+            #- security_instrumentation_tests_multiple_devices
+            #- verify_instrumentation_tests_multiple_devices
+            - sdk_size_report
+              #filters:
+              #branches:
+              #only:
+            #- main
