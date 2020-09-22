@@ -314,7 +314,7 @@ workflows:
       #- verify_instrumentation_tests_multiple_devices:
       #    requires:
       #      - verify_instrumentation_tests_single_device
-      - sdk_size_report:
+      - sdk_size_report
       #    requires:
       #      - verify_instrumentation_tests_single_device
       - release_sdk:
