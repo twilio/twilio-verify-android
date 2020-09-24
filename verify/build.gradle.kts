@@ -41,6 +41,7 @@ android {
   testOptions.unitTests.isIncludeAndroidResources = true
   lintOptions {
     lintConfig = rootProject.file(".lint/config.xml")
+    xmlReport = true
     isCheckAllWarnings = true
   }
 }
@@ -130,6 +131,7 @@ artifacts {
 task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
   description = "Publish Verify SDK release candidate to internal bintray"
   group = "Publishing"
+  buildName = "Verify"
   buildFile = file("build.gradle.kts")
   tasks = listOf("assembleRelease", "uploadArchives")
   startParameter.projectProperties.plusAssign(
@@ -144,6 +146,7 @@ task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
 task("bintrayLibraryReleaseUpload", GradleBuild::class) {
   description = "Publish Verify SDK release to bintray"
   group = "Publishing"
+  buildName = "Verify"
   buildFile = file("build.gradle.kts")
   tasks = listOf("assembleRelease", "uploadArchives")
 
@@ -168,9 +171,9 @@ task("generateSizeReport") {
   doLast {
     var sizeReport =
       "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
-          "\n" +
-          "| ABI             | APK Size Impact |\n" +
-          "| --------------- | --------------- |\n"
+        "\n" +
+        "| ABI             | APK Size Impact |\n" +
+        "| --------------- | --------------- |\n"
     val apkscaleOutputFile = file("$buildDir/apkscale/build/outputs/reports/apkscale.json")
     val jsonSlurper = groovy.json.JsonSlurper()
     val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>

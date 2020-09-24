@@ -41,10 +41,10 @@ platform :android do
     )
   end
 
-  desc "Check android, kotlin and java style convention"
+  desc "Check android, kotlin style convention"
   lane :lint_checker do
     gradle(
-      tasks: ["ktlint", ":verify:lint", ":security:lint", "spotlessCheck"]
+      tasks: ["ktlint", ":verify:lint", ":security:lint"]
     )
   end
 
@@ -53,9 +53,10 @@ platform :android do
     title = 'Android Verify Push Release'
     tag_prefix = '*'
     next unless verify(title: title, tag_prefix: tag_prefix)
-    incrementVersion()
-    api_docs()
-    # TODO: missing part generate api docs and release to bintray
+    increment_version()
+    UI.message("Releasing to Bintray")
+    gradle(task: ":verify:bintrayLibraryReleaseUpload")
+    latest_docs()
     post_release()
   end
 
@@ -79,16 +80,15 @@ platform :android do
     is_releaseable
   end
 
-  desc "Generates API docs"
-  lane :api_docs do
+  desc "Generates latest API doc"
+  lane :latest_docs do
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-    UI.message("Generating API docs for version #{next_version}")
-    gradle(task: ":verify:dokkaHtml")
+    UI.message("Generating latest API docs redirect for version #{next_version}")
     sh("ln -nsf #{next_version} ../docs/latest")
   end
 
   desc "Increment version"
-  lane :incrementVersion do |options|
+  lane :increment_version do |options|
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
     ensure_git_status_clean
     # Increment version in Verify module
@@ -123,4 +123,15 @@ platform :android do
     )
   end
 
+  desc "Danger check"
+  lane :danger_check do
+    danger(
+      danger_id: 'Linter',
+      dangerfile: 'Dangerfile',
+      github_api_token: ENV["GH_TOKEN"],
+      remove_previous_comments: true,
+      fail_on_errors: true,
+      verbose: true
+    )
+  end
 end

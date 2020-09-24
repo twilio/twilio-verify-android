@@ -26,7 +26,6 @@ object Config {
     const val dokka = "org.jetbrains.dokka"
     const val versionBumper = "com.twilio.versionbumper"
     const val apkscale = "com.twilio.apkscale"
-    const val spotless = "plugins.spotless"
     const val ktlint = "plugins.ktlint"
     const val gitHooks = "plugins.git-hooks"
   }
