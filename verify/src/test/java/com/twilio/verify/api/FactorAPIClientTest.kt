@@ -160,11 +160,13 @@ class FactorAPIClientTest {
       NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
       NOTIFICATION_TOKEN_KEY to pushToken
     )
-    val expectedBody = mapOf(
-      FRIENDLY_NAME_KEY to friendlyNameMock, FACTOR_TYPE_KEY to factorTypeMock.factorTypeName,
-      BINDING_KEY to JSONObject(binding).toString(),
-      CONFIG_KEY to JSONObject(config).toString()
-    )
+    val expectedBody = mutableMapOf(
+      FRIENDLY_NAME_KEY to friendlyNameMock,
+      FACTOR_TYPE_KEY to factorTypeMock.factorTypeName
+    ).apply {
+      putAll(binding.map { "$BINDING_KEY.${it.key}" to it.value })
+      putAll(config.map { "$CONFIG_KEY.${it.key}" to it.value })
+    }
 
     val factorPayload =
       CreateFactorPayload(
@@ -727,7 +729,7 @@ class FactorAPIClientTest {
   }
 
   @Test
-  fun `Delete a factor with out of sync time should retry only another time`() {
+  fun `Delete a factor with unauthorized response code should retry only another time and call success because factor does not exist`() {
     val identity = "identity"
     val factorSid = "sid"
     val serviceSid = "serviceSid"
@@ -754,17 +756,53 @@ class FactorAPIClientTest {
     factorAPIClient.delete(
       factor,
       {
-        fail()
         idlingResource.operationFinished()
       },
       { exception ->
-        assertEquals(expectedException, exception.cause)
+        fail(exception.message)
         idlingResource.operationFinished()
       }
     )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
     verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
+  }
+
+  @Test
+  fun `Delete a factor with notFound response code should call success because factor does not exist`() {
+    val identity = "identity"
+    val factorSid = "sid"
+    val serviceSid = "serviceSid"
+    val factor =
+      PushFactor(
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        config = Config("credentialSid")
+      )
+    val expectedException = NetworkException(
+      FailureResponse(
+        notFound,
+        null,
+        null
+      )
+    )
+    argumentCaptor<(NetworkException) -> Unit>().apply {
+      whenever(networkProvider.execute(any(), any(), capture())).then {
+        lastValue.invoke(expectedException)
+      }
+    }
+    whenever(authentication.generateJWT(factor)).thenReturn("authToken")
+    idlingResource.startOperation()
+    factorAPIClient.delete(
+      factor,
+      {
+        idlingResource.operationFinished()
+      },
+      {
+        fail()
+        idlingResource.operationFinished()
+      }
+    )
+    idlingResource.waitForIdle()
   }
 
   @Test

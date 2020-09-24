@@ -182,7 +182,16 @@ internal class FactorAPIClient(
             success()
           },
           { exception ->
-            validateException(exception, ::deleteFactor, retries, error)
+            when (exception.failureResponse?.responseCode) {
+              notFound -> success()
+              unauthorized ->
+                if (retries == 0) {
+                  success()
+                } else {
+                  validateException(exception, ::deleteFactor, retries, error)
+                }
+              else -> validateException(exception, ::deleteFactor, retries, error)
+            }
           }
         )
       } catch (e: TwilioVerifyException) {
@@ -220,12 +229,13 @@ internal class FactorAPIClient(
   private fun createFactorBody(
     createFactorPayload: CreateFactorPayload
   ): Map<String, String?> =
-    mapOf(
+    mutableMapOf(
       FRIENDLY_NAME_KEY to createFactorPayload.friendlyName,
-      FACTOR_TYPE_KEY to createFactorPayload.type.factorTypeName,
-      BINDING_KEY to JSONObject(createFactorPayload.binding).toString(),
-      CONFIG_KEY to JSONObject(createFactorPayload.config).toString()
-    )
+      FACTOR_TYPE_KEY to createFactorPayload.type.factorTypeName
+    ).apply {
+      putAll(createFactorPayload.binding.map { "$BINDING_KEY.${it.key}" to it.value })
+      putAll(createFactorPayload.config.map { "$CONFIG_KEY.${it.key}" to it.value })
+    }
 
   private fun verifyFactorBody(
     authPayload: String
