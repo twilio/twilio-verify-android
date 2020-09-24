@@ -182,7 +182,16 @@ internal class FactorAPIClient(
             success()
           },
           { exception ->
-            validateException(exception, ::deleteFactor, retries, error)
+            when (exception.failureResponse?.responseCode) {
+              notFound -> success()
+              unauthorized ->
+                if (retries == 0) {
+                  success()
+                } else {
+                  validateException(exception, ::deleteFactor, retries, error)
+                }
+              else -> validateException(exception, ::deleteFactor, retries, error)
+            }
           }
         )
       } catch (e: TwilioVerifyException) {

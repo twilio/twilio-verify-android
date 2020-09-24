@@ -10,6 +10,7 @@ import com.twilio.verify.networking.NetworkException
  */
 
 internal const val unauthorized = 401
+internal const val notFound = 404
 internal const val dateHeaderKey = "Date"
 internal const val retryTimes = 1
 
