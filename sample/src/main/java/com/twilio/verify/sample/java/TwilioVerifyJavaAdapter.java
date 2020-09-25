@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020 Twilio Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.twilio.verify.sample.java;
 
 import com.twilio.verify.TwilioVerify;
@@ -13,22 +29,22 @@ import com.twilio.verify.models.UpdatePushFactorPayload;
 import com.twilio.verify.models.VerifyFactorPayload;
 import com.twilio.verify.models.VerifyPushFactorPayload;
 import com.twilio.verify.sample.TwilioVerifyAdapter;
-import com.twilio.verify.sample.model.CreateFactorData;
 import com.twilio.verify.sample.model.AccessTokenResponse;
 import com.twilio.verify.sample.model.AccessTokenResponseKt;
+import com.twilio.verify.sample.model.CreateFactorData;
 import com.twilio.verify.sample.networking.SampleBackendAPIClient;
 import com.twilio.verify.sample.networking.SampleBackendAPIClientKt;
 import com.twilio.verify.sample.push.NewChallenge;
 import com.twilio.verify.sample.push.VerifyEventBus;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
+
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
-import org.jetbrains.annotations.NotNull;
 
-/*
- * Copyright (c) 2020, Twilio Inc.
- */
 public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
 
   private final TwilioVerify twilioVerify;
