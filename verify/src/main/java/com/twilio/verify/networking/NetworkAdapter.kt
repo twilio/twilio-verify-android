@@ -37,7 +37,7 @@ class NetworkAdapter : NetworkProvider {
         httpUrlConnection.setRequestProperty(key, value)
       }
       if (request.getParams()
-          ?.isNotEmpty() == true
+        ?.isNotEmpty() == true
       ) {
         httpUrlConnection.doOutput = true
         val os: OutputStream = httpUrlConnection.outputStream

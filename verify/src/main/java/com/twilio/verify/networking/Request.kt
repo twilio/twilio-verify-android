@@ -17,9 +17,9 @@
 package com.twilio.verify.networking
 
 import android.net.Uri
-import org.json.JSONObject
 import java.net.MalformedURLException
 import java.net.URL
+import org.json.JSONObject
 
 class Request internal constructor(
   val httpMethod: HttpMethod,

@@ -23,8 +23,8 @@ import com.twilio.verify.data.getSignerTemplate
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
-import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+import org.json.JSONObject
 
 internal const val ctyKey = "cty"
 internal const val kidKey = "kid"

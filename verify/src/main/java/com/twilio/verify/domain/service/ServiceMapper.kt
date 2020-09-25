@@ -26,9 +26,9 @@ import com.twilio.verify.domain.factor.accountSidKey
 import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.service.models.FactorService
 import com.twilio.verify.models.Service
+import java.text.ParseException
 import org.json.JSONException
 import org.json.JSONObject
-import java.text.ParseException
 
 internal class ServiceMapper {
 
