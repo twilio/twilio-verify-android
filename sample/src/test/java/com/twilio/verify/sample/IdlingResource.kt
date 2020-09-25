@@ -17,9 +17,9 @@
 package com.twilio.verify.sample
 
 import android.os.Looper
+import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertTrue
 import org.robolectric.Shadows
-import java.util.concurrent.atomic.AtomicInteger
 
 class IdlingResource(private val counter: AtomicInteger = AtomicInteger(0)) {
   fun waitForIdle(
