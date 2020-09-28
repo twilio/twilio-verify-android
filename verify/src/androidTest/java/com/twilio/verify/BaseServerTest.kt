@@ -83,7 +83,7 @@ open class BaseServerTest {
 }
 
 fun CountingIdlingResource.waitForResource(
-  waitFor: Long = 100,
+  waitFor: Long = 200,
   times: Int = 20
 ) {
   for (i in 0..times) {
