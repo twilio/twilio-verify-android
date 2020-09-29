@@ -27,6 +27,7 @@ import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.logger.LogLevel
+import com.twilio.verify.logger.LogService
 import com.twilio.verify.logger.Logger
 import com.twilio.verify.logger.LoggerService
 import com.twilio.verify.models.Challenge
@@ -158,7 +159,7 @@ interface TwilioVerify {
         jwtGenerator,
         DateAdapter(storagePreferences(context))
       )
-    private var logLevel: LogLevel = LogLevel.off
+    private var logLevel: LogLevel = LogLevel.OFF
     private var loggerService: LoggerService? = null
 
     /**
@@ -184,6 +185,9 @@ interface TwilioVerify {
      */
     @Throws(TwilioVerifyException::class)
     fun build(): TwilioVerify {
+      loggerService?.let { Logger.addService(it) } ?: run {
+        Logger.addService(LogService(logLevel))
+      }
       val factorFacade = FactorFacade.Builder()
         .context(context)
         .networkProvider(networkProvider)
@@ -206,9 +210,6 @@ interface TwilioVerify {
         .setAuthentication(authentication)
         .baseUrl(baseUrl)
         .build()
-      loggerService?.let { Logger.addService(it) } ?: run {
-        // TODO add logger service for log level
-      }
       return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
     }
   }
