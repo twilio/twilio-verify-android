@@ -19,26 +19,26 @@ package com.twilio.verify.logger
 import android.util.Log
 
 interface LogAdapter {
-  fun error(tag: String, message: String?, throwable: Throwable?)
-  fun info(tag: String, message: String?, throwable: Throwable?)
-  fun debug(tag: String, message: String?, throwable: Throwable?)
-  fun verbose(tag: String, message: String?, throwable: Throwable?)
+  fun error(tag: String, message: String, throwable: Throwable? = null)
+  fun info(tag: String, message: String, throwable: Throwable? = null)
+  fun debug(tag: String, message: String, throwable: Throwable? = null)
+  fun verbose(tag: String, message: String, throwable: Throwable? = null)
 }
 
 object LogWrapper : LogAdapter {
-  override fun error(tag: String, message: String?, throwable: Throwable?) {
+  override fun error(tag: String, message: String, throwable: Throwable?) {
     Log.e(tag, message, throwable)
   }
 
-  override fun info(tag: String, message: String?, throwable: Throwable?) {
+  override fun info(tag: String, message: String, throwable: Throwable?) {
     Log.i(tag, message, throwable)
   }
 
-  override fun debug(tag: String, message: String?, throwable: Throwable?) {
+  override fun debug(tag: String, message: String, throwable: Throwable?) {
     Log.d(tag, message, throwable)
   }
 
-  override fun verbose(tag: String, message: String?, throwable: Throwable?) {
+  override fun verbose(tag: String, message: String, throwable: Throwable?) {
     Log.v(tag, message, throwable)
   }
 }

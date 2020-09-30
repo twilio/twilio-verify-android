@@ -17,5 +17,5 @@
 package com.twilio.verify.logger
 
 interface LoggerService {
-  fun log(level: LogLevel, message: String?, throwable: Throwable? = null)
+  fun log(level: LogLevel, message: String, throwable: Throwable? = null)
 }

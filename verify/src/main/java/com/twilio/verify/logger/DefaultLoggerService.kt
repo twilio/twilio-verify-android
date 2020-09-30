@@ -19,7 +19,7 @@ package com.twilio.verify.logger
 import com.twilio.verify.BuildConfig
 
 class DefaultLoggerService(private val logLevel: LogLevel, private val log: LogAdapter = LogWrapper) : LoggerService {
-  override fun log(level: LogLevel, message: String?, throwable: Throwable?) {
+  override fun log(level: LogLevel, message: String, throwable: Throwable?) {
     val trace = Exception().stackTrace[2]
     val tag = getTraceTag(trace)
 
