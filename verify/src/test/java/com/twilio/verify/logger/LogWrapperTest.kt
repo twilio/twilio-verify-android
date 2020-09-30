@@ -45,7 +45,6 @@ class LogWrapperTest {
     val tag = "tag"
     val message = "twilio"
     val throwable = IOException()
-    Log.d(tag, message, throwable)
     LogWrapper.error(tag, message, throwable)
     val log = ShadowLog.getLogs().last()
     assertEquals(tag, log.tag)
@@ -70,8 +69,7 @@ class LogWrapperTest {
     val tag = "tag"
     val message = "twilio"
     val throwable = IOException()
-    Log.i(tag, message, throwable)
-    LogWrapper.error(tag, message, throwable)
+    LogWrapper.info(tag, message, throwable)
     val log = ShadowLog.getLogs().last()
     assertEquals(tag, log.tag)
     assertEquals(message, log.msg)
@@ -95,8 +93,7 @@ class LogWrapperTest {
     val tag = "tag"
     val message = "twilio"
     val throwable = IOException()
-    Log.d(tag, message, throwable)
-    LogWrapper.error(tag, message, throwable)
+    LogWrapper.debug(tag, message, throwable)
     val log = ShadowLog.getLogs().last()
     assertEquals(tag, log.tag)
     assertEquals(throwable, log.throwable)
@@ -119,8 +116,7 @@ class LogWrapperTest {
     val tag = "tag"
     val message = "twilio"
     val throwable = IOException()
-    Log.v(tag, message, throwable)
-    LogWrapper.error(tag, message, throwable)
+    LogWrapper.verbose(tag, message, throwable)
     val log = ShadowLog.getLogs().last()
     assertEquals(tag, log.tag)
     assertEquals(throwable, log.throwable)
