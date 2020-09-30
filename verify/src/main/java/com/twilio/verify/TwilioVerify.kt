@@ -27,7 +27,7 @@ import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.logger.LogLevel
-import com.twilio.verify.logger.LogService
+import com.twilio.verify.logger.DefaultLoggerService
 import com.twilio.verify.logger.Logger
 import com.twilio.verify.logger.LoggerService
 import com.twilio.verify.models.Challenge
@@ -186,7 +186,7 @@ interface TwilioVerify {
     @Throws(TwilioVerifyException::class)
     fun build(): TwilioVerify {
       loggerService?.let { Logger.addService(it) } ?: run {
-        Logger.addService(LogService(logLevel))
+        Logger.addService(DefaultLoggerService(logLevel))
       }
       val factorFacade = FactorFacade.Builder()
         .context(context)
