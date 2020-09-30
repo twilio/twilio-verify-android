@@ -49,13 +49,16 @@ class DefaultLoggerServiceTest {
     val loggerService = DefaultLoggerService(LogLevel.ALL, log)
     val message = "Twilio"
     loggerService.log(LogLevel.INFO, message)
-    verify(log).info(check { tag ->
-      val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-      val className = DefaultLoggerServiceTest::class.simpleName.toString()
-      val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log INFO types`.name
-      val expectedTag = "$packageName.$className.$methodName"
-      assertEquals(expectedTag, tag)
-    }, eq(message), eq(null))
+    verify(log).info(
+      check { tag ->
+        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
+        val className = DefaultLoggerServiceTest::class.simpleName.toString()
+        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log INFO types`.name
+        val expectedTag = "$packageName.$className.$methodName"
+        assertEquals(expectedTag, tag)
+      },
+      eq(message), eq(null)
+    )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -66,13 +69,16 @@ class DefaultLoggerServiceTest {
     val loggerService = DefaultLoggerService(LogLevel.ALL, log)
     val message = "Twilio"
     loggerService.log(LogLevel.ERROR, message)
-    verify(log).error(check { tag ->
-      val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-      val className = DefaultLoggerServiceTest::class.simpleName.toString()
-      val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log ERROR types`.name
-      val expectedTag = "$packageName.$className.$methodName"
-      assertEquals(expectedTag, tag)
-    }, eq(message), eq(null))
+    verify(log).error(
+      check { tag ->
+        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
+        val className = DefaultLoggerServiceTest::class.simpleName.toString()
+        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log ERROR types`.name
+        val expectedTag = "$packageName.$className.$methodName"
+        assertEquals(expectedTag, tag)
+      },
+      eq(message), eq(null)
+    )
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -83,13 +89,16 @@ class DefaultLoggerServiceTest {
     val loggerService = DefaultLoggerService(LogLevel.ALL, log)
     val message = "Twilio"
     loggerService.log(LogLevel.NETWORKING, message)
-    verify(log).verbose(check { tag ->
-      val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-      val className = DefaultLoggerServiceTest::class.simpleName.toString()
-      val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log NETWORKING types`.name
-      val expectedTag = "$packageName.$className.$methodName"
-      assertEquals(expectedTag, tag)
-    }, eq(message), eq(null))
+    verify(log).verbose(
+      check { tag ->
+        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
+        val className = DefaultLoggerServiceTest::class.simpleName.toString()
+        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log NETWORKING types`.name
+        val expectedTag = "$packageName.$className.$methodName"
+        assertEquals(expectedTag, tag)
+      },
+      eq(message), eq(null)
+    )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -100,13 +109,16 @@ class DefaultLoggerServiceTest {
     val loggerService = DefaultLoggerService(LogLevel.ALL, log)
     val message = "Twilio"
     loggerService.log(LogLevel.DEBUG, message)
-    verify(log).debug(check { tag ->
-      val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-      val className = DefaultLoggerServiceTest::class.simpleName.toString()
-      val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log DEBUG types`.name
-      val expectedTag = "$packageName.$className.$methodName"
-      assertEquals(expectedTag, tag)
-    }, eq(message), eq(null))
+    verify(log).debug(
+      check { tag ->
+        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
+        val className = DefaultLoggerServiceTest::class.simpleName.toString()
+        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log DEBUG types`.name
+        val expectedTag = "$packageName.$className.$methodName"
+        assertEquals(expectedTag, tag)
+      },
+      eq(message), eq(null)
+    )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).info(any(), any(), any())
@@ -117,13 +129,16 @@ class DefaultLoggerServiceTest {
     val loggerService = DefaultLoggerService(LogLevel.ERROR, log)
     val message = "Twilio"
     loggerService.log(LogLevel.ERROR, message)
-    verify(log).error(check { tag ->
-      val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-      val className = DefaultLoggerServiceTest::class.simpleName.toString()
-      val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ERROR should log ERROR types`.name
-      val expectedTag = "$packageName.$className.$methodName"
-      assertEquals(expectedTag, tag)
-    }, eq(message), eq(null))
+    verify(log).error(
+      check { tag ->
+        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
+        val className = DefaultLoggerServiceTest::class.simpleName.toString()
+        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ERROR should log ERROR types`.name
+        val expectedTag = "$packageName.$className.$methodName"
+        assertEquals(expectedTag, tag)
+      },
+      eq(message), eq(null)
+    )
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -167,13 +182,16 @@ class DefaultLoggerServiceTest {
     val loggerService = DefaultLoggerService(LogLevel.INFO, log)
     val message = "Twilio"
     loggerService.log(LogLevel.INFO, message)
-    verify(log).info(check { tag ->
-      val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-      val className = DefaultLoggerServiceTest::class.simpleName.toString()
-      val methodName = this@DefaultLoggerServiceTest::`LogLevel set to INFO should log INFO types`.name
-      val expectedTag = "$packageName.$className.$methodName"
-      assertEquals(expectedTag, tag)
-    }, eq(message), eq(null))
+    verify(log).info(
+      check { tag ->
+        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
+        val className = DefaultLoggerServiceTest::class.simpleName.toString()
+        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to INFO should log INFO types`.name
+        val expectedTag = "$packageName.$className.$methodName"
+        assertEquals(expectedTag, tag)
+      },
+      eq(message), eq(null)
+    )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -217,13 +235,16 @@ class DefaultLoggerServiceTest {
     val loggerService = DefaultLoggerService(LogLevel.NETWORKING, log)
     val message = "Twilio"
     loggerService.log(LogLevel.NETWORKING, message)
-    verify(log).verbose(check { tag ->
-      val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-      val className = DefaultLoggerServiceTest::class.simpleName.toString()
-      val methodName = this@DefaultLoggerServiceTest::`LogLevel set to NETWORKING should log NETWORKING types`.name
-      val expectedTag = "$packageName.$className.$methodName"
-      assertEquals(expectedTag, tag)
-    }, eq(message), eq(null))
+    verify(log).verbose(
+      check { tag ->
+        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
+        val className = DefaultLoggerServiceTest::class.simpleName.toString()
+        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to NETWORKING should log NETWORKING types`.name
+        val expectedTag = "$packageName.$className.$methodName"
+        assertEquals(expectedTag, tag)
+      },
+      eq(message), eq(null)
+    )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -267,13 +288,16 @@ class DefaultLoggerServiceTest {
     val loggerService = DefaultLoggerService(LogLevel.DEBUG, log)
     val message = "Twilio"
     loggerService.log(LogLevel.DEBUG, message)
-    verify(log).debug(check { tag ->
-      val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-      val className = DefaultLoggerServiceTest::class.simpleName.toString()
-      val methodName = this@DefaultLoggerServiceTest::`LogLevel set to DEBUG should log DEBUG types`.name
-      val expectedTag = "$packageName.$className.$methodName"
-      assertEquals(expectedTag, tag)
-    }, eq(message), eq(null))
+    verify(log).debug(
+      check { tag ->
+        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
+        val className = DefaultLoggerServiceTest::class.simpleName.toString()
+        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to DEBUG should log DEBUG types`.name
+        val expectedTag = "$packageName.$className.$methodName"
+        assertEquals(expectedTag, tag)
+      },
+      eq(message), eq(null)
+    )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
