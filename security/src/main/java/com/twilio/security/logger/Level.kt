@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.twilio.verify.logger
+package com.twilio.security.logger
 
-import com.twilio.security.logger.Level
-
-enum class LogLevel(internal val level: Level? = null) {
-  OFF(Level.OFF),
-  ERROR(Level.ERROR),
-  INFO(Level.INFO),
-  NETWORKING(Level.NETWORKING),
-  DEBUG(Level.DEBUG),
-  ALL
+enum class Level {
+  OFF,
+  ERROR,
+  INFO,
+  NETWORKING,
+  DEBUG
 }

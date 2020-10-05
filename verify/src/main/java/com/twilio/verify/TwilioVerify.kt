@@ -17,6 +17,8 @@
 package com.twilio.verify
 
 import android.content.Context
+import com.twilio.security.logger.Logger
+import com.twilio.security.logger.LoggerService
 import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
@@ -28,8 +30,6 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.logger.DefaultLoggerService
 import com.twilio.verify.logger.LogLevel
-import com.twilio.verify.logger.Logger
-import com.twilio.verify.logger.LoggerService
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListPayload

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
-package com.twilio.verify.logger
+package com.twilio.security.logger
 
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertTrue
