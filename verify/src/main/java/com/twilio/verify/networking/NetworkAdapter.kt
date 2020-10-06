@@ -51,7 +51,7 @@ class NetworkAdapter : NetworkProvider {
         writer.flush()
         writer.close()
         os.close()
-        Logger.log(Level.NETWORKING, this)
+        Logger.log(Level.NETWORKING, "Request: $this")
       }
       val responseCode = httpUrlConnection.responseCode
       Logger.log(Level.NETWORKING, "Response code: $responseCode")

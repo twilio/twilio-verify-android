@@ -21,6 +21,8 @@ import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.security.crypto.keyManager
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 
@@ -36,6 +38,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
         NO_WRAP
       )
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
   }
@@ -48,6 +51,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
       manager.signer(getSignerTemplate(alias))
         .sign(message.toByteArray())
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
   }
@@ -61,6 +65,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     } catch (e: TwilioVerifyException) {
       throw e
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
   }
@@ -69,6 +74,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     try {
       manager.delete(alias)
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
   }

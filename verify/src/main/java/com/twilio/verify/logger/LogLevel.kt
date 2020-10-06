@@ -23,6 +23,5 @@ enum class LogLevel(internal val level: Level? = null) {
   ERROR(Level.ERROR),
   INFO(Level.INFO),
   NETWORKING(Level.NETWORKING),
-  DEBUG(Level.DEBUG),
-  ALL
+  ALL(Level.DEBUG)
 }

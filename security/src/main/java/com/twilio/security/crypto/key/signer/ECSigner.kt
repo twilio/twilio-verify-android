@@ -18,6 +18,8 @@ package com.twilio.security.crypto.key.signer
 
 import com.twilio.security.crypto.AndroidKeyStoreOperations
 import com.twilio.security.crypto.KeyException
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import java.security.KeyPair
 
 class ECSigner(
@@ -30,6 +32,7 @@ class ECSigner(
     return try {
       androidKeyStoreOperations.sign(data, signatureAlgorithm, keyPair.private)
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -42,6 +45,7 @@ class ECSigner(
     return try {
       return androidKeyStoreOperations.verify(data, signature, signatureAlgorithm, keyPair.public)
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -51,6 +55,7 @@ class ECSigner(
     return try {
       keyPair.public.encoded
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw KeyException(e)
     }
   }

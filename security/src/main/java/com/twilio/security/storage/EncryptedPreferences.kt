@@ -64,6 +64,7 @@ class EncryptedPreferences(
         "Illegal decrypted data"
       ).also { Logger.log(Level.INFO, "Got $key") }
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw StorageException(e)
     }
   }

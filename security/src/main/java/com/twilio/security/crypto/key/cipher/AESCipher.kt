@@ -18,6 +18,8 @@ package com.twilio.security.crypto.key.cipher
 
 import com.twilio.security.crypto.AndroidKeyStoreOperations
 import com.twilio.security.crypto.KeyException
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import javax.crypto.SecretKey
 
 class AESCipher(
@@ -29,6 +31,7 @@ class AESCipher(
     return try {
       return androidKeyStoreOperations.encrypt(data, cipherAlgorithm, key)
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -37,6 +40,7 @@ class AESCipher(
     return try {
       return androidKeyStoreOperations.decrypt(data, cipherAlgorithm, key)
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw KeyException(e)
     }
   }

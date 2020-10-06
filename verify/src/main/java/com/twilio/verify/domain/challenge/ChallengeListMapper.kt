@@ -17,6 +17,8 @@
 package com.twilio.verify.domain.challenge
 
 import android.net.Uri
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.domain.challenge.models.ChallengeListMetadata
@@ -72,8 +74,10 @@ internal class ChallengeListMapper(
         challenges, metadata
       )
     } catch (e: JSONException) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     } catch (e: ParseException) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
   }

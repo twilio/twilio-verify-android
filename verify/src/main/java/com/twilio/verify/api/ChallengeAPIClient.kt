@@ -17,6 +17,8 @@
 package com.twilio.verify.api
 
 import android.content.Context
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.data.DateAdapter
@@ -94,6 +96,7 @@ internal class ChallengeAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
+        Logger.log(Level.ERROR, e.toString(), e)
         error(TwilioVerifyException(NetworkException(e), NetworkError))
       }
     }
@@ -132,6 +135,7 @@ internal class ChallengeAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
+        Logger.log(Level.ERROR, e.toString(), e)
         error(TwilioVerifyException(NetworkException(e), NetworkError))
       }
     }
@@ -180,6 +184,7 @@ internal class ChallengeAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
+        Logger.log(Level.ERROR, e.toString(), e)
         error(TwilioVerifyException(NetworkException(e), NetworkError))
       }
     }

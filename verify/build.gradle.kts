@@ -211,7 +211,7 @@ task("generateSizeReport") {
 //endregion
 
 dependencies {
-  val securityVersion = "0.0.2"
+  val securityVersion = "0.0.3"
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(Modules.security))
   releaseImplementation("com.twilio:twilio-security-android:$securityVersion")

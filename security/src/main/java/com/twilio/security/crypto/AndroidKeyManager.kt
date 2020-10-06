@@ -24,6 +24,8 @@ import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.key.template.CipherTemplate
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import java.security.KeyPair
 import java.util.concurrent.TimeUnit
 import javax.crypto.SecretKey
@@ -47,6 +49,7 @@ class AndroidKeyManager(
         is ECP256SignerTemplate -> ECSigner(keyPair, template.signatureAlgorithm, androidKeyStore)
       }
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -86,6 +89,7 @@ class AndroidKeyManager(
         )
       }
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -97,6 +101,7 @@ class AndroidKeyManager(
         androidKeyStore.deleteEntry(alias)
       }
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -135,6 +140,7 @@ class AndroidKeyManager(
       val result = try {
         block()
       } catch (e: Exception) {
+        Logger.log(Level.ERROR, e.toString(), e)
         null
       }
       if (result == null) {

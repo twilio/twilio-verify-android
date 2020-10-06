@@ -16,6 +16,8 @@
 
 package com.twilio.verify.domain.factor
 
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.data.fromRFC3339Date
@@ -69,6 +71,7 @@ internal class FactorMapper {
       FactorStatus.values()
         .find { it.value == jsonObject.getString(statusKey) } ?: Unverified
     } catch (e: JSONException) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
   }
@@ -78,6 +81,7 @@ internal class FactorMapper {
     val jsonObject = try {
       JSONObject(json)
     } catch (e: JSONException) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
     val serviceSid = jsonObject.optString(serviceSidKey)
@@ -148,6 +152,7 @@ internal class FactorMapper {
         )
       )
     } catch (e: JSONException) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
   }

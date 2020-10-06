@@ -17,6 +17,8 @@
 package com.twilio.verify.domain.challenge
 
 import com.twilio.security.crypto.key.template.SignerTemplate
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
@@ -124,6 +126,7 @@ internal class PushChallengeProcessor(
       }
       return jwtGenerator.generateJWT(signerTemplate, JSONObject(), payload)
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, InputError)
     }
   }

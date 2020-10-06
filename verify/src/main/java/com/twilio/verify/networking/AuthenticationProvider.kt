@@ -16,6 +16,8 @@
 
 package com.twilio.verify.networking
 
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.AuthenticationTokenError
 import com.twilio.verify.data.DateProvider
@@ -48,6 +50,7 @@ internal class AuthenticationProvider(
         else -> throw IllegalArgumentException("Not supported factor for JWT generation")
       }
     } catch (e: Exception) {
+      Logger.log(Level.ERROR, e.toString(), e)
       throw TwilioVerifyException(e, AuthenticationTokenError)
     }
   }
