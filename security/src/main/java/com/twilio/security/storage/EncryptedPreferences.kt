@@ -45,7 +45,6 @@ class EncryptedPreferences(
       preferences.edit()
         .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
         .apply()
-      Logger.log(Level.INFO, "Saved $key")
       Logger.log(Level.DEBUG, "Saved $keyToSave")
     } catch (e: Exception) {
       Logger.log(Level.ERROR, e.toString(), e)
@@ -62,7 +61,7 @@ class EncryptedPreferences(
       Logger.log(Level.INFO, "Getting $key")
       getValue(generateKeyDigest(key), kClass) ?: throw IllegalArgumentException(
         "Illegal decrypted data"
-      ).also { Logger.log(Level.INFO, "Got $key") }
+      ).also { Logger.log(Level.DEBUG, "Return value $it for $key") }
     } catch (e: Exception) {
       Logger.log(Level.ERROR, e.toString(), e)
       throw StorageException(e)
@@ -79,42 +78,43 @@ class EncryptedPreferences(
         try {
           getValue(
             entry.key, kClass
-          ).also { Logger.log(Level.INFO, "Got ${entry.key}") }
+          ).also { Logger.log(Level.DEBUG, "Return value $it for key ${entry.key}") }
         } catch (e: Exception) {
           Logger.log(Level.ERROR, e.toString(), e)
           null
         }
-      }.also { Logger.log(Level.INFO, "Got all values") }
+      }.also { Logger.log(Level.INFO, "Return all values") }
   } catch (e: Exception) {
     Logger.log(Level.ERROR, e.toString(), e)
     throw StorageException(e)
   }
 
   override fun contains(key: String): Boolean = preferences.contains(generateKeyDigest(key))
+    .also { Logger.log(Level.DEBUG, "Encrypted preferences ${if (it) "has a value" else "does not have a value"} for $it key $key") }
 
   @Synchronized
   override fun remove(key: String) {
+    Logger.log(Level.INFO, "Removing $key")
     preferences.edit()
       .remove(generateKeyDigest(key))
       .apply()
-    Logger.log(Level.INFO, "Remove $key")
   }
 
   @Synchronized
   override fun clear() {
+    Logger.log(Level.INFO, "Clearing storage")
     preferences.edit()
       .clear()
       .apply()
-    Logger.log(Level.INFO, "Clear storage")
   }
 
   private fun <T : Any> getValue(
     key: String,
     kClass: KClass<T>
   ): T? {
-    Logger.log(Level.DEBUG, "Getting $key")
+    Logger.log(Level.DEBUG, "Getting value for $key")
     val value = preferences.getString(key, null) ?: throw IllegalArgumentException("key not found")
-    return fromByteArray(secretKeyProvider.decrypt(Base64.decode(value, DEFAULT)), kClass).also { Logger.log(Level.DEBUG, "Got $key") }
+    return fromByteArray(secretKeyProvider.decrypt(Base64.decode(value, DEFAULT)), kClass).also { Logger.log(Level.DEBUG, "Return $it for key $key") }
   }
 
   private fun <T : Any> toByteArray(
