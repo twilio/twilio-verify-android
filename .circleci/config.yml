@@ -255,8 +255,16 @@ jobs:
       - *sdk_sizer
       - *save_gradle_cache
       - store_artifacts:
-          path: "verify/build/outputs/SizeReport"
-          destination: SizeReport
+          path: "verify/build/outputs/sizeReport"
+          destination: sizeReport
+      - run: mkdir -p builds
+      - move_directory:
+          from: verify/build/outputs/sizeReport/
+          to: builds
+      - persist_to_workspace:
+          root: *workspace
+          paths:
+            - builds
   lint:
     executor: *executor
     steps:
@@ -279,6 +287,8 @@ jobs:
     executor: *executor
     steps:
       - setup
+      - attach_workspace:
+          at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
       - *release
@@ -316,6 +326,7 @@ workflows:
           requires:
             - security_instrumentation_tests_multiple_devices
             - verify_instrumentation_tests_multiple_devices
+            - sdk_size_report
           filters:
             branches:
               only:

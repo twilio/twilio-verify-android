@@ -42,7 +42,6 @@ import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
 import java.net.URL
 import java.util.Date
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -607,10 +606,12 @@ class FactorAPIClientTest {
         identityMock, config, sidMock
       )
 
-    val expectedBody = mapOf(
-      FRIENDLY_NAME_KEY to friendlyNameMock,
-      CONFIG_KEY to JSONObject(config).toString()
-    )
+    val expectedBody = mutableMapOf(
+      FRIENDLY_NAME_KEY to friendlyNameMock
+    ).apply {
+      putAll(config.map { "$CONFIG_KEY.${it.key}" to it.value })
+    }
+
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
     idlingResource.startOperation()
     factorAPIClient.update(factor, factorPayload, {}, {})

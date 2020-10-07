@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020 Twilio Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 //region Plugins
 apply(from = "../jacoco.gradle.kts")
 apply(from = "version.gradle.kts")
@@ -170,7 +186,7 @@ task("generateSizeReport") {
 
   doLast {
     var sizeReport =
-      "Size impact report for ${rootProject.name.capitalize()} v$verifyVersionName\n" +
+      "### Size impact\n" +
         "\n" +
         "| ABI             | APK Size Impact |\n" +
         "| --------------- | --------------- |\n"
@@ -182,9 +198,9 @@ task("generateSizeReport") {
     sizes.forEach { (arch, sizeImpact) ->
       sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
     }
-    val sizeReportDir = "$buildDir/outputs/SizeReport"
+    val sizeReportDir = "$buildDir/outputs/sizeReport"
     mkdir(sizeReportDir)
-    val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()} Size Impact Report.txt")
+    val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()}SizeImpactReport.txt")
     targetFile.createNewFile()
     targetFile.writeText(sizeReport)
   }
