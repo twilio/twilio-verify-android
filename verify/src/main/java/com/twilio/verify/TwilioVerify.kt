@@ -204,3 +204,4 @@ internal fun storagePreferences(context: Context) =
   context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
 
 internal const val VERIFY_SUFFIX = "verify"
+internal const val ENC_SUFFIX = "enc"
