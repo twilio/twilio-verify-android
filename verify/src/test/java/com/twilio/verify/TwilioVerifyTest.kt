@@ -315,14 +315,12 @@ class TwilioVerifyTest {
           )
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
         JSONObject().apply {
           put("key1", "value1")
         }
-          .toString()
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -542,14 +540,12 @@ private fun challengeJSONObject(
         )
         put(dateKey, "2020-02-19T16:39:57-08:00")
       }
-        .toString()
     )
     put(
       hiddenDetailsKey,
       JSONObject().apply {
         put("key1", "value1")
       }
-        .toString()
     )
     put(expirationDateKey, "2020-02-27T08:50:57-08:00")
   }

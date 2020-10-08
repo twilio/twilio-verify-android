@@ -52,7 +52,7 @@ internal class ChallengeMapper {
     signatureFieldsHeader: String? = null
   ): Challenge {
     try {
-      val details = jsonObject.getString(detailsKey)
+      val details = jsonObject.getJSONObject(detailsKey)
       val createdDate = jsonObject.getString(createdDateKey)
       val updatedDate = jsonObject.getString(updatedDateKey)
       val status = ChallengeStatus.values()
@@ -76,7 +76,9 @@ internal class ChallengeMapper {
         createdAt = fromRFC3339Date(createdDate),
         updatedAt = fromRFC3339Date(updatedDate),
         challengeDetails = toChallengeDetails(details),
-        hiddenDetails = jsonObject.getString(hiddenDetailsKey),
+        hiddenDetails = jsonObject.optJSONObject(hiddenDetailsKey)?.let {
+          it.keys().asSequence().associateWith { key -> it.getString(key) }
+        },
         status = status
       )
     } catch (e: JSONException) {
@@ -86,10 +88,9 @@ internal class ChallengeMapper {
     }
   }
 
-  private fun toChallengeDetails(details: String): ChallengeDetails = run {
-    val detailsJson = JSONObject(details)
-    val message = detailsJson.getString(messageKey)
-    val fields = detailsJson.optJSONArray(fieldsKey)
+  private fun toChallengeDetails(details: JSONObject): ChallengeDetails = run {
+    val message = details.getString(messageKey)
+    val fields = details.optJSONArray(fieldsKey)
       ?.takeIf { it.length() > 0 }
       ?.let {
         val fields = mutableListOf<Detail>()
@@ -104,8 +105,8 @@ internal class ChallengeMapper {
         }
         fields
       } ?: listOf<Detail>()
-    val date = detailsJson.optString(dateKey)
-      ?.takeIf { it.isNotEmpty() }
+    val date = details.optString(dateKey)
+      .takeIf { it.isNotEmpty() }
       ?.let { fromRFC3339Date(it) }
     return ChallengeDetails(message, fields, date)
   }
