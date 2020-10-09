@@ -13,7 +13,6 @@ import com.twilio.verify.networking.NetworkException
 import java.security.KeyStore
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -25,7 +24,7 @@ import org.junit.Test
 
 class CreateFactorTests : BaseServerTest() {
 
-  internal var keyPairAlias: String? = null
+  private var keyPairAlias: String? = null
 
   @After
   override fun tearDown() {
@@ -71,8 +70,8 @@ class CreateFactorTests : BaseServerTest() {
   }
 
   private fun checkFactorWasStored(factor: Factor) {
-    val storedFactorSid = sharedPreferences.getString(factor.sid, null)
-    assertNotNull(storedFactorSid)
+    assertNotNull(encryptedSharedPreferences.getString(getFactorKey(factor), null))
+    val storedFactorSid = encryptedStorage.get(factor.sid, String::class)
     val storedFactor = FactorMapper().fromStorage(storedFactorSid!!)
     assertEquals(factor.type, storedFactor.type)
     assertEquals(factor.friendlyName, storedFactor.friendlyName)
@@ -121,7 +120,11 @@ class CreateFactorTests : BaseServerTest() {
       },
       { exception ->
         assertEquals(expectedException.message, exception.message)
-        assertFalse(keyStore.aliases().hasMoreElements())
+        assertTrue(
+          keyStore.aliases()
+            .toList()
+            .none { !it.startsWith(context.packageName) }
+        )
         idlingResource.decrement()
       }
     )

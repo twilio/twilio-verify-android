@@ -17,14 +17,14 @@ class DeleteFactorTests : BaseFactorTest() {
   @Test
   fun testDeleteFactorWithValidFactorShouldCallSuccess() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
-    assertTrue(sharedPreferences.contains(factor!!.sid))
+    assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
     enqueueMockResponse(200)
     idlingResource.increment()
     twilioVerify.deleteFactor(
       factor!!.sid,
       {
         assertFalse(keyStore.containsAlias(factor!!.keyPairAlias))
-        assertFalse(sharedPreferences.contains(factor!!.sid))
+        assertFalse(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
         idlingResource.decrement()
       },
       { e ->
@@ -38,7 +38,7 @@ class DeleteFactorTests : BaseFactorTest() {
   @Test
   fun testDeleteFactorWithNoExistingFactorShouldCallSuccess() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
-    assertTrue(sharedPreferences.contains(factor!!.sid))
+    assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
     enqueueMockResponse(401, headers = mapOf(dateHeaderKey to listOf("Tue, 21 Jul 2020 17:07:32 GMT")))
     enqueueMockResponse(401)
     idlingResource.increment()
@@ -46,7 +46,7 @@ class DeleteFactorTests : BaseFactorTest() {
       factor!!.sid,
       {
         assertFalse(keyStore.containsAlias(factor!!.keyPairAlias))
-        assertFalse(sharedPreferences.contains(factor!!.sid))
+        assertFalse(encryptedSharedPreferences.contains(factor!!.sid))
         idlingResource.decrement()
       },
       { e ->
@@ -60,7 +60,7 @@ class DeleteFactorTests : BaseFactorTest() {
   @Test
   fun testDeleteFactorWithInvalidAPIResponseShouldCallError() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
-    assertTrue(sharedPreferences.contains(factor!!.sid))
+    assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
     val expectedException = TwilioVerifyException(
       NetworkException(null, null, null),
       NetworkError

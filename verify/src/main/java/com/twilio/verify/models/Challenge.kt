@@ -35,7 +35,7 @@ interface Challenge {
   /**
    * Hidden details of the Challenge
    */
-  val hiddenDetails: String
+  val hiddenDetails: Map<String, String>?
 
   /**
    * Sid of the factor to which the Challenge is related
