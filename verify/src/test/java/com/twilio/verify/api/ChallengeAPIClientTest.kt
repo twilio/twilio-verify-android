@@ -10,7 +10,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.challenge.factorSidKey
 import com.twilio.verify.domain.challenge.models.FactorChallenge
@@ -18,7 +18,7 @@ import com.twilio.verify.domain.challenge.sidKey
 import com.twilio.verify.domain.challenge.signatureFieldsHeaderSeparator
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
-import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.models.ChallengeStatus.PENDING
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.FailureResponse
@@ -56,7 +56,7 @@ class ChallengeAPIClientTest {
   private val idlingResource = IdlingResource()
 
   private val factorChallenge =
-    FactorChallenge("sid", mock(), "", "factorSid", Pending, Date(), Date(), Date()).apply {
+    FactorChallenge("sid", mock(), "", "factorSid", PENDING, Date(), Date(), Date()).apply {
       factor =
         PushFactor(
           "sid", "friendlyName", "accountSid", "serviceSid", "identity", createdAt = Date(),
@@ -203,7 +203,7 @@ class ChallengeAPIClientTest {
       { exception ->
         assertTrue(exception.cause is NetworkException)
         assertTrue(exception.cause?.cause is RuntimeException)
-        assertEquals(NetworkError.message, exception.message)
+        assertEquals(NETWORK_ERROR.message, exception.message)
         idlingResource.operationFinished()
       }
     )
@@ -212,7 +212,7 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Update a challenge with a null factor should call error`() {
-    val challenge = FactorChallenge("sid", mock(), "", "factorSid", Pending, Date(), Date(), Date())
+    val challenge = FactorChallenge("sid", mock(), "", "factorSid", PENDING, Date(), Date(), Date())
     idlingResource.startOperation()
     challengeAPIClient.update(
       challenge, "authPayload",
@@ -223,7 +223,7 @@ class ChallengeAPIClientTest {
       { exception ->
         assertTrue(exception.cause is NetworkException)
         assertTrue(exception.cause?.cause is IllegalArgumentException)
-        assertEquals(NetworkError.message, exception.message)
+        assertEquals(NETWORK_ERROR.message, exception.message)
         idlingResource.operationFinished()
       }
     )
@@ -252,10 +252,10 @@ class ChallengeAPIClientTest {
 
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
-      assertEquals(HttpMethod.Post, httpMethod)
+      assertEquals(HttpMethod.POST, httpMethod)
       assertEquals(expectedBody, body)
-      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
-      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
+      assertTrue(headers[MediaTypeHeader.CONTENT_TYPE.type] == MediaTypeValue.URL_ENCODED.type)
+      assertTrue(headers[MediaTypeHeader.ACCEPT.type] == MediaTypeValue.JSON.type)
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
       idlingResource.operationFinished()
@@ -427,7 +427,7 @@ class ChallengeAPIClientTest {
       { exception ->
         assertTrue(exception.cause is NetworkException)
         assertTrue(exception.cause?.cause is RuntimeException)
-        assertEquals(NetworkError.message, exception.message)
+        assertEquals(NETWORK_ERROR.message, exception.message)
         idlingResource.operationFinished()
       }
     )
@@ -451,9 +451,9 @@ class ChallengeAPIClientTest {
 
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
-      assertEquals(HttpMethod.Get, httpMethod)
-      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
-      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.UrlEncoded.type)
+      assertEquals(HttpMethod.GET, httpMethod)
+      assertTrue(headers[MediaTypeHeader.CONTENT_TYPE.type] == MediaTypeValue.URL_ENCODED.type)
+      assertTrue(headers[MediaTypeHeader.ACCEPT.type] == MediaTypeValue.URL_ENCODED.type)
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
       idlingResource.operationFinished()
@@ -599,7 +599,7 @@ class ChallengeAPIClientTest {
       { exception ->
         assertTrue(exception.cause is NetworkException)
         assertTrue(exception.cause?.cause is RuntimeException)
-        assertEquals(NetworkError.message, exception.message)
+        assertEquals(NETWORK_ERROR.message, exception.message)
         idlingResource.operationFinished()
       }
     )

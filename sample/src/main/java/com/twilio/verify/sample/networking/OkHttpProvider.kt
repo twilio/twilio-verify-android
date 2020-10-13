@@ -17,9 +17,9 @@
 package com.twilio.verify.sample.networking
 
 import com.twilio.verify.networking.FailureResponse
-import com.twilio.verify.networking.HttpMethod.Delete
-import com.twilio.verify.networking.HttpMethod.Post
-import com.twilio.verify.networking.HttpMethod.Put
+import com.twilio.verify.networking.HttpMethod.DELETE
+import com.twilio.verify.networking.HttpMethod.POST
+import com.twilio.verify.networking.HttpMethod.PUT
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
@@ -83,18 +83,18 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
       .headers(headersBuilder.build())
       .tag(request.tag)
     when (request.httpMethod) {
-      Post, Put -> {
+      POST, PUT -> {
         val body = request.getParams()
-        val contentType = request.headers[MediaTypeHeader.ContentType.type]
+        val contentType = request.headers[MediaTypeHeader.CONTENT_TYPE.type]
         if (body != null && contentType != null) {
           requestBuilder.post(
             body.toRequestBody(contentType.toMediaType())
           )
         }
       }
-      Delete -> {
+      DELETE -> {
         val body = request.getParams()
-        val contentType = request.headers[MediaTypeHeader.ContentType.type]
+        val contentType = request.headers[MediaTypeHeader.CONTENT_TYPE.type]
         if (body != null && contentType != null) {
           requestBuilder.delete(
             body.toRequestBody(contentType.toMediaType())

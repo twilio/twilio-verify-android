@@ -12,8 +12,8 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
-import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INPUT_ERROR
+import com.twilio.verify.TwilioVerifyException.ErrorCode.STORAGE_ERROR
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.PushFactorPayload
@@ -78,7 +78,7 @@ class FactorFacadeTest {
           eq(factorPayload.serviceSid), eq(factorPayload.identity), any(), capture()
         )
       ).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()
@@ -136,7 +136,7 @@ class FactorFacadeTest {
           eq(sid), any(), capture()
         )
       ).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()
@@ -196,7 +196,7 @@ class FactorFacadeTest {
           eq(sid), eq(pushToken), any(), capture()
         )
       ).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()
@@ -247,7 +247,7 @@ class FactorFacadeTest {
       },
       { exception ->
         assertTrue(exception.cause is StorageException)
-        assertEquals(StorageError.message, exception.localizedMessage)
+        assertEquals(STORAGE_ERROR.message, exception.localizedMessage)
         idlingResource.operationFinished()
       }
     )
@@ -311,7 +311,7 @@ class FactorFacadeTest {
       },
       { exception ->
         assertTrue(exception.cause is StorageException)
-        assertEquals(StorageError.message, exception.localizedMessage)
+        assertEquals(STORAGE_ERROR.message, exception.localizedMessage)
         idlingResource.operationFinished()
       }
     )

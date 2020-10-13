@@ -45,12 +45,12 @@ import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
 import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus
-import com.twilio.verify.models.ChallengeStatus.Approved
-import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.models.ChallengeStatus.APPROVED
+import com.twilio.verify.models.ChallengeStatus.PENDING
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
-import com.twilio.verify.models.FactorStatus.Unverified
-import com.twilio.verify.models.FactorStatus.Verified
+import com.twilio.verify.models.FactorStatus.UNVERIFIED
+import com.twilio.verify.models.FactorStatus.VERIFIED
 import com.twilio.verify.models.PushFactorPayload
 import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.models.UpdatePushFactorPayload
@@ -133,7 +133,7 @@ class TwilioVerifyTest {
       .put(sidKey, "sid123")
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
-      .put(statusKey, Unverified.value)
+      .put(statusKey, UNVERIFIED.value)
       .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
       .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(Response) -> Unit>().apply {
@@ -171,12 +171,12 @@ class TwilioVerifyTest {
   @Test
   fun `Update a factor should call success`() {
     val sid = "sid"
-    createFactor(sid, Unverified)
+    createFactor(sid, UNVERIFIED)
     val jsonObject = JSONObject()
       .put(sidKey, sid)
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
-      .put(statusKey, Verified.value)
+      .put(statusKey, VERIFIED.value)
       .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
       .put(dateCreatedKey, toRFC3339Date(Date()))
     argumentCaptor<(Response) -> Unit>().apply {
@@ -204,10 +204,10 @@ class TwilioVerifyTest {
   fun `Verify a factor should call success`() {
     val sid = "sid"
     val verifyFactorPayload = VerifyPushFactorPayload(sid)
-    createFactor(sid, Unverified)
+    createFactor(sid, UNVERIFIED)
     val jsonObject = JSONObject()
       .put(sidKey, sid)
-      .put(statusKey, Verified.value)
+      .put(statusKey, VERIFIED.value)
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response(jsonObject.toString(), emptyMap()))
@@ -232,8 +232,8 @@ class TwilioVerifyTest {
   fun `Get challenge should call success`() {
     val factorSid = "factorSid"
     val challengeSid = "challengeSid"
-    val status = Approved
-    createFactor(factorSid, Verified)
+    val status = APPROVED
+    createFactor(factorSid, VERIFIED)
     val jsonObject = JSONObject().apply {
       put(com.twilio.verify.domain.challenge.sidKey, challengeSid)
       put(factorSidKey, factorSid)
@@ -287,9 +287,9 @@ class TwilioVerifyTest {
   @Test
   fun `Update challenge should call success`() {
     val factorSid = "factorSid"
-    createFactor(factorSid, Verified)
+    createFactor(factorSid, VERIFIED)
     val challengeSid = "challengeSid"
-    val status = Approved
+    val status = APPROVED
     val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     fun challengeResponse(status: ChallengeStatus): JSONObject = JSONObject().apply {
       put(com.twilio.verify.domain.challenge.sidKey, challengeSid)
@@ -332,10 +332,10 @@ class TwilioVerifyTest {
         when (allValues.size) {
           1 -> lastValue.invoke(
             Response(
-              challengeResponse(Pending).toString(),
+              challengeResponse(PENDING).toString(),
               mapOf(
                 signatureFieldsHeader to listOf(
-                  challengeResponse(Pending).keys()
+                  challengeResponse(PENDING).keys()
                     .asSequence()
                     .toList()
                     .joinToString(signatureFieldsHeaderSeparator)
@@ -368,7 +368,7 @@ class TwilioVerifyTest {
   fun `Get all factors should call success`() {
     val factors = mutableListOf<Factor>()
     repeat(3) {
-      createFactor("factor$it", Verified)
+      createFactor("factor$it", VERIFIED)
       factors.add(factor)
     }
     idlingResource.startOperation()
@@ -391,7 +391,7 @@ class TwilioVerifyTest {
   @Test
   fun `Get all challenges should call success`() {
     val factorSid = "factorSid123"
-    createFactor(factorSid, Verified)
+    createFactor(factorSid, VERIFIED)
     val challengeListPayload = ChallengeListPayload(factorSid, 1, null, null)
     val expectedChallenges = JSONArray(
       listOf(
@@ -445,7 +445,7 @@ class TwilioVerifyTest {
   @Test
   fun `Delete factor should call success`() {
     val factorSid = "factorSid123"
-    createFactor(factorSid, Verified)
+    createFactor(factorSid, VERIFIED)
     assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
     assertTrue(preferences.contains(factorSid))
     argumentCaptor<(Response) -> Unit>().apply {
@@ -523,7 +523,7 @@ private fun challengeJSONObject(
     put(factorSidKey, factorSid)
     put(createdDateKey, "2020-02-19T16:39:57-08:00")
     put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-    put(com.twilio.verify.domain.challenge.statusKey, Pending.value)
+    put(com.twilio.verify.domain.challenge.statusKey, PENDING.value)
     put(
       detailsKey,
       JSONObject().apply {

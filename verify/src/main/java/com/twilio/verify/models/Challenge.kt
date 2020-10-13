@@ -70,22 +70,22 @@ enum class ChallengeStatus(val value: String) {
   /**
    * The Challenge is waiting to be approved or denied by the user
    */
-  Pending("pending"),
+  PENDING("pending"),
 
   /**
    * The Challenge was approved by the user
    */
-  Approved("approved"),
+  APPROVED("approved"),
 
   /**
    * The Challenge was denied by the user
    */
-  Denied("denied"),
+  DENIED("denied"),
 
   /**
    * The Challenge expired and can't no longer be approved or denied by the user
    */
-  Expired("expired")
+  EXPIRED("expired")
 }
 
 /**

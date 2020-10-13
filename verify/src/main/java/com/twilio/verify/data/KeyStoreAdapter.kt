@@ -22,7 +22,7 @@ import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.KEY_STORAGE_ERROR
 
 internal const val provider = "AndroidKeyStore"
 
@@ -36,7 +36,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
         NO_WRAP
       )
     } catch (e: Exception) {
-      throw TwilioVerifyException(e, KeyStorageError)
+      throw TwilioVerifyException(e, KEY_STORAGE_ERROR)
     }
   }
 
@@ -48,7 +48,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
       manager.signer(getSignerTemplate(alias))
         .sign(message.toByteArray())
     } catch (e: Exception) {
-      throw TwilioVerifyException(e, KeyStorageError)
+      throw TwilioVerifyException(e, KEY_STORAGE_ERROR)
     }
   }
 
@@ -61,7 +61,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     } catch (e: TwilioVerifyException) {
       throw e
     } catch (e: Exception) {
-      throw TwilioVerifyException(e, KeyStorageError)
+      throw TwilioVerifyException(e, KEY_STORAGE_ERROR)
     }
   }
 
@@ -69,7 +69,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     try {
       manager.delete(alias)
     } catch (e: Exception) {
-      throw TwilioVerifyException(e, KeyStorageError)
+      throw TwilioVerifyException(e, KEY_STORAGE_ERROR)
     }
   }
 }

@@ -107,7 +107,7 @@ class ChallengeFragment : Fragment() {
 
   private fun showChallenge(challenge: Challenge) {
     challengeActionsGroup?.visibility =
-      if (challenge.status == ChallengeStatus.Pending) View.VISIBLE else View.GONE
+      if (challenge.status == ChallengeStatus.PENDING) View.VISIBLE else View.GONE
     val info = "${challenge.string(context)}\nUpdated at: " +
       "${DateUtils.formatSameDayTime(
         challenge.updatedAt.time, System.currentTimeMillis(), DateFormat.MEDIUM,
@@ -115,10 +115,10 @@ class ChallengeFragment : Fragment() {
       )}\n" + challenge.challengeDetails.string(context)
     challengeInfo?.text = info
     approveChallenge?.setOnClickListener {
-      updateChallenge(challenge, ChallengeStatus.Approved)
+      updateChallenge(challenge, ChallengeStatus.APPROVED)
     }
     denyChallenge?.setOnClickListener {
-      updateChallenge(challenge, ChallengeStatus.Denied)
+      updateChallenge(challenge, ChallengeStatus.DENIED)
     }
   }
 

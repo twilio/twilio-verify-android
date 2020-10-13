@@ -17,14 +17,14 @@
 package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MAPPER_ERROR
 import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.ChallengeStatus
-import com.twilio.verify.models.ChallengeStatus.Expired
-import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.models.ChallengeStatus.EXPIRED
+import com.twilio.verify.models.ChallengeStatus.PENDING
 import com.twilio.verify.models.Detail
 import java.text.ParseException
 import org.json.JSONException
@@ -57,13 +57,13 @@ internal class ChallengeMapper {
       val updatedDate = jsonObject.getString(updatedDateKey)
       val status = ChallengeStatus.values()
         .find { it.value == jsonObject.getString(statusKey) }
-        ?: Expired
-      val signatureFields = if (status == Pending && signatureFieldsHeader != null) {
+        ?: EXPIRED
+      val signatureFields = if (status == PENDING && signatureFieldsHeader != null) {
         signatureFieldsHeader.split(signatureFieldsHeaderSeparator)
       } else {
         null
       }
-      val response = if (status == Pending && signatureFields != null) {
+      val response = if (status == PENDING && signatureFields != null) {
         jsonObject
       } else {
         null
@@ -80,9 +80,9 @@ internal class ChallengeMapper {
         status = status
       )
     } catch (e: JSONException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     } catch (e: ParseException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     }
   }
 

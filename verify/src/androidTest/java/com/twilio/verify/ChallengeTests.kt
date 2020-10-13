@@ -6,7 +6,7 @@ package com.twilio.verify
 import com.twilio.verify.api.APIResponses
 import com.twilio.verify.api.signatureFieldsHeader
 import com.twilio.verify.domain.challenge.signatureFieldsHeaderSeparator
-import com.twilio.verify.models.ChallengeStatus.Approved
+import com.twilio.verify.models.ChallengeStatus.APPROVED
 import com.twilio.verify.models.UpdatePushChallengePayload
 import org.json.JSONObject
 import org.junit.Assert.fail
@@ -17,7 +17,7 @@ class ChallengeTests : BaseFactorTest() {
   @Test
   fun testUpdateChallengeWithValidDataShouldCallSuccess() {
     val challengeSid = "challengeSid"
-    val status = Approved
+    val status = APPROVED
     val updateChallengePayload = UpdatePushChallengePayload(factor!!.sid, challengeSid, status)
     val response = JSONObject(APIResponses.getValidPendingChallengeResponse())
     val headers = response.keys()

@@ -18,8 +18,8 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.security.crypto.key.template.SignerTemplate
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
-import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INPUT_ERROR
+import com.twilio.verify.TwilioVerifyException.ErrorCode.KEY_STORAGE_ERROR
 import com.twilio.verify.data.getSignerTemplate
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.challenge.models.FactorChallenge
@@ -61,26 +61,26 @@ internal class PushChallengeProcessor(
       try {
         val factorChallenge = challenge as? FactorChallenge ?: throw TwilioVerifyException(
           IllegalArgumentException("Invalid challenge"),
-          InputError
+          INPUT_ERROR
         )
         if (challenge.factor == null || challenge.factor !is PushFactor ||
           challenge.factor?.sid != factor.sid
         ) {
           throw TwilioVerifyException(
-            IllegalArgumentException("Wrong factor for challenge"), InputError
+            IllegalArgumentException("Wrong factor for challenge"), INPUT_ERROR
           )
         }
         val keyPairAlias = factor.keyPairAlias?.takeIf { it.isNotBlank() }
           ?: throw TwilioVerifyException(
-            IllegalStateException("Key pair not set"), KeyStorageError
+            IllegalStateException("Key pair not set"), KEY_STORAGE_ERROR
           )
         val signatureFields = factorChallenge.signatureFields?.takeIf { it.isNotEmpty() }
           ?: throw TwilioVerifyException(
-            IllegalStateException("Signature fields not set"), InputError
+            IllegalStateException("Signature fields not set"), INPUT_ERROR
           )
         val response =
           factorChallenge.response?.takeIf { it.length() > 0 } ?: throw TwilioVerifyException(
-            IllegalStateException("Challenge response not set"), InputError
+            IllegalStateException("Challenge response not set"), INPUT_ERROR
           )
         val authPayload =
           generateSignature(
@@ -95,7 +95,7 @@ internal class PushChallengeProcessor(
               } ?: error(
               TwilioVerifyException(
                 IllegalStateException("Challenge was not updated"),
-                InputError
+                INPUT_ERROR
               )
             )
           },
@@ -124,7 +124,7 @@ internal class PushChallengeProcessor(
       }
       return jwtGenerator.generateJWT(signerTemplate, JSONObject(), payload)
     } catch (e: Exception) {
-      throw TwilioVerifyException(e, InputError)
+      throw TwilioVerifyException(e, INPUT_ERROR)
     }
   }
 }

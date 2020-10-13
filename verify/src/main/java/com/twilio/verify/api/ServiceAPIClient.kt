@@ -18,13 +18,13 @@ package com.twilio.verify.api
 
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.BasicAuthorization
-import com.twilio.verify.networking.HttpMethod.Get
+import com.twilio.verify.networking.HttpMethod.GET
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
@@ -58,7 +58,7 @@ internal class ServiceAPIClient(
           BasicAuthorization(AUTHENTICATION_USER, authToken)
         )
         val request = Request.Builder(requestHelper, getServiceURL(serviceSid))
-          .httpMethod(Get)
+          .httpMethod(GET)
           .build()
         networkProvider.execute(
           request,
@@ -72,7 +72,7 @@ internal class ServiceAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        error(TwilioVerifyException(NetworkException(e), NetworkError))
+        error(TwilioVerifyException(NetworkException(e), NETWORK_ERROR))
       }
     }
     getService()

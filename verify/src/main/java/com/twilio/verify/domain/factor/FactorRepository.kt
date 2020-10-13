@@ -17,7 +17,7 @@
 package com.twilio.verify.domain.factor
 
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.STORAGE_ERROR
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
@@ -79,7 +79,7 @@ internal class FactorRepository(
     }
 
     val factor = get(updateFactorPayload.factorSid) ?: throw TwilioVerifyException(
-      StorageException("Factor not found"), StorageError
+      StorageException("Factor not found"), STORAGE_ERROR
     )
     apiClient.update(factor, updateFactorPayload, ::updateFactor, error)
   }
@@ -107,7 +107,7 @@ internal class FactorRepository(
   override fun save(factor: Factor): Factor {
     storage.save(factor.sid, factorMapper.toJSON(factor))
     return get(factor.sid) ?: throw TwilioVerifyException(
-      StorageException("Factor not found"), StorageError
+      StorageException("Factor not found"), STORAGE_ERROR
     )
   }
 

@@ -1,7 +1,7 @@
 package com.twilio.verify
 
-import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MAPPER_ERROR
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.api.APIResponses
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.VerifyPushFactorPayload
@@ -39,7 +39,7 @@ class VerifyFactorTests : BaseFactorTest() {
     val verifyFactorPayload = VerifyPushFactorPayload(factor!!.sid)
     val expectedException = TwilioVerifyException(
       NetworkException(null, null, null),
-      NetworkError
+      NETWORK_ERROR
     )
     enqueueMockResponse(400, APIResponses.verifyValidFactorResponse())
     idlingResource.increment()
@@ -62,7 +62,7 @@ class VerifyFactorTests : BaseFactorTest() {
     val verifyFactorPayload = VerifyPushFactorPayload(factor!!.sid)
     val expectedException = TwilioVerifyException(
       IllegalArgumentException(null, null),
-      MapperError
+      MAPPER_ERROR
     )
     enqueueMockResponse(200, APIResponses.verifyInvalidFactorResponse())
     idlingResource.increment()

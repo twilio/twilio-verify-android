@@ -18,7 +18,7 @@ package com.twilio.verify.domain.service
 
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INITIALIZATION_ERROR
 import com.twilio.verify.api.ServiceAPIClient
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Service
@@ -76,31 +76,31 @@ internal class ServiceFacade(
     fun build(): ServiceFacade {
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
-          IllegalArgumentException("Illegal value for context"), InitializationError
+          IllegalArgumentException("Illegal value for context"), INITIALIZATION_ERROR
         )
       }
       if (!this::networking.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for network provider"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::url.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for base url"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::factorFacade.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for factor facade"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::authentication.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for authentication"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       val serviceAPIClient = ServiceAPIClient(networking, appContext, authentication, url)

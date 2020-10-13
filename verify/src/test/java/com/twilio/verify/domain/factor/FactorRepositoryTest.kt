@@ -12,7 +12,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.STORAGE_ERROR
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.data.StorageProvider
@@ -22,7 +22,7 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
-import com.twilio.verify.models.FactorStatus.Verified
+import com.twilio.verify.models.FactorStatus.VERIFIED
 import com.twilio.verify.models.FactorType.PUSH
 import java.util.Date
 import org.hamcrest.Matchers.instanceOf
@@ -233,7 +233,7 @@ class FactorRepositoryTest {
         StorageException::class.java
       )
     )
-    exceptionRule.expect(ErrorCodeMatcher(StorageError))
+    exceptionRule.expect(ErrorCodeMatcher(STORAGE_ERROR))
     factorRepository.save(factor)
   }
 
@@ -246,7 +246,7 @@ class FactorRepositoryTest {
       "accountSid",
       "serviceSid",
       "identity",
-      FactorStatus.Unverified,
+      FactorStatus.UNVERIFIED,
       Date(),
       Config("credentialSid")
     )
@@ -256,7 +256,7 @@ class FactorRepositoryTest {
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
       .put(serviceSidKey, "serviceSid")
-      .put(statusKey, FactorStatus.Unverified.value)
+      .put(statusKey, FactorStatus.UNVERIFIED.value)
 
     val factorToJson = JSONObject().put(sidKey, sid)
       .toString()
@@ -265,7 +265,7 @@ class FactorRepositoryTest {
         firstValue.invoke(response)
       }
     }
-    val expectedFactorStatus = Verified
+    val expectedFactorStatus = VERIFIED
     whenever(factorMapper.status(response)).thenReturn(expectedFactorStatus)
     whenever(storage.get(sid)).thenReturn(factorToJson)
     whenever(factorMapper.toJSON(factor)).thenReturn(factorToJson)
@@ -290,7 +290,7 @@ class FactorRepositoryTest {
       "accountSid",
       "serviceSid",
       "identity",
-      FactorStatus.Unverified,
+      FactorStatus.UNVERIFIED,
       Date(),
       Config("credentialSid")
     )
@@ -368,7 +368,7 @@ class FactorRepositoryTest {
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
       .put(serviceSidKey, "serviceSid")
-      .put(statusKey, FactorStatus.Unverified.value)
+      .put(statusKey, FactorStatus.UNVERIFIED.value)
 
     val factorToJson = JSONObject().put(sidKey, sidMock)
       .toString()
@@ -425,7 +425,7 @@ class FactorRepositoryTest {
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
       .put(serviceSidKey, "serviceSid")
-      .put(statusKey, FactorStatus.Unverified.value)
+      .put(statusKey, FactorStatus.UNVERIFIED.value)
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.update(eq(factor), eq(updateFactorPayload), capture(), any())).then {
         firstValue.invoke(response)

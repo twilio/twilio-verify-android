@@ -64,9 +64,9 @@ enum class FactorStatus(val value: String) {
   /**
    * The factor is verified and is ready to recevie challenges.
    */
-  Verified("verified"),
+  VERIFIED("verified"),
   /**
    * The factor is not yet verified and can't receive challenges.
    */
-  Unverified("unverified")
+  UNVERIFIED("unverified")
 }

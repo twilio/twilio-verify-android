@@ -19,8 +19,8 @@ package com.twilio.verify.domain.factor
 import android.content.Context
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
-import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.KEY_STORAGE_ERROR
+import com.twilio.verify.TwilioVerifyException.ErrorCode.STORAGE_ERROR
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
@@ -75,7 +75,7 @@ internal class PushFactory(
               keyStorage.delete(alias)
               error(
                 TwilioVerifyException(
-                  IllegalStateException("Key pair not set"), KeyStorageError
+                  IllegalStateException("Key pair not set"), KEY_STORAGE_ERROR
                 )
               )
             }
@@ -101,14 +101,14 @@ internal class PushFactory(
         val payload = keyStorage.signAndEncode(keyPairAlias, sid)
         factorProvider.verify(pushFactor, payload, success, error)
       } ?: run {
-        error(TwilioVerifyException(IllegalStateException("Alias not found"), KeyStorageError))
+        error(TwilioVerifyException(IllegalStateException("Alias not found"), KEY_STORAGE_ERROR))
       }
     }
 
     try {
       val factor = factorProvider.get(sid) as? PushFactor
       factor?.let(::verifyFactor) ?: run {
-        throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
+        throw TwilioVerifyException(StorageException("Factor not found"), STORAGE_ERROR)
       }
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -131,7 +131,7 @@ internal class PushFactory(
     try {
       val factor = factorProvider.get(sid) as? PushFactor
       factor?.let(::updateFactor) ?: run {
-        throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
+        throw TwilioVerifyException(StorageException("Factor not found"), STORAGE_ERROR)
       }
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -156,7 +156,7 @@ internal class PushFactory(
     try {
       val factor = factorProvider.get(sid) as? PushFactor
       factor?.let(::deleteFactor) ?: run {
-        throw TwilioVerifyException(StorageException("Factor not found"), StorageError)
+        throw TwilioVerifyException(StorageException("Factor not found"), STORAGE_ERROR)
       }
     } catch (e: TwilioVerifyException) {
       error(e)

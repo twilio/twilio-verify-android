@@ -15,8 +15,8 @@ import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import com.twilio.verify.models.ChallengeStatus.Expired
-import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.models.ChallengeStatus.EXPIRED
+import com.twilio.verify.models.ChallengeStatus.PENDING
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -48,7 +48,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
+      put(statusKey, PENDING.value)
     }
     val expectedSignatureFieldsHeader = expectedResponse.keys()
       .asSequence()
@@ -103,7 +103,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
+      put(statusKey, PENDING.value)
     }
     val expectedSignatureFieldsHeader = response.keys()
       .asSequence()
@@ -139,7 +139,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
+      put(statusKey, PENDING.value)
     }
     val expectedSignatureFieldsHeader = response.keys()
       .asSequence()
@@ -174,7 +174,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
+      put(statusKey, PENDING.value)
     }
     val expectedSignatureFieldsHeader = response.keys()
       .asSequence()
@@ -211,7 +211,7 @@ class ChallengeRepositoryTest {
       put(factorSidKey, factorSid)
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
+      put(statusKey, PENDING.value)
     }
     val expectedSignatureFieldsHeader = response.keys()
       .asSequence()
@@ -232,7 +232,7 @@ class ChallengeRepositoryTest {
     whenever(factor.sid).thenReturn(factorSid)
     whenever(updatedChallenge.factorSid).thenReturn(factorSid)
     whenever(challenge.factor).thenReturn(factor)
-    whenever(challenge.status).thenReturn(Pending)
+    whenever(challenge.status).thenReturn(PENDING)
     whenever(challenge.sid).thenReturn(sid)
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(
       updatedChallenge
@@ -251,7 +251,7 @@ class ChallengeRepositoryTest {
   fun `Update challenge with no factor should call error`() {
     val payload = "payload123"
     val challenge: FactorChallenge = mock()
-    whenever(challenge.status).thenReturn(Pending)
+    whenever(challenge.status).thenReturn(PENDING)
     argumentCaptor<() -> Unit>().apply {
       whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
         firstValue.invoke()
@@ -267,7 +267,7 @@ class ChallengeRepositoryTest {
   fun `Update expired challenge should call error`() {
     val payload = "payload123"
     val challenge: FactorChallenge = mock()
-    whenever(challenge.status).thenReturn(Expired)
+    whenever(challenge.status).thenReturn(EXPIRED)
     argumentCaptor<() -> Unit>().apply {
       whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
         firstValue.invoke()
@@ -282,7 +282,7 @@ class ChallengeRepositoryTest {
   @Test
   fun `Get challenges with valid response should return challenge list`() {
     val factor: Factor = mock()
-    val status = Pending
+    val status = PENDING
     val pageSize = 10
     val response = JSONObject()
     val challengeList: ChallengeList = mock()
@@ -308,7 +308,7 @@ class ChallengeRepositoryTest {
   @Test
   fun `Get challenges with error from mapper should call error`() {
     val factor: Factor = mock()
-    val status = Pending
+    val status = PENDING
     val pageSize = 10
     val response = JSONObject()
     val expectedException: TwilioVerifyException = mock()

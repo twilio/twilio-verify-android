@@ -18,8 +18,8 @@ package com.twilio.verify.domain.challenge
 
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INITIALIZATION_ERROR
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INPUT_ERROR
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.FactorFacade
@@ -112,7 +112,7 @@ internal class ChallengeFacade(
           IllegalArgumentException(
             "Invalid update challenge input for factor ${factor.type}"
           ),
-          InputError
+          INPUT_ERROR
         )
       pushChallengeProcessor.update(
         updateChallengePayload.challengeSid, factor, status, success, error
@@ -150,37 +150,37 @@ internal class ChallengeFacade(
     fun build(): ChallengeFacade {
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
-          IllegalArgumentException("Illegal value for context"), InitializationError
+          IllegalArgumentException("Illegal value for context"), INITIALIZATION_ERROR
         )
       }
       if (!this::networking.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for network provider"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::generator.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for JWT generator"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::factorProvider.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for factor provider"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::url.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for base url"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::authentication.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for authentication"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       val challengeAPIClient = ChallengeAPIClient(networking, appContext, authentication, url)

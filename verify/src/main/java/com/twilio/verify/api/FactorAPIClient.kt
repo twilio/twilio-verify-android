@@ -18,7 +18,7 @@ package com.twilio.verify.api
 
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
@@ -26,8 +26,8 @@ import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.BasicAuthorization
-import com.twilio.verify.networking.HttpMethod.Delete
-import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.HttpMethod.DELETE
+import com.twilio.verify.networking.HttpMethod.POST
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
@@ -81,7 +81,7 @@ internal class FactorAPIClient(
         requestHelper,
         createFactorURL(createFactorPayload)
       )
-        .httpMethod(Post)
+        .httpMethod(POST)
         .body(createFactorBody(createFactorPayload))
         .build()
       networkProvider.execute(
@@ -90,13 +90,13 @@ internal class FactorAPIClient(
           success(JSONObject(it.body))
         },
         error = { exception ->
-          error(TwilioVerifyException(exception, NetworkError))
+          error(TwilioVerifyException(exception, NETWORK_ERROR))
         }
       )
     } catch (e: TwilioVerifyException) {
       error(e)
     } catch (e: Exception) {
-      error(TwilioVerifyException(NetworkException(e), NetworkError))
+      error(TwilioVerifyException(NetworkException(e), NETWORK_ERROR))
     }
   }
 
@@ -115,7 +115,7 @@ internal class FactorAPIClient(
             BasicAuthorization(AUTHENTICATION_USER, authToken)
           )
         val request = Request.Builder(requestHelper, verifyFactorURL(factor))
-          .httpMethod(Post)
+          .httpMethod(POST)
           .body(verifyFactorBody(authPayload))
           .build()
         networkProvider.execute(
@@ -130,7 +130,7 @@ internal class FactorAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        error(TwilioVerifyException(NetworkException(e), NetworkError))
+        error(TwilioVerifyException(NetworkException(e), NETWORK_ERROR))
       }
     }
     verifyFactor()
@@ -152,7 +152,7 @@ internal class FactorAPIClient(
           )
         val request =
           Request.Builder(requestHelper, updateFactorURL(factor))
-            .httpMethod(Post)
+            .httpMethod(POST)
             .body(updateFactorBody(updateFactorPayload))
             .build()
         networkProvider.execute(
@@ -167,7 +167,7 @@ internal class FactorAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        error(TwilioVerifyException(NetworkException(e), NetworkError))
+        error(TwilioVerifyException(NetworkException(e), NETWORK_ERROR))
       }
     }
     updateFactor()
@@ -187,7 +187,7 @@ internal class FactorAPIClient(
             BasicAuthorization(AUTHENTICATION_USER, authToken)
           )
         val request = Request.Builder(requestHelper, deleteFactorURL(factor))
-          .httpMethod(Delete)
+          .httpMethod(DELETE)
           .build()
         networkProvider.execute(
           request,
@@ -210,7 +210,7 @@ internal class FactorAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        error(TwilioVerifyException(NetworkException(e), NetworkError))
+        error(TwilioVerifyException(NetworkException(e), NETWORK_ERROR))
       }
     }
     deleteFactor()

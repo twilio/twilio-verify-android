@@ -18,7 +18,7 @@ package com.twilio.verify.domain.challenge
 
 import android.net.Uri
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MAPPER_ERROR
 import com.twilio.verify.domain.challenge.models.ChallengeListMetadata
 import com.twilio.verify.domain.challenge.models.FactorChallengeList
 import com.twilio.verify.models.Challenge
@@ -72,9 +72,9 @@ internal class ChallengeListMapper(
         challenges, metadata
       )
     } catch (e: JSONException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     } catch (e: ParseException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     }
   }
 }

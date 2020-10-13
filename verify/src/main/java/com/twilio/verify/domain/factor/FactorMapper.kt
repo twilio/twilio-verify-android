@@ -17,7 +17,7 @@
 package com.twilio.verify.domain.factor
 
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MAPPER_ERROR
 import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.data.toRFC3339Date
 import com.twilio.verify.domain.factor.models.Config
@@ -25,7 +25,7 @@ import com.twilio.verify.domain.factor.models.FactorDataPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
-import com.twilio.verify.models.FactorStatus.Unverified
+import com.twilio.verify.models.FactorStatus.UNVERIFIED
 import com.twilio.verify.models.FactorType.PUSH
 import org.json.JSONException
 import org.json.JSONObject
@@ -53,7 +53,7 @@ internal class FactorMapper {
     val identity = factorPayload.identity
     if (serviceSid.isEmpty() || identity.isEmpty()) {
       throw TwilioVerifyException(
-        IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
+        IllegalArgumentException("ServiceSid or Identity is null or empty"), MAPPER_ERROR
       )
     }
     return when (factorPayload.type) {
@@ -67,9 +67,9 @@ internal class FactorMapper {
   ): FactorStatus {
     return try {
       FactorStatus.values()
-        .find { it.value == jsonObject.getString(statusKey) } ?: Unverified
+        .find { it.value == jsonObject.getString(statusKey) } ?: UNVERIFIED
     } catch (e: JSONException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     }
   }
 
@@ -78,13 +78,13 @@ internal class FactorMapper {
     val jsonObject = try {
       JSONObject(json)
     } catch (e: JSONException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     }
     val serviceSid = jsonObject.optString(serviceSidKey)
     val identity = jsonObject.optString(identity)
     if (serviceSid.isNullOrEmpty() || identity.isNullOrEmpty()) {
       throw TwilioVerifyException(
-        IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
+        IllegalArgumentException("ServiceSid or Identity is null or empty"), MAPPER_ERROR
       )
     }
     return when (jsonObject.getString(typeKey)) {
@@ -97,7 +97,7 @@ internal class FactorMapper {
           keyPairAlias = jsonObject.optString(keyPairAliasKey)
         }
       else -> throw TwilioVerifyException(
-        IllegalArgumentException("Invalid factor type from json"), MapperError
+        IllegalArgumentException("Invalid factor type from json"), MAPPER_ERROR
       )
     }
   }
@@ -138,7 +138,7 @@ internal class FactorMapper {
         identity = identity,
         status = FactorStatus.values()
           .find { it.value == jsonObject.getString(statusKey) }
-          ?: Unverified,
+          ?: UNVERIFIED,
         createdAt = fromRFC3339Date(
           jsonObject.getString(dateCreatedKey)
         ),
@@ -148,7 +148,7 @@ internal class FactorMapper {
         )
       )
     } catch (e: JSONException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     }
   }
 }

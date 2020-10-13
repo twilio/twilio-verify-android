@@ -44,7 +44,7 @@ class AuthenticationProviderTest {
     val serviceSid = "serviceSid"
     val identity = "identity"
     val credentialSid = "credentialSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val factor =
       PushFactor(
         factorSid, friendlyName, accountSid, serviceSid, identity, status, Date(),
@@ -82,7 +82,7 @@ class AuthenticationProviderTest {
     val serviceSid = "serviceSid"
     val identity = "identity"
     val credentialSid = "credentialSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val factor =
       PushFactor(
         factorSid, friendlyName, accountSid, serviceSid, identity, status, Date(),

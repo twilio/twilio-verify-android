@@ -44,42 +44,43 @@ class TwilioVerifyException(
     /**
      * An error occurred while calling the API. 68001.
      */
-    NetworkError("{$NETWORK_CODE} Exception while calling the API"),
+    NETWORK_ERROR("{$NETWORK_CODE} Exception while calling the API"),
 
     /**
      * An error occurred while mapping an entity. 68002
      *
      */
-    MapperError("{$MAPPER_CODE} Exception while mapping an entity"),
+    MAPPER_ERROR("{$MAPPER_CODE} Exception while mapping an entity"),
 
     /**
      * An error occurred while storing/loading an entity. 68003
      *
      */
-    StorageError("{$STORAGE_CODE} Exception while storing/loading an entity"),
+    STORAGE_ERROR("{$STORAGE_CODE} Exception while storing/loading an entity"),
 
     /**
      * An error occurred while loading input. 68004
      *
      */
-    InputError("{$INPUT_CODE} Exception while loading input"),
+    INPUT_ERROR("{$INPUT_CODE} Exception while loading input"),
+
 
     /**
      * An error occurred while storing/loading keypairs. 68005
      *
      */
-    KeyStorageError("{$KEY_STORAGE_CODE} Exception while storing/loading key pairs"),
+    KEY_STORAGE_ERROR("{$KEY_STORAGE_CODE} Exception while storing/loading key pairs"),
 
     /**
      * An error occurred while initializing a class. 68006
      *
      */
-    InitializationError("{$INITIALIZATION_CODE} Exception while initializing"),
+    INITIALIZATION_ERROR("{$INITIALIZATION_CODE} Exception while initializing"),
 
     /**
      * An error occurred while generating a token. 68007
      *
      */
-    AuthenticationTokenError("{$AUTHENTICATION_TOKEN_CODE} Exception while generating token")
+    AUTHENTICATION_TOKEN_ERROR("{$AUTHENTICATION_TOKEN_CODE} Exception while generating token")
   }
 }

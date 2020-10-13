@@ -7,7 +7,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INPUT_ERROR
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.Service
@@ -100,7 +100,7 @@ class ServiceFacadeTest {
           eq(serviceSid), any(), any(), capture()
         )
       ).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     argumentCaptor<(Factor) -> Unit>().apply {

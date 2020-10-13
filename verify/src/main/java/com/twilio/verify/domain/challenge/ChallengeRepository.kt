@@ -17,13 +17,13 @@
 package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INPUT_ERROR
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeStatus
-import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.models.ChallengeStatus.PENDING
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
 
@@ -48,7 +48,7 @@ internal class ChallengeRepository(
           .also {
             if (it.factorSid != factor.sid) {
               throw TwilioVerifyException(
-                IllegalArgumentException("Wrong factor for challenge"), InputError
+                IllegalArgumentException("Wrong factor for challenge"), INPUT_ERROR
               )
             }
             toFactorChallenge(it).factor = factor
@@ -72,15 +72,15 @@ internal class ChallengeRepository(
         get(factorChallenge.sid, it, success, error)
       } ?: error(
         TwilioVerifyException(
-          IllegalArgumentException("Invalid factor"), InputError
+          IllegalArgumentException("Invalid factor"), INPUT_ERROR
         )
       )
     }
     try {
-      if (challenge.status != Pending) {
+      if (challenge.status != PENDING) {
         throw TwilioVerifyException(
           IllegalArgumentException("Responded or expired challenge can not be updated"),
-          InputError
+          INPUT_ERROR
         )
       }
       toFactorChallenge(challenge).let { factorChallenge ->
@@ -112,6 +112,6 @@ internal class ChallengeRepository(
 
   private fun toFactorChallenge(challenge: Challenge) =
     (challenge as? FactorChallenge) ?: throw TwilioVerifyException(
-      IllegalArgumentException("Invalid challenge"), InputError
+      IllegalArgumentException("Invalid challenge"), INPUT_ERROR
     )
 }

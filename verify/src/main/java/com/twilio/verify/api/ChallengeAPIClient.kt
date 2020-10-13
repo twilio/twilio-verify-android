@@ -18,15 +18,15 @@ package com.twilio.verify.api
 
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.BasicAuthorization
-import com.twilio.verify.networking.HttpMethod.Get
-import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.HttpMethod.GET
+import com.twilio.verify.networking.HttpMethod.POST
 import com.twilio.verify.networking.NetworkAdapter
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
@@ -79,7 +79,7 @@ internal class ChallengeAPIClient(
           requestHelper,
           updateChallengeURL(challenge)
         )
-          .httpMethod(Post)
+          .httpMethod(POST)
           .body(updateChallengeBody(authPayload))
           .build()
         networkProvider.execute(
@@ -94,7 +94,7 @@ internal class ChallengeAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        error(TwilioVerifyException(NetworkException(e), NetworkError))
+        error(TwilioVerifyException(NetworkException(e), NETWORK_ERROR))
       }
     }
     updateChallenge()
@@ -115,7 +115,7 @@ internal class ChallengeAPIClient(
           requestHelper,
           getChallengeURL(sid, factor)
         )
-          .httpMethod(Get)
+          .httpMethod(GET)
           .build()
         networkProvider.execute(
           request,
@@ -132,7 +132,7 @@ internal class ChallengeAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        error(TwilioVerifyException(NetworkException(e), NetworkError))
+        error(TwilioVerifyException(NetworkException(e), NETWORK_ERROR))
       }
     }
     getChallenge()
@@ -165,7 +165,7 @@ internal class ChallengeAPIClient(
           requestHelper,
           getChallengesURL(factor)
         )
-          .httpMethod(Get)
+          .httpMethod(GET)
           .query(queryParameters)
           .build()
         networkProvider.execute(
@@ -180,7 +180,7 @@ internal class ChallengeAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        error(TwilioVerifyException(NetworkException(e), NetworkError))
+        error(TwilioVerifyException(NetworkException(e), NETWORK_ERROR))
       }
     }
     getAllChallenges()

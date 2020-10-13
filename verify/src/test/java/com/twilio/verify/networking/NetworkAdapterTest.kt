@@ -38,7 +38,7 @@ class NetworkAdapterTest {
     val outputStream: OutputStream = mock()
 
     `when`(request.url).thenReturn(url)
-    `when`(request.httpMethod).thenReturn(HttpMethod.Post)
+    `when`(request.httpMethod).thenReturn(HttpMethod.POST)
     `when`(request.getParams()).thenReturn("Params")
     `when`(url.openConnection()).thenReturn(urlConnection)
     `when`(urlConnection.outputStream).thenReturn(outputStream)
@@ -62,7 +62,7 @@ class NetworkAdapterTest {
     val url: URL = mock()
     val urlConnection: HttpsURLConnection = mock()
     `when`(request.url).thenReturn(url)
-    `when`(request.httpMethod).thenReturn(HttpMethod.Post)
+    `when`(request.httpMethod).thenReturn(HttpMethod.POST)
     `when`(url.openConnection()).thenReturn(urlConnection)
     `when`(urlConnection.responseCode).thenReturn(401)
     val expectedResponse = "Error"
@@ -81,7 +81,7 @@ class NetworkAdapterTest {
     val url: URL = mock()
     val urlConnection: HttpsURLConnection = mock()
     `when`(request.url).thenReturn(url)
-    `when`(request.httpMethod).thenReturn(HttpMethod.Post)
+    `when`(request.httpMethod).thenReturn(HttpMethod.POST)
     `when`(url.openConnection()).thenReturn(urlConnection)
     `when`(urlConnection.responseCode).thenReturn(400)
     val expectedResponse = "Error"
@@ -99,7 +99,7 @@ class NetworkAdapterTest {
   fun `Request with failure opening connection should return error`() {
     val url: URL = mock()
     `when`(request.url).thenReturn(url)
-    `when`(request.httpMethod).thenReturn(HttpMethod.Post)
+    `when`(request.httpMethod).thenReturn(HttpMethod.POST)
     val expectedException: IOException = mock()
     `when`(url.openConnection()).thenThrow(expectedException)
     networkAdapter.execute(

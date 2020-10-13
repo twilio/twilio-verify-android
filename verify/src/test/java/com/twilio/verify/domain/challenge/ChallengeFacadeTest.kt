@@ -10,13 +10,13 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INPUT_ERROR
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListPayload
-import com.twilio.verify.models.ChallengeStatus.Approved
+import com.twilio.verify.models.ChallengeStatus.APPROVED
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.UpdateChallengePayload
 import com.twilio.verify.models.UpdatePushChallengePayload
@@ -82,7 +82,7 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(pushChallengeProcessor.get(eq(sid), eq(expectedFactor), any(), capture())).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()
@@ -107,7 +107,7 @@ class ChallengeFacadeTest {
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()
@@ -129,7 +129,7 @@ class ChallengeFacadeTest {
   fun `Update challenge with valid data should call success`() {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
-    val status = Approved
+    val status = APPROVED
     val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     val expectedFactor: PushFactor = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -164,7 +164,7 @@ class ChallengeFacadeTest {
   fun `Error updating challenge should call error`() {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
-    val status = Approved
+    val status = APPROVED
     val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
@@ -179,7 +179,7 @@ class ChallengeFacadeTest {
           eq(challengeSid), eq(expectedFactor), eq(status), any(), capture()
         )
       ).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()
@@ -201,12 +201,12 @@ class ChallengeFacadeTest {
   fun `Error getting the factor when updating a challenge should call error`() {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
-    val status = Approved
+    val status = APPROVED
     val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()
@@ -300,7 +300,7 @@ class ChallengeFacadeTest {
       whenever(
         repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), any(), capture())
       ).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()
@@ -326,7 +326,7 @@ class ChallengeFacadeTest {
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {
-        firstValue.invoke(TwilioVerifyException(expectedException, InputError))
+        firstValue.invoke(TwilioVerifyException(expectedException, INPUT_ERROR))
       }
     }
     idlingResource.startOperation()

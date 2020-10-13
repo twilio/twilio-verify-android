@@ -27,9 +27,9 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.TwilioVerify
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Challenge
-import com.twilio.verify.models.ChallengeStatus.Approved
+import com.twilio.verify.models.ChallengeStatus.APPROVED
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.FactorStatus.Verified
+import com.twilio.verify.models.FactorStatus.VERIFIED
 import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.models.VerifyPushFactorPayload
@@ -160,7 +160,7 @@ class TwilioVerifyKotlinAdapterTest {
       }
     }
     val expectedVerifiedFactor: Factor = mock() {
-      on { status } doReturn Verified
+      on { status } doReturn VERIFIED
     }
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
@@ -172,7 +172,7 @@ class TwilioVerifyKotlinAdapterTest {
       createFactorData, sampleBackendAPIClient,
       { factor ->
         assertEquals(expectedVerifiedFactor, factor)
-        assertEquals(expectedVerifiedFactor.status, Verified)
+        assertEquals(expectedVerifiedFactor.status, VERIFIED)
         idlingResource.operationFinished()
       },
       {
@@ -299,7 +299,7 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Test
   fun `Update challenge with success response should call success callback`() {
-    val updateChallengePayload = UpdatePushChallengePayload("factorSid", "challengeSid", Approved)
+    val updateChallengePayload = UpdatePushChallengePayload("factorSid", "challengeSid", APPROVED)
 
     argumentCaptor<() -> Unit>().apply {
       whenever(twilioVerify.updateChallenge(eq(updateChallengePayload), capture(), any())).then {
@@ -322,7 +322,7 @@ class TwilioVerifyKotlinAdapterTest {
 
   @Test
   fun `Update challenge with an error should return exception`() {
-    val updateChallengePayload = UpdatePushChallengePayload("factorSid", "challengeSid", Approved)
+    val updateChallengePayload = UpdatePushChallengePayload("factorSid", "challengeSid", APPROVED)
     val expectedException: TwilioVerifyException = mock()
 
     argumentCaptor<(Exception) -> Unit>().apply {

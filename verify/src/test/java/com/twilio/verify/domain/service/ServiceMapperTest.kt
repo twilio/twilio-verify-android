@@ -2,7 +2,7 @@ package com.twilio.verify.domain.service
 
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MAPPER_ERROR
 import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.sidKey
@@ -60,7 +60,7 @@ class ServiceMapperTest {
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(JSONException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     serviceMapper.fromApi(jsonObject)
   }
 
@@ -75,7 +75,7 @@ class ServiceMapperTest {
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(ParseException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     serviceMapper.fromApi(jsonObject)
   }
 }

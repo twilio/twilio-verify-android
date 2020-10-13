@@ -21,7 +21,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.HttpMethod.POST
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.Request
 import java.io.IOException
@@ -48,7 +48,7 @@ class OkHttpProviderTest {
   fun `Execute request with success response should call success`() {
     val request: Request = mock() {
       on { url } doReturn URL("https://twilio.com")
-      on { httpMethod } doReturn Post
+      on { httpMethod } doReturn POST
     }
     val call: Call = mock()
     whenever(okHttpClient.newCall(any())).thenReturn(call)
@@ -92,7 +92,7 @@ class OkHttpProviderTest {
   fun `Execute request with success response but with invalid response code should call error`() {
     val request: Request = mock() {
       on { url } doReturn URL("https://twilio.com")
-      on { httpMethod } doReturn Post
+      on { httpMethod } doReturn POST
     }
     val call: Call = mock()
     whenever(okHttpClient.newCall(any())).thenReturn(call)
@@ -127,7 +127,7 @@ class OkHttpProviderTest {
   fun `Execute request with failure response should call error`() {
     val request: Request = mock() {
       on { url } doReturn URL("https://twilio.com")
-      on { httpMethod } doReturn Post
+      on { httpMethod } doReturn POST
     }
     val call: Call = mock()
     whenever(okHttpClient.newCall(any())).thenReturn(call)

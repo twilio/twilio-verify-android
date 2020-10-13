@@ -17,7 +17,7 @@
 package com.twilio.verify.networking
 
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.AuthenticationTokenError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.AUTHENTICATION_TOKEN_ERROR
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.data.getSignerTemplate
 import com.twilio.verify.data.jwt.JwtGenerator
@@ -48,7 +48,7 @@ internal class AuthenticationProvider(
         else -> throw IllegalArgumentException("Not supported factor for JWT generation")
       }
     } catch (e: Exception) {
-      throw TwilioVerifyException(e, AuthenticationTokenError)
+      throw TwilioVerifyException(e, AUTHENTICATION_TOKEN_ERROR)
     }
   }
 

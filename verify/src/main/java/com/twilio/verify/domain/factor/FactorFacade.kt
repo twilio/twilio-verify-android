@@ -18,8 +18,8 @@ package com.twilio.verify.domain.factor
 
 import android.content.Context
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
-import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.INITIALIZATION_ERROR
+import com.twilio.verify.TwilioVerifyException.ErrorCode.STORAGE_ERROR
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.Storage
@@ -97,7 +97,7 @@ internal class FactorFacade(
     try {
       factorProvider.get(factorSid)
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found"), StorageError
+        StorageException("Factor not found"), STORAGE_ERROR
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -113,7 +113,7 @@ internal class FactorFacade(
       factorProvider.getAll()
         .find { it.serviceSid == serviceSid }
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found"), StorageError
+        StorageException("Factor not found"), STORAGE_ERROR
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -169,31 +169,31 @@ internal class FactorFacade(
     fun build(): FactorFacade {
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
-          IllegalArgumentException("Illegal value for context"), InitializationError
+          IllegalArgumentException("Illegal value for context"), INITIALIZATION_ERROR
         )
       }
       if (!this::networking.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for network provider"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::keyStore.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for key storage"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::url.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for base url"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       if (!this::authentication.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for authentication"),
-          InitializationError
+          INITIALIZATION_ERROR
         )
       }
       val factorAPIClient = FactorAPIClient(networking, appContext, authentication, url)

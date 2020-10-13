@@ -4,9 +4,9 @@ package com.twilio.verify.networking
  * Copyright (c) 2020, Twilio Inc.
  */
 import androidx.test.core.app.ApplicationProvider
-import com.twilio.verify.networking.HttpMethod.Delete
-import com.twilio.verify.networking.HttpMethod.Get
-import com.twilio.verify.networking.HttpMethod.Post
+import com.twilio.verify.networking.HttpMethod.DELETE
+import com.twilio.verify.networking.HttpMethod.GET
+import com.twilio.verify.networking.HttpMethod.POST
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -20,10 +20,10 @@ class RequestHelperTest {
   fun `CommonHeaders with Post http method should contain 4 pairs`() {
     val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper = RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
-    val commonHeaders = requestHelper.commonHeaders(Post)
+    val commonHeaders = requestHelper.commonHeaders(POST)
     assertEquals(4, commonHeaders.size)
-    assertEquals(MediaTypeValue.Json.type, commonHeaders[MediaTypeHeader.Accept.type])
-    assertEquals(MediaTypeValue.UrlEncoded.type, commonHeaders[MediaTypeHeader.ContentType.type])
+    assertEquals(MediaTypeValue.JSON.type, commonHeaders[MediaTypeHeader.ACCEPT.type])
+    assertEquals(MediaTypeValue.URL_ENCODED.type, commonHeaders[MediaTypeHeader.CONTENT_TYPE.type])
     assertTrue(commonHeaders.containsKey(userAgent))
     assertTrue(commonHeaders.containsKey(AuthorizationHeader))
   }
@@ -32,10 +32,10 @@ class RequestHelperTest {
   fun `CommonHeaders with Get http method should contain 4 pairs`() {
     val authorization = BasicAuthorization("accountSid", "authToken")
     val requestHelper = RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
-    val commonHeaders = requestHelper.commonHeaders(Get)
+    val commonHeaders = requestHelper.commonHeaders(GET)
     assertEquals(4, commonHeaders.size)
-    assertEquals(MediaTypeValue.UrlEncoded.type, commonHeaders[MediaTypeHeader.Accept.type])
-    assertEquals(MediaTypeValue.UrlEncoded.type, commonHeaders[MediaTypeHeader.ContentType.type])
+    assertEquals(MediaTypeValue.URL_ENCODED.type, commonHeaders[MediaTypeHeader.ACCEPT.type])
+    assertEquals(MediaTypeValue.URL_ENCODED.type, commonHeaders[MediaTypeHeader.CONTENT_TYPE.type])
     assertTrue(commonHeaders.containsKey(userAgent))
     assertTrue(commonHeaders.containsKey(AuthorizationHeader))
   }
@@ -44,10 +44,10 @@ class RequestHelperTest {
   fun `CommonHeaders with Delete http method should contain 4 pairs`() {
     val authorization = BasicAuthorization("username", "password")
     val requestHelper = RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
-    val commonHeaders = requestHelper.commonHeaders(Delete)
+    val commonHeaders = requestHelper.commonHeaders(DELETE)
     assertEquals(4, commonHeaders.size)
-    assertEquals(MediaTypeValue.Json.type, commonHeaders[MediaTypeHeader.Accept.type])
-    assertEquals(MediaTypeValue.UrlEncoded.type, commonHeaders[MediaTypeHeader.ContentType.type])
+    assertEquals(MediaTypeValue.JSON.type, commonHeaders[MediaTypeHeader.ACCEPT.type])
+    assertEquals(MediaTypeValue.URL_ENCODED.type, commonHeaders[MediaTypeHeader.CONTENT_TYPE.type])
     assertTrue(commonHeaders.containsKey(userAgent))
     assertTrue(commonHeaders.containsKey(AuthorizationHeader))
   }

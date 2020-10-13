@@ -11,7 +11,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.factor.ALG_KEY
 import com.twilio.verify.domain.factor.APP_ID_KEY
@@ -25,14 +25,14 @@ import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.models.UpdateFactorPayload
-import com.twilio.verify.models.FactorStatus.Unverified
-import com.twilio.verify.models.FactorStatus.Verified
+import com.twilio.verify.models.FactorStatus.UNVERIFIED
+import com.twilio.verify.models.FactorStatus.VERIFIED
 import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.FailureResponse
 import com.twilio.verify.networking.HttpMethod
-import com.twilio.verify.networking.HttpMethod.Delete
+import com.twilio.verify.networking.HttpMethod.DELETE
 import com.twilio.verify.networking.MediaTypeHeader
 import com.twilio.verify.networking.MediaTypeValue
 import com.twilio.verify.networking.NetworkException
@@ -135,7 +135,7 @@ class FactorAPIClientTest {
       { exception ->
         assertTrue(exception.cause is NetworkException)
         assertTrue(exception.cause?.cause is RuntimeException)
-        assertEquals(NetworkError.message, exception.message)
+        assertEquals(NETWORK_ERROR.message, exception.message)
       }
     )
   }
@@ -181,10 +181,10 @@ class FactorAPIClientTest {
 
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
-      assertEquals(HttpMethod.Post, httpMethod)
+      assertEquals(HttpMethod.POST, httpMethod)
       assertEquals(expectedBody, body)
-      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
-      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
+      assertTrue(headers[MediaTypeHeader.CONTENT_TYPE.type] == MediaTypeValue.URL_ENCODED.type)
+      assertTrue(headers[MediaTypeHeader.ACCEPT.type] == MediaTypeValue.JSON.type)
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
     }
@@ -207,7 +207,7 @@ class FactorAPIClientTest {
       "accountSid",
       serviceSid,
       identity,
-      Unverified,
+      UNVERIFIED,
       Date(),
       config = Config("credentialSid")
     )
@@ -256,7 +256,7 @@ class FactorAPIClientTest {
       "accountSid",
       serviceSid,
       identity,
-      Unverified,
+      UNVERIFIED,
       Date(),
       config = Config("credentialSid")
     )
@@ -301,7 +301,7 @@ class FactorAPIClientTest {
       "accountSid",
       serviceSid,
       identity,
-      Unverified,
+      UNVERIFIED,
       Date(),
       config = Config("credentialSid")
     )
@@ -346,7 +346,7 @@ class FactorAPIClientTest {
       "accountSid",
       serviceSid,
       identity,
-      Unverified,
+      UNVERIFIED,
       Date(),
       config = Config("credentialSid")
     )
@@ -385,7 +385,7 @@ class FactorAPIClientTest {
         accountSidMock,
         serviceSidMock,
         identityMock,
-        Unverified,
+        UNVERIFIED,
         Date(),
         config = Config("credentialSid")
       )
@@ -397,10 +397,10 @@ class FactorAPIClientTest {
     }
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
-      assertEquals(HttpMethod.Post, httpMethod)
+      assertEquals(HttpMethod.POST, httpMethod)
       assertEquals(expectedBody, body)
-      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
-      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
+      assertTrue(headers[MediaTypeHeader.CONTENT_TYPE.type] == MediaTypeValue.URL_ENCODED.type)
+      assertTrue(headers[MediaTypeHeader.ACCEPT.type] == MediaTypeValue.JSON.type)
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
       idlingResource.operationFinished()
@@ -416,7 +416,7 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     argumentCaptor<(Response) -> Unit>().apply {
@@ -451,7 +451,7 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
@@ -498,7 +498,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
@@ -542,7 +542,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     val expectedException = NetworkException(
@@ -597,7 +597,7 @@ class FactorAPIClientTest {
     )
     val factor =
       PushFactor(
-        sidMock, "friendlyName", "accountSid", serviceSidMock, identityMock, Verified,
+        sidMock, "friendlyName", "accountSid", serviceSidMock, identityMock, VERIFIED,
         Date(), config = Config("credentialSid")
       )
     val factorPayload =
@@ -620,10 +620,10 @@ class FactorAPIClientTest {
     }
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
-      assertEquals(HttpMethod.Post, httpMethod)
+      assertEquals(HttpMethod.POST, httpMethod)
       assertEquals(expectedBody, body)
-      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
-      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
+      assertTrue(headers[MediaTypeHeader.CONTENT_TYPE.type] == MediaTypeValue.URL_ENCODED.type)
+      assertTrue(headers[MediaTypeHeader.ACCEPT.type] == MediaTypeValue.JSON.type)
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
       idlingResource.operationFinished()
@@ -639,7 +639,7 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     val expectedURL =
@@ -659,7 +659,7 @@ class FactorAPIClientTest {
         verify(networkProvider).execute(
           check {
             assertEquals(URL(expectedURL), it.url)
-            assertEquals(Delete, it.httpMethod)
+            assertEquals(DELETE, it.httpMethod)
           },
           any(), any()
         )
@@ -681,7 +681,7 @@ class FactorAPIClientTest {
     val response = "{\"key\":\"value\"}"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     val expectedURL =
@@ -713,7 +713,7 @@ class FactorAPIClientTest {
         verify(networkProvider, times(2)).execute(
           check {
             assertEquals(URL(expectedURL), it.url)
-            assertEquals(Delete, it.httpMethod)
+            assertEquals(DELETE, it.httpMethod)
           },
           any(), any()
         )
@@ -736,7 +736,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
@@ -776,7 +776,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     val expectedException = NetworkException(
@@ -813,7 +813,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")
@@ -851,7 +851,7 @@ class FactorAPIClientTest {
     val serviceSid = "serviceSid"
     val factor =
       PushFactor(
-        factorSid, "friendlyName", "accountSid", serviceSid, identity, Verified, Date(),
+        factorSid, "friendlyName", "accountSid", serviceSid, identity, VERIFIED, Date(),
         config = Config("credentialSid")
       )
     whenever(authentication.generateJWT(factor)).thenReturn("authToken")

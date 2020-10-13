@@ -3,7 +3,7 @@
  */
 package com.twilio.verify
 
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.api.dateHeaderKey
 import com.twilio.verify.networking.NetworkException
 import org.junit.Assert.assertEquals
@@ -63,7 +63,7 @@ class DeleteFactorTests : BaseFactorTest() {
     assertTrue(sharedPreferences.contains(factor!!.sid))
     val expectedException = TwilioVerifyException(
       NetworkException(null, null, null),
-      NetworkError
+      NETWORK_ERROR
     )
     enqueueMockResponse(400)
     idlingResource.increment()

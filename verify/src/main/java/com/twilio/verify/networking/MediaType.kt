@@ -17,11 +17,11 @@
 package com.twilio.verify.networking
 
 internal enum class MediaTypeValue(val type: String) {
-  UrlEncoded("application/x-www-form-urlencoded"),
-  Json("application/json")
+  URL_ENCODED("application/x-www-form-urlencoded"),
+  JSON("application/json")
 }
 
 enum class MediaTypeHeader(val type: String) {
-  ContentType("Content-Type"),
-  Accept("Accept")
+  CONTENT_TYPE("Content-Type"),
+  ACCEPT("Accept")
 }

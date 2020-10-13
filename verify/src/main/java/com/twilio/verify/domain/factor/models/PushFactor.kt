@@ -18,7 +18,7 @@ package com.twilio.verify.domain.factor.models
 
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
-import com.twilio.verify.models.FactorStatus.Unverified
+import com.twilio.verify.models.FactorStatus.UNVERIFIED
 import com.twilio.verify.models.FactorType
 import com.twilio.verify.models.FactorType.PUSH
 import java.util.Date
@@ -29,7 +29,7 @@ internal class PushFactor(
   override val accountSid: String,
   override val serviceSid: String,
   override val identity: String,
-  override var status: FactorStatus = Unverified,
+  override var status: FactorStatus = UNVERIFIED,
   override val createdAt: Date,
   val config: Config
 ) : Factor {

@@ -17,7 +17,7 @@
 package com.twilio.verify.domain.service
 
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MAPPER_ERROR
 import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.domain.challenge.createdDateKey
 import com.twilio.verify.domain.challenge.sidKey
@@ -46,9 +46,9 @@ internal class ServiceMapper {
         friendlyName = friendlyName, accountSid = accountSid
       )
     } catch (e: JSONException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     } catch (e: ParseException) {
-      throw TwilioVerifyException(e, MapperError)
+      throw TwilioVerifyException(e, MAPPER_ERROR)
     }
   }
 }

@@ -17,7 +17,7 @@
 package com.twilio.verify.api
 
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.networking.NetworkException
 
@@ -42,11 +42,11 @@ internal open class BaseAPIClient(private val dateProvider: DateProvider) {
             ?.let { date ->
               syncTime(date)
               retryBlock(retries - 1)
-            } ?: error(TwilioVerifyException(exception, NetworkError))
-        else -> error(TwilioVerifyException(exception, NetworkError))
+            } ?: error(TwilioVerifyException(exception, NETWORK_ERROR))
+        else -> error(TwilioVerifyException(exception, NETWORK_ERROR))
       }
     } else {
-      error(TwilioVerifyException(exception, NetworkError))
+      error(TwilioVerifyException(exception, NETWORK_ERROR))
     }
   }
 

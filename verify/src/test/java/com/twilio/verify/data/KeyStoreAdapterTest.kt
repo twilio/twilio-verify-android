@@ -13,7 +13,7 @@ import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.KEY_STORAGE_ERROR
 import kotlin.random.Random.Default.nextBytes
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
@@ -51,7 +51,7 @@ class KeyStoreAdapterTest {
     whenever(keyManager.signer(any())).thenThrow(KeyException::class.java)
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
+    exceptionRule.expect(ErrorCodeMatcher(KEY_STORAGE_ERROR))
     keyStoreAdapter.create(alias)
   }
 
@@ -88,7 +88,7 @@ class KeyStoreAdapterTest {
     whenever(signer.sign(message.toByteArray())).thenThrow(KeyException::class.java)
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
+    exceptionRule.expect(ErrorCodeMatcher(KEY_STORAGE_ERROR))
     keyStoreAdapter.signAndEncode(alias, message)
   }
 
@@ -101,7 +101,7 @@ class KeyStoreAdapterTest {
     whenever(signer.sign(message.toByteArray())).thenThrow(KeyException::class.java)
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
+    exceptionRule.expect(ErrorCodeMatcher(KEY_STORAGE_ERROR))
     keyStoreAdapter.sign(alias, message)
   }
 
@@ -118,7 +118,7 @@ class KeyStoreAdapterTest {
     whenever(keyManager.delete(alias)).thenThrow(KeyException::class.java)
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
+    exceptionRule.expect(ErrorCodeMatcher(KEY_STORAGE_ERROR))
     keyStoreAdapter.delete(alias)
   }
 }

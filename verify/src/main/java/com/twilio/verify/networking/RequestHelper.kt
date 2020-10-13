@@ -21,11 +21,11 @@ import android.os.Build
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import com.twilio.verify.BuildConfig
-import com.twilio.verify.networking.HttpMethod.Delete
-import com.twilio.verify.networking.HttpMethod.Get
-import com.twilio.verify.networking.HttpMethod.Post
-import com.twilio.verify.networking.MediaTypeValue.Json
-import com.twilio.verify.networking.MediaTypeValue.UrlEncoded
+import com.twilio.verify.networking.HttpMethod.DELETE
+import com.twilio.verify.networking.HttpMethod.GET
+import com.twilio.verify.networking.HttpMethod.POST
+import com.twilio.verify.networking.MediaTypeValue.JSON
+import com.twilio.verify.networking.MediaTypeValue.URL_ENCODED
 
 private const val platform = "Android"
 private const val sdkName = "VerifySDK"
@@ -79,11 +79,11 @@ class RequestHelper internal constructor(
   fun commonHeaders(httpMethod: HttpMethod?): Map<String, String> {
     var commonHeaders = mapOf(userAgentHeader, authorizationHeader)
     commonHeaders = when (httpMethod) {
-      Post, Delete -> commonHeaders.plus(
-        mediaTypeHeaders(acceptTypeValue = Json, contentTypeValue = UrlEncoded)
+      POST, DELETE -> commonHeaders.plus(
+        mediaTypeHeaders(acceptTypeValue = JSON, contentTypeValue = URL_ENCODED)
       )
-      Get -> commonHeaders.plus(
-        mediaTypeHeaders(acceptTypeValue = UrlEncoded, contentTypeValue = UrlEncoded)
+      GET -> commonHeaders.plus(
+        mediaTypeHeaders(acceptTypeValue = URL_ENCODED, contentTypeValue = URL_ENCODED)
       )
       else -> commonHeaders
     }
@@ -95,7 +95,7 @@ class RequestHelper internal constructor(
     contentTypeValue: MediaTypeValue
   ): Map<String, String> =
     mapOf(
-      MediaTypeHeader.Accept.type to acceptTypeValue.type,
-      MediaTypeHeader.ContentType.type to contentTypeValue.type
+      MediaTypeHeader.ACCEPT.type to acceptTypeValue.type,
+      MediaTypeHeader.CONTENT_TYPE.type to contentTypeValue.type
     )
 }

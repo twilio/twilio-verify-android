@@ -32,10 +32,10 @@ class Request internal constructor(
   fun getParams(): String? {
     return when {
       body == null -> ""
-      headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type -> queryParams(
+      headers[MediaTypeHeader.CONTENT_TYPE.type] == MediaTypeValue.URL_ENCODED.type -> queryParams(
         body
       )
-      headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.Json.type -> jsonParams(body)
+      headers[MediaTypeHeader.CONTENT_TYPE.type] == MediaTypeValue.JSON.type -> jsonParams(body)
       else -> ""
     }
   }
@@ -60,7 +60,7 @@ class Request internal constructor(
   data class Builder(
     private val requestHelper: RequestHelper,
     private val url: String,
-    private var httpMethod: HttpMethod = HttpMethod.Get,
+    private var httpMethod: HttpMethod = HttpMethod.GET,
     private var body: Map<String, Any?>? = null,
     private var query: Map<String, Any?>? = null,
     private var headers: Map<String, String>? = null,

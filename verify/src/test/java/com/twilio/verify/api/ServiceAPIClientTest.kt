@@ -11,16 +11,16 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
-import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.NETWORK_ERROR
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.FailureResponse
-import com.twilio.verify.networking.HttpMethod.Get
-import com.twilio.verify.networking.MediaTypeHeader.Accept
-import com.twilio.verify.networking.MediaTypeHeader.ContentType
-import com.twilio.verify.networking.MediaTypeValue.UrlEncoded
+import com.twilio.verify.networking.HttpMethod.GET
+import com.twilio.verify.networking.MediaTypeHeader.ACCEPT
+import com.twilio.verify.networking.MediaTypeHeader.CONTENT_TYPE
+import com.twilio.verify.networking.MediaTypeValue.URL_ENCODED
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
@@ -239,7 +239,7 @@ class ServiceAPIClientTest {
       { exception ->
         assertTrue(exception.cause is NetworkException)
         assertTrue(exception.cause?.cause is RuntimeException)
-        assertEquals(NetworkError.message, exception.message)
+        assertEquals(NETWORK_ERROR.message, exception.message)
         idlingResource.operationFinished()
       }
     )
@@ -267,9 +267,9 @@ class ServiceAPIClientTest {
 
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
-      assertEquals(Get, httpMethod)
-      assertTrue(headers[ContentType.type] == UrlEncoded.type)
-      assertTrue(headers[Accept.type] == UrlEncoded.type)
+      assertEquals(GET, httpMethod)
+      assertTrue(headers[CONTENT_TYPE.type] == URL_ENCODED.type)
+      assertTrue(headers[ACCEPT.type] == URL_ENCODED.type)
       assertTrue(headers.containsKey(AuthorizationHeader))
       assertTrue(headers.containsKey(userAgent))
       idlingResource.operationFinished()

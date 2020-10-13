@@ -315,7 +315,7 @@ class FactorChallengeListMapperTest {
 
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(JSONException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MAPPER_ERROR))
     challengeListMapper.fromApi(jsonObject)
   }
 
@@ -332,7 +332,7 @@ class FactorChallengeListMapperTest {
 
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(JSONException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MAPPER_ERROR))
     challengeListMapper.fromApi(jsonObject)
   }
 
@@ -349,7 +349,7 @@ class FactorChallengeListMapperTest {
 
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(Matchers.instanceOf(JSONException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MAPPER_ERROR))
     challengeListMapper.fromApi(jsonObject)
   }
 
@@ -359,7 +359,7 @@ class FactorChallengeListMapperTest {
       put(factorSidKey, "factorSid123")
       put(createdDateKey, "2020-02-19T16:39:57-08:00")
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, ChallengeStatus.Pending.value)
+      put(statusKey, ChallengeStatus.PENDING.value)
       put(
         detailsKey,
         JSONObject().apply {

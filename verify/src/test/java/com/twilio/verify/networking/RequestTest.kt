@@ -18,7 +18,7 @@ class RequestTest {
 
   @Test
   fun `Request should match the params that were send to the RequestBuilder, without custom headers`() {
-    val httpMethod = HttpMethod.Post
+    val httpMethod = HttpMethod.POST
     val url = "https://twilio.com"
     val tag = "tag"
     val authorization = BasicAuthorization("accountSid", "authToken")
@@ -38,10 +38,10 @@ class RequestTest {
 
   @Test
   fun `Request should match the params that were send to the RequestBuilder, with custom headers`() {
-    val httpMethod = HttpMethod.Post
+    val httpMethod = HttpMethod.POST
     val url = "https://twilio.com"
-    val contentType = MediaTypeValue.UrlEncoded
-    val acceptType = MediaTypeValue.UrlEncoded
+    val contentType = MediaTypeValue.URL_ENCODED
+    val acceptType = MediaTypeValue.URL_ENCODED
     val tag = "tag"
     val headers = mutableMapOf("Content-Type" to contentType.type, "Accept-Type" to acceptType.type)
     val authorization = BasicAuthorization("accountSid", "authToken")
@@ -62,7 +62,7 @@ class RequestTest {
 
   @Test
   fun `Request params should be queryParams`() {
-    val httpMethod = HttpMethod.Post
+    val httpMethod = HttpMethod.POST
     val url = "https://twilio.com"
     val tag = "tag"
     val authorization = BasicAuthorization("accountSid", "authToken")
@@ -80,7 +80,7 @@ class RequestTest {
         .body(mapOf(key1 to value1, key2 to value2))
         .headers(
           mapOf(
-            MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
+            MediaTypeHeader.CONTENT_TYPE.type to MediaTypeValue.URL_ENCODED.type
           ).toMutableMap()
         )
         .build()
@@ -89,7 +89,7 @@ class RequestTest {
 
   @Test
   fun `Request params should be jsonParams`() {
-    val httpMethod = HttpMethod.Post
+    val httpMethod = HttpMethod.POST
     val url = "https://twilio.com"
     val tag = "tag"
     val authorization = BasicAuthorization("accountSid", "authToken")
@@ -109,7 +109,7 @@ class RequestTest {
         .tag(tag)
         .body(mapOf(key1 to value1, key2 to value2))
         .headers(
-          mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap()
+          mapOf(MediaTypeHeader.CONTENT_TYPE.type to MediaTypeValue.JSON.type).toMutableMap()
         )
         .build()
 
@@ -118,7 +118,7 @@ class RequestTest {
 
   @Test
   fun `Request params without body should be empty`() {
-    val httpMethod = HttpMethod.Post
+    val httpMethod = HttpMethod.POST
     val url = "https://twilio.com"
     val tag = "tag"
     val authorization = BasicAuthorization("accountSid", "authToken")
@@ -130,7 +130,7 @@ class RequestTest {
         .httpMethod(httpMethod)
         .tag(tag)
         .headers(
-          mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap()
+          mapOf(MediaTypeHeader.CONTENT_TYPE.type to MediaTypeValue.JSON.type).toMutableMap()
         )
         .build()
 
@@ -139,7 +139,7 @@ class RequestTest {
 
   @Test(expected = MalformedURLException::class)
   fun `Trying to create a Request with invalid URL should throw MalformedURLException`() {
-    val httpMethod = HttpMethod.Post
+    val httpMethod = HttpMethod.POST
     val url = ""
     val tag = "tag"
     val authorization = BasicAuthorization("accountSid", "authToken")
@@ -160,7 +160,7 @@ class RequestTest {
 
   @Test
   fun `Request queryparams should be appended to URL`() {
-    val httpMethod = HttpMethod.Post
+    val httpMethod = HttpMethod.POST
     val url = "https://twilio.com"
     val tag = "tag"
     val authorization = BasicAuthorization("accountSid", "authToken")

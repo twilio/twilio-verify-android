@@ -5,13 +5,13 @@ package com.twilio.verify.domain.factor
 
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.MAPPER_ERROR
 import com.twilio.verify.data.toRFC3339Date
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.CreateFactorPayload
 import com.twilio.verify.domain.factor.models.PushFactor
-import com.twilio.verify.models.FactorStatus.Unverified
-import com.twilio.verify.models.FactorStatus.Verified
+import com.twilio.verify.models.FactorStatus.UNVERIFIED
+import com.twilio.verify.models.FactorStatus.VERIFIED
 import com.twilio.verify.models.FactorType.PUSH
 import java.util.Date
 import org.hamcrest.Matchers.instanceOf
@@ -42,7 +42,7 @@ class FactorMapperTest {
       .put(sidKey, "sid123")
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
-      .put(statusKey, Unverified.value)
+      .put(statusKey, UNVERIFIED.value)
       .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
       .put(dateCreatedKey, toRFC3339Date(Date()))
     val factor = factorMapper.fromApi(jsonObject, factorPayload) as PushFactor
@@ -67,15 +67,15 @@ class FactorMapperTest {
       .put(accountSidKey, "accountSid123")
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(instanceOf(JSONException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     factorMapper.fromApi(jsonObject, factorPayload)
   }
 
   @Test
   fun `Map a valid response from verifying a token API should return the factor status`() {
-    val pushFactor = PushFactor("", "", "", "", "", Unverified, Date(), Config("credentialSid"))
+    val pushFactor = PushFactor("", "", "", "", "", UNVERIFIED, Date(), Config("credentialSid"))
     val jsonObject = JSONObject()
-      .put(statusKey, Verified.value)
+      .put(statusKey, VERIFIED.value)
     pushFactor.status = factorMapper.status(jsonObject)
     assertEquals(jsonObject.getString(statusKey), pushFactor.status.value)
   }
@@ -90,7 +90,7 @@ class FactorMapperTest {
       .put(accountSidKey, "accountSid123")
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     factorMapper.fromApi(jsonObject, factorPayload)
   }
 
@@ -105,7 +105,7 @@ class FactorMapperTest {
       .put(accountSidKey, "accountSid123")
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(instanceOf(JSONException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     factorMapper.fromApi(jsonObject, factorPayload)
   }
 
@@ -122,7 +122,7 @@ class FactorMapperTest {
       .put(serviceSidKey, "serviceSid123")
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(instanceOf(JSONException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     factorMapper.fromApi(jsonObject, factorPayload)
   }
 
@@ -136,7 +136,7 @@ class FactorMapperTest {
       .put(identity, "identity123")
       .put(typeKey, PUSH.factorTypeName)
       .put(keyPairAliasKey, "keyPairAlias123")
-      .put(statusKey, Unverified.value)
+      .put(statusKey, UNVERIFIED.value)
       .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
       .put(dateCreatedKey, toRFC3339Date(Date()))
     val factor = factorMapper.fromStorage(jsonObject.toString()) as PushFactor
@@ -161,7 +161,7 @@ class FactorMapperTest {
       .put(identity, "identity123")
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     factorMapper.fromStorage(jsonObject.toString())
   }
 
@@ -177,7 +177,7 @@ class FactorMapperTest {
       .put(keyPairAliasKey, "keyPairAlias123")
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     factorMapper.fromStorage(jsonObject.toString())
   }
 
@@ -186,7 +186,7 @@ class FactorMapperTest {
     val json = "test"
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(instanceOf(JSONException::class.java))
-    exceptionRule.expect(ErrorCodeMatcher(MapperError))
+    exceptionRule.expect(ErrorCodeMatcher(MAPPER_ERROR))
     factorMapper.fromStorage(json)
   }
 
@@ -194,7 +194,7 @@ class FactorMapperTest {
   fun `Map a factor to JSON should return complete factor data as JSONObject`() {
     val factor = PushFactor(
       sid = "sid123", friendlyName = "factor name", accountSid = "accountSid123",
-      serviceSid = "serviceSid123", identity = "identity123", status = Unverified,
+      serviceSid = "serviceSid123", identity = "identity123", status = UNVERIFIED,
       createdAt = Date(), config = Config("credentialSid")
     ).apply { keyPairAlias = "keyPairAlias123" }
     val json = factorMapper.toJSON(factor)

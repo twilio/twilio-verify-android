@@ -17,7 +17,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
-import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.KEY_STORAGE_ERROR
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.StorageException
 import com.twilio.verify.domain.factor.models.Config
@@ -130,7 +130,7 @@ class PushFactoryTest {
     val identity = "factor identity"
     val serviceSid = "factor serviceSid"
     given(keyStorage.create(any())).willAnswer {
-      throw TwilioVerifyException(IllegalStateException(), KeyStorageError)
+      throw TwilioVerifyException(IllegalStateException(), KEY_STORAGE_ERROR)
     }
     idlingResource.startOperation()
     pushFactory.create(
@@ -141,7 +141,7 @@ class PushFactoryTest {
       },
       { exception ->
         assertTrue(exception.cause is IllegalStateException)
-        assertEquals(KeyStorageError.message, exception.message)
+        assertEquals(KEY_STORAGE_ERROR.message, exception.message)
         idlingResource.operationFinished()
       }
     )
@@ -246,7 +246,7 @@ class PushFactoryTest {
     val identity = "identity"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val credentialSid = "credentialSid"
     val keyPairAlias = "keyPairAlias"
     val payload = "payload"
@@ -318,7 +318,7 @@ class PushFactoryTest {
     val identity = "identity"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val credentialSid = "credentialSid"
     val keyPairAlias = "keyPairAlias"
     val payload = "payload"
@@ -364,7 +364,7 @@ class PushFactoryTest {
     val identity = "identity"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val credentialSid = "credentialSid"
     val keyPairAlias = null
     val factor =
@@ -397,7 +397,7 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val accountSid = "accountSid"
     val credentialSid = "credentialSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val factor =
       PushFactor(
         sid,
@@ -475,7 +475,7 @@ class PushFactoryTest {
     val identity = "identity"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val factor =
       PushFactor(
         sid,
@@ -516,7 +516,7 @@ class PushFactoryTest {
     val identity = "identity"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val credentialSid = "credentialSid"
     val alias = "keyPairAlias"
     val factor =
@@ -590,7 +590,7 @@ class PushFactoryTest {
     val identity = "identity"
     val friendlyName = "factor name"
     val accountSid = "accountSid"
-    val status = FactorStatus.Unverified
+    val status = FactorStatus.UNVERIFIED
     val credentialSid = "credentialSid"
     val factor =
       PushFactor(
