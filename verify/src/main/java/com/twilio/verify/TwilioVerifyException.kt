@@ -64,7 +64,6 @@ class TwilioVerifyException(
      */
     INPUT_ERROR("{$INPUT_CODE} Exception while loading input"),
 
-
     /**
      * An error occurred while storing/loading keypairs. 68005
      *
