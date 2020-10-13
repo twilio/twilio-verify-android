@@ -17,6 +17,7 @@ google-services.json
 secrets.tar
 vendor/
 .bundle/
+/builds
 
 # Built application files
 *.apk

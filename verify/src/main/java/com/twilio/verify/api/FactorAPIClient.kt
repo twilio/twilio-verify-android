@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020 Twilio Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.twilio.verify.api
 
 import android.content.Context
@@ -20,9 +36,6 @@ import com.twilio.verify.networking.RequestHelper
 import com.twilio.verify.storagePreferences
 import org.json.JSONObject
 
-/*
- * Copyright (c) 2020, Twilio Inc.
- */
 internal const val SERVICE_SID_PATH = "{ServiceSid}"
 internal const val FACTOR_SID_PATH = "{FactorSid}"
 internal const val IDENTITY_PATH = "{Identity}"
@@ -182,7 +195,16 @@ internal class FactorAPIClient(
             success()
           },
           { exception ->
-            validateException(exception, ::deleteFactor, retries, error)
+            when (exception.failureResponse?.responseCode) {
+              notFound -> success()
+              unauthorized ->
+                if (retries == 0) {
+                  success()
+                } else {
+                  validateException(exception, ::deleteFactor, retries, error)
+                }
+              else -> validateException(exception, ::deleteFactor, retries, error)
+            }
           }
         )
       } catch (e: TwilioVerifyException) {
@@ -220,12 +242,13 @@ internal class FactorAPIClient(
   private fun createFactorBody(
     createFactorPayload: CreateFactorPayload
   ): Map<String, String?> =
-    mapOf(
+    mutableMapOf(
       FRIENDLY_NAME_KEY to createFactorPayload.friendlyName,
-      FACTOR_TYPE_KEY to createFactorPayload.type.factorTypeName,
-      BINDING_KEY to JSONObject(createFactorPayload.binding).toString(),
-      CONFIG_KEY to JSONObject(createFactorPayload.config).toString()
-    )
+      FACTOR_TYPE_KEY to createFactorPayload.type.factorTypeName
+    ).apply {
+      putAll(createFactorPayload.binding.map { "$BINDING_KEY.${it.key}" to it.value })
+      putAll(createFactorPayload.config.map { "$CONFIG_KEY.${it.key}" to it.value })
+    }
 
   private fun verifyFactorBody(
     authPayload: String
@@ -235,8 +258,9 @@ internal class FactorAPIClient(
   private fun updateFactorBody(
     updateFactorPayload: UpdateFactorPayload
   ): Map<String, String?> =
-    mapOf(
-      FRIENDLY_NAME_KEY to updateFactorPayload.friendlyName,
-      CONFIG_KEY to JSONObject(updateFactorPayload.config).toString()
-    )
+    mutableMapOf(
+      FRIENDLY_NAME_KEY to updateFactorPayload.friendlyName
+    ).apply {
+      putAll(updateFactorPayload.config.map { "$CONFIG_KEY.${it.key}" to it.value })
+    }
 }

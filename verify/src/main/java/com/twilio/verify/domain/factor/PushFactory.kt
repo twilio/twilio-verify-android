@@ -1,6 +1,19 @@
 /*
- * Copyright (c) 2020, Twilio Inc.
+ * Copyright (c) 2020 Twilio Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.twilio.verify.domain.factor
 
 import android.content.Context
@@ -16,13 +29,13 @@ import com.twilio.verify.domain.factor.models.UpdateFactorPayload
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorType.PUSH
 
-internal const val PUBLIC_KEY_KEY = "public_key"
+internal const val PUBLIC_KEY_KEY = "PublicKey"
 internal const val FCM_PUSH_TYPE = "fcm"
-internal const val SDK_VERSION_KEY = "sdk_version"
-internal const val APP_ID_KEY = "app_id"
-internal const val NOTIFICATION_PLATFORM_KEY = "notification_platform"
-internal const val NOTIFICATION_TOKEN_KEY = "notification_token"
-internal const val ALG_KEY = "alg"
+internal const val SDK_VERSION_KEY = "SdkVersion"
+internal const val APP_ID_KEY = "AppId"
+internal const val NOTIFICATION_PLATFORM_KEY = "NotificationPlatform"
+internal const val NOTIFICATION_TOKEN_KEY = "NotificationToken"
+internal const val ALG_KEY = "Alg"
 internal const val DEFAULT_ALG = "ES256"
 
 internal class PushFactory(

@@ -99,7 +99,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
       response.keys()
         .asSequence()
         .toList(),
@@ -150,7 +150,7 @@ class PushChallengeProcessorTest {
     val accountSid = "accountSid"
     val serviceSid = "serviceSid"
     val identity = "identity"
-    val hiddenDetails = "hiddenDetails"
+    val hiddenDetails = emptyMap<String, String>()
     val newStatus = Denied
     val status = Pending
     val factor: PushFactor = mock()
@@ -333,7 +333,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), response = response
+      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(), response = response
     ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -367,7 +367,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(), emptyList(), response
+      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(), emptyList(), response
     ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
@@ -401,7 +401,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
       response.keys()
         .asSequence()
         .toList()
@@ -438,7 +438,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
       response.keys()
         .asSequence()
         .toList(),
@@ -476,7 +476,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
       response.keys()
         .asSequence()
         .toList() + "test",
@@ -514,7 +514,7 @@ class PushChallengeProcessorTest {
       put(factorSidKey, factorSid)
     }
     val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), "", factorSid, Pending, mock(), mock(), mock(),
+      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
       response.keys()
         .asSequence()
         .toList(),

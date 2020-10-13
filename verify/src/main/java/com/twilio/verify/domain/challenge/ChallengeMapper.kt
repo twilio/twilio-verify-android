@@ -1,6 +1,19 @@
 /*
- * Copyright (c) 2020, Twilio Inc.
+ * Copyright (c) 2020 Twilio Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.twilio.verify.domain.challenge
 
 import com.twilio.verify.TwilioVerifyException
@@ -39,7 +52,7 @@ internal class ChallengeMapper {
     signatureFieldsHeader: String? = null
   ): Challenge {
     try {
-      val details = jsonObject.getString(detailsKey)
+      val details = jsonObject.getJSONObject(detailsKey)
       val createdDate = jsonObject.getString(createdDateKey)
       val updatedDate = jsonObject.getString(updatedDateKey)
       val status = ChallengeStatus.values()
@@ -63,7 +76,9 @@ internal class ChallengeMapper {
         createdAt = fromRFC3339Date(createdDate),
         updatedAt = fromRFC3339Date(updatedDate),
         challengeDetails = toChallengeDetails(details),
-        hiddenDetails = jsonObject.getString(hiddenDetailsKey),
+        hiddenDetails = jsonObject.optJSONObject(hiddenDetailsKey)?.let {
+          it.keys().asSequence().associateWith { key -> it.getString(key) }
+        },
         status = status
       )
     } catch (e: JSONException) {
@@ -73,10 +88,9 @@ internal class ChallengeMapper {
     }
   }
 
-  private fun toChallengeDetails(details: String): ChallengeDetails = run {
-    val detailsJson = JSONObject(details)
-    val message = detailsJson.getString(messageKey)
-    val fields = detailsJson.optJSONArray(fieldsKey)
+  private fun toChallengeDetails(details: JSONObject): ChallengeDetails = run {
+    val message = details.getString(messageKey)
+    val fields = details.optJSONArray(fieldsKey)
       ?.takeIf { it.length() > 0 }
       ?.let {
         val fields = mutableListOf<Detail>()
@@ -91,8 +105,8 @@ internal class ChallengeMapper {
         }
         fields
       } ?: listOf<Detail>()
-    val date = detailsJson.optString(dateKey)
-      ?.takeIf { it.isNotEmpty() }
+    val date = details.optString(dateKey)
+      .takeIf { it.isNotEmpty() }
       ?.let { fromRFC3339Date(it) }
     return ChallengeDetails(message, fields, date)
   }

@@ -3,9 +3,12 @@
 <!-- Assignee: Please assign yourself to this PR -->
 <!-- Labels: Please add proper labels accordingly (task, bug, housekeeping, etc) -->
 
-<!-- Ticket: Please add the ticket number -->
-## Jira Tickets
+<!-- Ticket: Please add the Jira ticket number or the Github issue number according to your case -->
+## Jira Ticket
 - ACCSEC-
+
+## Github Issue
+- ISSUE-
 
 <!-- Description: Please add a detailed description of your contribution. Include associated PRs or dependencies. If you're opening an integration PR, please add proper checklist of remaining items and tag this PR with a "DO NOT MERGE YET" -->
 ## Description
@@ -17,3 +20,9 @@
 
 <!-- Screenshot: When possible add a screenshot or gif showing your changes if not you can remove this section -->
 ## Screenshot
+
+<!-- Testing: Please check all that apply -->
+## Testing
+- [ ] Added unit tests
+- [ ] Ran unit tests successfully
+- [ ] Added documentation for public APIs and/or Wiki

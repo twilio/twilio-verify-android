@@ -5,12 +5,21 @@ package com.twilio.verify.data
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import org.json.JSONObject
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.security.storage.EncryptedStorage
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -25,7 +34,16 @@ class StorageTest {
   private val context: Context = ApplicationProvider.getApplicationContext()
   private val sharedPreferences =
     context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
-  private val storage = Storage(sharedPreferences)
+  private val encryptedStorage: EncryptedStorage = mock()
+  private lateinit var storage: Storage
+
+  @Before
+  fun setup() {
+    sharedPreferences.edit()
+      .putInt(CURRENT_VERSION, VERSION)
+      .apply()
+    storage = Storage(sharedPreferences, encryptedStorage, emptyList())
+  }
 
   @After
   fun tearDown() {
@@ -33,98 +51,143 @@ class StorageTest {
   }
 
   @Test
-  fun `Save a new value should add it to preferences`() {
+  fun `Save a new value should add it to encrypted storage`() {
     val key = "key123"
     val value = "value123"
     storage.save(key, value)
-    assertEquals(value, sharedPreferences.getString(key, null))
+    verify(encryptedStorage).put(key, value)
   }
 
   @Test
-  fun `Update a value should update it in preferences`() {
+  fun `Update a value should update it in encrypted storage`() {
     val key = "key123"
     val value1 = "value123"
-    val value2 = "value123"
+    val value2 = "value345"
     storage.save(key, value1)
     storage.save(key, value2)
-    assertEquals(value2, sharedPreferences.getString(key, null))
-  }
-
-  @Test
-  fun `Save a json string should save it correctly`() {
-    val key = "key123"
-    val value = JSONObject().apply {
-      put("jKey1", "jValue1")
-      put("jkey2", 123)
+    argumentCaptor<String>().apply {
+      verify(encryptedStorage, times(2)).put(eq(key), capture())
+      assertEquals(2, allValues.size)
+      assertEquals(value1, firstValue)
+      assertEquals(value2, secondValue)
     }
-    storage.save(key, value.toString())
-    val jsonObject = JSONObject(sharedPreferences.getString(key, null))
-    assertEquals(value.length(), jsonObject.length())
-    assertEquals(value.getString("jKey1"), jsonObject.getString("jKey1"))
-    assertEquals(value.getInt("jkey2"), jsonObject.getInt("jkey2"))
   }
 
   @Test
-  fun `Get an existing value should return it`() {
+  fun `Get an existing value should return it from encrypted storage`() {
     val key = "key123"
-    val value = "value123"
-    sharedPreferences.edit()
-      .putString(key, value)
-      .apply()
-    assertEquals(value, storage.get(key))
+    val value1 = "value123"
+    whenever(encryptedStorage.get(key, String::class)).thenReturn(value1)
+    assertEquals(value1, storage.get(key))
   }
 
   @Test
   fun `Get a non existing value should return null`() {
     val key = "key123"
-    sharedPreferences.edit()
-      .remove(key)
-      .apply()
     assertNull(storage.get(key))
+    verify(encryptedStorage).get(key, String::class)
   }
 
   @Test
-  fun `Get all with saved factors should return all`() {
-    val factors = mapOf("sid1" to "value1", "sid2" to "value2")
-    factors.forEach { storage.save(it.key, it.value) }
-    assertEquals(factors.size, sharedPreferences.all.size)
+  fun `Get all with saved data should return all from encrypted storage`() {
+    val expectedValues = listOf("value1", "value2")
+    whenever(encryptedStorage.getAll(String::class)).thenReturn(expectedValues)
+    val values = storage.getAll()
+    assertEquals(expectedValues.size, values.size)
+    expectedValues.forEach {
+      assertTrue(values.contains(it))
+    }
   }
 
   @Test
   fun `Get all without any value saved should return 0`() {
-    assertEquals(0, sharedPreferences.all.size)
-  }
-
-  @Test
-  fun `Get all values with a list of not only strings should filter`() {
-    val keyValues = mapOf("sid1" to "value1", "sid2" to "value2", "sid3" to 123)
-    keyValues.filter { it.value is String }
-      .forEach {
-        sharedPreferences.edit()
-          .putString(it.key, it.value as String)
-          .apply()
-      }
-    keyValues.filter { it.value is Int }
-      .forEach {
-        sharedPreferences.edit()
-          .putInt(it.key, it.value as Int)
-          .apply()
-      }
-
-    assertEquals(keyValues.size, sharedPreferences.all.size)
-    assertEquals(keyValues.values.filterIsInstance<String>().size, storage.getAll().size)
+    assertEquals(0, storage.getAll().size)
+    verify(encryptedStorage).getAll(String::class)
   }
 
   @Test
   fun `Remove a key should remove it from preferences`() {
     val key = "key123"
-    val value = "value123"
-    sharedPreferences.edit()
-      .putString(key, value)
-      .apply()
-    assertNotNull(storage.get(key))
     storage.remove(key)
-    assertNull(storage.get(key))
-    assertFalse(sharedPreferences.contains(key))
+    verify(encryptedStorage).remove(key)
+  }
+
+  @Test
+  fun `Migrations executed`() {
+    val migrationV0ToV1: Migration = mock {
+      on(it.startVersion).thenReturn(0)
+      on(it.endVersion).thenReturn(1)
+    }
+    val migrationV1ToV2: Migration = mock {
+      on(it.startVersion).thenReturn(1)
+      on(it.endVersion).thenReturn(2)
+    }
+    val migrations = listOf(migrationV0ToV1, migrationV1ToV2)
+    migration(0, 2, migrations)
+    inOrder(migrationV0ToV1, migrationV1ToV2) {
+      verify(migrationV0ToV1).migrate(any())
+      verify(migrationV1ToV2).migrate(any())
+    }
+  }
+
+  @Test
+  fun `Migration executed`() {
+    val migrationV0ToV1: Migration = mock {
+      on(it.startVersion).thenReturn(0)
+      on(it.endVersion).thenReturn(1)
+    }
+    val migrationV1ToV2: Migration = mock {
+      on(it.startVersion).thenReturn(1)
+      on(it.endVersion).thenReturn(2)
+    }
+    val migrations = listOf(migrationV0ToV1, migrationV1ToV2)
+    migration(1, 2, migrations)
+    verify(migrationV0ToV1, never()).migrate(any())
+    verify(migrationV1ToV2).migrate(any())
+  }
+
+  @Test
+  fun `No migration needed`() {
+    val migrationV0ToV1: Migration = mock {
+      on(it.startVersion).thenReturn(0)
+      on(it.endVersion).thenReturn(1)
+    }
+    val migrationV1ToV2: Migration = mock {
+      on(it.startVersion).thenReturn(1)
+      on(it.endVersion).thenReturn(2)
+    }
+    val migrations = listOf(migrationV0ToV1, migrationV1ToV2)
+    migration(2, 2, migrations)
+    verify(migrationV0ToV1, never()).migrate(any())
+    verify(migrationV1ToV2, never()).migrate(any())
+  }
+
+  @Test
+  fun `Migrate data`() {
+    val key = "key123"
+    val value1 = "value123"
+    val value2 = "value345"
+    whenever(encryptedStorage.getAll(String::class)).thenReturn(listOf(value1))
+    whenever(encryptedStorage.get(key, String::class)).thenReturn(value1)
+    val migrationV1ToV2: Migration = mock {
+      on(it.startVersion).thenReturn(1)
+      on(it.endVersion).thenReturn(2)
+      on(it.migrate(listOf(value1))).thenReturn(listOf(Entry(key, value2)))
+    }
+    val migrations = listOf(migrationV1ToV2)
+    migration(1, 2, migrations)
+    verify(encryptedStorage).put(key, value2)
+  }
+
+  private fun migration(
+    startVersion: Int,
+    endVersion: Int,
+    migrations: List<Migration>
+  ) {
+    sharedPreferences.edit()
+      .putInt(CURRENT_VERSION, startVersion)
+      .apply()
+    storage = Storage(sharedPreferences, encryptedStorage, migrations)
+    assertEquals(endVersion, sharedPreferences.getInt(CURRENT_VERSION, 0))
   }
 }
