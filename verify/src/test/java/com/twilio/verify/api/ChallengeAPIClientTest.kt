@@ -56,7 +56,7 @@ class ChallengeAPIClientTest {
   private val idlingResource = IdlingResource()
 
   private val factorChallenge =
-    FactorChallenge("sid", mock(), "", "factorSid", Pending, Date(), Date(), Date()).apply {
+    FactorChallenge("sid", mock(), null, "factorSid", Pending, Date(), Date(), Date()).apply {
       factor =
         PushFactor(
           "sid", "friendlyName", "accountSid", "serviceSid", "identity", createdAt = Date(),
@@ -212,7 +212,7 @@ class ChallengeAPIClientTest {
 
   @Test
   fun `Update a challenge with a null factor should call error`() {
-    val challenge = FactorChallenge("sid", mock(), "", "factorSid", Pending, Date(), Date(), Date())
+    val challenge = FactorChallenge("sid", mock(), null, "factorSid", Pending, Date(), Date(), Date())
     idlingResource.startOperation()
     challengeAPIClient.update(
       challenge, "authPayload",

@@ -26,7 +26,7 @@ import org.json.JSONObject
 internal class FactorChallenge(
   override val sid: String,
   override val challengeDetails: ChallengeDetails,
-  override val hiddenDetails: String,
+  override val hiddenDetails: Map<String, String>?,
   override val factorSid: String,
   override var status: ChallengeStatus,
   override val createdAt: Date,
