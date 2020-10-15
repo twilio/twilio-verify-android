@@ -117,7 +117,7 @@ class TwilioVerifyTest {
     twilioVerify =
       TwilioVerify.Builder(context)
         .networkProvider(networkProvider)
-        .logLevel(LogLevel.off)
+        .logLevel(LogLevel.OFF)
         .loggingService(mock())
         .build()
   }
