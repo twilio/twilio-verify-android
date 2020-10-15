@@ -17,6 +17,8 @@
 package com.twilio.verify.domain.factor
 
 import android.content.Context
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.security.storage.encryptedPreferences
 import com.twilio.verify.ENC_SUFFIX
 import com.twilio.verify.TwilioVerifyException
@@ -99,7 +101,7 @@ internal class FactorFacade(
     try {
       factorProvider.get(factorSid)
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found"), StorageError
+        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) }, StorageError
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -115,7 +117,7 @@ internal class FactorFacade(
       factorProvider.getAll()
         .find { it.serviceSid == serviceSid }
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found"), StorageError
+        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) }, StorageError
       )
     } catch (e: TwilioVerifyException) {
       error(e)

@@ -38,7 +38,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
         NO_WRAP
       )
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
   }
@@ -51,7 +51,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
       manager.signer(getSignerTemplate(alias))
         .sign(message.toByteArray())
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
   }
@@ -65,7 +65,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     } catch (e: TwilioVerifyException) {
       throw e
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
   }
@@ -74,7 +74,7 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
     try {
       manager.delete(alias)
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
   }

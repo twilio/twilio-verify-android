@@ -98,7 +98,7 @@ internal class FactorAPIClient(
     } catch (e: TwilioVerifyException) {
       error(e)
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       error(TwilioVerifyException(NetworkException(e), NetworkError))
     }
   }
@@ -133,7 +133,7 @@ internal class FactorAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        Logger.log(Level.ERROR, e.toString(), e)
+        Logger.log(Level.Error, e.toString(), e)
         error(TwilioVerifyException(NetworkException(e), NetworkError))
       }
     }
@@ -171,7 +171,7 @@ internal class FactorAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        Logger.log(Level.ERROR, e.toString(), e)
+        Logger.log(Level.Error, e.toString(), e)
         error(TwilioVerifyException(NetworkException(e), NetworkError))
       }
     }
@@ -215,7 +215,7 @@ internal class FactorAPIClient(
       } catch (e: TwilioVerifyException) {
         error(e)
       } catch (e: Exception) {
-        Logger.log(Level.ERROR, e.toString(), e)
+        Logger.log(Level.Error, e.toString(), e)
         error(TwilioVerifyException(NetworkException(e), NetworkError))
       }
     }

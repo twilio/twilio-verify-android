@@ -37,17 +37,17 @@ class EncryptedPreferences(
     value: T
   ) {
     try {
-      Logger.log(Level.INFO, "Saving $key")
+      Logger.log(Level.Info, "Saving $key")
       val rawValue = toByteArray(value)
       val encrypted = secretKeyProvider.encrypt(rawValue)
       val keyToSave = generateKeyDigest(key)
-      Logger.log(Level.DEBUG, "Saving $keyToSave")
+      Logger.log(Level.Debug, "Saving $keyToSave")
       preferences.edit()
         .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
         .apply()
-      Logger.log(Level.DEBUG, "Saved $keyToSave")
+      Logger.log(Level.Debug, "Saved $keyToSave")
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw StorageException(e)
     }
   }
@@ -58,12 +58,12 @@ class EncryptedPreferences(
     kClass: KClass<T>
   ): T {
     return try {
-      Logger.log(Level.INFO, "Getting $key")
+      Logger.log(Level.Info, "Getting $key")
       getValue(generateKeyDigest(key), kClass) ?: throw IllegalArgumentException(
         "Illegal decrypted data"
-      ).also { Logger.log(Level.DEBUG, "Return value $it for $key") }
+      ).also { Logger.log(Level.Debug, "Return value $it for $key") }
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw StorageException(e)
     }
   }
@@ -72,29 +72,29 @@ class EncryptedPreferences(
   override fun <T : Any> getAll(
     kClass: KClass<T>
   ): List<T> = try {
-    Logger.log(Level.INFO, "Getting all values")
+    Logger.log(Level.Info, "Getting all values")
     preferences.all.filterValues { it is String }
       .mapNotNull { entry ->
         try {
           getValue(
             entry.key, kClass
-          ).also { Logger.log(Level.DEBUG, "Return value $it for key ${entry.key}") }
+          ).also { Logger.log(Level.Debug, "Return value $it for key ${entry.key}") }
         } catch (e: Exception) {
-          Logger.log(Level.ERROR, e.toString(), e)
+          Logger.log(Level.Error, e.toString(), e)
           null
         }
-      }.also { Logger.log(Level.INFO, "Return all values") }
+      }.also { Logger.log(Level.Info, "Return all values") }
   } catch (e: Exception) {
-    Logger.log(Level.ERROR, e.toString(), e)
+    Logger.log(Level.Error, e.toString(), e)
     throw StorageException(e)
   }
 
   override fun contains(key: String): Boolean = preferences.contains(generateKeyDigest(key))
-    .also { Logger.log(Level.DEBUG, "Encrypted preferences ${if (it) "has a value" else "does not have a value"} for $it key $key") }
+    .also { Logger.log(Level.Debug, "Encrypted preferences ${if (it) "has a value" else "does not have a value"} for $it key $key") }
 
   @Synchronized
   override fun remove(key: String) {
-    Logger.log(Level.INFO, "Removing $key")
+    Logger.log(Level.Info, "Removing $key")
     preferences.edit()
       .remove(generateKeyDigest(key))
       .apply()
@@ -102,7 +102,7 @@ class EncryptedPreferences(
 
   @Synchronized
   override fun clear() {
-    Logger.log(Level.INFO, "Clearing storage")
+    Logger.log(Level.Info, "Clearing storage")
     preferences.edit()
       .clear()
       .apply()
@@ -112,9 +112,10 @@ class EncryptedPreferences(
     key: String,
     kClass: KClass<T>
   ): T? {
-    Logger.log(Level.DEBUG, "Getting value for $key")
+    Logger.log(Level.Debug, "Getting value for $key")
     val value = preferences.getString(key, null) ?: throw IllegalArgumentException("key not found")
-    return fromByteArray(secretKeyProvider.decrypt(Base64.decode(value, DEFAULT)), kClass).also { Logger.log(Level.DEBUG, "Return $it for key $key") }
+    return fromByteArray(secretKeyProvider.decrypt(Base64.decode(value, DEFAULT)), kClass)
+      .also { Logger.log(Level.Debug, "Return value $it for key $key") }
   }
 
   private fun <T : Any> toByteArray(
@@ -128,8 +129,8 @@ class EncryptedPreferences(
 }
 
 internal fun generateKeyDigest(key: String): String {
-  Logger.log(Level.DEBUG, "Generating key digest for $key")
+  Logger.log(Level.Debug, "Generating key digest for $key")
   val messageDigest = MessageDigest.getInstance("SHA-256")
   return Base64.encodeToString(messageDigest.digest(key.toByteArray()), DEFAULT)
-    .also { Logger.log(Level.DEBUG, "Generated key digest for $key: $it") }
+    .also { Logger.log(Level.Debug, "Generated key digest for $key: $it") }
 }

@@ -31,7 +31,7 @@ class AESCipher(
     return try {
       return androidKeyStoreOperations.encrypt(data, cipherAlgorithm, key)
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -40,7 +40,7 @@ class AESCipher(
     return try {
       return androidKeyStoreOperations.decrypt(data, cipherAlgorithm, key)
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
     }
   }

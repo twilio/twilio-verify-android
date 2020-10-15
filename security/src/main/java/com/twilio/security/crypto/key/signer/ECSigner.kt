@@ -32,7 +32,7 @@ class ECSigner(
     return try {
       androidKeyStoreOperations.sign(data, signatureAlgorithm, keyPair.private)
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -45,7 +45,7 @@ class ECSigner(
     return try {
       return androidKeyStoreOperations.verify(data, signature, signatureAlgorithm, keyPair.public)
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -55,7 +55,7 @@ class ECSigner(
     return try {
       keyPair.public.encoded
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
     }
   }

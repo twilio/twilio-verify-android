@@ -37,8 +37,8 @@ class AndroidKeyManager(
   @Throws(KeyException::class)
   override fun signer(template: SignerTemplate): Signer {
     try {
-      Logger.log(Level.INFO, "Getting signer for alias: ${template.alias}")
-      Logger.log(Level.DEBUG, "Getting signer for template: $template")
+      Logger.log(Level.Info, "Getting signer for alias: ${template.alias}")
+      Logger.log(Level.Debug, "Getting signer for template: $template")
       val keyPair = if (!contains(template.alias)) {
         if (template.shouldExist) {
           throw IllegalStateException("The alias does not exist")
@@ -49,15 +49,15 @@ class AndroidKeyManager(
       }
       return when (template) {
         is ECP256SignerTemplate -> ECSigner(keyPair, template.signatureAlgorithm, androidKeyStore)
-      }.also { Logger.log(Level.DEBUG, "Return ${it::class.simpleName} for ${template.alias}") }
+      }.also { Logger.log(Level.Debug, "Return ${it::class.simpleName} for ${template.alias}") }
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
     }
   }
 
   private fun createSignerKeyPair(template: SignerTemplate): KeyPair {
-    Logger.log(Level.INFO, "Creating signer key pair for: ${template.alias}")
+    Logger.log(Level.Info, "Creating signer key pair for: ${template.alias}")
     val keyPair =
       androidKeyStore.createKeyPair(template.algorithm, template.keyGenParameterSpec)
     return getSignerKeyPair(
@@ -67,7 +67,7 @@ class AndroidKeyManager(
   }
 
   private fun getSignerKeyPair(alias: String): KeyPair {
-    Logger.log(Level.INFO, "Getting signer key pair for: $alias")
+    Logger.log(Level.Info, "Getting signer key pair for: $alias")
     if (!contains(alias)) {
       throw IllegalArgumentException("alias not found")
     }
@@ -78,8 +78,8 @@ class AndroidKeyManager(
 
   @Throws(KeyException::class)
   override fun cipher(template: CipherTemplate): Cipher {
-    Logger.log(Level.INFO, "Getting cipher for alias: ${template.alias}")
-    Logger.log(Level.DEBUG, "Getting cipher for template: $template")
+    Logger.log(Level.Info, "Getting cipher for alias: ${template.alias}")
+    Logger.log(Level.Debug, "Getting cipher for template: $template")
     try {
       val key = if (!contains(template.alias)) {
         if (template.shouldExist) {
@@ -95,7 +95,7 @@ class AndroidKeyManager(
         )
       }
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -107,7 +107,7 @@ class AndroidKeyManager(
         androidKeyStore.deleteEntry(alias)
       }
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
     }
   }
@@ -115,7 +115,7 @@ class AndroidKeyManager(
   override fun contains(alias: String): Boolean = androidKeyStore.contains(alias)
 
   private fun getCipherKey(alias: String): SecretKey {
-    Logger.log(Level.INFO, "Getting cipher key for: $alias")
+    Logger.log(Level.Info, "Getting cipher key for: $alias")
     return retryToGetValue { getSecretKey(alias) } ?: throw IllegalArgumentException(
       "Secret key not found"
     )
@@ -129,7 +129,7 @@ class AndroidKeyManager(
   }
 
   private fun createCipherKey(template: CipherTemplate): SecretKey {
-    Logger.log(Level.INFO, "Creating cipher key for: ${template.alias}")
+    Logger.log(Level.Info, "Creating cipher key for: ${template.alias}")
     val key = androidKeyStore.createKey(template.algorithm, template.keyGenParameterSpec)
     return getCipherKey(
       template.alias
@@ -148,16 +148,16 @@ class AndroidKeyManager(
       val result = try {
         block()
       } catch (e: Exception) {
-        Logger.log(Level.ERROR, e.toString(), e)
+        Logger.log(Level.Error, e.toString(), e)
         null
       }
       if (result == null) {
-        Logger.log(Level.DEBUG, "Retrying operation")
+        Logger.log(Level.Debug, "AndroidKeyManager: Retrying operation")
         TimeUnit.MILLISECONDS.sleep(delay)
       } else {
-        return result.also { Logger.log(Level.DEBUG, "Successful operation") }
+        return result.also { Logger.log(Level.Debug, "AndroidKeyManager: Successful operation") }
       }
     }
-    return block().also { Logger.log(Level.DEBUG, "Successful operation") }
+    return block().also { Logger.log(Level.Debug, "AndroidKeyManager: Successful operation") }
   }
 }

@@ -35,10 +35,10 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to OFF shouldn't log`() {
     val loggerService = DefaultLoggerService(LogLevel.OFF, log)
     val message = "Twilio"
-    loggerService.log(Level.INFO, message)
-    loggerService.log(Level.NETWORKING, message)
-    loggerService.log(Level.ERROR, message)
-    loggerService.log(Level.DEBUG, message)
+    loggerService.log(Level.Info, message)
+    loggerService.log(Level.Networking, message)
+    loggerService.log(Level.Error, message)
+    loggerService.log(Level.Debug, message)
     verify(log, never()).debug(any(), any(), any())
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).info(any(), any(), any())
@@ -49,7 +49,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to ALL should log INFO types`() {
     val loggerService = DefaultLoggerService(LogLevel.ALL, log)
     val message = "Twilio"
-    loggerService.log(Level.INFO, message)
+    loggerService.log(Level.Info, message)
     verify(log).info(
       check { tag ->
         val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
@@ -69,7 +69,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to ALL should log ERROR types`() {
     val loggerService = DefaultLoggerService(LogLevel.ALL, log)
     val message = "Twilio"
-    loggerService.log(Level.ERROR, message)
+    loggerService.log(Level.Error, message)
     verify(log).error(
       check { tag ->
         val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
@@ -89,7 +89,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to ALL should log NETWORKING types`() {
     val loggerService = DefaultLoggerService(LogLevel.ALL, log)
     val message = "Twilio"
-    loggerService.log(Level.NETWORKING, message)
+    loggerService.log(Level.Networking, message)
     verify(log).verbose(
       check { tag ->
         val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
@@ -109,7 +109,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to ALL should log DEBUG types`() {
     val loggerService = DefaultLoggerService(LogLevel.ALL, log)
     val message = "Twilio"
-    loggerService.log(Level.DEBUG, message)
+    loggerService.log(Level.Debug, message)
     verify(log).debug(
       check { tag ->
         val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
@@ -129,7 +129,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to ERROR should log ERROR types`() {
     val loggerService = DefaultLoggerService(LogLevel.ERROR, log)
     val message = "Twilio"
-    loggerService.log(Level.ERROR, message)
+    loggerService.log(Level.Error, message)
     verify(log).error(
       check { tag ->
         val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
@@ -149,7 +149,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to ERROR shouldn't log INFO types`() {
     val loggerService = DefaultLoggerService(LogLevel.ERROR, log)
     val message = "Twilio"
-    loggerService.log(Level.INFO, message)
+    loggerService.log(Level.Info, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -160,7 +160,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to ERROR shouldn't log NETWORKING types`() {
     val loggerService = DefaultLoggerService(LogLevel.ERROR, log)
     val message = "Twilio"
-    loggerService.log(Level.NETWORKING, message)
+    loggerService.log(Level.Networking, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -171,7 +171,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to ERROR shouldn't log DEBUG types`() {
     val loggerService = DefaultLoggerService(LogLevel.ERROR, log)
     val message = "Twilio"
-    loggerService.log(Level.DEBUG, message)
+    loggerService.log(Level.Debug, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -182,7 +182,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to INFO should log INFO types`() {
     val loggerService = DefaultLoggerService(LogLevel.INFO, log)
     val message = "Twilio"
-    loggerService.log(Level.INFO, message)
+    loggerService.log(Level.Info, message)
     verify(log).info(
       check { tag ->
         val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
@@ -202,7 +202,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to INFO shouldn't log ERROR types`() {
     val loggerService = DefaultLoggerService(LogLevel.INFO, log)
     val message = "Twilio"
-    loggerService.log(Level.ERROR, message)
+    loggerService.log(Level.Error, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -213,7 +213,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to INFO shouldn't log NETWORKING types`() {
     val loggerService = DefaultLoggerService(LogLevel.INFO, log)
     val message = "Twilio"
-    loggerService.log(Level.NETWORKING, message)
+    loggerService.log(Level.Networking, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -224,7 +224,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to INFO shouldn't log DEBUG types`() {
     val loggerService = DefaultLoggerService(LogLevel.INFO, log)
     val message = "Twilio"
-    loggerService.log(Level.DEBUG, message)
+    loggerService.log(Level.Debug, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -235,7 +235,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to NETWORKING should log NETWORKING types`() {
     val loggerService = DefaultLoggerService(LogLevel.NETWORKING, log)
     val message = "Twilio"
-    loggerService.log(Level.NETWORKING, message)
+    loggerService.log(Level.Networking, message)
     verify(log).verbose(
       check { tag ->
         val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
@@ -255,7 +255,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to NETWORKING shouldn't log ERROR types`() {
     val loggerService = DefaultLoggerService(LogLevel.NETWORKING, log)
     val message = "Twilio"
-    loggerService.log(Level.ERROR, message)
+    loggerService.log(Level.Error, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -266,7 +266,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to NETWORKING shouldn't log INFO types`() {
     val loggerService = DefaultLoggerService(LogLevel.NETWORKING, log)
     val message = "Twilio"
-    loggerService.log(Level.INFO, message)
+    loggerService.log(Level.Info, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())
@@ -277,7 +277,7 @@ class DefaultLoggerServiceTest {
   fun `LogLevel set to NETWORKING shouldn't log DEBUG types`() {
     val loggerService = DefaultLoggerService(LogLevel.NETWORKING, log)
     val message = "Twilio"
-    loggerService.log(Level.DEBUG, message)
+    loggerService.log(Level.Debug, message)
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
     verify(log, never()).debug(any(), any(), any())

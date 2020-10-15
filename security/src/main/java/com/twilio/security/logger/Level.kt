@@ -17,9 +17,9 @@
 package com.twilio.security.logger
 
 enum class Level {
-  OFF,
-  ERROR,
-  INFO,
-  NETWORKING,
-  DEBUG
+  Off,
+  Error,
+  Info,
+  Networking,
+  Debug
 }

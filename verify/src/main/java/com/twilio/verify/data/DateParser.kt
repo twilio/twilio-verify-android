@@ -46,10 +46,10 @@ internal fun fromRFC3339Date(date: String): Date {
     val dateString = firstPart + secondPart
     return dateFormatterTimeZone.parse(dateString)
   } catch (e: ParseException) {
-    Logger.log(Level.ERROR, e.toString(), e)
+    Logger.log(Level.Error, e.toString(), e)
     throw e
   } catch (e: Exception) {
-    Logger.log(Level.ERROR, e.toString(), e)
+    Logger.log(Level.Error, e.toString(), e)
     throw ParseException(e.message, 0)
   }
 }
@@ -62,10 +62,10 @@ internal fun fromRFC1123Date(date: String): Date {
   try {
     return SimpleDateFormat(RFC1123_FORMAT, Locale.US).parse(date)
   } catch (e: ParseException) {
-    Logger.log(Level.ERROR, e.toString(), e)
+    Logger.log(Level.Error, e.toString(), e)
     throw e
   } catch (e: Exception) {
-    Logger.log(Level.ERROR, e.toString(), e)
+    Logger.log(Level.Error, e.toString(), e)
     throw ParseException(e.message, 0)
   }
 }

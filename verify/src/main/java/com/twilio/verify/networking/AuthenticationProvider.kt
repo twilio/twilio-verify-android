@@ -50,7 +50,7 @@ internal class AuthenticationProvider(
         else -> throw IllegalArgumentException("Not supported factor for JWT generation")
       }
     } catch (e: Exception) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, AuthenticationTokenError)
     }
   }

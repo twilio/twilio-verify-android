@@ -84,10 +84,10 @@ internal class ChallengeMapper {
         status = status
       )
     } catch (e: JSONException) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     } catch (e: ParseException) {
-      Logger.log(Level.ERROR, e.toString(), e)
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
   }

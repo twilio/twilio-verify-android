@@ -16,6 +16,8 @@
 
 package com.twilio.verify.domain.factor
 
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.api.FactorAPIClient
@@ -107,7 +109,7 @@ internal class FactorRepository(
   override fun save(factor: Factor): Factor {
     storage.save(factor.sid, factorMapper.toJSON(factor))
     return get(factor.sid) ?: throw TwilioVerifyException(
-      StorageException("Factor not found"), StorageError
+      StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) }, StorageError
     )
   }
 

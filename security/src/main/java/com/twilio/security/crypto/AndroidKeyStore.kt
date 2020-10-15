@@ -45,7 +45,7 @@ class AndroidKeyStore(
 
   @Synchronized
   fun deleteEntry(alias: String) {
-    keyStore.deleteEntry(alias).also { Logger.log(Level.DEBUG, "Deleted entry for $alias") }
+    keyStore.deleteEntry(alias).also { Logger.log(Level.Debug, "Deleted entry for $alias") }
   }
 
   fun getSecretKey(alias: String): SecretKey? {
@@ -55,7 +55,7 @@ class AndroidKeyStore(
         throw IllegalStateException("Entry is not a secret key entry")
       }
       entry.secretKey
-    }.also { Logger.log(Level.DEBUG, "Return secret key for $alias") }
+    }.also { Logger.log(Level.Debug, "Return secret key for $alias") }
   }
 
   fun getKeyPair(alias: String): KeyPair? {
@@ -65,12 +65,12 @@ class AndroidKeyStore(
       KeyPair(certificate.publicKey, privateKey)
     } else {
       Logger.log(
-        Level.DEBUG,
+        Level.Debug,
         "Private key ${if (privateKey == null) "is null" else "is not null"} and " +
           "Certificate ${if (certificate == null) "is null" else "is not null"}"
       )
       null
-    }.also { Logger.log(Level.DEBUG, "Return key pair for $alias") }
+    }.also { Logger.log(Level.Debug, "Return key pair for $alias") }
   }
 
   @Synchronized
@@ -85,7 +85,7 @@ class AndroidKeyStore(
     val locale = Locale.getDefault()
     try {
       Locale.setDefault(Locale.US)
-      return keyPairGenerator.generateKeyPair().also { Logger.log(Level.DEBUG, "Generated key pair type $algorithm") }
+      return keyPairGenerator.generateKeyPair().also { Logger.log(Level.Debug, "Generated key pair type $algorithm") }
     } finally {
       Locale.setDefault(locale)
     }
@@ -100,7 +100,7 @@ class AndroidKeyStore(
       algorithm, keyStore.provider.name
     )
     keyGenerator.init(keyGenParameterSpec)
-    return keyGenerator.generateKey().also { Logger.log(Level.DEBUG, "Generated key type $algorithm") }
+    return keyGenerator.generateKey().also { Logger.log(Level.Debug, "Generated key type $algorithm") }
   }
 
   @Synchronized
@@ -114,7 +114,7 @@ class AndroidKeyStore(
         initSign(private)
         update(data)
         sign()
-      }.also { Logger.log(Level.DEBUG, "Sign data with $signatureAlgorithm") }
+      }.also { Logger.log(Level.Debug, "Sign data with $signatureAlgorithm") }
   }
 
   @Synchronized
@@ -132,7 +132,7 @@ class AndroidKeyStore(
             parameters.algorithm
           ),
           doFinal(data)
-        ).also { Logger.log(Level.DEBUG, "Encrypt data with $cipherAlgorithm and result: $it") }
+        ).also { Logger.log(Level.Debug, "Encrypt data with $cipherAlgorithm and result: $it") }
       }
   }
 
@@ -148,7 +148,7 @@ class AndroidKeyStore(
         initVerify(public)
         update(data)
         verify(signature)
-      }.also { Logger.log(Level.DEBUG, "Verify message with $signatureAlgorithm") }
+      }.also { Logger.log(Level.Debug, "Verify message with $signatureAlgorithm") }
   }
 
   @Synchronized
@@ -168,19 +168,19 @@ class AndroidKeyStore(
             }
         init(Cipher.DECRYPT_MODE, key, algorithmParameterSpec)
         doFinal(data.encrypted)
-      }.also { Logger.log(Level.DEBUG, "Decrypt encrypt data $data with $cipherAlgorithm") }
+      }.also { Logger.log(Level.Debug, "Decrypt encrypt data $data with $cipherAlgorithm") }
   }
 
   private fun getCertificate(alias: String): Certificate? {
     return keyStore.getCertificate(alias) ?: run {
       (keyStore.getEntry(alias, null) as? PrivateKeyEntry)?.certificate
-    }.also { Logger.log(Level.DEBUG, "Get certificate for $alias") }
+    }.also { Logger.log(Level.Debug, "Get certificate for $alias") }
   }
 
   private fun getPrivateKey(alias: String): PrivateKey? {
     return keyStore.getKey(alias, null) as? PrivateKey ?: run {
       (keyStore.getEntry(alias, null) as? PrivateKeyEntry)?.privateKey
-    }.also { Logger.log(Level.DEBUG, "Get private key for $alias") }
+    }.also { Logger.log(Level.Debug, "Get private key for $alias") }
   }
 }
 
