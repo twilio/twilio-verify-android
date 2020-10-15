@@ -21,17 +21,20 @@ plugins {
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.firebasePerformance)
-  id(Config.Plugins.versionBumper)
   jacoco
 }
+
+val verifyVersionName: String by rootProject.allprojects.first { it.name == Modules.verify }.extra
+val verifyVersionCode: String by rootProject.allprojects.first { it.name == Modules.verify }.extra
+
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
   defaultConfig {
     applicationId = "com.twilio.verify.sample"
     minSdkVersion(Config.Versions.minSDKVersion)
     targetSdkVersion(Config.Versions.targetSDKVersion)
-    versionCode = versionBumper.versionCode
-    versionName = versionBumper.versionName
+    versionCode = verifyVersionCode.toInt()
+    versionName = verifyVersionName
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
   signingConfigs {
@@ -65,10 +68,9 @@ android {
 }
 
 dependencies {
-  val verifyVersion = "0.1.0"
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
-  debugImplementation(project(Modules.verify))
-  releaseImplementation("com.twilio:twilio-verify-android:$verifyVersion")
+  debugImplementation(project(":${Modules.verify}"))
+  releaseImplementation("com.twilio:twilio-verify-android:$verifyVersionName")
   implementation("com.squareup.retrofit2:retrofit:2.9.0")
   implementation("com.squareup.retrofit2:converter-gson:2.9.0")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Config.Versions.kotlin}")

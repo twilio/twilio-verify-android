@@ -15,7 +15,7 @@
  */
 
 object Modules {
-    const val sample = ":sample"
-    const val verify = ":verify"
-    const val security = ":security"
+    const val sample = "sample"
+    const val verify = "verify"
+    const val security = "security"
 }

@@ -23,7 +23,6 @@ object Config {
     const val googleServices = "com.google.gms:google-services:${Versions.googleServices}"
     const val firebasePerformance =
       "com.google.firebase:perf-plugin:${Versions.firebasePerformance}"
-    const val versionBumper = "com.twilio:versionbumper:${Versions.versionBumper}"
     const val jacoco = "org.jacoco:org.jacoco.core:${Versions.jacoco}"
     const val apkscale = "com.twilio:apkscale:${Versions.apkscale}"
   }
@@ -36,7 +35,6 @@ object Config {
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val firebasePerformance = "com.google.firebase.firebase-perf"
     const val dokka = "org.jetbrains.dokka"
-    const val versionBumper = "com.twilio.versionbumper"
     const val apkscale = "com.twilio.apkscale"
     const val ktlint = "plugins.ktlint"
     const val gitHooks = "plugins.git-hooks"
@@ -47,7 +45,6 @@ object Config {
     const val gradle = "4.0.1"
     const val googleServices = "4.3.3"
     const val firebasePerformance = "1.3.1"
-    const val versionBumper = "0.0.1"
     const val compileSDKVersion = 29
     const val minSDKVersion = 23
     const val targetSDKVersion = 29
