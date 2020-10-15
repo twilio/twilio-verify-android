@@ -112,7 +112,14 @@ class ChallengeFragment : Fragment() {
       "${DateUtils.formatSameDayTime(
         challenge.updatedAt.time, System.currentTimeMillis(), DateFormat.MEDIUM,
         DateFormat.MEDIUM
-      )}\n" + challenge.challengeDetails.string(context)
+      )}\n" + challenge.challengeDetails.string(context) +
+      (
+        challenge.hiddenDetails?.let { hiddenDetails ->
+          "Hidden details:\n ${hiddenDetails.map {
+            "  ${it.key} = ${it.value}"
+          }.joinToString("\n")}"
+        } ?: ""
+        )
     challengeInfo?.text = info
     approveChallenge?.setOnClickListener {
       updateChallenge(challenge, ChallengeStatus.Approved)

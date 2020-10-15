@@ -34,6 +34,7 @@ class ChallengeMapperTest {
 
   @Test
   fun `Map a valid response from API should return a challenge`() {
+    val hiddenDetails = mapOf("key1" to "value1")
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
       put(factorSidKey, "factorSid123")
@@ -58,14 +59,10 @@ class ChallengeMapperTest {
           )
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
-        JSONObject().apply {
-          put("key1", "value1")
-        }
-          .toString()
+        JSONObject(hiddenDetails)
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -107,12 +104,13 @@ class ChallengeMapperTest {
       challenge.challengeDetails.fields[0].value
     )
     assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
-    assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
+    assertEquals(hiddenDetails, challenge.hiddenDetails)
     assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
   fun `Map a valid response from API and no fields should return a challenge`() {
+    val hiddenDetails = mapOf("key1" to "value1")
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
       put(factorSidKey, "factorSid123")
@@ -125,14 +123,10 @@ class ChallengeMapperTest {
           put(messageKey, "message123")
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
-        JSONObject().apply {
-          put("key1", "value1")
-        }
-          .toString()
+        JSONObject(hiddenDetails)
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -158,12 +152,13 @@ class ChallengeMapperTest {
     assertEquals(details.getString(messageKey), challenge.challengeDetails.message)
     assertTrue(challenge.challengeDetails.fields.isEmpty())
     assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
-    assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
+    assertEquals(hiddenDetails, challenge.hiddenDetails)
     assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
   fun `Map a valid response from API and no details date should return a challenge`() {
+    val hiddenDetails = mapOf("key1" to "value1")
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
       put(factorSidKey, "factorSid123")
@@ -187,14 +182,10 @@ class ChallengeMapperTest {
             }
           )
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
-        JSONObject().apply {
-          put("key1", "value1")
-        }
-          .toString()
+        JSONObject(hiddenDetails)
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -236,12 +227,13 @@ class ChallengeMapperTest {
       challenge.challengeDetails.fields[0].value
     )
     assertNull(challenge.challengeDetails.date)
-    assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
+    assertEquals(hiddenDetails, challenge.hiddenDetails)
     assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
   fun `Map a valid response from API with approved status should return a challenge`() {
+    val hiddenDetails = mapOf("key1" to "value1")
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
       put(factorSidKey, "factorSid123")
@@ -266,14 +258,10 @@ class ChallengeMapperTest {
           )
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
-        JSONObject().apply {
-          put("key1", "value1")
-        }
-          .toString()
+        JSONObject(hiddenDetails)
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -312,12 +300,13 @@ class ChallengeMapperTest {
       challenge.challengeDetails.fields[0].value
     )
     assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
-    assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
+    assertEquals(hiddenDetails, challenge.hiddenDetails)
     assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
   @Test
   fun `Map a valid response from API with pending status and no signature fields should return a challenge`() {
+    val hiddenDetails = mapOf("key1" to "value1")
     val jsonObject = JSONObject().apply {
       put(sidKey, "sid123")
       put(factorSidKey, "factorSid123")
@@ -342,14 +331,10 @@ class ChallengeMapperTest {
           )
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
-        JSONObject().apply {
-          put("key1", "value1")
-        }
-          .toString()
+        JSONObject(hiddenDetails)
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -382,7 +367,7 @@ class ChallengeMapperTest {
       challenge.challengeDetails.fields[0].value
     )
     assertEquals(fromRFC3339Date(details.getString(dateKey)), challenge.challengeDetails.date)
-    assertEquals(jsonObject.getString(hiddenDetailsKey), challenge.hiddenDetails)
+    assertEquals(hiddenDetails, challenge.hiddenDetails)
     assertEquals(fromRFC3339Date(jsonObject.getString(expirationDateKey)), challenge.expirationDate)
   }
 
@@ -411,14 +396,12 @@ class ChallengeMapperTest {
           )
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
         JSONObject().apply {
           put("key1", "value1")
         }
-          .toString()
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -441,7 +424,6 @@ class ChallengeMapperTest {
         JSONObject().apply {
           put("key1", "value1")
         }
-          .toString()
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -476,14 +458,12 @@ class ChallengeMapperTest {
           )
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
         JSONObject().apply {
           put("key1", "value1")
         }
-          .toString()
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -519,14 +499,12 @@ class ChallengeMapperTest {
           )
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
         JSONObject().apply {
           put("key1", "value1")
         }
-          .toString()
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -562,14 +540,12 @@ class ChallengeMapperTest {
           )
           put(dateKey, "2020-02-19")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
         JSONObject().apply {
           put("key1", "value1")
         }
-          .toString()
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -605,14 +581,12 @@ class ChallengeMapperTest {
           )
           put(dateKey, "2020-03-24T20:37:26Z")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
         JSONObject().apply {
           put("key1", "value1")
         }
-          .toString()
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }

@@ -17,9 +17,12 @@
 package com.twilio.verify.domain.factor
 
 import android.content.Context
+import com.twilio.security.storage.encryptedPreferences
+import com.twilio.verify.ENC_SUFFIX
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
+import com.twilio.verify.VERIFY_SUFFIX
 import com.twilio.verify.api.FactorAPIClient
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.Storage
@@ -33,7 +36,6 @@ import com.twilio.verify.models.VerifyFactorPayload
 import com.twilio.verify.models.VerifyPushFactorPayload
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.NetworkProvider
-import com.twilio.verify.storagePreferences
 import com.twilio.verify.threading.execute
 
 internal class FactorFacade(
@@ -196,9 +198,14 @@ internal class FactorFacade(
           InitializationError
         )
       }
+      val storageName = "${appContext.packageName}.$VERIFY_SUFFIX"
       val factorAPIClient = FactorAPIClient(networking, appContext, authentication, url)
-      val sharedPreferences = storagePreferences(appContext)
-      val storage = Storage(sharedPreferences)
+      val sharedPreferences = appContext.getSharedPreferences(storageName, Context.MODE_PRIVATE)
+      val encryptedSharedPreferences =
+        appContext.getSharedPreferences("$storageName.$ENC_SUFFIX", Context.MODE_PRIVATE)
+      val encryptedStorage = encryptedPreferences(storageName, encryptedSharedPreferences)
+      val factorMigrations = FactorMigrations(sharedPreferences)
+      val storage = Storage(sharedPreferences, encryptedStorage, factorMigrations.migrations())
       val repository = FactorRepository(factorAPIClient, storage)
       val pushFactory = PushFactory(repository, keyStore, appContext)
       return FactorFacade(pushFactory, repository)

@@ -4,7 +4,6 @@
 package com.twilio.verify
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
@@ -68,6 +67,7 @@ import java.security.Security
 import java.security.cert.Certificate
 import java.util.Date
 import java.util.Enumeration
+import kotlin.reflect.KClass
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
@@ -85,7 +85,9 @@ import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 
 @RunWith(RobolectricTestRunner::class)
-@Config(shadows = [TestKeystore::class])
+@Config(
+  shadows = [TestKeystore::class, TestEncryptedStorage::class, TestSecretKeyCipher::class]
+)
 class TwilioVerifyTest {
 
   private lateinit var factor: Factor
@@ -95,7 +97,6 @@ class TwilioVerifyTest {
   private val providerName = "AndroidKeyStore"
   private val idlingResource = IdlingResource()
   private lateinit var context: Context
-  private lateinit var preferences: SharedPreferences
   private val factorIdentity = "factor identity"
   private val factorServiceSid = "factor service Sid"
 
@@ -113,8 +114,6 @@ class TwilioVerifyTest {
       }
     }
     Security.insertProviderAt(provider, 0)
-    preferences =
-      context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
     twilioVerify =
       TwilioVerify.Builder(context)
         .networkProvider(networkProvider)
@@ -125,9 +124,7 @@ class TwilioVerifyTest {
 
   @After
   fun tearDown() {
-    preferences.edit()
-      .clear()
-      .apply()
+    values.clear()
   }
 
   @Test
@@ -161,6 +158,7 @@ class TwilioVerifyTest {
       { factor ->
         assertEquals(jsonObject.getString(sidKey), factor.sid)
         assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
+        assertTrue(values.containsKey(factor.sid))
         idlingResource.operationFinished()
       },
       { exception ->
@@ -193,6 +191,7 @@ class TwilioVerifyTest {
       updatePushFactorPayload,
       { factor ->
         assertEquals(jsonObject.getString(sidKey), factor.sid)
+        assertTrue(values.containsKey(factor.sid))
         idlingResource.operationFinished()
       },
       { exception ->
@@ -221,6 +220,7 @@ class TwilioVerifyTest {
       verifyFactorPayload,
       { factor ->
         assertEquals(jsonObject.getString(sidKey), factor.sid)
+        assertTrue(values.containsKey(factor.sid))
         idlingResource.operationFinished()
       },
       { exception ->
@@ -318,14 +318,12 @@ class TwilioVerifyTest {
           )
           put(dateKey, "2020-02-19T16:39:57-08:00")
         }
-          .toString()
       )
       put(
         hiddenDetailsKey,
         JSONObject().apply {
           put("key1", "value1")
         }
-          .toString()
       )
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
@@ -450,7 +448,7 @@ class TwilioVerifyTest {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
     assertTrue(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
-    assertTrue(preferences.contains(factorSid))
+    assertTrue(values.containsKey(factorSid))
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
         lastValue.invoke(Response("", emptyMap()))
@@ -460,7 +458,7 @@ class TwilioVerifyTest {
     twilioVerify.deleteFactor(
       factorSid,
       {
-        assertFalse(preferences.contains(factorSid))
+        assertFalse(values.contains(factorSid))
         assertFalse(keys.containsKey((factor as? PushFactor)?.keyPairAlias))
         idlingResource.operationFinished()
       },
@@ -545,14 +543,12 @@ private fun challengeJSONObject(
         )
         put(dateKey, "2020-02-19T16:39:57-08:00")
       }
-        .toString()
     )
     put(
       hiddenDetailsKey,
       JSONObject().apply {
         put("key1", "value1")
       }
-        .toString()
     )
     put(expirationDateKey, "2020-02-27T08:50:57-08:00")
   }
@@ -589,6 +585,67 @@ class TestKeystore {
   @Implementation
   fun delete(alias: String) {
     keys.remove(alias)
+  }
+
+  @Implementation
+  fun contains(alias: String): Boolean {
+    return keys.contains(alias)
+  }
+}
+
+private val values = mutableMapOf<String, Any>()
+
+@Implements(com.twilio.security.storage.key.SecretKeyCipher::class)
+class TestSecretKeyCipher {
+  @Implementation
+  fun create() {
+  }
+}
+
+@Implements(com.twilio.security.storage.EncryptedPreferences::class)
+class TestEncryptedStorage {
+  @Implementation
+  fun <T : Any> put(
+    key: String,
+    value: T
+  ) {
+    values[key] = value
+  }
+
+  @Implementation
+  fun <T : Any> get(
+    key: String,
+    kClass: KClass<T>
+  ): T {
+    return values[key] as T
+  }
+
+  @Implementation
+  fun <T : Any> getAll(
+    kClass: KClass<T>
+  ): List<T> {
+    return values.toList()
+      .filter {
+        it.second::class.javaObjectType.isAssignableFrom(
+          kClass.javaObjectType
+        )
+      }
+      .map { it.second } as List<T>
+  }
+
+  @Implementation
+  fun contains(key: String): Boolean {
+    return values.contains(key)
+  }
+
+  @Implementation
+  fun remove(key: String) {
+    values.remove(key)
+  }
+
+  @Implementation
+  fun clear() {
+    values.clear()
   }
 }
 

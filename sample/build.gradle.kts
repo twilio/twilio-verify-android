@@ -65,7 +65,7 @@ android {
 }
 
 dependencies {
-  val verifyVersion = "0.0.3"
+  val verifyVersion = "0.1.0"
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(Modules.verify))
   releaseImplementation("com.twilio:twilio-verify-android:$verifyVersion")
