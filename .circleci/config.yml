@@ -296,7 +296,7 @@ jobs:
           at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
-      - *release
+      - *distribute_sample_app
       - *save_gradle_cache
   release_sdk:
     executor: *executor
