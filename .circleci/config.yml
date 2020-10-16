@@ -67,6 +67,11 @@ references:
     run:
       name: Release SDK
       command: bundle exec fastlane release
+
+  distribute_sample_app: &distribute_sample_app
+    run:
+      name: Distribute sample app
+      command: bundle exec fastlane distribute_debug_sample_app   
 commands:
   setup:
     steps:
@@ -283,6 +288,16 @@ jobs:
       - store_artifacts:
           path: "security/build/reports"
           destination: security-test-coverage
+  distribute_sample_app:
+    executor: *executor
+    steps:
+      - setup
+      - attach_workspace:
+          at: *workspace
+      - *restore_gradle_cache
+      - *decrypt_google_services
+      - *release
+      - *save_gradle_cache
   release_sdk:
     executor: *executor
     steps:
@@ -322,6 +337,10 @@ workflows:
       - sdk_size_report:
           requires:
             - verify_instrumentation_tests_single_device
+      - distribute_sample_app:
+          requires:
+            - security_instrumentation_tests_multiple_devices
+            - verify_instrumentation_tests_multiple_devices
       - release_sdk:
           requires:
             - security_instrumentation_tests_multiple_devices
