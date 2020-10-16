@@ -41,6 +41,7 @@ internal class PushChallengeProcessor(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
+    Logger.log(Level.Info, "Getting challenge $sid with factor ${factor.sid}")
     challengeProvider.get(
       sid, factor,
       { challenge ->
@@ -88,7 +89,7 @@ internal class PushChallengeProcessor(
           generateSignature(
             signatureFields, response, status, getSignerTemplate(keyPairAlias, true)
           )
-        Logger.log(Level.Debug, "Update challenge with payload $authPayload")
+        Logger.log(Level.Debug, "Update challenge with auth payload $authPayload")
         challengeProvider.update(
           challenge, authPayload,
           { updatedChallenge ->
@@ -108,7 +109,7 @@ internal class PushChallengeProcessor(
         error(e)
       }
     }
-
+    Logger.log(Level.Info, "Updating challenge $sid with factor ${factor.sid} to new status ${status.value}")
     get(sid, factor, ::updateChallenge, error)
   }
 
@@ -125,6 +126,7 @@ internal class PushChallengeProcessor(
         }
         put(statusKey, status.value)
       }
+      Logger.log(Level.Debug, "Update challenge with payload $payload")
       return jwtGenerator.generateJWT(signerTemplate, JSONObject(), payload)
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
