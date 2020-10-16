@@ -123,6 +123,7 @@ platform :android do
       description: notes,
       commitish: "main"
     )
+    distribute_sample_app_release(notes: notes)
   end
 
   desc "Danger check"
@@ -134,6 +135,53 @@ platform :android do
       remove_previous_comments: true,
       fail_on_errors: true,
       verbose: true
+    )
+  end
+
+  desc "hello"
+  lane :sergio do
+   title = 'Android Verify Push Release'
+   tag_prefix = '*'
+   verify(title: title, tag_prefix: tag_prefix)
+   notes = conventional_changelog(
+         format: 'markdown',
+         commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
+   distribute_sample_app_release(notes: notes)
+  end
+
+  desc "Distribute sample app release mode for internal testing"
+  lane :distribute_sample_app_release do |options|
+    build_android_app(
+      task: "sample:assemble",
+      build_type: "Release"
+    )
+    path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    UI.important(path)
+    firebase_app_distribution(
+      app: "1:116450802435:android:df6d5c263506bb20728736",
+      apk_path: path,
+      testers: "sfierro@twilio.com",
+      service_credentials_file: "/Users/sfierro/Development/twilio-verify-android/fastlane/twilioverify-sampleapp-835613d06bfa.json",
+      release_notes: options[:notes]
+    )
+  end
+
+  desc "Distribute sample app debug mode for internal testing"
+  lane :distribute_sample_app_debug do |options|
+    app_distribution_key = "gcloud-app-distribution-service-key.json"
+    sh("echo #{ENV["GCLOUD_APP_DISTRIBUTION_SERVICE_KEY"]} > #{ENV["HOME"]}/#{app_distribution_key}")
+    build_android_app(
+     task: "sample:assemble",
+     build_type: "Debug"
+    )
+    path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    UI.important(path)
+    firebase_app_distribution(
+     app: "1:116450802435:android:df6d5c263506bb20728736",
+     apk_path: path,
+     testers: "sfierro@twilio.com",
+     service_credentials_file: "#{ENV["HOME"]}/#{app_distribution_key}",
+     release_notes: "Test debug"
     )
   end
 end
