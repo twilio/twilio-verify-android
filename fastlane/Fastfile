@@ -156,7 +156,7 @@ platform :android do
   lane :distribute_sample_app do |options|
     app_distribution_key = "gcloud-app-distribution-service-key.json"
     key_file = "#{ENV["HOME"]}/#{app_distribution_key}"
-    sh("echo #{ENV["GCLOUD_APP_DISTRIBUTION_SERVICE_KEY"]} > #{key_file}")
+    sh("echo \"#{ENV["GCLOUD_APP_DISTRIBUTION_SERVICE_KEY"]}\" > #{key_file}")
     build_android_app(
       task: "sample:assemble",
       build_type: options[:build_type]
@@ -166,7 +166,7 @@ platform :android do
       app: "1:116450802435:android:df6d5c263506bb20728736",
       apk_path: path,
       groups: "qa-team",
-      service_credentials_file: "#{ENV["HOME"]}/#{app_distribution_key}",
+      service_credentials_file: "#{key_file}",
       release_notes: options[:notes]
     )
   end
