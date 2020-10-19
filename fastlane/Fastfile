@@ -152,7 +152,9 @@ platform :android do
    plain_notes = conventional_changelog(
             format: 'plain',
             commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-   distribute_sample_app(notes: plain_notes, build_type: "Debug", url: "#{ENV["DEV_URL"]}", versionName: "#{next_version}-#{env}")
+   dev_url = ENV["DEV_URL"]
+   UI.important(dev_url)
+   distribute_sample_app(notes: plain_notes, build_type: "Debug", url: dev_url, versionName: "#{next_version}-#{env}")
   end
 
   desc "Distribute sample app for internal testing"
