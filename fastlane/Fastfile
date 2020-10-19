@@ -143,6 +143,7 @@ platform :android do
 
   desc "Distribute sample app debug mode for internal testing"
   lane :distribute_debug_sample_app do |options|
+   env = options[:env]
    title = "Android Verify Push #{env}"
    tag_prefix = '*'
    verify(title: title, tag_prefix: tag_prefix)
@@ -150,7 +151,6 @@ platform :android do
    plain_notes = conventional_changelog(
             format: 'plain',
             commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-   env = options[:env]
    url = options[:url]
    distribute_sample_app(notes: plain_notes, build_type: "Debug", url: url, versionName: "#{next_version}-#{env}")
   end
