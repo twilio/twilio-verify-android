@@ -48,6 +48,12 @@ references:
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
         sudo gcloud --quiet config set project twilio-firebase-266721
 
+  # Firebase app distribution
+  store_gcloud_app_distribution_service: &store_gcloud_app_distribution_service
+    run:
+      name: Store GCloud App Distribution service
+      command: echo $GCLOUD_APP_DISTRIBUTION_SERVICE_KEY > ${HOME}/gcloud-app-distribution-service-key.json
+
   #Reporting
   sdk_sizer: &sdk_sizer
     run:
@@ -71,7 +77,7 @@ references:
   distribute_sample_app: &distribute_sample_app
     run:
       name: Distribute sample app
-      command: bundle exec fastlane distribute_debug_sample_app   
+      command: bundle exec fastlane distribute_debug_sample_app
 commands:
   setup:
     steps:
@@ -296,6 +302,7 @@ jobs:
           at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
+      - *store_gcloud_app_distribution_service
       - *distribute_sample_app
       - *save_gradle_cache
   release_sdk:

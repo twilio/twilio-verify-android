@@ -155,9 +155,9 @@ platform :android do
   desc "Distribute sample app for internal testing"
   lane :distribute_sample_app do |options|
     app_distribution_key = "gcloud-app-distribution-service-key.json"
-    certificate_key = ENV["GCLOUD_APP_DISTRIBUTION_SERVICE_KEY"]
+    #certificate_key = ENV["GCLOUD_APP_DISTRIBUTION_SERVICE_KEY"]
     key_file = "#{ENV["HOME"]}/#{app_distribution_key}"
-    sh("echo '#{certificate_key}' > #{key_file}")
+    #sh("echo '#{certificate_key}' > #{key_file}")
     build_android_app(
       task: "sample:assemble",
       build_type: options[:build_type]
