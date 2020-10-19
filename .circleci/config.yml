@@ -103,7 +103,7 @@ commands:
         description: environment name (DEV, STAGE) will be added as a suffix to the versionName e.g 1.0.0-DEV
         type: string
       base_url:
-        descrition: API base URL
+        description: API base URL
         type: string
     steps:
       - run: bundle exec fastlane distribute_debug_sample_app env:<<parameters.env>> url:<<parameters.base_url>>
