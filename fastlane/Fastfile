@@ -153,7 +153,10 @@ platform :android do
             format: 'plain',
             commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
    dev_url = ENV["DEV_URL"]
+   email = ENV["EMAIL"]
+   UI.important("Sergio")
    UI.important(dev_url)
+   UI.important(email)
    distribute_sample_app(notes: plain_notes, build_type: "Debug", url: dev_url, versionName: "#{next_version}-#{env}")
   end
 
