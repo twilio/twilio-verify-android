@@ -123,10 +123,10 @@ platform :android do
       description: notes,
       commitish: "main"
     )
-    plain_notes = "Prod build " + conventional_changelog(
+    plain_notes = conventional_changelog(
              format: 'plain',
              commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-    distribute_sample_app(notes: plain_notes, build_type: "Release")
+    distribute_sample_app(notes: plain_notes, build_type: "Release", url: ENV["PROD_URL"], versionName: next_version)
   end
 
   desc "Danger check"
@@ -142,24 +142,29 @@ platform :android do
   end
 
   desc "Distribute sample app debug mode for internal testing"
-  lane :distribute_debug_sample_app do
-   title = 'Android Verify Push Release'
+  lane :distribute_debug_sample_app do |options|
+   env = options[:env]
+   url = options[:url]
+   title = "Android Verify Push #{env}"
    tag_prefix = '*'
    verify(title: title, tag_prefix: tag_prefix)
-   notes = "Dev build " + conventional_changelog(
+   next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
+   plain_notes = conventional_changelog(
             format: 'plain',
             commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-   distribute_sample_app(notes: notes, build_type: "Debug")
+   distribute_sample_app(notes: plain_notes, build_type: "Debug", url: ENV["DEV_URL"], versionName: "#{next_version}-#{env}")
   end
 
   desc "Distribute sample app for internal testing"
   lane :distribute_sample_app do |options|
     app_distribution_key = "gcloud-app-distribution-service-key.json"
-    #certificate_key = ENV["GCLOUD_APP_DISTRIBUTION_SERVICE_KEY"]
     key_file = "#{ENV["HOME"]}/#{app_distribution_key}"
-    #sh("echo '#{certificate_key}' > #{key_file}")
     build_android_app(
-      task: "sample:assemble",
+      properties: {
+        "baseURL" => options[:url],
+        "verifyVersionName" => options[:versionName]
+      },
+      task: "assemble",
       build_type: options[:build_type]
     )
     path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]

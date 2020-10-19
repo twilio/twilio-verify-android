@@ -77,7 +77,7 @@ references:
   distribute_sample_app: &distribute_sample_app
     run:
       name: Distribute sample app
-      command: bundle exec fastlane distribute_debug_sample_app
+      command: bundle exec fastlane distribute_debug_sample_app env:dev
 commands:
   setup:
     steps:
@@ -321,6 +321,7 @@ workflows:
   workflow:
     jobs:
       - assemble_build
+      - distribute_sample_app
       - lint:
           requires:
             - assemble_build
@@ -344,10 +345,10 @@ workflows:
       - sdk_size_report:
           requires:
             - verify_instrumentation_tests_single_device
-      - distribute_sample_app:
-          requires:
-            - security_instrumentation_tests_multiple_devices
-            - verify_instrumentation_tests_multiple_devices
+      #- distribute_sample_app:
+      #    requires:
+      #      - security_instrumentation_tests_multiple_devices
+      #      - verify_instrumentation_tests_multiple_devices
       - release_sdk:
           requires:
             - security_instrumentation_tests_multiple_devices

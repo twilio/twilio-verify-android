@@ -30,6 +30,7 @@ plugins {
 
 val verifyVersionName: String by extra
 val verifyVersionCode: String by extra
+val baseURL: String by extra
 //region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
@@ -42,7 +43,8 @@ android {
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
-    buildConfigField("String", "BASE_URL", "\"https://verify.twilio.com/v2/\"")
+    // buildConfigField("String", "BASE_URL", "\"https://verify.twilio.com/v2/\"")
+    buildConfigField("String", "BASE_URL", baseURL)
   }
 
   buildTypes {
