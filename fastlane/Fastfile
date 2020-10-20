@@ -164,7 +164,8 @@ platform :android do
         "verifyVersionName" => options[:versionName]
       },
       task: "assemble",
-      build_type: options[:build_type]
+      build_type: options[:build_type],
+      print_command: false
     )
     path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
     firebase_app_distribution(
