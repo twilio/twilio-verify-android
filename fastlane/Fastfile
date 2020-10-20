@@ -62,7 +62,6 @@ platform :android do
 
   desc "Verify next release"
   lane :verify do |options|
-    ensure_git_status_clean
     if !is_ci? then
       UI.message("#{options[:title]} deploy was triggered on local machine")
       gradle(task: "clean")
