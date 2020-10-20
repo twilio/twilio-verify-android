@@ -29,7 +29,7 @@ object TwilioVerifyKotlinProvider {
     if (!this::twilioVerifyAdapter.isInitialized) {
       twilioVerifyAdapter = TwilioVerifyKotlinAdapter(
         TwilioVerify.Builder(applicationContext)
-          .logLevel(LogLevel.ALL)
+          .enableDefaultLoggingService(LogLevel.All)
           .build()
       )
     }

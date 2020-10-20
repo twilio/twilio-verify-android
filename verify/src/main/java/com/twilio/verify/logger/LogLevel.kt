@@ -18,10 +18,10 @@ package com.twilio.verify.logger
 
 import com.twilio.security.logger.Level
 
-enum class LogLevel(internal val level: Level) {
-  OFF(Level.Off),
-  ERROR(Level.Error),
-  INFO(Level.Info),
-  NETWORKING(Level.Networking),
-  ALL(Level.Debug)
+enum class LogLevel(val level: Level) {
+  Error(Level.Error),
+  Info(Level.Info),
+  Networking(Level.Networking),
+  Debug(Level.Debug),
+  All(Level.All)
 }

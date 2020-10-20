@@ -16,22 +16,19 @@
 
 package com.twilio.verify.logger
 
-import com.twilio.security.logger.Level
-import com.twilio.security.logger.LoggerService
 import com.twilio.verify.BuildConfig
 
-internal class DefaultLoggerService(private val logLevel: LogLevel, private val log: LogAdapter = LogWrapper) : LoggerService {
-  override fun log(level: Level, message: String, throwable: Throwable?) {
-    if ((logLevel != LogLevel.ALL && logLevel.level != level) || logLevel.level == Level.Off) {
+internal class DefaultLoggerService(override val logLevel: LogLevel, private val log: LogAdapter = LogWrapper) : LoggerService {
+  override fun log(logLevel: LogLevel, message: String, throwable: Throwable?) {
+    if ((this.logLevel != LogLevel.All && logLevel.level != level)) {
       return
     }
-
     val trace = Exception().stackTrace[2]
     val tag = getTraceTag(trace)
-    when (level) {
-      Level.Error -> log.error(tag, message, throwable)
-      Level.Info -> log.info(tag, message, throwable)
-      Level.Debug -> log.debug(tag, message, throwable)
+    when (logLevel) {
+      LogLevel.Error -> log.error(tag, message, throwable)
+      LogLevel.Info -> log.info(tag, message, throwable)
+      LogLevel.Debug -> log.debug(tag, message, throwable)
       else -> log.verbose(tag, message, throwable)
     }
   }

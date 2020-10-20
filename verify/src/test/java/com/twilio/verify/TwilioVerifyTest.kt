@@ -42,7 +42,6 @@ import com.twilio.verify.domain.factor.friendlyNameKey
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.domain.factor.sidKey
 import com.twilio.verify.domain.factor.statusKey
-import com.twilio.verify.logger.LogLevel
 import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Approved
@@ -117,8 +116,7 @@ class TwilioVerifyTest {
     twilioVerify =
       TwilioVerify.Builder(context)
         .networkProvider(networkProvider)
-        .logLevel(LogLevel.OFF)
-        .loggingService(mock())
+        .addLoggingService(mock())
         .build()
   }
 

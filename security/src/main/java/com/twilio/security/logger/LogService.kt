@@ -16,22 +16,8 @@
 
 package com.twilio.security.logger
 
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+interface LogService {
+  val level: Level
 
-object Logger {
-  internal val services: MutableList<LogService> = mutableListOf()
-  internal var executorService: ExecutorService = Executors.newFixedThreadPool(3)
-
-  fun addService(logService: LogService) {
-    services.add(logService)
-  }
-
-  fun log(logLevel: Level, message: String, throwable: Throwable? = null) {
-    executorService.execute {
-      services.filter { it.level == Level.All || it.level == logLevel }.forEach {
-        it.log(logLevel, message, throwable)
-      }
-    }
-  }
+  fun log(level: Level, message: String, throwable: Throwable? = null)
 }
