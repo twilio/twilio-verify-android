@@ -169,9 +169,9 @@ platform :android do
     )
     path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
     firebase_app_distribution(
-      app: "1:116450802435:android:df6d5c263506bb20728736",
+      app: ENV["SAMPLE_APP_FIREBASE_ID"],
       apk_path: path,
-      groups: "qa-team",
+      groups: ENV["FIREBASE_APP_DISTRIBUTION_GROUP"],
       service_credentials_file: key_file,
       release_notes: options[:notes]
     )
