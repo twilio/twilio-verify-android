@@ -43,7 +43,6 @@ android {
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
-    // buildConfigField("String", "BASE_URL", "\"https://verify.twilio.com/v2/\"")
     buildConfigField("String", "BASE_URL", baseURL)
   }
 
