@@ -97,7 +97,7 @@ commands:
         type: string
     steps:
       - run: cp -R <<parameters.from>> <<parameters.to>>
-  distribute_sample_app:
+  distribute_debug_sample_app:
     parameters:
       env:
         description: environment name (DEV, STAGE) will be added as a suffix to the versionName e.g 1.0.0-DEV
@@ -302,7 +302,7 @@ jobs:
       - store_artifacts:
           path: "security/build/reports"
           destination: security-test-coverage
-  distribute_sample_app:
+  distribute_debug_sample_app:
     executor: *executor
     steps:
       - setup
@@ -311,10 +311,10 @@ jobs:
       - *restore_gradle_cache
       - *decrypt_google_services
       - *store_gcloud_app_distribution_service
-      - distribute_sample_app:
+      - distribute_debug_sample_app:
           env: "DEV"
           base_url: $DEV_URL
-      - distribute_sample_app:
+      - distribute_debug_sample_app:
           env: "STAGE"
           base_url: $STAGE_URL
       - *save_gradle_cache
@@ -334,7 +334,6 @@ workflows:
   workflow:
     jobs:
       - assemble_build
-      - distribute_sample_app
       - lint:
           requires:
             - assemble_build
@@ -358,10 +357,17 @@ workflows:
       - sdk_size_report:
           requires:
             - verify_instrumentation_tests_single_device
-      - distribute_sample_app:
+      - distribute_debug_sample_app:
           requires:
             - security_instrumentation_tests_multiple_devices
             - verify_instrumentation_tests_multiple_devices
+          filters:
+            branches:
+              only:
+                - /feature.*/
+                - /release.*/
+                - /hotfix.*/
+                - dev
       - release_sdk:
           requires:
             - security_instrumentation_tests_multiple_devices
