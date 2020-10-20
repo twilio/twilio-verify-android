@@ -317,6 +317,9 @@ jobs:
       - distribute_debug_sample_app:
           env: "STAGE"
           base_url: $STAGE_URL
+      - distribute_debug_sample_app:
+          env: "PROD"
+          base_url: $PROD_URL
       - *save_gradle_cache
   release_sdk:
     executor: *executor
@@ -326,6 +329,7 @@ jobs:
           at: *workspace
       - *restore_gradle_cache
       - *decrypt_google_services
+      - *store_gcloud_app_distribution_service
       - *release
       - *save_gradle_cache
 workflows:
