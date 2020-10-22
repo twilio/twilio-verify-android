@@ -62,7 +62,6 @@ platform :android do
 
   desc "Verify next release"
   lane :verify do |options|
-    ensure_git_status_clean
     if !is_ci? then
       UI.message("#{options[:title]} deploy was triggered on local machine")
       gradle(task: "clean")
@@ -123,6 +122,10 @@ platform :android do
       description: notes,
       commitish: "main"
     )
+    plain_notes = conventional_changelog(
+             format: 'plain',
+             commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
+    distribute_sample_app(notes: plain_notes, build_type: "Release", url: ENV["PROD_URL"], versionName: next_version)
   end
 
   desc "Danger check"
@@ -134,6 +137,43 @@ platform :android do
       remove_previous_comments: true,
       fail_on_errors: true,
       verbose: true
+    )
+  end
+
+  desc "Distribute sample app debug mode for internal testing"
+  lane :distribute_debug_sample_app do |options|
+   env = options[:env]
+   title = "Android Verify Push #{env}"
+   tag_prefix = '*'
+   verify(title: title, tag_prefix: tag_prefix)
+   next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
+   plain_notes = conventional_changelog(
+            format: 'plain',
+            commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
+   url = options[:url]
+   distribute_sample_app(notes: plain_notes, build_type: "Debug", url: url, versionName: "#{next_version}-#{env}")
+  end
+
+  desc "Distribute sample app for internal testing"
+  lane :distribute_sample_app do |options|
+    app_distribution_key = "gcloud-app-distribution-service-key.json"
+    key_file = "#{ENV["HOME"]}/#{app_distribution_key}"
+    build_android_app(
+      properties: {
+        "baseURL" => options[:url],
+        "verifyVersionName" => options[:versionName]
+      },
+      task: "assemble",
+      build_type: options[:build_type],
+      print_command: false
+    )
+    path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    firebase_app_distribution(
+      app: ENV["SAMPLE_APP_FIREBASE_ID"],
+      apk_path: path,
+      groups: ENV["FIREBASE_APP_DISTRIBUTION_GROUP"],
+      service_credentials_file: key_file,
+      release_notes: options[:notes]
     )
   end
 end

@@ -21,13 +21,12 @@ plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
-  id(Config.Plugins.versionBumper)
   jacoco
 }
 //endregion
 
-val securityVersionName = versionBumper.versionName
-val securityVersionCode = versionBumper.versionCode
+val securityVersionName: String by extra
+val securityVersionCode: String by extra
 
 //region Android
 android {
@@ -36,7 +35,7 @@ android {
   defaultConfig {
     minSdkVersion(Config.Versions.minSDKVersion)
     targetSdkVersion(Config.Versions.targetSDKVersion)
-    versionCode = securityVersionCode
+    versionCode = securityVersionCode.toInt()
     versionName = securityVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
