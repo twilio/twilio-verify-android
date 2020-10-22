@@ -16,6 +16,7 @@
 
 package com.twilio.verify.sample.networking
 
+import androidx.annotation.Keep
 import com.twilio.verify.sample.model.AccessTokenResponse
 import java.io.IOException
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -29,6 +30,7 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 import retrofit2.http.Url
 
+@Keep
 interface SampleBackendAPIClient {
   @POST @FormUrlEncoded
   fun accessTokens(

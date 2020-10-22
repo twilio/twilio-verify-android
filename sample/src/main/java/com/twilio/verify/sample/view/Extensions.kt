@@ -43,7 +43,7 @@ fun ChallengeDetails.string(context: Context?): String {
       "  ${it.label} = ${it.value}"
     }}${(
       date?.let {
-        "  Date = ${DateUtils.formatDateTime(context, it.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME)}"
+        "\n  Date = ${DateUtils.formatDateTime(context, it.time, FORMAT_SHOW_DATE or FORMAT_SHOW_TIME)}"
       } ?: ""
       )}\n"
   } ?: ""
