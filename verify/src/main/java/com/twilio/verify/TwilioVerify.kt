@@ -172,9 +172,19 @@ interface TwilioVerify {
       this.baseUrl = baseUrl
     }
 
+    /**
+     * Enable the internal logging service
+     *
+     * @param logLevel that will allow logging information
+     */
     fun enableDefaultLoggingService(logLevel: LogLevel) =
       apply { addLoggingService(DefaultLoggerService(logLevel)) }
 
+    /**
+     * Inject your own implementation of a **LoggerService**
+     *
+     * @param loggerService Custom logger service
+     */
     fun addLoggingService(loggerService: LoggerService) =
       apply { loggerServices.add(loggerService) }
 

@@ -16,8 +16,22 @@
 
 package com.twilio.verify.logger
 
+/**
+ * Logging service that allows to create custom services
+ *
+ */
 interface LoggerService {
+  /**
+   * Set a log level to log processes happening into the SDK
+   */
   val logLevel: LogLevel
 
+  /**
+   * Will be triggered to log information
+   *
+   * @param logLevel
+   * @param message
+   * @param throwable
+   */
   fun log(logLevel: LogLevel, message: String, throwable: Throwable? = null)
 }
