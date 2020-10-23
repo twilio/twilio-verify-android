@@ -16,22 +16,14 @@
 
 package com.twilio.security.logger
 
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-
 object Logger {
-  internal val services: MutableList<LogService> = mutableListOf()
-  internal var executorService: ExecutorService = Executors.newFixedThreadPool(3)
-
-  fun addService(logService: LogService) {
-    services.add(logService)
-  }
+  var loggerContract: LoggerContract? = null
 
   fun log(logLevel: Level, message: String, throwable: Throwable? = null) {
-    executorService.execute {
-      services.filter { it.level == Level.All || it.level == logLevel }.forEach {
-        it.log(logLevel, message, throwable)
-      }
-    }
+    loggerContract?.log(logLevel, message, throwable)
   }
+}
+
+interface LoggerContract {
+  fun log(level: Level, message: String, throwable: Throwable? = null)
 }

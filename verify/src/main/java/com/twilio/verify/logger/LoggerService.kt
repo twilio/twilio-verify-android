@@ -16,17 +16,8 @@
 
 package com.twilio.verify.logger
 
-import com.twilio.security.logger.Level
-import com.twilio.security.logger.LogService
-
-interface LoggerService : LogService {
+interface LoggerService {
   val logLevel: LogLevel
-  override val level: Level
-    get() = logLevel.level
 
   fun log(logLevel: LogLevel, message: String, throwable: Throwable? = null)
-
-  override fun log(level: Level, message: String, throwable: Throwable?) {
-    LogLevel.values().firstOrNull { it.level == level }?.let { log(it, message, throwable) }
-  }
 }

@@ -14,7 +14,7 @@ class LoggerServiceTest {
   fun `Setting log level returns correct level`() {
     val logLevel = LogLevel.Info
     val loggerService: LoggerService = TestLoggerService(logLevel)
-    assertEquals(logLevel.level, loggerService.level)
+    assertEquals(logLevel, loggerService.logLevel)
   }
 
   @Test
@@ -22,7 +22,7 @@ class LoggerServiceTest {
     val logLevel = LogLevel.Info
     val message = "Message"
     val loggerService = spy(TestLoggerService(logLevel))
-    loggerService.log(logLevel.level, message)
+    loggerService.log(logLevel, message)
     verify(loggerService).log(logLevel, message)
   }
 }
