@@ -476,10 +476,13 @@ class TwilioVerifyTest {
     assertEquals(2, keys.size)
     assertTrue(values.containsKey(factorSid1))
     assertTrue(values.containsKey(factorSid2))
+    idlingResource.startOperation()
     twilioVerify.clearLocalData {
       assertTrue(keys.isEmpty())
       assertTrue(values.isEmpty())
+      idlingResource.operationFinished()
     }
+    idlingResource.waitForIdle()
   }
 
   private fun createFactor(

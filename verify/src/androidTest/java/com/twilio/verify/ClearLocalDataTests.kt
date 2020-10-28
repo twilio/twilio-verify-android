@@ -21,12 +21,15 @@ class ClearLocalDataTests : BaseFactorTest() {
       assertTrue(keyStore.containsAlias(factor.keyPairAlias))
       assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor)))
     }
+    idlingResource.increment()
     twilioVerify.clearLocalData {
       factors.forEach { factor ->
         assertFalse(keyStore.containsAlias(factor.keyPairAlias))
         assertFalse(encryptedSharedPreferences.contains(getFactorKey(factor)))
         assertTrue(encryptedSharedPreferences.all.isEmpty())
+        idlingResource.decrement()
       }
     }
+    idlingResource.waitForResource()
   }
 }

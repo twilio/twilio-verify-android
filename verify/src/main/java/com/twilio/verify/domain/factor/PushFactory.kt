@@ -167,7 +167,7 @@ internal class PushFactory(
     factorProvider.getAll().mapNotNull { it as? PushFactor }.forEach { factor ->
       factorProvider.delete(factor)
       factor.keyPairAlias?.let { keyStorage.delete(it) }
-    }.run { then() }
+    }.also { then() }
   }
 
   private fun generateKeyPairAlias(): String {
