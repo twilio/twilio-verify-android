@@ -467,6 +467,21 @@ class TwilioVerifyTest {
     idlingResource.waitForIdle()
   }
 
+  @Test
+  fun `Clear local data should delete factors and key pairs`() {
+    val factorSid1 = "factorSid123"
+    val factorSid2 = "factorSid345"
+    createFactor(factorSid1, Verified)
+    createFactor(factorSid2, Verified)
+    assertEquals(2, keys.size)
+    assertTrue(values.containsKey(factorSid1))
+    assertTrue(values.containsKey(factorSid2))
+    twilioVerify.clearLocalData {
+      assertTrue(keys.isEmpty())
+      assertTrue(values.isEmpty())
+    }
+  }
+
   private fun createFactor(
     factorSid: String,
     status: FactorStatus

@@ -79,7 +79,7 @@ interface TwilioVerify {
   )
 
   /**
-   * Gets all **Factors** created by the app
+   * Gets all **Factors** created by the app, this method will return the factors in local data.
    * @param success Block to be called when the operation succeeds, returns a List of Factor
    * @param error Block to be called when the operation fails with the cause of failure
    */
@@ -128,7 +128,8 @@ interface TwilioVerify {
   )
 
   /**
-   * Deletes a **Factor** with the given **sid**
+   * Deletes a **Factor** with the given **sid**. This method calls **Verify Push API** to delete
+   * the factor and will remove the factor from local data if the API call succeeds.
    * @param factorSid Sid of the **Factor** to be deleted
    * @param success Block to be called when the operation succeeds
    * @param error Block to be called when the operation fails with the cause of failure
@@ -138,6 +139,15 @@ interface TwilioVerify {
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   )
+
+  /**
+   * Clears local data, it will delete factors and key pairs in this device.
+   * Note: Calling this method will not delete factors in **Verify Push API**, so you need to
+   * delete them from your backend to prevent invalid/deleted factors when getting factors for
+   * an identity.
+   * @param then Block to be called when the operation finishes
+   */
+  fun clearLocalData(then: () -> Unit)
 
   /**
    * Builder class that builds an instance of TwilioVerifyManager, which handles all the operations

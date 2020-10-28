@@ -9,6 +9,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
@@ -428,6 +429,32 @@ class FactorFacadeTest {
         idlingResource.operationFinished()
       }
     )
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Clear local data should delete all factors from push factory`() {
+    argumentCaptor<() -> Unit>().apply {
+      whenever(pushFactory.deleteAllFactors(capture())).then {
+        firstValue.invoke()
+      }
+    }
+    idlingResource.startOperation()
+    factorFacade.clearLocalData {
+      verify(pushFactory).deleteAllFactors(any())
+      idlingResource.operationFinished()
+    }
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Clear local data when push factory throws error should clear storage`() {
+    whenever(pushFactory.deleteAllFactors(any())).thenThrow(RuntimeException())
+    idlingResource.startOperation()
+    factorFacade.clearLocalData {
+      verify(factorProvider).clearLocalData()
+      idlingResource.operationFinished()
+    }
     idlingResource.waitForIdle()
   }
 }

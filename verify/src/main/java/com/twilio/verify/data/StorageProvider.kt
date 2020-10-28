@@ -28,6 +28,7 @@ internal interface StorageProvider {
   fun get(key: String): String?
   fun getAll(): List<String>
   fun remove(key: String)
+  fun clear()
 }
 
 interface Migration {
