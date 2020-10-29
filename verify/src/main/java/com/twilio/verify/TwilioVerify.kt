@@ -79,7 +79,7 @@ interface TwilioVerify {
   )
 
   /**
-   * Gets all **Factors** created by the app, this method will return the factors in local data.
+   * Gets all **Factors** created by the app, this method will return the factors in local storage.
    * @param success Block to be called when the operation succeeds, returns a List of Factor
    * @param error Block to be called when the operation fails with the cause of failure
    */
@@ -129,7 +129,7 @@ interface TwilioVerify {
 
   /**
    * Deletes a **Factor** with the given **sid**. This method calls **Verify Push API** to delete
-   * the factor and will remove the factor from local data if the API call succeeds.
+   * the factor and will remove the factor from local storage if the API call succeeds.
    * @param factorSid Sid of the **Factor** to be deleted
    * @param success Block to be called when the operation succeeds
    * @param error Block to be called when the operation fails with the cause of failure
