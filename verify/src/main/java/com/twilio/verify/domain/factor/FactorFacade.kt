@@ -147,12 +147,12 @@ internal class FactorFacade(
     }
   }
 
-  fun clearLocalData(success: () -> Unit) {
+  fun clearLocalStorage(success: () -> Unit) {
     execute(success, {}) { onSuccess, _ ->
       try {
         pushFactory.deleteAllFactors(onSuccess)
       } catch (e: Exception) {
-        factorProvider.clearLocalData()
+        factorProvider.clearLocalStorage()
         onSuccess()
       }
     }

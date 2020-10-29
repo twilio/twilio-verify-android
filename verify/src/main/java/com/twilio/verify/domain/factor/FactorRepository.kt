@@ -115,7 +115,7 @@ internal class FactorRepository(
     )
   }
 
-  override fun clearLocalData() {
+  override fun clearLocalStorage() {
     storage.clear()
   }
 

@@ -51,5 +51,5 @@ internal interface FactorProvider {
   fun getAll(): List<Factor>
   fun save(factor: Factor): Factor?
   fun delete(factor: Factor)
-  fun clearLocalData()
+  fun clearLocalStorage()
 }

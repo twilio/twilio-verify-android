@@ -15,7 +15,7 @@ class ClearLocalDataTests : BaseFactorTest() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
     assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
     idlingResource.increment()
-    twilioVerify.clearLocalData {
+    twilioVerify.clearLocalStorage {
       assertTrue(encryptedSharedPreferences.all.isEmpty())
       assertFalse(keyStore.containsAlias(factor!!.keyPairAlias))
       assertFalse(encryptedSharedPreferences.contains(getFactorKey(factor!!)))
@@ -38,7 +38,7 @@ class ClearLocalDataTests : BaseFactorTest() {
       assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor)))
     }
     idlingResource.increment()
-    twilioVerify.clearLocalData {
+    twilioVerify.clearLocalStorage {
       assertTrue(encryptedSharedPreferences.all.isEmpty())
       factors.forEach { factor ->
         assertFalse(keyStore.containsAlias(factor.keyPairAlias))

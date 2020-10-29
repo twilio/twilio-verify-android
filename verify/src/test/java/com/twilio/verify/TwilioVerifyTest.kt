@@ -477,7 +477,7 @@ class TwilioVerifyTest {
     assertTrue(values.containsKey(factorSid1))
     assertTrue(values.containsKey(factorSid2))
     idlingResource.startOperation()
-    twilioVerify.clearLocalData {
+    twilioVerify.clearLocalStorage {
       assertTrue(keys.isEmpty())
       assertTrue(values.isEmpty())
       idlingResource.operationFinished()

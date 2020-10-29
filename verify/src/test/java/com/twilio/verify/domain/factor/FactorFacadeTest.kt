@@ -440,7 +440,7 @@ class FactorFacadeTest {
       }
     }
     idlingResource.startOperation()
-    factorFacade.clearLocalData {
+    factorFacade.clearLocalStorage {
       verify(pushFactory).deleteAllFactors(any())
       idlingResource.operationFinished()
     }
@@ -451,8 +451,8 @@ class FactorFacadeTest {
   fun `Clear local data when push factory throws error should clear storage`() {
     whenever(pushFactory.deleteAllFactors(any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
-    factorFacade.clearLocalData {
-      verify(factorProvider).clearLocalData()
+    factorFacade.clearLocalStorage {
+      verify(factorProvider).clearLocalStorage()
       idlingResource.operationFinished()
     }
     idlingResource.waitForIdle()

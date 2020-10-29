@@ -431,13 +431,13 @@ class TwilioVerifyManagerTest {
   @Test
   fun `Clear local data should call then`() {
     argumentCaptor<() -> Unit>().apply {
-      whenever(factorFacade.clearLocalData(capture())).then {
+      whenever(factorFacade.clearLocalStorage(capture())).then {
         firstValue.invoke()
       }
     }
     idlingResource.startOperation()
-    twilioVerifyManager.clearLocalData {
-      verify(factorFacade).clearLocalData(any())
+    twilioVerifyManager.clearLocalStorage {
+      verify(factorFacade).clearLocalStorage(any())
       idlingResource.operationFinished()
     }
     idlingResource.waitForIdle()
