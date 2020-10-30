@@ -16,6 +16,8 @@
 
 package com.twilio.verify.networking
 
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import java.io.BufferedWriter
 import java.io.OutputStream
 import java.io.OutputStreamWriter
@@ -31,34 +33,37 @@ class NetworkAdapter : NetworkProvider {
   ) {
     var httpUrlConnection: HttpURLConnection? = null
     try {
+      Logger.log(Level.Info, "Executing ${request.httpMethod.method} to ${request.url}")
       httpUrlConnection = request.url.openConnection() as HttpsURLConnection
+      Logger.log(Level.Networking, "--> ${request.httpMethod.method} ${request.url}")
       httpUrlConnection.requestMethod = request.httpMethod.method
       request.headers.forEach { (key, value) ->
         httpUrlConnection.setRequestProperty(key, value)
+        Logger.log(Level.Networking, "$key: $value")
       }
-      if (request.getParams()
-        ?.isNotEmpty() == true
-      ) {
+      request.getParams()?.takeIf { it.isNotEmpty() }?.apply {
         httpUrlConnection.doOutput = true
         val os: OutputStream = httpUrlConnection.outputStream
         val writer = BufferedWriter(
           OutputStreamWriter(os, "UTF-8")
         )
-        writer.write(request.getParams())
+        writer.write(this)
         writer.flush()
         writer.close()
         os.close()
+        Logger.log(Level.Networking, "Request: $this")
       }
       val responseCode = httpUrlConnection.responseCode
+      Logger.log(Level.Networking, "Response code: $responseCode")
       when {
         responseCode < 300 -> {
           val response = httpUrlConnection.inputStream.bufferedReader()
-            .use { it.readText() }
+            .use { it.readText() }.also { Logger.log(Level.Networking, "Response body: $it") }
           success(Response(body = response, headers = httpUrlConnection.headerFields))
         }
         else -> {
           val errorBody = httpUrlConnection.errorStream.bufferedReader()
-            .use { it.readText() }
+            .use { it.readText() }.also { Logger.log(Level.Networking, "Error body: $it") }
           error(
             NetworkException(
               FailureResponse(responseCode, errorBody, httpUrlConnection.headerFields)
@@ -67,6 +72,7 @@ class NetworkAdapter : NetworkProvider {
         }
       }
     } catch (e: Exception) {
+      Logger.log(Level.Error, e.toString(), e)
       error(NetworkException(e))
     } finally {
       httpUrlConnection?.disconnect()

@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-package com.twilio.verify.logger
+package com.twilio.security.logger
 
-interface LoggerService {
-  val logLevel: LogLevel
+object Logger {
+  var loggerContract: LoggerContract? = null
 
-  fun log(logLevel: LogLevel, message: String, throwable: Throwable? = null)
+  fun log(logLevel: Level, message: String, throwable: Throwable? = null) {
+    loggerContract?.log(logLevel, message, throwable)
+  }
+}
+
+interface LoggerContract {
+  fun log(level: Level, message: String, throwable: Throwable? = null)
 }

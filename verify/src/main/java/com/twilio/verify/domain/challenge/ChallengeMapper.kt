@@ -16,6 +16,8 @@
 
 package com.twilio.verify.domain.challenge
 
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.data.fromRFC3339Date
@@ -82,8 +84,10 @@ internal class ChallengeMapper {
         status = status
       )
     } catch (e: JSONException) {
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     } catch (e: ParseException) {
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
   }

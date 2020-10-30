@@ -17,6 +17,8 @@
 package com.twilio.verify.domain.challenge
 
 import android.content.Context
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
@@ -111,7 +113,7 @@ internal class ChallengeFacade(
         ?: throw TwilioVerifyException(
           IllegalArgumentException(
             "Invalid update challenge input for factor ${factor.type}"
-          ),
+          ).also { Logger.log(Level.Error, it.toString(), it) },
           InputError
         )
       pushChallengeProcessor.update(

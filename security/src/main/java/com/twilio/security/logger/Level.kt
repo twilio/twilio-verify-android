@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.twilio.verify.logger
+package com.twilio.security.logger
 
-internal object Logger {
-  internal val services: MutableList<LoggerService> = mutableListOf()
-
-  fun addService(loggerService: LoggerService) {
-    services.add(loggerService)
-  }
+enum class Level {
+  Error,
+  Info,
+  Networking,
+  Debug,
+  All
 }

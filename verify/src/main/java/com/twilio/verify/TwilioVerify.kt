@@ -17,6 +17,7 @@
 package com.twilio.verify
 
 import android.content.Context
+import com.twilio.security.logger.Logger
 import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
@@ -28,7 +29,7 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.logger.DefaultLoggerService
 import com.twilio.verify.logger.LogLevel
-import com.twilio.verify.logger.Logger
+import com.twilio.verify.logger.LoggerImplementation
 import com.twilio.verify.logger.LoggerService
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
@@ -159,8 +160,7 @@ interface TwilioVerify {
         jwtGenerator,
         DateAdapter(storagePreferences(context))
       )
-    private var logLevel: LogLevel = LogLevel.OFF
-    private var loggerService: LoggerService? = null
+    private var loggerServices: MutableList<LoggerService> = mutableListOf()
 
     /**
      * @param networkProvider
@@ -172,11 +172,11 @@ interface TwilioVerify {
       this.baseUrl = baseUrl
     }
 
-    fun logLevel(logLevel: LogLevel) =
-      apply { this.logLevel = logLevel }
+    fun enableDefaultLoggingService(logLevel: LogLevel) =
+      apply { addLoggingService(DefaultLoggerService(logLevel)) }
 
-    fun loggingService(loggerService: LoggerService) =
-      apply { this.loggerService = loggerService }
+    fun addLoggingService(loggerService: LoggerService) =
+      apply { loggerServices.add(loggerService) }
 
     /**
      * Builds an instance of TwilioVerifyManager
@@ -185,9 +185,8 @@ interface TwilioVerify {
      */
     @Throws(TwilioVerifyException::class)
     fun build(): TwilioVerify {
-      loggerService?.let { Logger.addService(it) } ?: run {
-        Logger.addService(DefaultLoggerService(logLevel))
-      }
+      loggerServices.forEach { LoggerImplementation.addService(it) }
+      Logger.loggerContract = LoggerImplementation
       val factorFacade = FactorFacade.Builder()
         .context(context)
         .networkProvider(networkProvider)

@@ -18,14 +18,14 @@ package com.twilio.verify.logger
 
 import android.util.Log
 
-interface LogAdapter {
+internal interface LogAdapter {
   fun error(tag: String, message: String, throwable: Throwable? = null)
   fun info(tag: String, message: String, throwable: Throwable? = null)
   fun debug(tag: String, message: String, throwable: Throwable? = null)
   fun verbose(tag: String, message: String, throwable: Throwable? = null)
 }
 
-object LogWrapper : LogAdapter {
+internal object LogWrapper : LogAdapter {
   override fun error(tag: String, message: String, throwable: Throwable?) {
     Log.e(tag, message, throwable)
   }
