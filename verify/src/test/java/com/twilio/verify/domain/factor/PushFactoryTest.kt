@@ -617,4 +617,38 @@ class PushFactoryTest {
     )
     idlingResource.waitForIdle()
   }
+
+  @Test
+  fun `Delete all factors should delete factors and call then`() {
+    val factor1 = PushFactor(
+      "sid1",
+      "friendlyName",
+      "accountSid",
+      "serviceSid",
+      "identity",
+      FactorStatus.Verified,
+      Date(),
+      Config("credentialSid")
+    ).apply { keyPairAlias = "alias1" }
+    val factor2 = PushFactor(
+      "sid2",
+      "friendlyName",
+      "accountSid",
+      "serviceSid",
+      "identity",
+      FactorStatus.Verified,
+      Date(),
+      Config("credentialSid")
+    ).apply { keyPairAlias = "alias2" }
+    whenever(factorProvider.getAll()).thenReturn(listOf(factor1, factor2))
+    idlingResource.startOperation()
+    pushFactory.deleteAllFactors {
+      verify(factorProvider).delete(factor1)
+      verify(factorProvider).delete(factor2)
+      verify(keyStorage).delete(factor1.keyPairAlias!!)
+      verify(keyStorage).delete(factor2.keyPairAlias!!)
+      idlingResource.operationFinished()
+    }
+    idlingResource.waitForIdle()
+  }
 }

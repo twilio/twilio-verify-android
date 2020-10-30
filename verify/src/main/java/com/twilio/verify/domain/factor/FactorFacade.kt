@@ -147,6 +147,17 @@ internal class FactorFacade(
     }
   }
 
+  fun clearLocalStorage(success: () -> Unit) {
+    execute(success, {}) { onSuccess, _ ->
+      try {
+        pushFactory.deleteAllFactors(onSuccess)
+      } catch (e: Exception) {
+        factorProvider.clearLocalStorage()
+        onSuccess()
+      }
+    }
+  }
+
   class Builder {
     private lateinit var appContext: Context
     private lateinit var networking: NetworkProvider

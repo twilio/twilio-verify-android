@@ -90,10 +90,14 @@ internal class FactorRepository(
     error: (TwilioVerifyException) -> Unit
   ) {
     fun deleteFactor() {
-      storage.remove(factor.sid)
+      delete(factor)
       success()
     }
     apiClient.delete(factor, ::deleteFactor, error)
+  }
+
+  override fun delete(factor: Factor) {
+    storage.remove(factor.sid)
   }
 
   @Throws(TwilioVerifyException::class)
@@ -109,6 +113,10 @@ internal class FactorRepository(
     return get(factor.sid) ?: throw TwilioVerifyException(
       StorageException("Factor not found"), StorageError
     )
+  }
+
+  override fun clearLocalStorage() {
+    storage.clear()
   }
 
   @Throws(TwilioVerifyException::class)

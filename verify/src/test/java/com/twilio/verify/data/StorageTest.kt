@@ -179,6 +179,12 @@ class StorageTest {
     verify(encryptedStorage).put(key, value2)
   }
 
+  @Test
+  fun `Clear storage should clear encrypted storage`() {
+    storage.clear()
+    verify(encryptedStorage).clear()
+  }
+
   private fun migration(
     startVersion: Int,
     endVersion: Int,

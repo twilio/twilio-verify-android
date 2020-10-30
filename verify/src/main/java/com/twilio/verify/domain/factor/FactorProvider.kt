@@ -50,4 +50,6 @@ internal interface FactorProvider {
   fun get(sid: String): Factor?
   fun getAll(): List<Factor>
   fun save(factor: Factor): Factor?
+  fun delete(factor: Factor)
+  fun clearLocalStorage()
 }
