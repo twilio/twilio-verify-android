@@ -496,4 +496,10 @@ class FactorRepositoryTest {
     factorRepository.delete(factor)
     verify(storage).remove(sid)
   }
+
+  @Test
+  fun `Clear local storage should call storage`() {
+    factorRepository.clearLocalStorage()
+    verify(storage).clear()
+  }
 }
