@@ -619,7 +619,7 @@ class PushFactoryTest {
   }
 
   @Test
-  fun `Delete all factors should delete factors and call then`() {
+  fun `Delete all factors should delete push factors and call then`() {
     val factor1 = PushFactor(
       "sid1",
       "friendlyName",
@@ -647,6 +647,41 @@ class PushFactoryTest {
       verify(factorProvider).delete(factor2)
       verify(keyStorage).delete(factor1.keyPairAlias!!)
       verify(keyStorage).delete(factor2.keyPairAlias!!)
+      idlingResource.operationFinished()
+    }
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete all factors with no push factors should not delete other factors`() {
+    val factor = mock<Factor>()
+    whenever(factorProvider.getAll()).thenReturn(listOf(factor))
+    idlingResource.startOperation()
+    pushFactory.deleteAllFactors {
+      verify(factorProvider, never()).delete(any())
+      verify(keyStorage, never()).delete(any())
+      idlingResource.operationFinished()
+    }
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete all factors with factor with no alias should delete push factors and call then`() {
+    val factor = PushFactor(
+      "sid1",
+      "friendlyName",
+      "accountSid",
+      "serviceSid",
+      "identity",
+      FactorStatus.Verified,
+      Date(),
+      Config("credentialSid")
+    )
+    whenever(factorProvider.getAll()).thenReturn(listOf(factor))
+    idlingResource.startOperation()
+    pushFactory.deleteAllFactors {
+      verify(factorProvider).delete(factor)
+      verify(keyStorage, never()).delete(any())
       idlingResource.operationFinished()
     }
     idlingResource.waitForIdle()
