@@ -20,7 +20,7 @@
 * [Errors](#Errors)
 * [Update factor's push token](#UpdatePushToken)
 * [Delete a factor](#DeleteFactor)
-* [Clear local data](#ClearLocalData)
+* [Clear local storage](#ClearLocalStorage)
 
 <a name='About'></a>
 
@@ -161,12 +161,12 @@ twilioVerify.deleteFactor(factorSid, {
 })
 ```
 
-<a name='ClearLocalData'></a>
+<a name='ClearLocalStorage'></a>
 
-## Clear local data
-You can clear local data calling the `TwilioVerify.clearLocalData` method:
+## Clear local storage
+You can clear local storage calling the `TwilioVerify.clearLocalStorage` method:
 ```
-twilioVerify.clearLocalData {
+twilioVerify.clearLocalStorage {
   // Operation finished
 }
 ```
