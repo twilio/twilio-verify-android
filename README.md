@@ -124,7 +124,7 @@ In order to run the sample app, you have to create a project and application in 
 <a name='Logging'></a>
 
 ## Logging
-By default, logging is disabled. To enable it you can either set your own logging services by implementing [LogService](https://github.com/twilio/twilio-verify-android/blob/main/verify/src/main/java/com/twilio/verify/logger/LoggerService.kt) and calling `addLoggingService` (note that you can add as many logging services as you like) or enable the default logger service by calling `enableDefaultLoggingService`. Your multiple implementations and the default one can work at the same time, but you may just want to have it enabled during the development process, it's risky to have it turned on when releasing your app.
+By default, logging is disabled. To enable it you can either set your own logging services by implementing [LoggerService](https://github.com/twilio/twilio-verify-android/blob/main/verify/src/main/java/com/twilio/verify/logger/LoggerService.kt) and calling `addLoggingService` (note that you can add as many logging services as you like) or enable the default logger service by calling `enableDefaultLoggingService`. Your multiple implementations and the default one can work at the same time, but you may just want to have it enabled during the development process, it's risky to have it turned on when releasing your app.
 
 ### Setting Log Level
 You may want to log only certain processes that are happening in the SDK, or you just want to log it all, for that the SDK allows you to set a log level.
