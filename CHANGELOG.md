@@ -1,3 +1,19 @@
+# 0.2.0 (2020-11-03)
+
+### Features
+- Provide method in TwilioVerify to clear local storage ([9a58f1f](https://github.com/twilio/twilio-verify-android/commit/9a58f1f8fb14a8d25ee4450ee2b6dfb889f4486a))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 68.7KB          |
+| x86_64          | 68.7KB          |
+| armeabi-v7a     | 68.7KB          |
+| arm64-v8a       | 68.7KB          |
+| universal       | 68.7KB          |
+
+
 # 0.1.0 (2020-10-13)
 
 ### Features
