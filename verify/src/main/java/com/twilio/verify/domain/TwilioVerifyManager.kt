@@ -98,4 +98,8 @@ internal class TwilioVerifyManager(
   ) {
     factorFacade.deleteFactor(factorSid, success, error)
   }
+
+  override fun clearLocalStorage(then: () -> Unit) {
+    factorFacade.clearLocalStorage(then)
+  }
 }

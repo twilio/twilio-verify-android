@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException
@@ -424,6 +425,21 @@ class TwilioVerifyManagerTest {
         idlingResource.operationFinished()
       }
     )
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Clear local data should call then`() {
+    argumentCaptor<() -> Unit>().apply {
+      whenever(factorFacade.clearLocalStorage(capture())).then {
+        firstValue.invoke()
+      }
+    }
+    idlingResource.startOperation()
+    twilioVerifyManager.clearLocalStorage {
+      verify(factorFacade).clearLocalStorage(any())
+      idlingResource.operationFinished()
+    }
     idlingResource.waitForIdle()
   }
 }

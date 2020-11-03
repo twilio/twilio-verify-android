@@ -24,7 +24,6 @@ buildscript {
   repositories {
     jcenter()
     google()
-    maven { url = uri("https://twilio.bintray.com/releases") }
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
   }
   dependencies {
@@ -32,7 +31,6 @@ buildscript {
     classpath(kotlin(Config.Dependencies.kotlin, Config.Versions.kotlin))
     classpath(Config.Dependencies.googleServices)
     classpath(Config.Dependencies.firebasePerformance)
-    classpath(Config.Dependencies.versionBumper)
     classpath(Config.Dependencies.jacoco)
     classpath(Config.Dependencies.apkscale)
     // NOTE: Do not place your application dependencies here; they belong

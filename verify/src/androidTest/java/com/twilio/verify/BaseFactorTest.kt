@@ -29,7 +29,7 @@ open class BaseFactorTest : BaseServerTest() {
     super.tearDown()
   }
 
-  protected fun createFactor(onSuccess: (Factor) -> Unit = {}) {
+  protected fun createFactor(sid: String? = null, onSuccess: (Factor) -> Unit = {}) {
     val friendlyName = "friendlyName"
     val accessToken = "eyJjdHkiOiJ0d2lsaW8tZnBhO3Y9MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJTSz" +
       "AwMTBjZDc5Yzk4NzM1ZTBjZDliYjQ5NjBlZjYyZmI4IiwiZXhwIjoxNTgzOTM3NjY0LCJncmFudHMiOnsidmVyaW" +
@@ -41,7 +41,11 @@ open class BaseFactorTest : BaseServerTest() {
       "g3MjZmYmQifQ.R01YC9mfCzIf9W81GUUCMjTwnhzIIqxV-tcdJYuy6kA"
     val factorPayload =
       PushFactorPayload(friendlyName, "serviceSid", "identity", "pushToken", accessToken)
-    enqueueMockResponse(200, APIResponses.createValidFactorResponse())
+    var response = APIResponses.createValidFactorResponse()
+    if (!sid.isNullOrEmpty()) {
+      response = response.replace("factorSid", sid)
+    }
+    enqueueMockResponse(200, response)
     idlingResource.increment()
     twilioVerify.createFactor(
       factorPayload,
