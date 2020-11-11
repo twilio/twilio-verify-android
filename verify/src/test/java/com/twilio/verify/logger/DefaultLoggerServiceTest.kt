@@ -22,7 +22,6 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
-import com.twilio.verify.BuildConfig
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -37,11 +36,7 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Info, message)
     verify(log).info(
       check { tag ->
-        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-        val className = DefaultLoggerServiceTest::class.simpleName.toString()
-        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log INFO types`.name
-        val expectedTag = "$packageName.$className.$methodName"
-        assertEquals(expectedTag, tag)
+        assertEquals(DefaultLoggerService.tag, tag)
       },
       eq(message), eq(null)
     )
@@ -57,11 +52,7 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Error, message)
     verify(log).error(
       check { tag ->
-        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-        val className = DefaultLoggerServiceTest::class.simpleName.toString()
-        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log ERROR types`.name
-        val expectedTag = "$packageName.$className.$methodName"
-        assertEquals(expectedTag, tag)
+        assertEquals(DefaultLoggerService.tag, tag)
       },
       eq(message), eq(null)
     )
@@ -77,11 +68,7 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Networking, message)
     verify(log).verbose(
       check { tag ->
-        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-        val className = DefaultLoggerServiceTest::class.simpleName.toString()
-        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log NETWORKING types`.name
-        val expectedTag = "$packageName.$className.$methodName"
-        assertEquals(expectedTag, tag)
+        assertEquals(DefaultLoggerService.tag, tag)
       },
       eq(message), eq(null)
     )
@@ -97,11 +84,7 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Debug, message)
     verify(log).debug(
       check { tag ->
-        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-        val className = DefaultLoggerServiceTest::class.simpleName.toString()
-        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ALL should log DEBUG types`.name
-        val expectedTag = "$packageName.$className.$methodName"
-        assertEquals(expectedTag, tag)
+        assertEquals(DefaultLoggerService.tag, tag)
       },
       eq(message), eq(null)
     )
@@ -117,11 +100,7 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Error, message)
     verify(log).error(
       check { tag ->
-        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-        val className = DefaultLoggerServiceTest::class.simpleName.toString()
-        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to ERROR should log ERROR types`.name
-        val expectedTag = "$packageName.$className.$methodName"
-        assertEquals(expectedTag, tag)
+        assertEquals(DefaultLoggerService.tag, tag)
       },
       eq(message), eq(null)
     )
@@ -170,11 +149,7 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Info, message)
     verify(log).info(
       check { tag ->
-        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-        val className = DefaultLoggerServiceTest::class.simpleName.toString()
-        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to INFO should log INFO types`.name
-        val expectedTag = "$packageName.$className.$methodName"
-        assertEquals(expectedTag, tag)
+        assertEquals(DefaultLoggerService.tag, tag)
       },
       eq(message), eq(null)
     )
@@ -223,11 +198,7 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Networking, message)
     verify(log).verbose(
       check { tag ->
-        val packageName = BuildConfig.LIBRARY_PACKAGE_NAME
-        val className = DefaultLoggerServiceTest::class.simpleName.toString()
-        val methodName = this@DefaultLoggerServiceTest::`LogLevel set to NETWORKING should log NETWORKING types`.name
-        val expectedTag = "$packageName.$className.$methodName"
-        assertEquals(expectedTag, tag)
+        assertEquals(DefaultLoggerService.tag, tag)
       },
       eq(message), eq(null)
     )

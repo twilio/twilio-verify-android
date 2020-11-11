@@ -16,15 +16,12 @@
 
 package com.twilio.verify.logger
 
-import com.twilio.verify.BuildConfig
-
 internal class DefaultLoggerService(override val logLevel: LogLevel, private val log: LogAdapter = LogWrapper) : LoggerService {
+
   override fun log(logLevel: LogLevel, message: String, throwable: Throwable?) {
     if ((this.logLevel != LogLevel.All && this.logLevel != logLevel)) {
       return
     }
-    val trace = Exception().stackTrace[2]
-    val tag = getTraceTag(trace)
     when (logLevel) {
       LogLevel.Error -> log.error(tag, message, throwable)
       LogLevel.Info -> log.info(tag, message, throwable)
@@ -33,8 +30,7 @@ internal class DefaultLoggerService(override val logLevel: LogLevel, private val
     }
   }
 
-  private fun getTraceTag(trace: StackTraceElement): String {
-    val className = trace.className.split(".").last()
-    return "${BuildConfig.LIBRARY_PACKAGE_NAME}.$className.${trace.methodName}"
+  companion object {
+    internal const val tag = "TwilioVerify"
   }
 }
