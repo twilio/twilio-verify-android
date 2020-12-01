@@ -58,6 +58,10 @@ internal class Storage(
     encryptedStorage.remove(key)
   }
 
+  override fun clear() {
+    encryptedStorage.clear()
+  }
+
   private fun checkMigrations() {
     var currentVersion = sharedPreferences.getInt(CURRENT_VERSION, 1)
     if (currentVersion == version) {

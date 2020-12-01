@@ -170,6 +170,13 @@ internal class PushFactory(
     }
   }
 
+  fun deleteAllFactors(then: () -> Unit) {
+    factorProvider.getAll().mapNotNull { it as? PushFactor }.forEach { factor ->
+      factorProvider.delete(factor)
+      factor.keyPairAlias?.let { keyStorage.delete(it) }
+    }.also { then() }
+  }
+
   private fun generateKeyPairAlias(): String {
     val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     return (1..15)

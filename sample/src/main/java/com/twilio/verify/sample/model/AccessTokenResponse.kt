@@ -16,8 +16,10 @@
 
 package com.twilio.verify.sample.model
 
+import androidx.annotation.Keep
 import com.twilio.verify.models.FactorType
 
+@Keep
 data class AccessTokenResponse(
   val token: String,
   val serviceSid: String,

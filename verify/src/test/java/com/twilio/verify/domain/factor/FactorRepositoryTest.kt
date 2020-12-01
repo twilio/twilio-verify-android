@@ -486,4 +486,20 @@ class FactorRepositoryTest {
       { assertEquals(expectedException, it) }
     )
   }
+
+  @Test
+  fun `Delete factor should delete it from storage`() {
+    val sid = "sid123"
+    val factor = mock<Factor> {
+      on(it.sid).thenReturn(sid)
+    }
+    factorRepository.delete(factor)
+    verify(storage).remove(sid)
+  }
+
+  @Test
+  fun `Clear local storage should call storage`() {
+    factorRepository.clearLocalStorage()
+    verify(storage).clear()
+  }
 }

@@ -30,6 +30,7 @@ plugins {
 
 val verifyVersionName: String by extra
 val verifyVersionCode: String by extra
+val baseURL: String by extra
 //region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
@@ -42,7 +43,7 @@ android {
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
-    buildConfigField("String", "BASE_URL", "\"https://verify.twilio.com/v2/\"")
+    buildConfigField("String", "BASE_URL", baseURL)
   }
 
   buildTypes {
@@ -211,10 +212,10 @@ task("generateSizeReport") {
 //endregion
 
 dependencies {
-  val securityVersion = "0.0.3"
+  val securityVersionName: String by rootProject.allprojects.first { it.name == Modules.security }.extra
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
-  debugImplementation(project(Modules.security))
-  releaseImplementation("com.twilio:twilio-security-android:$securityVersion")
+  debugImplementation(project(":${Modules.security}"))
+  releaseImplementation("com.twilio:twilio-security-android:$securityVersionName")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
   androidTestImplementation("androidx.test.ext:junit:1.1.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
