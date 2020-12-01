@@ -11,4 +11,4 @@ twilio-verify-tests:
         # Pixel 2
         - {model: walleye, version: 27, locale: en, orientation: portrait}
         # Pixel 3
-        - {model: blueline, version: 29, locale: en, orientation: portrait}
+        - {model: flame, version: 29, locale: en, orientation: portrait}
