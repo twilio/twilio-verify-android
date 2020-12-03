@@ -16,6 +16,8 @@
 
 package com.twilio.verify.domain.challenge
 
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.api.ChallengeAPIClient
@@ -45,13 +47,13 @@ internal class ChallengeRepository(
     ) {
       try {
         val challenge = challengeMapper.fromApi(response, signatureFieldsHeader)
-          .also {
-            if (it.factorSid != factor.sid) {
+          .also { challenge ->
+            if (challenge.factorSid != factor.sid) {
               throw TwilioVerifyException(
-                IllegalArgumentException("Wrong factor for challenge"), InputError
+                IllegalArgumentException("Wrong factor for challenge").also { Logger.log(Level.Error, it.toString(), it) }, InputError
               )
             }
-            toFactorChallenge(it).factor = factor
+            toFactorChallenge(challenge).factor = factor
           }
         success(challenge)
       } catch (e: TwilioVerifyException) {
@@ -72,14 +74,14 @@ internal class ChallengeRepository(
         get(factorChallenge.sid, it, success, error)
       } ?: error(
         TwilioVerifyException(
-          IllegalArgumentException("Invalid factor"), InputError
+          IllegalArgumentException("Invalid factor").also { Logger.log(Level.Error, it.toString(), it) }, InputError
         )
       )
     }
     try {
       if (challenge.status != Pending) {
         throw TwilioVerifyException(
-          IllegalArgumentException("Responded or expired challenge can not be updated"),
+          IllegalArgumentException("Responded or expired challenge can not be updated").also { Logger.log(Level.Error, it.toString(), it) },
           InputError
         )
       }
@@ -112,6 +114,6 @@ internal class ChallengeRepository(
 
   private fun toFactorChallenge(challenge: Challenge) =
     (challenge as? FactorChallenge) ?: throw TwilioVerifyException(
-      IllegalArgumentException("Invalid challenge"), InputError
+      IllegalArgumentException("Invalid challenge").also { Logger.log(Level.Error, it.toString(), it) }, InputError
     )
 }

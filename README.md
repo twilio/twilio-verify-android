@@ -17,6 +17,7 @@
 * [Running the Sample app](#SampleApp)
 * [Running the sample backend](#SampleBackend)
 * [Using the sample app](#UsingSampleApp)
+* [Logging](#Logging)
 * [Errors](#Errors)
 * [Update factor's push token](#UpdatePushToken)
 * [Delete a factor](#DeleteFactor)
@@ -120,6 +121,31 @@ In order to run the sample app, you have to create a project and application in 
 * The app will show the challenge info below the factor information, in a `Challenge` section
 * Approve or deny the challenge
 * After the challenge is updated, you will see the challenge status in the backend's `Create Push Challenge` view
+
+<a name='Logging'></a>
+
+## Logging
+By default, logging is disabled. To enable it you can either set your own logging services by implementing [LoggerService](https://github.com/twilio/twilio-verify-android/blob/main/verify/src/main/java/com/twilio/verify/logger/LoggerService.kt) and calling `addLoggingService` (note that you can add as many logging services as you like) or enable the default logger service by calling `enableDefaultLoggingService`. Your multiple implementations and the default one can work at the same time, but you may just want to have it enabled during the development process, it's risky to have it turned on when releasing your app.
+
+### Setting Log Level
+You may want to log only certain processes that are happening in the SDK, or you just want to log it all, for that the SDK allows you to set a log level.
+* Error: reports behaviors that shouldn't be happening.
+* Info: warns specific information of what is being done.
+* Debug: detailed information.
+* Networking: specific data for the networking work, such as request body, headers, response code, response body.
+* All: Error, Info, Debug and Networking are enabled.
+
+### Usage
+To start logging, enable the default logging service or/and pass your custom implementations
+```
+TwilioVerify.Builder(applicationContext).apply {
+  if (BuildConfig.DEBUG) {
+    enableDefaultLoggingService(LogLevel.Debug)
+    addLoggingService(MyOwnLoggerService1())
+    addLoggingService(MyOwnLoggerService2())
+  }
+}.build()
+```
 
 <a name='Errors'></a>
 

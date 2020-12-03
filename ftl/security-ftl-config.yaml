@@ -9,10 +9,10 @@ twilio-security-tests:
         # Pixel
         - {model: sailfish, version: 25, locale: en, orientation: portrait}
         # Galaxy A5 2017
-        - {model: a5y17lte, version: 24, locale: en, orientation: portrait}
+        - {model: HWMHA, version: 24, locale: en, orientation: portrait}
         # Moto G4 Plus
         - {model: athene, version: 23, locale: en, orientation: portrait}
         # Samsung Galaxy S9+ (US)
         - {model: star2qlteue, version: 26, locale: en, orientation: portrait}
         # Pixel 3
-        - {model: blueline, version: 29, locale: en, orientation: portrait}
+        - {model: flame, version: 29, locale: en, orientation: portrait}
