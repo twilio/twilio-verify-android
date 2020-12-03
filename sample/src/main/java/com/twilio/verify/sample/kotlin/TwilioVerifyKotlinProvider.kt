@@ -18,6 +18,7 @@ package com.twilio.verify.sample.kotlin
 
 import android.content.Context
 import com.twilio.verify.TwilioVerify
+import com.twilio.verify.logger.LogLevel
 
 object TwilioVerifyKotlinProvider {
   private lateinit var twilioVerifyAdapter: TwilioVerifyKotlinAdapter
@@ -28,6 +29,7 @@ object TwilioVerifyKotlinProvider {
     if (!this::twilioVerifyAdapter.isInitialized) {
       twilioVerifyAdapter = TwilioVerifyKotlinAdapter(
         TwilioVerify.Builder(applicationContext)
+          .enableDefaultLoggingService(LogLevel.All)
           .build()
       )
     }

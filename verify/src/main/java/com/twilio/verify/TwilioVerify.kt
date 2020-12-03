@@ -17,6 +17,7 @@
 package com.twilio.verify
 
 import android.content.Context
+import com.twilio.security.logger.Logger
 import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.KeyStorage
 import com.twilio.verify.data.KeyStoreAdapter
@@ -26,6 +27,10 @@ import com.twilio.verify.domain.TwilioVerifyManager
 import com.twilio.verify.domain.challenge.ChallengeFacade
 import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
+import com.twilio.verify.logger.DefaultLoggerService
+import com.twilio.verify.logger.LogLevel
+import com.twilio.verify.logger.LoggerImplementation
+import com.twilio.verify.logger.LoggerService
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListPayload
@@ -165,6 +170,7 @@ interface TwilioVerify {
         jwtGenerator,
         DateAdapter(storagePreferences(context))
       )
+    private var loggerServices: MutableList<LoggerService> = mutableListOf()
 
     /**
      * @param networkProvider
@@ -177,12 +183,30 @@ interface TwilioVerify {
     }
 
     /**
+     * Enable the internal logging service
+     *
+     * @param logLevel that will allow logging information
+     */
+    fun enableDefaultLoggingService(logLevel: LogLevel) =
+      apply { addLoggingService(DefaultLoggerService(logLevel)) }
+
+    /**
+     * Inject your own implementation of a **LoggerService**
+     *
+     * @param loggerService Custom logger service
+     */
+    fun addLoggingService(loggerService: LoggerService) =
+      apply { loggerServices.add(loggerService) }
+
+    /**
      * Builds an instance of TwilioVerifyManager
      * @throws TwilioVerifyException When building TwilioVerifyManager fails
      * @return Instance of twilioVerifyManager
      */
     @Throws(TwilioVerifyException::class)
     fun build(): TwilioVerify {
+      loggerServices.forEach { LoggerImplementation.addService(it) }
+      Logger.loggerContract = LoggerImplementation
       val factorFacade = FactorFacade.Builder()
         .context(context)
         .networkProvider(networkProvider)

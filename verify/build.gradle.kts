@@ -55,7 +55,10 @@ android {
       )
     }
   }
-  testOptions.unitTests.isIncludeAndroidResources = true
+  testOptions {
+    unitTests.isIncludeAndroidResources = true
+    unitTests.isReturnDefaultValues = true
+  }
   lintOptions {
     lintConfig = rootProject.file(".lint/config.xml")
     xmlReport = true

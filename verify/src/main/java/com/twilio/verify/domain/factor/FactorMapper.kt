@@ -16,6 +16,8 @@
 
 package com.twilio.verify.domain.factor
 
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.MapperError
 import com.twilio.verify.data.fromRFC3339Date
@@ -53,7 +55,7 @@ internal class FactorMapper {
     val identity = factorPayload.identity
     if (serviceSid.isEmpty() || identity.isEmpty()) {
       throw TwilioVerifyException(
-        IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
+        IllegalArgumentException("ServiceSid or Identity is null or empty").also { Logger.log(Level.Error, it.toString(), it) }, MapperError
       )
     }
     return when (factorPayload.type) {
@@ -69,6 +71,7 @@ internal class FactorMapper {
       FactorStatus.values()
         .find { it.value == jsonObject.getString(statusKey) } ?: Unverified
     } catch (e: JSONException) {
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
   }
@@ -78,13 +81,14 @@ internal class FactorMapper {
     val jsonObject = try {
       JSONObject(json)
     } catch (e: JSONException) {
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
     val serviceSid = jsonObject.optString(serviceSidKey)
     val identity = jsonObject.optString(identityKey)
     if (serviceSid.isNullOrEmpty() || identity.isNullOrEmpty()) {
       throw TwilioVerifyException(
-        IllegalArgumentException("ServiceSid or Identity is null or empty"), MapperError
+        IllegalArgumentException("ServiceSid or Identity is null or empty").also { Logger.log(Level.Error, it.toString(), it) }, MapperError
       )
     }
     return when (jsonObject.getString(typeKey)) {
@@ -97,7 +101,7 @@ internal class FactorMapper {
           keyPairAlias = jsonObject.optString(keyPairAliasKey)
         }
       else -> throw TwilioVerifyException(
-        IllegalArgumentException("Invalid factor type from json"), MapperError
+        IllegalArgumentException("Invalid factor type from json").also { Logger.log(Level.Error, it.toString(), it) }, MapperError
       )
     }
   }
@@ -148,6 +152,7 @@ internal class FactorMapper {
         )
       )
     } catch (e: JSONException) {
+      Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, MapperError)
     }
   }
