@@ -1,3 +1,19 @@
+# 0.3.0 (2020-12-03)
+
+### Features
+- SDK Logging (#162) ([39f29b0](https://github.com/twilio/twilio-verify-android/commit/39f29b07b0943a78c90aade9251d7cc6d72f50ee))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 72.9KB          |
+| x86_64          | 72.9KB          |
+| armeabi-v7a     | 72.9KB          |
+| arm64-v8a       | 72.9KB          |
+| universal       | 72.9KB          |
+
+
 # 0.2.0 (2020-11-03)
 
 ### Features
