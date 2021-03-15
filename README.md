@@ -158,7 +158,7 @@ Storage | 60403 | Exception while storing/loading an entity
 Input | 60404 | Exception while loading input
 Key Storage | 60405 | Exception while storing/loading key pairs
 Initialization | 60406 | Exception while initializing an object
-Authentication Token | 60407 | Exception while generating token
+Authentication Token | 60407| Exception while generating token
 
 <a name='UpdatePushToken'></a>
 
