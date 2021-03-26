@@ -72,7 +72,11 @@ references:
   release: &release
     run:
       name: Release SDK
-      command: bundle exec fastlane release
+      command: bundle exec fastlane release_test
+  signing_key: &signing_key
+    run:
+      name: Install signing key
+      command: echo $SIGNING_KEY | base64 -d >> $SIGNING_SECRET_KEY_RING_FILE
 
 commands:
   setup:
@@ -330,6 +334,19 @@ jobs:
       - *restore_gradle_cache
       - *decrypt_google_services
       - *store_gcloud_app_distribution_service
+      - *signing_key
+      - *release
+      - *save_gradle_cache
+  release_test:
+    executor: *executor
+    steps:
+      - setup
+      - attach_workspace:
+          at: *workspace
+      - *restore_gradle_cache
+      - *decrypt_google_services
+      - *store_gcloud_app_distribution_service
+      - *signing_key
       - *release
       - *save_gradle_cache
 workflows:
@@ -337,6 +354,7 @@ workflows:
 
   workflow:
     jobs:
+      - release_test
       - assemble_build
       - lint:
           requires:

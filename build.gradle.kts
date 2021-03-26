@@ -18,6 +18,8 @@
 apply(from = "publish.gradle.kts")
 plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
+  id(Config.Plugins.nexus) version (Config.Versions.nexus)
+
 }
 
 buildscript {
@@ -52,6 +54,57 @@ allprojects {
   }
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
+}
+
+nexusPublishing {
+  repositories {
+    sonatype {
+      username.set(Config.projectProperty(project, MavenPublish.ossrhUsernameEnv))
+      password.set(Config.projectProperty(project, MavenPublish.ossrhPasswordEnv))
+      stagingProfileId.set(Config.projectProperty(project,MavenPublish.sonatypeStagingProfileIdEnv))
+    }
+  }
+
+  clientTimeout.set(java.time.Duration.ofSeconds(300))
+  connectTimeout.set(java.time.Duration.ofSeconds(60))
+}
+
+task("sonatypeTwilioVerifyReleaseUpload", GradleBuild::class) {
+  description = "Publish Twilio Verify SDK release"
+  group = "Publishing"
+  buildName = "TwilioVerify"
+  buildFile = file("build.gradle.kts")
+  tasks = listOf(":verify:assembleRelease", ":verify:publishTwilioVerifyPublicationToSonatypeRepository", "closeSonatypeStagingRepository")
+  startParameter.projectProperties.plusAssign(
+    gradle.startParameter.projectProperties + MavenPublish.credentials(
+      project,
+      MavenPublish.signingKeyIdEnv,
+      MavenPublish.signingPasswordEnv,
+      MavenPublish.signingSecretKeyRingFileEnv,
+      MavenPublish.ossrhUsernameEnv,
+      MavenPublish.ossrhPasswordEnv,
+      MavenPublish.sonatypeStagingProfileIdEnv
+    )
+  )
+}
+
+task("sonatypeTwilioSecurityReleaseUpload", GradleBuild::class) {
+  description = "Publish Twilio Security SDK release"
+  group = "Publishing"
+  buildName = "TwilioSecurity"
+  buildFile = file("build.gradle.kts")
+  tasks = listOf(":security:assembleRelease", ":security:publishTwilioSecurityPublicationToSonatypeRepository", "closeSonatypeStagingRepository")
+  startParameter.projectProperties.plusAssign(
+    gradle.startParameter.projectProperties + MavenPublish.credentials(
+      project,
+      MavenPublish.signingKeyIdEnv,
+      MavenPublish.signingPasswordEnv,
+      MavenPublish.signingSecretKeyRingFileEnv,
+      MavenPublish.ossrhUsernameEnv,
+      MavenPublish.ossrhPasswordEnv,
+      MavenPublish.sonatypeStagingProfileIdEnv
+    )
+  )
 }
 
 tasks.register("clean", Delete::class) {
