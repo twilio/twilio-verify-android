@@ -77,6 +77,8 @@ references:
     run:
       name: Install signing key
       command: echo $SIGNING_KEY | base64 -d >> $SIGNING_SECRET_KEY_RING_FILE
+    run: pwd
+    run: ls
 
 commands:
   setup:
