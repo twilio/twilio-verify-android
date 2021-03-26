@@ -62,7 +62,7 @@ nexusPublishing {
 }
 
 task("sonatypeTwilioVerifyReleaseUpload", GradleBuild::class) {
-  description = "Publish Twilio Verify to maven central"
+  description = "Publish Twilio Verify to MavenCentral"
   group = "Publishing"
   buildName = "TwilioVerify"
   buildFile = file("build.gradle.kts")
@@ -92,7 +92,7 @@ task("sonatypeTwilioVerifyStagingRepositoryUpload", GradleBuild::class) {
 }
 
 task("sonatypeTwilioSecurityReleaseUpload", GradleBuild::class) {
-  description = "Publish Twilio Security to maven central"
+  description = "Publish Twilio Security to MavenCentral"
   group = "Publishing"
   buildName = "TwilioSecurity"
   buildFile = file("build.gradle.kts")

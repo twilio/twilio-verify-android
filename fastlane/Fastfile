@@ -54,7 +54,7 @@ platform :android do
     tag_prefix = '*'
     next unless verify(title: title, tag_prefix: tag_prefix)
     increment_version()
-    UI.message("Releasing to Maven")
+    UI.message("Releasing to MavenCentral")
     gradle(task: "sonatypeTwilioVerifyReleaseUpload")
     latest_docs()
     post_release()
