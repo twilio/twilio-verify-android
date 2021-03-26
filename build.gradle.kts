@@ -15,7 +15,6 @@
  */
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-apply(from = "publish.gradle.kts")
 plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexus) version (Config.Versions.nexus)
@@ -44,13 +43,6 @@ allprojects {
   repositories {
     google()
     jcenter()
-    maven {
-      url = uri("https://twilio.bintray.com/internal-releases")
-      credentials {
-        username = Config.projectProperty(project, "BINTRAY_USER")
-        password = Config.projectProperty(project, "BINTRAY_APIKEY")
-      }
-    }
   }
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
@@ -61,7 +53,7 @@ nexusPublishing {
     sonatype {
       username.set(Config.projectProperty(project, MavenPublish.ossrhUsernameEnv))
       password.set(Config.projectProperty(project, MavenPublish.ossrhPasswordEnv))
-      stagingProfileId.set(Config.projectProperty(project,MavenPublish.sonatypeStagingProfileIdEnv))
+      stagingProfileId.set(Config.projectProperty(project, MavenPublish.sonatypeStagingProfileIdEnv))
     }
   }
 
@@ -70,40 +62,74 @@ nexusPublishing {
 }
 
 task("sonatypeTwilioVerifyReleaseUpload", GradleBuild::class) {
-  description = "Publish Twilio Verify SDK release"
+  description = "Publish Twilio Verify to maven central"
   group = "Publishing"
   buildName = "TwilioVerify"
   buildFile = file("build.gradle.kts")
-  tasks = listOf(":verify:assembleRelease", ":verify:publishTwilioVerifyPublicationToSonatypeRepository", "closeSonatypeStagingRepository")
+  tasks = listOf(
+    ":verify:assembleRelease",
+    ":verify:publishTwilioVerifyPublicationToSonatypeRepository",
+    "closeAndReleaseSonatypeStagingRepository"
+  )
   startParameter.projectProperties.plusAssign(
-    gradle.startParameter.projectProperties + MavenPublish.credentials(
-      project,
-      MavenPublish.signingKeyIdEnv,
-      MavenPublish.signingPasswordEnv,
-      MavenPublish.signingSecretKeyRingFileEnv,
-      MavenPublish.ossrhUsernameEnv,
-      MavenPublish.ossrhPasswordEnv,
-      MavenPublish.sonatypeStagingProfileIdEnv
-    )
+    gradle.startParameter.projectProperties + mavenPublishCredentials()
+  )
+}
+
+task("sonatypeTwilioVerifyStagingRepositoryUpload", GradleBuild::class) {
+  description = "Publish Twilio Verify to nexus staging repository"
+  group = "Publishing"
+  buildName = "TwilioVerify"
+  buildFile = file("build.gradle.kts")
+  tasks = listOf(
+    ":verify:assembleRelease",
+    ":verify:publishTwilioVerifyPublicationToSonatypeRepository",
+    "closeSonatypeStagingRepository"
+  )
+  startParameter.projectProperties.plusAssign(
+    gradle.startParameter.projectProperties + mavenPublishCredentials()
   )
 }
 
 task("sonatypeTwilioSecurityReleaseUpload", GradleBuild::class) {
-  description = "Publish Twilio Security SDK release"
+  description = "Publish Twilio Security to maven central"
   group = "Publishing"
   buildName = "TwilioSecurity"
   buildFile = file("build.gradle.kts")
-  tasks = listOf(":security:assembleRelease", ":security:publishTwilioSecurityPublicationToSonatypeRepository", "closeSonatypeStagingRepository")
+  tasks = listOf(
+    ":security:assembleRelease",
+    ":security:publishTwilioSecurityPublicationToSonatypeRepository",
+    "closeAndReleaseSonatypeStagingRepository"
+  )
   startParameter.projectProperties.plusAssign(
-    gradle.startParameter.projectProperties + MavenPublish.credentials(
-      project,
-      MavenPublish.signingKeyIdEnv,
-      MavenPublish.signingPasswordEnv,
-      MavenPublish.signingSecretKeyRingFileEnv,
-      MavenPublish.ossrhUsernameEnv,
-      MavenPublish.ossrhPasswordEnv,
-      MavenPublish.sonatypeStagingProfileIdEnv
-    )
+    gradle.startParameter.projectProperties + mavenPublishCredentials()
+  )
+}
+
+task("sonatypeTwilioSecurityStagingRepositoryUpload", GradleBuild::class) {
+  description = "Publish Twilio Security to nexus staging repository"
+  group = "Publishing"
+  buildName = "TwilioSecurity"
+  buildFile = file("build.gradle.kts")
+  tasks = listOf(
+    ":security:assembleRelease",
+    ":security:publishTwilioSecurityPublicationToSonatypeRepository",
+    "closeSonatypeStagingRepository"
+  )
+  startParameter.projectProperties.plusAssign(
+    gradle.startParameter.projectProperties + mavenPublishCredentials()
+  )
+}
+
+fun mavenPublishCredentials(): Map<String, String> {
+  return MavenPublish.credentials(
+    project,
+    MavenPublish.signingKeyIdEnv,
+    MavenPublish.signingPasswordEnv,
+    MavenPublish.signingSecretKeyRingFileEnv,
+    MavenPublish.ossrhUsernameEnv,
+    MavenPublish.ossrhPasswordEnv,
+    MavenPublish.sonatypeStagingProfileIdEnv
   )
 }
 
