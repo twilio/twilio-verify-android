@@ -22,7 +22,8 @@ plugins {
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.dokka)
-  id(MavenPublish.plugin)
+  id(Config.Plugins.maven_publish)
+  id(Config.Plugins.signing)
   jacoco
   id(Config.Plugins.apkscale)
 }
@@ -91,43 +92,8 @@ tasks.dokkaHtml {
 //endregion
 
 //region Publish
-val pomPackaging: String by project
 val pomGroup: String by project
 val pomArtifactId: String by project
-
-/*
- * Maven upload configuration that can be used for any maven repo
- */
-tasks {
-  "uploadArchives"(Upload::class) {
-    repositories {
-      withConvention(MavenRepositoryHandlerConvention::class) {
-        mavenDeployer {
-          withGroovyBuilder {
-            MavenPublish.Bintray.repository(
-              MavenPublish.Bintray.url to uri(
-                MavenPublish.mavenRepo(project)
-              )
-            ) {
-              MavenPublish.Bintray.authentication(
-                MavenPublish.Bintray.userName to MavenPublish.mavenUsername(project),
-                MavenPublish.Bintray.password to MavenPublish.mavenPassword(project)
-              )
-            }
-          }
-          pom.project {
-            withGroovyBuilder {
-              MavenPublish.Bintray.version(verifyVersionName)
-              MavenPublish.Bintray.groupId(pomGroup)
-              MavenPublish.Bintray.artifactId(pomArtifactId)
-              MavenPublish.Bintray.packaging(pomPackaging)
-            }
-          }
-        }
-      }
-    }
-  }
-}
 
 val dokkaHtmlJar by tasks.creating(Jar::class) {
   dependsOn(tasks.dokkaHtml)
@@ -143,41 +109,63 @@ val sourcesJar by tasks.creating(Jar::class) {
   from(android.sourceSets.getByName("main").java.srcDirs)
 }
 
-artifacts {
-  archives(dokkaHtmlJar)
-  archives(sourcesJar)
+publishing {
+  publications {
+    create<MavenPublication>("TwilioVerify") {
+      groupId = pomGroup
+      artifactId = pomArtifactId
+      version = verifyVersionName
+      artifact("$buildDir/outputs/aar/verify-release.aar")
+      artifact(dokkaHtmlJar)
+      artifact(sourcesJar)
+
+      pom.withXml {
+        asNode().apply {
+          appendNode("name", "Twilio Verify library")
+          appendNode(
+            "description",
+            "Twilio Verify Push SDK helps you verify users by adding a low-friction, secure, " +
+              "cost-effective, \"push verification\" factor into your own mobile application. This fully" +
+              " managed API service allows you to seamlessly verify users in-app via a secure channel," +
+              " without the risks, hassles or costs of One-Time Passcodes (OTPs)."
+          )
+          appendNode("url", "https://github.com/twilio/twilio-verify-android")
+          appendNode("licenses").apply {
+            appendNode("license").apply {
+              appendNode("name", "Apache License, Version 2.0")
+              appendNode("url", "https://github.com/twilio/twilio-verify-android/blob/main/LICENSE")
+            }
+          }
+          appendNode("developers").apply {
+            appendNode("developer").apply {
+              appendNode("id", "Twilio")
+              appendNode("name", "Twilio")
+            }
+          }
+          appendNode("scm").apply {
+            appendNode("connection", "scm:git:github.com/twilio/twilio-verify-android.git")
+            appendNode("developerConnection", "scm:git:ssh://github.com/twilio/twilio-verify-android.git")
+            appendNode("url", "https://github.com/twilio/twilio-verify-android/tree/main")
+          }
+          appendNode("dependencies").apply {
+            project.configurations["releaseImplementation"].allDependencies.forEach {
+              appendNode("dependency").apply {
+                appendNode("groupId", it.group)
+                appendNode("artifactId", it.name)
+                appendNode("version", it.version)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
-task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
-  description = "Publish Verify SDK release candidate to internal bintray"
-  group = "Publishing"
-  buildName = "Verify"
-  buildFile = file("build.gradle.kts")
-  tasks = listOf("assembleRelease", "uploadArchives")
-  startParameter.projectProperties.plusAssign(
-    gradle.startParameter.projectProperties + MavenPublish.Bintray.credentials(
-      project,
-      "https://api.bintray.com/maven/twilio/internal-releases/twilio-verify-android/;publish=1",
-      MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
-    )
-  )
+signing {
+  sign(publishing.publications)
 }
-
-task("bintrayLibraryReleaseUpload", GradleBuild::class) {
-  description = "Publish Verify SDK release to bintray"
-  group = "Publishing"
-  buildName = "Verify"
-  buildFile = file("build.gradle.kts")
-  tasks = listOf("assembleRelease", "uploadArchives")
-
-  startParameter.projectProperties.plusAssign(
-    gradle.startParameter.projectProperties + MavenPublish.Bintray.credentials(
-      project,
-      "https://api.bintray.com/maven/twilio/releases/twilio-verify-android/;publish=1",
-      MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
-    )
-  )
-}
+//endregion
 
 apkscale {
   abis = setOf("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
@@ -209,11 +197,9 @@ task("generateSizeReport") {
     targetFile.writeText(sizeReport)
   }
 }
-//endregion
 
 dependencies {
   val securityVersionName: String by rootProject.allprojects.first { it.name == Modules.security }.extra
-  implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(":${Modules.security}"))
   releaseImplementation("com.twilio:twilio-security-android:$securityVersionName")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
