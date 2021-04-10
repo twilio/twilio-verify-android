@@ -1,9 +1,9 @@
 source "https://rubygems.org"
 
 gem "fastlane"
-gem "danger"
-gem "danger-checkstyle_formatter"
-gem "danger-android_lint"
+gem "danger", ">= 8.0.5"
+gem "danger-checkstyle_formatter", ">= 0.0.3"
+gem "danger-android_lint", ">= 0.0.8"
 
 plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
 eval_gemfile(plugins_path) if File.exist?(plugins_path)
