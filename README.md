@@ -1,6 +1,6 @@
 # Twilio Verify Android
 
-[![Download](https://api.bintray.com/packages/twilio/releases/twilio-verify-android/images/download.svg) ](https://bintray.com/twilio/releases/twilio-verify-android/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.twilio/twilio-verify-android/badge.svg?style=svg) ](https://maven-badges.herokuapp.com/maven-central/com.twilio/twilio-verify-android)
 [![CircleCI](https://circleci.com/gh/twilio/twilio-verify-android.svg?style=shield&circle-token=e5c76e91c300be6dcdd3db05a57bb4f01304415e)](https://circleci.com/gh/twilio/twilio-verify-android)
 [![codecov](https://codecov.io/gh/twilio/twilio-verify-android/branch/main/graph/badge.svg?token=o1ZcrAfoc0)](https://codecov.io/gh/twilio/twilio-verify-android)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
@@ -55,6 +55,15 @@ None
 
 ### Add library
 
+Ensure that you have `mavenCentral` listed in your project's buildscript repositories section:
+```groovy
+buildscript {
+    repositories {
+        mavenCentral()
+        ...                
+    }
+}
+```
 In the build.gradle file, add the library
 
 ```implementation 'com.twilio:twilio-verify-android:(insert latest version)'```
