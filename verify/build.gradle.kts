@@ -121,7 +121,7 @@ publishing {
 
       pom.withXml {
         asNode().apply {
-          appendNode("name", "Twilio Verify library")
+          appendNode("name", "twilio-verify-android")
           appendNode(
             "description",
             "Twilio Verify Push SDK helps you verify users by adding a low-friction, secure, " +

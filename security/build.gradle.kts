@@ -75,8 +75,8 @@ publishing {
 
       pom.withXml {
         asNode().apply {
-          appendNode("name", "Twilio Security library")
-          appendNode("description", "Twilio Security library")
+          appendNode("name", "twilio-security-android")
+          appendNode("description", "Twilio Security library.")
           appendNode("url", "https://github.com/twilio/twilio-verify-android")
           appendNode("licenses").apply {
             appendNode("license").apply {
