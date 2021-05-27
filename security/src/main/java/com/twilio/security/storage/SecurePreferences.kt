@@ -19,74 +19,75 @@ package com.twilio.security.storage
 import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Base64.DEFAULT
+import com.twilio.security.crypto.KeyManager
+import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
-import com.twilio.security.storage.key.EncryptionSecretKey
-import java.security.MessageDigest
+import com.twilio.security.storage.key.BiometricSecretKey
+import com.twilio.security.storage.key.authentication.BiometricAuthenticator
 import kotlin.reflect.KClass
 
-class EncryptedPreferences(
-  override val encryptionSecretKey: EncryptionSecretKey,
+class SecurePreferences(
+  override val storageAlias: String,
+  override val keyManager: KeyManager,
   private val preferences: SharedPreferences,
   override val serializer: Serializer
-) : EncryptedStorage {
+) : SecureStorage {
+
+  override val biometricSecretKey: BiometricSecretKey
+    get() {
+      val biometricSecretKey = BiometricSecretKey(
+        AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true), keyManager
+      )
+      if (!keyManager.contains(storageAlias) && preferences.all.isEmpty()) {
+        biometricSecretKey.create()
+      }
+      return biometricSecretKey
+    }
+
   @Throws(StorageException::class)
   @Synchronized
   override fun <T : Any> put(
     key: String,
-    value: T
+    value: T,
+    authenticator: BiometricAuthenticator, error: (Exception) -> Unit
   ) {
     try {
       Logger.log(Level.Info, "Saving $key")
       val rawValue = toByteArray(value)
-      val encrypted = encryptionSecretKey.encrypt(rawValue)
-      val keyToSave = generateKeyDigest(key)
-      Logger.log(Level.Debug, "Saving $keyToSave")
-      preferences.edit()
-        .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
-        .apply()
-      Logger.log(Level.Debug, "Saved $keyToSave")
+      biometricSecretKey.encrypt(rawValue, authenticator, { encrypted ->
+        val keyToSave = generateKeyDigest(key)
+        Logger.log(Level.Debug, "Saving $keyToSave")
+        preferences.edit()
+          .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
+          .apply()
+        Logger.log(Level.Debug, "Saved $keyToSave")
+      }, error)
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
-      throw StorageException(e)
+      error(StorageException(e))
     }
   }
 
   @Throws(StorageException::class)
   override fun <T : Any> get(
     key: String,
-    kClass: KClass<T>
-  ): T {
+    kClass: KClass<T>,
+    authenticator: BiometricAuthenticator,
+    success: (T) -> Unit,
+    error: (Exception) -> Unit
+  ) {
     return try {
       Logger.log(Level.Info, "Getting $key")
-      getValue(generateKeyDigest(key), kClass) ?: throw IllegalArgumentException(
-        "Illegal decrypted data"
-      ).also { Logger.log(Level.Debug, "Return value $it for $key") }
+      getValue(generateKeyDigest(key), kClass, authenticator, {
+        it?.let(success) ?: throw IllegalArgumentException(
+          "Illegal decrypted data"
+        )
+      }, error).also { Logger.log(Level.Debug, "Return value $it for $key") }
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
-      throw StorageException(e)
+      error(StorageException(e))
     }
-  }
-
-  @Throws(StorageException::class)
-  override fun <T : Any> getAll(
-    kClass: KClass<T>
-  ): List<T> = try {
-    Logger.log(Level.Info, "Getting all values")
-    preferences.all.filterValues { it is String }
-      .mapNotNull { entry ->
-        try {
-          getValue(
-            entry.key, kClass
-          ).also { Logger.log(Level.Debug, "Return value $it for key ${entry.key}") }
-        } catch (e: Exception) {
-          Logger.log(Level.Error, e.toString(), e)
-          null
-        }
-      }.also { Logger.log(Level.Info, "Return all values") }
-  } catch (e: Exception) {
-    Logger.log(Level.Error, e.toString(), e)
-    throw StorageException(e)
   }
 
   override fun contains(key: String): Boolean = preferences.contains(generateKeyDigest(key))
@@ -110,12 +111,16 @@ class EncryptedPreferences(
 
   private fun <T : Any> getValue(
     key: String,
-    kClass: KClass<T>
-  ): T? {
+    kClass: KClass<T>,
+    authenticator: BiometricAuthenticator,
+    success: (T?) -> Unit,
+    error: (Exception) -> Unit
+  ) {
     Logger.log(Level.Debug, "Getting value for $key")
     val value = preferences.getString(key, null) ?: throw IllegalArgumentException("key not found")
-    return fromByteArray(encryptionSecretKey.decrypt(Base64.decode(value, DEFAULT)), kClass)
-      .also { Logger.log(Level.Debug, "Return value $it for key $key") }
+    biometricSecretKey.decrypt(Base64.decode(value, DEFAULT), authenticator, { decryptedValue ->
+      success(fromByteArray(decryptedValue, kClass).also { Logger.log(Level.Debug, "Return value $it for key $key") })
+    }, error)
   }
 
   private fun <T : Any> toByteArray(
@@ -126,11 +131,4 @@ class EncryptedPreferences(
     data: ByteArray,
     kClass: KClass<T>
   ): T? = serializer.fromByteArray(data, kClass)
-}
-
-internal fun generateKeyDigest(key: String): String {
-  Logger.log(Level.Debug, "Generating key digest for $key")
-  val messageDigest = MessageDigest.getInstance("SHA-256")
-  return Base64.encodeToString(messageDigest.digest(key.toByteArray()), DEFAULT)
-    .also { Logger.log(Level.Debug, "Generated key digest for $key: $it") }
 }

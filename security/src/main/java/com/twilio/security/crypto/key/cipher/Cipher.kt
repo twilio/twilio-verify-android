@@ -17,6 +17,7 @@
 package com.twilio.security.crypto.key.cipher
 
 import com.twilio.security.crypto.KeyException
+import com.twilio.security.crypto.key.authentication.Authenticator
 
 interface Cipher {
   @Throws(KeyException::class)
@@ -24,4 +25,7 @@ interface Cipher {
 
   @Throws(KeyException::class)
   fun decrypt(data: EncryptedData): ByteArray
+
+  fun encrypt(data: ByteArray, authenticator: Authenticator, success: (EncryptedData) -> Unit, error: (Exception) -> Unit)
+  fun decrypt(data: EncryptedData, authenticator: Authenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit)
 }

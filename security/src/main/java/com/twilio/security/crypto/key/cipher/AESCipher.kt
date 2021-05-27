@@ -18,6 +18,7 @@ package com.twilio.security.crypto.key.cipher
 
 import com.twilio.security.crypto.AndroidKeyStoreOperations
 import com.twilio.security.crypto.KeyException
+import com.twilio.security.crypto.key.authentication.Authenticator
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
 import javax.crypto.SecretKey
@@ -36,12 +37,32 @@ class AESCipher(
     }
   }
 
+  override fun encrypt(data: ByteArray, authenticator: Authenticator, success: (EncryptedData) -> Unit, error: (Exception) -> Unit) {
+    try {
+      authenticator.startAuthentication(androidKeyStoreOperations.getCipherForEncryption(cipherAlgorithm, key), {
+        success(androidKeyStoreOperations.encrypt(data, it))
+      }, error)
+    } catch (e: Exception) {
+      error(e)
+    }
+  }
+
   override fun decrypt(data: EncryptedData): ByteArray {
     return try {
       return androidKeyStoreOperations.decrypt(data, cipherAlgorithm, key)
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
       throw KeyException(e)
+    }
+  }
+
+  override fun decrypt(data: EncryptedData, authenticator: Authenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit) {
+    try {
+      authenticator.startAuthentication(androidKeyStoreOperations.getCipherForDecryption(cipherAlgorithm, key, data), {
+        success(androidKeyStoreOperations.decrypt(data, it))
+      }, error)
+    } catch (e: Exception) {
+      error(e)
     }
   }
 }
