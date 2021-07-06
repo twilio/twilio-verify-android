@@ -44,9 +44,12 @@ class AuthenticatedEncryptedPreferences(
       biometricSecretKey.encrypt(rawValue, authenticator, { encrypted ->
         val keyToSave = generateKeyDigest(key)
         Logger.log(Level.Debug, "Saving $keyToSave")
-        preferences.edit()
+        val result = preferences.edit()
           .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
-          .apply()
+          .commit()
+        if (!result) {
+          throw IllegalStateException("Error saving value")
+        }
         Logger.log(Level.Debug, "Saved $keyToSave")
       }, error)
     } catch (e: Exception) {

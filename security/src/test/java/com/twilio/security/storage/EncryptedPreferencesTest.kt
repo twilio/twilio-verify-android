@@ -48,11 +48,12 @@ class EncryptedPreferencesTest {
     whenever(serializer.toByteArray(value)).thenReturn(value.toByteArray())
     whenever(secretKeyProvider.encrypt(any())).thenReturn(value.toByteArray())
     whenever(editor.putString(eq(generateKeyDigest(key)), any())).thenReturn(editor)
+    whenever(editor.commit()).thenReturn(true)
     encryptedPreferences.put(key, value)
     verify(editor).putString(
       generateKeyDigest(key), Base64.encodeToString(value.toByteArray(), Base64.DEFAULT)
     )
-    verify(editor).apply()
+    verify(editor).commit()
   }
 
   @Test
