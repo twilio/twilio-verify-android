@@ -22,14 +22,12 @@ import com.twilio.security.crypto.key.cipher.EncryptedData
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
 import java.security.AlgorithmParameters
-import java.security.InvalidKeyException
 import java.security.Key
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.KeyStore.PrivateKeyEntry
 import java.security.KeyStore.SecretKeyEntry
-import java.security.NoSuchAlgorithmException
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.Signature
@@ -37,13 +35,13 @@ import java.security.cert.Certificate
 import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
-import javax.crypto.NoSuchPaddingException
 import javax.crypto.SecretKey
 
 class AndroidKeyStore(
   private val keyStore: KeyStore
 ) : AndroidKeyStoreOperations {
 
+  @Synchronized
   fun contains(alias: String): Boolean = keyStore.containsAlias(alias)
 
   @Synchronized
@@ -51,6 +49,7 @@ class AndroidKeyStore(
     keyStore.deleteEntry(alias).also { Logger.log(Level.Debug, "Deleted entry for $alias") }
   }
 
+  @Synchronized
   fun getSecretKey(alias: String): SecretKey? {
     return (keyStore.getKey(alias, null) as? SecretKey ?: run {
       val entry = keyStore.getEntry(alias, null)
@@ -58,21 +57,10 @@ class AndroidKeyStore(
         throw IllegalStateException("Entry is not a secret key entry")
       }
       entry.secretKey
-    }).also { Logger.log(Level.Debug, "Return secret key for $alias") }.also {
-      // try to initialize a dummy cipher and see if an InvalidKeyException is thrown
-      try {
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.ENCRYPT_MODE, it)
-      } catch (e: InvalidKeyException) {
-        throw RuntimeException(e)
-      } catch (e: NoSuchAlgorithmException) {
-        throw RuntimeException(e)
-      } catch (e: NoSuchPaddingException) {
-        throw RuntimeException(e)
-      }
-    }
+    }).also { Logger.log(Level.Debug, "Return secret key for $alias") }
   }
 
+  @Synchronized
   fun getKeyPair(alias: String): KeyPair? {
     val privateKey = getPrivateKey(alias)
     val certificate = getCertificate(alias)
@@ -138,9 +126,8 @@ class AndroidKeyStore(
     cipherAlgorithm: String,
     key: Key
   ): EncryptedData {
-    return Cipher.getInstance(cipherAlgorithm)
+    return getCipherForEncryption(cipherAlgorithm, key)
       .run {
-        init(Cipher.ENCRYPT_MODE, key)
         EncryptedData(
           AlgorithmParametersSpec(
             parameters.encoded, parameters.provider.name,
@@ -151,6 +138,7 @@ class AndroidKeyStore(
       }
   }
 
+  @Synchronized
   override fun encrypt(data: ByteArray, cipherObject: Cipher): EncryptedData {
     return cipherObject
       .run {
@@ -185,30 +173,16 @@ class AndroidKeyStore(
     cipherAlgorithm: String,
     key: Key
   ): ByteArray {
-    return Cipher.getInstance(cipherAlgorithm)
+    return getCipherForDecryption(cipherAlgorithm, key, data)
       .run {
-        val algorithmParameterSpec =
-          AlgorithmParameters.getInstance(
-            data.algorithmParameters.algorithm, data.algorithmParameters.provider
-          )
-            .apply {
-              init(data.algorithmParameters.encoded)
-            }
-        init(Cipher.DECRYPT_MODE, key, algorithmParameterSpec)
         doFinal(data.encrypted)
       }.also { Logger.log(Level.Debug, "Decrypt encrypt data $data with $cipherAlgorithm") }
   }
 
+  @Synchronized
   override fun decrypt(data: EncryptedData, cipherObject: Cipher): ByteArray {
     return cipherObject
       .run {
-        val algorithmParameterSpec =
-          AlgorithmParameters.getInstance(
-            data.algorithmParameters.algorithm, data.algorithmParameters.provider
-          )
-            .apply {
-              init(data.algorithmParameters.encoded)
-            }
         doFinal(data.encrypted)
       }.also { Logger.log(Level.Debug, "Decrypt encrypt data $data with ${cipherObject.algorithm}") }
   }

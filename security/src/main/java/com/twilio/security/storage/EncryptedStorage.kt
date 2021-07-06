@@ -17,10 +17,14 @@
 package com.twilio.security.storage
 
 import android.content.SharedPreferences
+import android.util.Base64
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
 import com.twilio.security.storage.key.SecretKeyCipher
 import com.twilio.security.storage.key.SecretKeyProvider
+import java.security.MessageDigest
 import kotlin.reflect.KClass
 
 interface EncryptedStorage {
@@ -61,4 +65,11 @@ fun encryptedPreferences(
     secretKeyProvider.create()
   }
   return EncryptedPreferences(secretKeyProvider, sharedPreferences, DefaultSerializer())
+}
+
+internal fun generateKeyDigest(key: String): String {
+  Logger.log(Level.Debug, "Generating key digest for $key")
+  val messageDigest = MessageDigest.getInstance("SHA-256")
+  return Base64.encodeToString(messageDigest.digest(key.toByteArray()), Base64.DEFAULT)
+    .also { Logger.log(Level.Debug, "Generated key digest for $key: $it") }
 }

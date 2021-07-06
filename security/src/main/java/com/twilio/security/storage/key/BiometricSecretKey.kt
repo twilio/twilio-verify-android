@@ -17,15 +17,15 @@
 package com.twilio.security.storage.key
 
 import com.twilio.security.crypto.KeyManager
+import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import com.twilio.security.crypto.key.cipher.fromByteArray
 import com.twilio.security.crypto.key.cipher.toByteArray
 import com.twilio.security.crypto.key.template.CipherTemplate
-import com.twilio.security.storage.key.authentication.BiometricAuthenticator
 
 class BiometricSecretKey(
   private val template: CipherTemplate,
   private val keyManager: KeyManager
-) : SecureSecretKey {
+) : AuthenticatedSecretKey {
 
   override fun create() {
     keyManager.cipher(template.templateForCreation())

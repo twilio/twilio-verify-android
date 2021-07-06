@@ -19,31 +19,17 @@ package com.twilio.security.storage
 import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Base64.DEFAULT
-import com.twilio.security.crypto.KeyManager
-import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
 import com.twilio.security.storage.key.BiometricSecretKey
-import com.twilio.security.storage.key.authentication.BiometricAuthenticator
+import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import kotlin.reflect.KClass
 
-class SecurePreferences(
-  override val storageAlias: String,
-  override val keyManager: KeyManager,
+class AuthenticatedEncryptedPreferences(
+  override val biometricSecretKey: BiometricSecretKey,
   private val preferences: SharedPreferences,
   override val serializer: Serializer
-) : SecureStorage {
-
-  override val biometricSecretKey: BiometricSecretKey
-    get() {
-      val biometricSecretKey = BiometricSecretKey(
-        AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true), keyManager
-      )
-      if (!keyManager.contains(storageAlias) && preferences.all.isEmpty()) {
-        biometricSecretKey.create()
-      }
-      return biometricSecretKey
-    }
+) : AuthenticatedEncryptedStorage {
 
   @Throws(StorageException::class)
   @Synchronized

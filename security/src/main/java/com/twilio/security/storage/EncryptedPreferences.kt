@@ -22,7 +22,6 @@ import android.util.Base64.DEFAULT
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
 import com.twilio.security.storage.key.EncryptionSecretKey
-import java.security.MessageDigest
 import kotlin.reflect.KClass
 
 class EncryptedPreferences(
@@ -42,9 +41,12 @@ class EncryptedPreferences(
       val encrypted = encryptionSecretKey.encrypt(rawValue)
       val keyToSave = generateKeyDigest(key)
       Logger.log(Level.Debug, "Saving $keyToSave")
-      preferences.edit()
+      val result = preferences.edit()
         .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
-        .apply()
+        .commit()
+      if (!result) {
+        throw IllegalStateException("Error saving value")
+      }
       Logger.log(Level.Debug, "Saved $keyToSave")
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
@@ -126,11 +128,4 @@ class EncryptedPreferences(
     data: ByteArray,
     kClass: KClass<T>
   ): T? = serializer.fromByteArray(data, kClass)
-}
-
-internal fun generateKeyDigest(key: String): String {
-  Logger.log(Level.Debug, "Generating key digest for $key")
-  val messageDigest = MessageDigest.getInstance("SHA-256")
-  return Base64.encodeToString(messageDigest.digest(key.toByteArray()), DEFAULT)
-    .also { Logger.log(Level.Debug, "Generated key digest for $key: $it") }
 }

@@ -199,9 +199,8 @@ task("generateSizeReport") {
 }
 
 dependencies {
-  val securityVersionName: String by rootProject.allprojects.first { it.name == Modules.security }.extra
   debugImplementation(project(":${Modules.security}"))
-  releaseImplementation("com.twilio:twilio-security-android:$securityVersionName")
+  releaseImplementation("com.twilio:twilio-security-android:0.0.4")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
   androidTestImplementation("androidx.test.ext:junit:1.1.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.twilio.security.storage.key.authentication
+package com.twilio.security.crypto.key.authentication
 
 import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import com.twilio.security.crypto.key.authentication.Authenticator
 import java.security.Signature
 import javax.crypto.Cipher
 
@@ -46,10 +46,11 @@ class BiometricAuthenticatorContext(
   private val fragmentActivity: FragmentActivity,
   private val negativeOption: String
 ) : BiometricAuthenticator {
+
+  @Throws(BiometricException::class)
   override fun checkAvailability() {
-    when (BiometricManager.from(fragmentActivity.applicationContext).canAuthenticate()) {
-      BiometricManager
-        .BIOMETRIC_ERROR_HW_UNAVAILABLE -> throw BiometricException(BiometricError.HardwareUnavailable)
+    when (BiometricManager.from(fragmentActivity.applicationContext).canAuthenticate(Authenticators.BIOMETRIC_STRONG)) {
+      BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> throw BiometricException(BiometricError.HardwareUnavailable)
       else -> return
     }
   }

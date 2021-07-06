@@ -17,8 +17,7 @@
 package com.twilio.security.storage.key
 
 import com.twilio.security.crypto.KeyException
-import com.twilio.security.crypto.key.authentication.Authenticator
-import com.twilio.security.storage.BiometricAuthenticator
+import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 
 interface SecretKeyProvider {
   @Throws(KeyException::class)
@@ -36,7 +35,7 @@ interface EncryptionSecretKey : SecretKeyProvider {
   fun decrypt(data: ByteArray): ByteArray
 }
 
-interface SecureSecretKey : SecretKeyProvider {
+interface AuthenticatedSecretKey : SecretKeyProvider {
   @Throws(Exception::class)
   fun encrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit)
 

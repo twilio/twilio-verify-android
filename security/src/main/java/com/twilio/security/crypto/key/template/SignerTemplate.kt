@@ -37,6 +37,7 @@ data class ECP256SignerTemplate(
       ECGenParameterSpec("secp256r1")
     )
       .setDigests(KeyProperties.DIGEST_SHA256)
+      .setUserAuthenticationRequired(authenticationRequired)
       .build()
   override val signatureAlgorithm = "SHA256withECDSA"
 }

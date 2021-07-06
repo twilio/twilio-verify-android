@@ -17,33 +17,31 @@
 package com.twilio.security.storage
 
 import android.content.SharedPreferences
-import com.twilio.security.crypto.KeyManager
+import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.security.storage.key.BiometricSecretKey
-import com.twilio.security.storage.key.authentication.BiometricAuthenticator
+import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import kotlin.reflect.KClass
 
-interface SecureStorage {
-  val storageAlias: String
-  val keyManager: KeyManager
+interface AuthenticatedEncryptedStorage {
   val biometricSecretKey: BiometricSecretKey
   val serializer: Serializer
 
   @Throws(StorageException::class)
   fun <T : Any> put(
-    key: String,
-    value: T,
-    authenticator: BiometricAuthenticator,
-    error: (Exception) -> Unit
+      key: String,
+      value: T,
+      authenticator: BiometricAuthenticator,
+      error: (Exception) -> Unit
   )
 
   @Throws(StorageException::class)
   fun <T : Any> get(
-    key: String,
-    kClass: KClass<T>,
-    authenticator: BiometricAuthenticator,
-    success: (T) -> Unit,
-    error: (Exception) -> Unit
+      key: String,
+      kClass: KClass<T>,
+      authenticator: BiometricAuthenticator,
+      success: (T) -> Unit,
+      error: (Exception) -> Unit
   )
 
   fun contains(key: String): Boolean
@@ -51,10 +49,16 @@ interface SecureStorage {
   fun clear()
 }
 
-fun securePreferences(
+fun authenticatedEncryptedPreferences(
   storageAlias: String,
   sharedPreferences: SharedPreferences
-): SecurePreferences {
+): AuthenticatedEncryptedPreferences {
   val keyManager = keyManager()
-  return SecurePreferences(storageAlias, keyManager, sharedPreferences, DefaultSerializer())
+  val biometricSecretKey = BiometricSecretKey(
+    AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true), keyManager
+  )
+  if (!keyManager.contains(storageAlias) && sharedPreferences.all.isEmpty()) {
+    biometricSecretKey.create()
+  }
+  return AuthenticatedEncryptedPreferences(biometricSecretKey, sharedPreferences, DefaultSerializer())
 }
