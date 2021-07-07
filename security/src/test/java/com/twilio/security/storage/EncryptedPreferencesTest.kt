@@ -85,11 +85,7 @@ class EncryptedPreferencesTest {
     whenever(editor.putString(eq(generateKeyDigest(key)), any())).thenReturn(editor)
     whenever(editor.commit()).thenReturn(false)
     exceptionRule.expect(StorageException::class.java)
-    exceptionRule.expectCause(
-        instanceOf(
-            IllegalStateException::class.java
-        )
-    )
+    exceptionRule.expectCause(instanceOf(IllegalStateException::class.java))
     encryptedPreferences.put(key, value)
   }
 
