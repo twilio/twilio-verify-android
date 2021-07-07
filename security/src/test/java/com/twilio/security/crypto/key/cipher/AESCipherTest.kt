@@ -12,6 +12,11 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.security.crypto.AndroidKeyStoreOperations
 import com.twilio.security.crypto.KeyException
 import com.twilio.security.crypto.key.authentication.Authenticator
+import java.security.AlgorithmParameters
+import java.security.Provider
+import javax.crypto.Cipher
+import javax.crypto.SecretKey
+import kotlin.random.Random.Default.nextBytes
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -22,11 +27,6 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.security.AlgorithmParameters
-import java.security.Provider
-import javax.crypto.Cipher
-import javax.crypto.SecretKey
-import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class AESCipherTest {
@@ -103,9 +103,13 @@ class AESCipherTest {
       }
     }
     whenever(androidKeyStoreOperations.encrypt(eq(data), eq(cipher))).thenReturn(expectedEncryptedData)
-    aesCipher.encrypt(data, authenticator, { encryptedData ->
-      assertEquals(expectedEncryptedData, encryptedData)
-    }, { fail() })
+    aesCipher.encrypt(
+      data, authenticator,
+      { encryptedData ->
+        assertEquals(expectedEncryptedData, encryptedData)
+      },
+      { fail() }
+    )
   }
 
   @Test
@@ -151,9 +155,13 @@ class AESCipherTest {
       }
     }
     whenever(androidKeyStoreOperations.decrypt(eq(encryptedData), eq(cipher))).thenReturn(expectedData)
-    aesCipher.decrypt(encryptedData, authenticator, { decryptedData ->
-      assertEquals(expectedData, decryptedData)
-    }, { fail() })
+    aesCipher.decrypt(
+      encryptedData, authenticator,
+      { decryptedData ->
+        assertEquals(expectedData, decryptedData)
+      },
+      { fail() }
+    )
   }
 
   @Test

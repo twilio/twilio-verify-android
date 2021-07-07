@@ -9,6 +9,13 @@ import com.twilio.security.crypto.key.cipher.AlgorithmParametersSpec
 import com.twilio.security.crypto.key.cipher.EncryptedData
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.key.template.CipherTemplate
+import java.security.AlgorithmParameters
+import java.security.KeyStore
+import java.security.Signature
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -18,13 +25,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
-import java.security.AlgorithmParameters
-import java.security.KeyStore
-import java.security.Signature
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 
 class AESGCMNoPaddingCipherTests {
 
@@ -156,10 +156,14 @@ class AESGCMNoPaddingCipherTests {
     val authenticator = TestAuthenticator()
     val template = AESGCMNoPaddingCipherTemplate(alias).templateForCreation()
     val cipher = androidKeyManager.cipher(template)
-    cipher.encrypt(data, authenticator, { encryptedData ->
-      val decrypted = cipher.decrypt(encryptedData)
-      assertTrue(data.contentEquals(decrypted))
-    }, { fail() })
+    cipher.encrypt(
+      data, authenticator,
+      { encryptedData ->
+        val decrypted = cipher.decrypt(encryptedData)
+        assertTrue(data.contentEquals(decrypted))
+      },
+      { fail() }
+    )
   }
 
   @Test
@@ -169,9 +173,12 @@ class AESGCMNoPaddingCipherTests {
     val authenticator = TestAuthenticator(expectedError)
     val template = AESGCMNoPaddingCipherTemplate(alias).templateForCreation()
     val cipher = androidKeyManager.cipher(template)
-    cipher.encrypt(data, authenticator, { fail() }, { error ->
-      assertEquals(expectedError, error)
-    })
+    cipher.encrypt(
+      data, authenticator, { fail() },
+      { error ->
+        assertEquals(expectedError, error)
+      }
+    )
   }
 
   @Test
@@ -192,9 +199,13 @@ class AESGCMNoPaddingCipherTests {
       }
     val cipher = androidKeyManager.cipher(template)
     assertNotNull((cipher as? AESCipher)?.key)
-    cipher.decrypt(encryptedData, authenticator, { decryptedData ->
-      assertTrue(data.contentEquals(decryptedData))
-    }, { fail() })
+    cipher.decrypt(
+      encryptedData, authenticator,
+      { decryptedData ->
+        assertTrue(data.contentEquals(decryptedData))
+      },
+      { fail() }
+    )
   }
 
   @Test
@@ -216,9 +227,12 @@ class AESGCMNoPaddingCipherTests {
       }
     val cipher = androidKeyManager.cipher(template)
     assertNotNull((cipher as? AESCipher)?.key)
-    cipher.decrypt(encryptedData, authenticator, { fail() }, { error ->
-      assertEquals(expectedError, error)
-    })
+    cipher.decrypt(
+      encryptedData, authenticator, { fail() },
+      { error ->
+        assertEquals(expectedError, error)
+      }
+    )
   }
 
   private fun createKey(template: CipherTemplate): SecretKey {
