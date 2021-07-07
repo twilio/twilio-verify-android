@@ -32,7 +32,7 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.Signature
 import java.security.cert.Certificate
-import java.util.*
+import java.util.Locale
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -51,13 +51,15 @@ class AndroidKeyStore(
 
   @Synchronized
   fun getSecretKey(alias: String): SecretKey? {
-    return (keyStore.getKey(alias, null) as? SecretKey ?: run {
-      val entry = keyStore.getEntry(alias, null)
-      if (entry !is SecretKeyEntry) {
-        throw IllegalStateException("Entry is not a secret key entry")
+    return (
+      keyStore.getKey(alias, null) as? SecretKey ?: run {
+        val entry = keyStore.getEntry(alias, null)
+        if (entry !is SecretKeyEntry) {
+          throw IllegalStateException("Entry is not a secret key entry")
+        }
+        entry.secretKey
       }
-      entry.secretKey
-    }).also { Logger.log(Level.Debug, "Return secret key for $alias") }
+      ).also { Logger.log(Level.Debug, "Return secret key for $alias") }
   }
 
   @Synchronized
