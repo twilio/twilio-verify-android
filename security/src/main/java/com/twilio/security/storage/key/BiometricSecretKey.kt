@@ -32,9 +32,13 @@ class BiometricSecretKey(
   }
 
   override fun encrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit) {
-    keyManager.cipher(template).encrypt(data, authenticator, {
-      success(toByteArray(it))
-    }, error)
+    keyManager.cipher(template).encrypt(
+      data, authenticator,
+      {
+        success(toByteArray(it))
+      },
+      error
+    )
   }
 
   override fun decrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit) {

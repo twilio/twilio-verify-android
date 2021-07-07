@@ -11,13 +11,15 @@ import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.security.crypto.providerName
 import com.twilio.security.storage.key.BiometricSecretKey
-import org.junit.After
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
 import java.security.KeyStore
 import java.security.Signature
 import javax.crypto.Cipher
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Before
+import org.junit.Test
 
 class AuthenticatedEncryptedPreferencesTests {
 
@@ -74,12 +76,15 @@ class AuthenticatedEncryptedPreferencesTests {
       fail(it.message)
     }
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(key, Int::class, authenticator,
+    val value = authenticatedEncryptedPreferences.get(
+      key, Int::class, authenticator,
       {
         assertEquals(expectedValue, it)
-      }, {
+      },
+      {
         fail(it.message)
-      })
+      }
+    )
   }
 
   @Test
@@ -90,12 +95,15 @@ class AuthenticatedEncryptedPreferencesTests {
       fail(it.message)
     }
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(key, Boolean::class, authenticator,
+    val value = authenticatedEncryptedPreferences.get(
+      key, Boolean::class, authenticator,
       {
         assertEquals(expectedValue, it)
-      }, {
+      },
+      {
         fail(it.message)
-      })
+      }
+    )
   }
 
   @Test
@@ -106,44 +114,59 @@ class AuthenticatedEncryptedPreferencesTests {
       fail(it.message)
     }
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(key, String::class, authenticator,
+    val value = authenticatedEncryptedPreferences.get(
+      key, String::class, authenticator,
       {
         assertEquals(expectedValue, it)
-      }, {
+      },
+      {
         fail(it.message)
-      })
+      }
+    )
   }
 
   @Test
   fun testPutAndGet_doubleValue_shouldGetDoubleValue() {
     val key = "value"
     val expectedValue = 1.45657
-    authenticatedEncryptedPreferences.put(key, expectedValue, authenticator, {
-      fail(it.message)
-    })
+    authenticatedEncryptedPreferences.put(
+      key, expectedValue, authenticator,
+      {
+        fail(it.message)
+      }
+    )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(key, Double::class, authenticator,
+    val value = authenticatedEncryptedPreferences.get(
+      key, Double::class, authenticator,
       {
         assertEquals(expectedValue, it, 0.0)
-      }, {
+      },
+      {
         fail(it.message)
-      })
+      }
+    )
   }
 
   @Test
   fun testPutAndGet_objectValue_shouldGetObjectValue() {
     val key = "value"
     val expectedValue = TestObject("name", 33)
-    authenticatedEncryptedPreferences.put(key, expectedValue, authenticator, {
-      fail(it.message)
-    })
+    authenticatedEncryptedPreferences.put(
+      key, expectedValue, authenticator,
+      {
+        fail(it.message)
+      }
+    )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(key, TestObject::class, authenticator,
+    val value = authenticatedEncryptedPreferences.get(
+      key, TestObject::class, authenticator,
       {
         assertEquals(expectedValue, it)
-      }, {
+      },
+      {
         fail(it.message)
-      })
+      }
+    )
   }
 
   @Test
@@ -155,12 +178,15 @@ class AuthenticatedEncryptedPreferencesTests {
         fail(it.message)
       }
       assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-      val value = authenticatedEncryptedPreferences.get(key, expectedValue::class, authenticator,
+      val value = authenticatedEncryptedPreferences.get(
+        key, expectedValue::class, authenticator,
         {
           assertEquals(expectedValue, it)
-        }, {
+        },
+        {
           fail(it.message)
-        })
+        }
+      )
     }
   }
 }
