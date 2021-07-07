@@ -17,10 +17,10 @@
 package com.twilio.security.storage
 
 import android.content.SharedPreferences
+import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.security.storage.key.BiometricSecretKey
-import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import kotlin.reflect.KClass
 
 interface AuthenticatedEncryptedStorage {
@@ -29,19 +29,19 @@ interface AuthenticatedEncryptedStorage {
 
   @Throws(StorageException::class)
   fun <T : Any> put(
-      key: String,
-      value: T,
-      authenticator: BiometricAuthenticator,
-      error: (Exception) -> Unit
+    key: String,
+    value: T,
+    authenticator: BiometricAuthenticator,
+    error: (Exception) -> Unit
   )
 
   @Throws(StorageException::class)
   fun <T : Any> get(
-      key: String,
-      kClass: KClass<T>,
-      authenticator: BiometricAuthenticator,
-      success: (T) -> Unit,
-      error: (Exception) -> Unit
+    key: String,
+    kClass: KClass<T>,
+    authenticator: BiometricAuthenticator,
+    success: (T) -> Unit,
+    error: (Exception) -> Unit
   )
 
   fun contains(key: String): Boolean

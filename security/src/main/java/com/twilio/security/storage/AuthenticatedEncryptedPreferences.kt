@@ -19,10 +19,10 @@ package com.twilio.security.storage
 import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Base64.DEFAULT
+import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
 import com.twilio.security.storage.key.BiometricSecretKey
-import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import kotlin.reflect.KClass
 
 class AuthenticatedEncryptedPreferences(
@@ -36,22 +36,27 @@ class AuthenticatedEncryptedPreferences(
   override fun <T : Any> put(
     key: String,
     value: T,
-    authenticator: BiometricAuthenticator, error: (Exception) -> Unit
+    authenticator: BiometricAuthenticator,
+    error: (Exception) -> Unit
   ) {
     try {
       Logger.log(Level.Info, "Saving $key")
       val rawValue = toByteArray(value)
-      biometricSecretKey.encrypt(rawValue, authenticator, { encrypted ->
-        val keyToSave = generateKeyDigest(key)
-        Logger.log(Level.Debug, "Saving $keyToSave")
-        val result = preferences.edit()
-          .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
-          .commit()
-        if (!result) {
-          throw IllegalStateException("Error saving value")
-        }
-        Logger.log(Level.Debug, "Saved $keyToSave")
-      }, error)
+      biometricSecretKey.encrypt(
+        rawValue, authenticator,
+        { encrypted ->
+          val keyToSave = generateKeyDigest(key)
+          Logger.log(Level.Debug, "Saving $keyToSave")
+          val result = preferences.edit()
+            .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
+            .commit()
+          if (!result) {
+            throw IllegalStateException("Error saving value")
+          }
+          Logger.log(Level.Debug, "Saved $keyToSave")
+        },
+        error
+      )
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
       error(StorageException(e))
@@ -68,11 +73,15 @@ class AuthenticatedEncryptedPreferences(
   ) {
     return try {
       Logger.log(Level.Info, "Getting $key")
-      getValue(generateKeyDigest(key), kClass, authenticator, {
-        it?.let(success) ?: throw IllegalArgumentException(
-          "Illegal decrypted data"
-        )
-      }, error).also { Logger.log(Level.Debug, "Return value $it for $key") }
+      getValue(
+        generateKeyDigest(key), kClass, authenticator,
+        {
+          it?.let(success) ?: throw IllegalArgumentException(
+            "Illegal decrypted data"
+          )
+        },
+        error
+      ).also { Logger.log(Level.Debug, "Return value $it for $key") }
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
       error(StorageException(e))
@@ -107,9 +116,13 @@ class AuthenticatedEncryptedPreferences(
   ) {
     Logger.log(Level.Debug, "Getting value for $key")
     val value = preferences.getString(key, null) ?: throw IllegalArgumentException("key not found")
-    biometricSecretKey.decrypt(Base64.decode(value, DEFAULT), authenticator, { decryptedValue ->
-      success(fromByteArray(decryptedValue, kClass).also { Logger.log(Level.Debug, "Return value $it for key $key") })
-    }, error)
+    biometricSecretKey.decrypt(
+      Base64.decode(value, DEFAULT), authenticator,
+      { decryptedValue ->
+        success(fromByteArray(decryptedValue, kClass).also { Logger.log(Level.Debug, "Return value $it for key $key") })
+      },
+      error
+    )
   }
 
   private fun <T : Any> toByteArray(

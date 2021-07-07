@@ -39,9 +39,13 @@ class AESCipher(
 
   override fun encrypt(data: ByteArray, authenticator: Authenticator, success: (EncryptedData) -> Unit, error: (Exception) -> Unit) {
     try {
-      authenticator.startAuthentication(androidKeyStoreOperations.getCipherForEncryption(cipherAlgorithm, key), {
-        success(androidKeyStoreOperations.encrypt(data, it))
-      }, error)
+      authenticator.startAuthentication(
+        androidKeyStoreOperations.getCipherForEncryption(cipherAlgorithm, key),
+        {
+          success(androidKeyStoreOperations.encrypt(data, it))
+        },
+        error
+      )
     } catch (e: Exception) {
       error(e)
     }
@@ -58,9 +62,13 @@ class AESCipher(
 
   override fun decrypt(data: EncryptedData, authenticator: Authenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit) {
     try {
-      authenticator.startAuthentication(androidKeyStoreOperations.getCipherForDecryption(cipherAlgorithm, key, data), {
-        success(androidKeyStoreOperations.decrypt(data, it))
-      }, error)
+      authenticator.startAuthentication(
+        androidKeyStoreOperations.getCipherForDecryption(cipherAlgorithm, key, data),
+        {
+          success(androidKeyStoreOperations.decrypt(data, it))
+        },
+        error
+      )
     } catch (e: Exception) {
       error(e)
     }
