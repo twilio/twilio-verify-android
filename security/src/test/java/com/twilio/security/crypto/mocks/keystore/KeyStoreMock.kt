@@ -122,6 +122,9 @@ class KeyStoreMock : KeyStoreSpi() {
     if (keyStoreMockInput.error != null) {
       throw keyStoreMockInput.error!!
     }
+    if (!keyStoreMockInput.returnKey) {
+      return null
+    }
     return when (keyStoreMockInput.key) {
       is SecretKey -> keyStoreMockInput.key as? SecretKey
       is KeyPair -> (keyStoreMockInput.key as? KeyPair)?.private
