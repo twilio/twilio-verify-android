@@ -122,11 +122,11 @@ platform :android do
       description: notes,
       commitish: "main"
     )
-    # TODO: Refactor this part to fetch the latest twilio-verify version from local e.g. MavenLocal
-    # plain_notes = conventional_changelog(
-    #         format: 'plain',
-    #         commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-    # distribute_sample_app(notes: plain_notes, build_type: "Release", url: ENV["PROD_URL"], versionName: next_version)
+    gradle(task: "publishTwilioVerifyPublicationToMavenLocal")
+    plain_notes = conventional_changelog(
+            format: 'plain',
+            commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
+    distribute_sample_app(notes: plain_notes, build_type: "Release", url: ENV["PROD_URL"], versionName: next_version)
   end
 
   desc "Danger check"
