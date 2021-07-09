@@ -73,6 +73,10 @@ references:
     run:
       name: Release SDK
       command: bundle exec fastlane release
+  signing_key: &signing_key
+    run:
+      name: Install signing key
+      command: echo $SIGNING_KEY | base64 -d >> $SIGNING_SECRET_KEY_RING_FILE
 
 commands:
   setup:
@@ -330,6 +334,7 @@ jobs:
       - *restore_gradle_cache
       - *decrypt_google_services
       - *store_gcloud_app_distribution_service
+      - *signing_key
       - *release
       - *save_gradle_cache
 workflows:

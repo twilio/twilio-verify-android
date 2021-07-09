@@ -23,6 +23,9 @@ plugins {
   id(Config.Plugins.firebasePerformance)
   jacoco
 }
+repositories {
+  mavenLocal()
+}
 
 val verifyVersionName: String by rootProject.allprojects.first { it.name == Modules.verify }.extra
 val verifyVersionCode: String by rootProject.allprojects.first { it.name == Modules.verify }.extra

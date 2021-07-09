@@ -18,56 +18,36 @@ import org.gradle.api.Project
 
 object MavenPublish {
 
-    const val plugin = "maven"
-    const val repo = "maven.repo"
-    const val mavenUsername = "maven.username"
-    const val mavenPassword = "maven.password"
+  const val signingKeyIdKey = "signing.keyId"
+  const val signingPasswordKey = "signing.password"
+  const val signingSecretKeyRingFileKey = "signing.secretKeyRingFile"
+  const val ossrhUsernameKey = "ossrhUsername"
+  const val ossrhPasswordKey = "ossrhPassword"
+  const val sonatypeStagingProfileIdKey = "sonatypeStagingProfileId"
 
-    object Bintray {
-        const val repository = "repository"
-        const val url = "url"
-        const val authentication = "authentication"
-        const val userName = "userName"
-        const val password = "password"
-        const val version = "version"
-        const val groupId = "groupId"
-        const val artifactId = "artifactId"
-        const val packaging = "packaging"
-        const val user = "BINTRAY_USER"
-        const val apiKey = "BINTRAY_APIKEY"
-        const val group = "Publishing"
+  const val signingKeyIdEnv = "SIGNING_KEY_ID"
+  const val signingPasswordEnv = "SIGNING_PASSWORD"
+  const val signingSecretKeyRingFileEnv = "SIGNING_SECRET_KEY_RING_FILE"
+  const val ossrhUsernameEnv = "OSSRH_USERNAME"
+  const val ossrhPasswordEnv = "OSSRH_PASSWORD"
+  const val sonatypeStagingProfileIdEnv = "SONATYPE_STAGING_PROFILE_ID"
 
-        fun credentials(
-          project: Project,
-          repositoryURL: String,
-          user: String,
-          pass: String
-        ): Map<String, String> {
-            return mapOf(
-                repo to repositoryURL,
-                mavenUsername to projectProperty(project, user),
-                mavenPassword to projectProperty(project, pass)
-            )
-        }
-
-        private fun projectProperty(
-          project: Project,
-          property: String
-        ): String {
-            val value =
-                if (project.hasProperty(property)) project.property(property) as? String else System.getenv(
-                    property
-                )
-            return value ?: ""
-        }
-    }
-
-    fun mavenRepo(project: Project) =
-        if (project.hasProperty(repo)) project.property(repo) as String else ""
-
-    fun mavenUsername(project: Project) =
-        if (project.hasProperty(mavenUsername)) project.property(mavenUsername) as String else ""
-
-    fun mavenPassword(project: Project) =
-        if (project.hasProperty(mavenPassword)) project.property(mavenPassword) as String else ""
+  fun credentials(
+    project: Project,
+    signingKeyId: String,
+    signingPassword: String,
+    signingKeyRingFile: String,
+    ossrhUsername: String,
+    ossrhPassword: String,
+    sonatypeStagingProfileId: String
+  ): Map<String, String> {
+    return mapOf(
+      signingKeyIdKey to Config.projectProperty(project, signingKeyId),
+      signingPasswordKey to Config.projectProperty(project, signingPassword),
+      signingSecretKeyRingFileKey to Config.projectProperty(project, signingKeyRingFile),
+      ossrhUsernameKey to Config.projectProperty(project, ossrhUsername),
+      ossrhPasswordKey to Config.projectProperty(project, ossrhPassword),
+      sonatypeStagingProfileIdKey to Config.projectProperty(project, sonatypeStagingProfileId)
+    )
+  }
 }

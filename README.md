@@ -1,6 +1,6 @@
 # Twilio Verify Android
 
-[![Download](https://api.bintray.com/packages/twilio/releases/twilio-verify-android/images/download.svg) ](https://bintray.com/twilio/releases/twilio-verify-android/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.twilio/twilio-verify-android/badge.svg?style=svg) ](https://maven-badges.herokuapp.com/maven-central/com.twilio/twilio-verify-android)
 [![CircleCI](https://circleci.com/gh/twilio/twilio-verify-android.svg?style=shield&circle-token=e5c76e91c300be6dcdd3db05a57bb4f01304415e)](https://circleci.com/gh/twilio/twilio-verify-android)
 [![codecov](https://codecov.io/gh/twilio/twilio-verify-android/branch/main/graph/badge.svg?token=o1ZcrAfoc0)](https://codecov.io/gh/twilio/twilio-verify-android)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
@@ -55,6 +55,15 @@ None
 
 ### Add library
 
+Ensure that you have `mavenCentral` listed in your project's buildscript repositories section:
+```groovy
+buildscript {
+    repositories {
+        mavenCentral()
+        ...                
+    }
+}
+```
 In the build.gradle file, add the library
 
 ```implementation 'com.twilio:twilio-verify-android:(insert latest version)'```
@@ -152,13 +161,13 @@ TwilioVerify.Builder(applicationContext).apply {
 ## Errors
 Types | Code | Description
 ---------- | ----------- | -----------
-Network | 68001 | Exception while calling the API
-Mapping | 68002 | Exception while mapping an entity
-Storage | 68003 | Exception while storing/loading an entity
-Input | 68004 | Exception while loading input
-Key Storage | 68005 | Exception while storing/loading key pairs
-Initialization | 68006 | Exception while initializing an object
-Authentication Token | 68007 | Exception while generating token
+Network | 60401 | Exception while calling the API
+Mapping | 60402 | Exception while mapping an entity
+Storage | 60403 | Exception while storing/loading an entity
+Input | 60404 | Exception while loading input
+Key Storage | 60405 | Exception while storing/loading key pairs
+Initialization | 60406 | Exception while initializing an object
+Authentication Token | 60407 | Exception while generating token
 
 <a name='UpdatePushToken'></a>
 
