@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.twilio.security.crypto.key.cipher
 
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -30,14 +31,14 @@ import com.twilio.security.crypto.key.authentication.BiometricAuthenticatorConte
 import com.twilio.security.crypto.key.authentication.BiometricError
 import com.twilio.security.crypto.key.authentication.BiometricException
 import com.twilio.security.crypto.key.authentication.BiometricPromptHelper
+import java.security.Signature
+import javax.crypto.Cipher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import java.security.Signature
-import javax.crypto.Cipher
 
 @RunWith(RobolectricTestRunner::class)
 class BiometricAuthenticatorTests {
