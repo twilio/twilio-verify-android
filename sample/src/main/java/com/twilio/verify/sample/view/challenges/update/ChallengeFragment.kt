@@ -34,12 +34,20 @@ import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import java.text.DateFormat
-import kotlinx.android.synthetic.main.fragment_challenge.approveChallenge
+import kotlinx.android.synthetic.main.fragment_challenge.approveButton
 import kotlinx.android.synthetic.main.fragment_challenge.challengeActionsGroup
-import kotlinx.android.synthetic.main.fragment_challenge.challengeInfo
+import kotlinx.android.synthetic.main.fragment_challenge.challengeInfoText
 import kotlinx.android.synthetic.main.fragment_challenge.content
-import kotlinx.android.synthetic.main.fragment_challenge.denyChallenge
-import kotlinx.android.synthetic.main.view_factor.factorInfo
+import kotlinx.android.synthetic.main.fragment_challenge.denyButton
+import kotlinx.android.synthetic.main.view_challenge.challengeCreatedAtText
+import kotlinx.android.synthetic.main.view_challenge.challengeExpireOnText
+import kotlinx.android.synthetic.main.view_challenge.challengeNameText
+import kotlinx.android.synthetic.main.view_challenge.challengeSidText
+import kotlinx.android.synthetic.main.view_challenge.challengeStatusText
+import kotlinx.android.synthetic.main.view_factor.factorNameText
+import kotlinx.android.synthetic.main.view_factor.factorSidText
+import kotlinx.android.synthetic.main.view_factor.factorStatusText
+import kotlinx.android.synthetic.main.view_factor.identityText
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 const val ARG_CHALLENGE_SID = "challengeSid"
@@ -88,8 +96,8 @@ class ChallengeFragment : Fragment() {
         .observe(
           viewLifecycleOwner,
           Observer {
-            approveChallenge.isEnabled = true
-            denyChallenge.isEnabled = true
+            approveButton.isEnabled = true
+            denyButton.isEnabled = true
             when (it) {
               is com.twilio.verify.sample.viewmodel.Challenge -> showChallenge(it.challenge)
               is ChallengeError -> it.exception.showError(content)
@@ -102,29 +110,64 @@ class ChallengeFragment : Fragment() {
   }
 
   private fun showFactor(factor: Factor) {
-    factorInfo.text = factor.string()
+    factorSidText.apply {
+      text = factor.sid
+      setTextIsSelectable(true)
+    }
+    factorNameText.apply {
+      text = factor.friendlyName
+      setTextIsSelectable(true)
+    }
+    identityText.apply {
+      text = factor.identity
+      setTextIsSelectable(true)
+    }
+    factorStatusText.text = factor.status.value
   }
 
   private fun showChallenge(challenge: Challenge) {
+    challengeSidText.apply {
+      text = challenge.sid
+      setTextIsSelectable(true)
+    }
+    challengeNameText.apply {
+      text = challenge.challengeDetails.message
+      setTextIsSelectable(true)
+    }
+    challengeStatusText.text = challenge.status.value
+    challengeCreatedAtText.text = DateUtils.formatDateTime(
+      context,
+      challenge.createdAt.time,
+      DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+    )
+    challengeExpireOnText.text = DateUtils.formatDateTime(
+      context,
+      challenge.expirationDate.time,
+      DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+    )
     challengeActionsGroup?.visibility =
       if (challenge.status == ChallengeStatus.Pending) View.VISIBLE else View.GONE
-    val info = "${challenge.string(context)}\nUpdated at: " +
-      "${DateUtils.formatSameDayTime(
+    val info = "Updated at: " +
+      "${
+      DateUtils.formatSameDayTime(
         challenge.updatedAt.time, System.currentTimeMillis(), DateFormat.MEDIUM,
         DateFormat.MEDIUM
-      )}\n" + challenge.challengeDetails.string(context) +
+      )
+      }\n" + challenge.challengeDetails.string(context) +
       (
         challenge.hiddenDetails?.let { hiddenDetails ->
-          "Hidden details:\n ${hiddenDetails.map {
+          "Hidden details:\n ${
+          hiddenDetails.map {
             "  ${it.key} = ${it.value}"
-          }.joinToString("\n")}"
+          }.joinToString("\n")
+          }"
         } ?: ""
         )
-    challengeInfo?.text = info
-    approveChallenge?.setOnClickListener {
+    challengeInfoText?.text = info
+    approveButton?.setOnClickListener {
       updateChallenge(challenge, ChallengeStatus.Approved)
     }
-    denyChallenge?.setOnClickListener {
+    denyButton?.setOnClickListener {
       updateChallenge(challenge, ChallengeStatus.Denied)
     }
   }
@@ -133,8 +176,8 @@ class ChallengeFragment : Fragment() {
     challenge: Challenge,
     status: ChallengeStatus
   ) {
-    approveChallenge.isEnabled = false
-    denyChallenge.isEnabled = false
+    approveButton.isEnabled = false
+    denyButton.isEnabled = false
     challengeViewModel.updateChallenge(challenge, status)
   }
 }

@@ -28,4 +28,13 @@
   <string name="channel_description">Receive challenges</string>
   <string name="access_token_url">Access token URL</string>
   <string name="identity">Identity</string>
+  <string name="factor_sid">Sid:</string>
+  <string name="factor_identity">Identity:</string>
+  <string name="factor_name">Name:</string>
+  <string name="factor_status">Status:</string>
+  <string name="challenge_sid">Sid:</string>
+  <string name="challenge_message">Message:</string>
+  <string name="challenge_status">Status:</string>
+  <string name="challenge_created_at">Created at:</string>
+  <string name="challenge_expire_on">Expire on:</string>
 </resources>

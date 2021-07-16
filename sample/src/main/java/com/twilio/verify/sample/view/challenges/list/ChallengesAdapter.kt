@@ -16,6 +16,7 @@
 
 package com.twilio.verify.sample.view.challenges.list
 
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.sample.R.id
 import com.twilio.verify.sample.R.layout
-import com.twilio.verify.sample.view.string
 
 class ChallengesAdapter(
   private val challenges: List<Challenge>,
@@ -54,11 +54,27 @@ class ChallengesAdapter(
   override fun getItemCount(): Int = challenges.size
 
   class ChallengeViewHolder(view: View) : ViewHolder(view) {
-    private var challengeInfo: TextView? = null
+    private var challengeSid: TextView? = null
+    private var challengeName: TextView? = null
+    private var challengeStatus: TextView? = null
+    private var challengeCreatedAt: TextView? = null
+    private var challengeExpireOn: TextView? = null
 
     init {
-      challengeInfo = itemView.findViewById(
-        id.challengeInfo
+      challengeSid = itemView.findViewById(
+        id.challengeSidText
+      )
+      challengeName = itemView.findViewById(
+        id.challengeNameText
+      )
+      challengeStatus = itemView.findViewById(
+        id.challengeStatusText
+      )
+      challengeCreatedAt = itemView.findViewById(
+        id.challengeCreatedAtText
+      )
+      challengeExpireOn = itemView.findViewById(
+        id.challengeExpireOnText
       )
     }
 
@@ -66,7 +82,19 @@ class ChallengesAdapter(
       challenge: Challenge,
       onChallengeClick: (Challenge) -> Unit
     ) {
-      challengeInfo?.text = challenge.string(itemView.context)
+      challengeSid?.text = challenge.sid
+      challengeName?.text = challenge.challengeDetails.message
+      challengeStatus?.text = challenge.status.value
+      challengeCreatedAt?.text = DateUtils.formatDateTime(
+        itemView.context,
+        challenge.createdAt.time,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+      )
+      challengeExpireOn?.text = DateUtils.formatDateTime(
+        itemView.context,
+        challenge.expirationDate.time,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+      )
       itemView.setOnClickListener {
         onChallengeClick(challenge)
       }
