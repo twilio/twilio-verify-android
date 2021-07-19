@@ -39,54 +39,74 @@
       android:layout_height="wrap_content"
       android:layout_marginTop="16dp"
       android:text="@string/challenge"
-      android:textIsSelectable="true"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/factor"
       />
 
-  <TextView
-      android:id="@+id/challengeInfo"
-      style="@style/TextAppearance.AppCompat.Medium"
+  <ScrollView
       android:layout_width="match_parent"
       android:layout_height="0dp"
-      android:layout_marginStart="8dp"
-      android:layout_marginTop="16dp"
-      android:layout_marginEnd="8dp"
-      android:layout_marginBottom="16dp"
-      android:scrollbars="vertical"
-      android:textIsSelectable="true"
-      app:layout_constraintBottom_toTopOf="@+id/approveChallenge"
+      app:layout_constraintBottom_toTopOf="@+id/approveButton"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/challengeLabel"
-      tools:text="Challenge Info"
-      />
+      >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+      <include
+          android:id="@+id/challenge"
+          layout="@layout/view_challenge"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="16dp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          />
+      <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:id="@+id/challengeInfoText"
+          style="@style/TextAppearance.AppCompat.Medium"
+          android:layout_marginStart="8dp"
+          android:layout_marginTop="16dp"
+          android:layout_marginEnd="8dp"
+          android:layout_marginBottom="16dp"
+          android:scrollbars="vertical"
+          android:textIsSelectable="true"
+          tools:text="Challenge Info"
+          app:layout_constraintTop_toBottomOf="@+id/challenge"
+          />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </ScrollView>
 
   <androidx.constraintlayout.widget.Group
       android:id="@+id/challengeActionsGroup"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:visibility="gone"
-      app:constraint_referenced_ids="approveChallenge,denyChallenge"
+      app:constraint_referenced_ids="approveButton,denyButton"
       tools:visibility="visible"
       />
 
   <Button
-      android:id="@+id/approveChallenge"
+      android:id="@+id/approveButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="16dp"
       android:layout_marginBottom="16dp"
       android:text="@string/approve"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toStartOf="@+id/denyChallenge"
+      app:layout_constraintEnd_toStartOf="@+id/denyButton"
       app:layout_constraintHorizontal_bias="0.5"
       app:layout_constraintStart_toStartOf="parent"
       />
 
   <Button
-      android:id="@+id/denyChallenge"
+      android:id="@+id/denyButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="16dp"
@@ -95,6 +115,6 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.5"
-      app:layout_constraintStart_toEndOf="@+id/approveChallenge"
+      app:layout_constraintStart_toEndOf="@+id/approveButton"
       />
 </androidx.constraintlayout.widget.ConstraintLayout>

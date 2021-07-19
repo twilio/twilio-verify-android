@@ -23,14 +23,89 @@
     >
 
   <TextView
-      android:id="@+id/factorInfo"
+      android:id="@+id/factorSidLabel"
       style="@style/TextAppearance.AppCompat.Medium"
-      android:layout_width="match_parent"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginStart="8dp"
       android:layout_marginTop="8dp"
+      android:text="@string/factor_sid"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      tools:text="Factor Info"
+      />
+  <TextView
+      android:id="@+id/factorSidText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toEndOf="@+id/factorSidLabel"
+      app:layout_constraintTop_toTopOf="@+id/factorSidLabel"
+      tools:text="Factor sid"
+      />
+  <TextView
+      android:id="@+id/factorIdentityLabel"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/factor_identity"
+      app:layout_constraintStart_toStartOf="@+id/factorSidLabel"
+      app:layout_constraintTop_toBottomOf="@+id/factorSidText"
+      />
+  <TextView
+      android:id="@+id/identityText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toEndOf="@+id/factorIdentityLabel"
+      app:layout_constraintTop_toTopOf="@+id/factorIdentityLabel"
+      tools:text="Factor identity"
+      />
+  <TextView
+      android:id="@+id/factorNameLabel"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/factor_name"
+      app:layout_constraintStart_toStartOf="@+id/factorIdentityLabel"
+      app:layout_constraintTop_toBottomOf="@+id/identityText"
+      />
+  <TextView
+      android:id="@+id/factorNameText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toEndOf="@+id/factorNameLabel"
+      app:layout_constraintTop_toTopOf="@+id/factorNameLabel"
+      tools:text="Factor name"
+      />
+  <TextView
+      android:id="@+id/factorStatusLabel"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/factor_status"
+      app:layout_constraintStart_toStartOf="@+id/factorNameLabel"
+      app:layout_constraintTop_toBottomOf="@+id/factorNameText"
+      />
+  <TextView
+      android:id="@+id/factorStatusText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      app:layout_constraintStart_toEndOf="@+id/factorStatusLabel"
+      app:layout_constraintTop_toTopOf="@+id/factorStatusLabel"
+      tools:text="Factor status"
       />
 </androidx.constraintlayout.widget.ConstraintLayout>
