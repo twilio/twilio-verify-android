@@ -178,7 +178,7 @@ class AndroidKeyStore(
     return getCipherForDecryption(cipherAlgorithm, key, data)
       .run {
         doFinal(data.encrypted)
-      }.also { Logger.log(Level.Debug, "Decrypt encrypt data $data with $cipherAlgorithm") }
+      }.also { Logger.log(Level.Debug, "Decrypt encrypted data $data with $cipherAlgorithm") }
   }
 
   @Synchronized
@@ -186,7 +186,7 @@ class AndroidKeyStore(
     return cipherObject
       .run {
         doFinal(data.encrypted)
-      }.also { Logger.log(Level.Debug, "Decrypt encrypt data $data with ${cipherObject.algorithm}") }
+      }.also { Logger.log(Level.Debug, "Decrypt encrypted data $data with ${cipherObject.algorithm}") }
   }
 
   override fun getCipherForEncryption(cipherAlgorithm: String, key: Key): Cipher {

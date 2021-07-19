@@ -16,11 +16,15 @@
 
 package com.twilio.security.storage.key
 
+import android.security.keystore.KeyPermanentlyInvalidatedException
 import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
+import com.twilio.security.crypto.key.authentication.BiometricError
+import com.twilio.security.crypto.key.authentication.BiometricException
 import com.twilio.security.crypto.key.cipher.fromByteArray
 import com.twilio.security.crypto.key.cipher.toByteArray
 import com.twilio.security.crypto.key.template.CipherTemplate
+import java.security.InvalidKeyException
 
 class BiometricSecretKey(
   private val template: CipherTemplate,
@@ -37,13 +41,21 @@ class BiometricSecretKey(
       {
         success(toByteArray(it))
       },
-      error
+      { exception -> error(mapException(exception)) }
     )
   }
 
   override fun decrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit) {
     val encryptedData = fromByteArray(data)
-    keyManager.cipher(template).decrypt(encryptedData, authenticator, success, error)
+    keyManager.cipher(template).decrypt(encryptedData, authenticator, success, { exception -> error(mapException(exception)) })
+  }
+
+  private fun mapException(exception: Exception): Exception {
+    return when (exception) {
+      is KeyPermanentlyInvalidatedException,
+      is InvalidKeyException -> BiometricException(BiometricError.KeyInvalidated)
+      else -> exception
+    }
   }
 
   override fun delete() {

@@ -52,7 +52,7 @@ interface AuthenticatedEncryptedStorage {
 fun authenticatedEncryptedPreferences(
   storageAlias: String,
   sharedPreferences: SharedPreferences
-): AuthenticatedEncryptedPreferences {
+): AuthenticatedEncryptedStorage {
   val keyManager = keyManager()
   val biometricSecretKey = BiometricSecretKey(
     AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true), keyManager
