@@ -41,7 +41,7 @@ import kotlinx.android.synthetic.main.fragment_challenge.content
 import kotlinx.android.synthetic.main.fragment_challenge.denyButton
 import kotlinx.android.synthetic.main.view_challenge.challengeCreatedAtText
 import kotlinx.android.synthetic.main.view_challenge.challengeExpireOnText
-import kotlinx.android.synthetic.main.view_challenge.challengeNameText
+import kotlinx.android.synthetic.main.view_challenge.challengeMessageText
 import kotlinx.android.synthetic.main.view_challenge.challengeSidText
 import kotlinx.android.synthetic.main.view_challenge.challengeStatusText
 import kotlinx.android.synthetic.main.view_factor.factorNameText
@@ -130,7 +130,7 @@ class ChallengeFragment : Fragment() {
       text = challenge.sid
       setTextIsSelectable(true)
     }
-    challengeNameText.apply {
+    challengeMessageText.apply {
       text = challenge.challengeDetails.message
       setTextIsSelectable(true)
     }

@@ -55,7 +55,7 @@ class ChallengesAdapter(
 
   class ChallengeViewHolder(view: View) : ViewHolder(view) {
     private var challengeSid: TextView? = null
-    private var challengeName: TextView? = null
+    private var challengeMessage: TextView? = null
     private var challengeStatus: TextView? = null
     private var challengeCreatedAt: TextView? = null
     private var challengeExpireOn: TextView? = null
@@ -64,8 +64,8 @@ class ChallengesAdapter(
       challengeSid = itemView.findViewById(
         id.challengeSidText
       )
-      challengeName = itemView.findViewById(
-        id.challengeNameText
+      challengeMessage = itemView.findViewById(
+        id.challengeMessageText
       )
       challengeStatus = itemView.findViewById(
         id.challengeStatusText
@@ -83,7 +83,7 @@ class ChallengesAdapter(
       onChallengeClick: (Challenge) -> Unit
     ) {
       challengeSid?.text = challenge.sid
-      challengeName?.text = challenge.challengeDetails.message
+      challengeMessage?.text = challenge.challengeDetails.message
       challengeStatus?.text = challenge.status.value
       challengeCreatedAt?.text = DateUtils.formatDateTime(
         itemView.context,
