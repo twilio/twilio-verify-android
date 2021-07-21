@@ -33,7 +33,6 @@ import com.twilio.verify.sample.R.layout
 import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
 import com.twilio.verify.sample.view.showError
-import com.twilio.verify.sample.view.string
 import com.twilio.verify.sample.viewmodel.ChallengeList
 import com.twilio.verify.sample.viewmodel.ChallengesError
 import com.twilio.verify.sample.viewmodel.ChallengesViewModel
@@ -42,11 +41,14 @@ import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import kotlinx.android.synthetic.main.fragment_factor_challenges.challenges
 import kotlinx.android.synthetic.main.fragment_factors.content
-import kotlinx.android.synthetic.main.view_factor.factorInfo
+import kotlinx.android.synthetic.main.view_factor.factorNameText
+import kotlinx.android.synthetic.main.view_factor.factorSidText
+import kotlinx.android.synthetic.main.view_factor.factorStatusText
+import kotlinx.android.synthetic.main.view_factor.identityText
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FactorChallengesFragment : Fragment() {
-  private lateinit var factorSid: String
+  private lateinit var sid: String
   private lateinit var viewAdapter: RecyclerView.Adapter<*>
   private lateinit var viewManager: LinearLayoutManager
   private val factorViewModel: FactorViewModel by viewModel()
@@ -55,7 +57,7 @@ class FactorChallengesFragment : Fragment() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     arguments?.let {
-      factorSid = it.getString(ARG_FACTOR_SID) ?: ""
+      sid = it.getString(ARG_FACTOR_SID) ?: ""
     }
   }
 
@@ -95,13 +97,24 @@ class FactorChallengesFragment : Fragment() {
       viewManager.orientation
     )
     challenges.addItemDecoration(dividerItemDecoration)
-    factorViewModel.loadFactor(factorSid)
-    challengesViewModel.loadChallenges(factorSid)
+    factorViewModel.loadFactor(sid)
+    challengesViewModel.loadChallenges(sid)
   }
 
   private fun showFactor(factor: com.twilio.verify.models.Factor) {
-    factorInfo.text = factor.string()
-    factorInfo.setTextIsSelectable(true)
+    factorSidText.apply {
+      text = factor.sid
+      setTextIsSelectable(true)
+    }
+    factorNameText.apply {
+      text = factor.friendlyName
+      setTextIsSelectable(true)
+    }
+    identityText.apply {
+      text = factor.identity
+      setTextIsSelectable(true)
+    }
+    factorStatusText.text = factor.status.value
   }
 
   private fun showChallenges(challenges: List<Challenge>) {

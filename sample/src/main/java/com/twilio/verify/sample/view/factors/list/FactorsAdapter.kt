@@ -26,7 +26,6 @@ import com.twilio.verify.models.Factor
 import com.twilio.verify.sample.R.id
 import com.twilio.verify.sample.R.layout
 import com.twilio.verify.sample.view.factors.list.FactorsAdapter.FactorViewHolder
-import com.twilio.verify.sample.view.string
 
 class FactorsAdapter(
   private val factors: List<Factor>,
@@ -57,11 +56,23 @@ class FactorsAdapter(
   fun getItemSid(position: Int): String = factors[position].sid
 
   class FactorViewHolder(view: View) : ViewHolder(view) {
-    private var factorInfo: TextView? = null
+    private var factorSid: TextView? = null
+    private var factorIdentity: TextView? = null
+    private var factorName: TextView? = null
+    private var factorStatus: TextView? = null
 
     init {
-      factorInfo = itemView.findViewById(
-        id.factorInfo
+      factorSid = itemView.findViewById(
+        id.factorSidText
+      )
+      factorIdentity = itemView.findViewById(
+        id.identityText
+      )
+      factorName = itemView.findViewById(
+        id.factorNameText
+      )
+      factorStatus = itemView.findViewById(
+        id.factorStatusText
       )
     }
 
@@ -69,7 +80,10 @@ class FactorsAdapter(
       factor: Factor,
       onFactorClick: (Factor) -> Unit
     ) {
-      factorInfo?.text = factor.string()
+      factorSid?.text = factor.sid
+      factorName?.text = factor.friendlyName
+      factorIdentity?.text = factor.identity
+      factorStatus?.text = factor.status.value
       itemView.setOnClickListener {
         onFactorClick(factor)
       }

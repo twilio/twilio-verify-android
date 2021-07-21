@@ -37,7 +37,7 @@ import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import kotlinx.android.synthetic.main.fragment_create_factor.accessTokenUrlInput
 import kotlinx.android.synthetic.main.fragment_create_factor.content
-import kotlinx.android.synthetic.main.fragment_create_factor.createFactor
+import kotlinx.android.synthetic.main.fragment_create_factor.createFactorButton
 import kotlinx.android.synthetic.main.fragment_create_factor.identityInput
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -57,7 +57,7 @@ class CreateFactorFragment : Fragment() {
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    createFactor.setOnClickListener {
+    createFactorButton.setOnClickListener {
       startCreateFactor()
     }
     getPushToken()
@@ -65,7 +65,7 @@ class CreateFactorFragment : Fragment() {
       .observe(
         viewLifecycleOwner,
         Observer {
-          createFactor.isEnabled = true
+          createFactorButton.isEnabled = true
           when (it) {
             is com.twilio.verify.sample.viewmodel.Factor -> onSuccess(it.factor)
             is FactorError -> it.exception.showError(content)
@@ -116,7 +116,7 @@ class CreateFactorFragment : Fragment() {
     identity: String,
     accessTokenUrl: String
   ) {
-    createFactor.isEnabled = false
+    createFactorButton.isEnabled = false
     val createFactorData = CreateFactorData(identity, "$identity's factor", token, accessTokenUrl)
     factorViewModel.createFactor(createFactorData)
   }
