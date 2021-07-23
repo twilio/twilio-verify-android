@@ -55,7 +55,10 @@ class AuthenticatedEncryptedPreferences(
           }
           Logger.log(Level.Debug, "Saved $keyToSave")
         },
-        error
+        {
+          Logger.log(Level.Error, it.toString(), it)
+          error(StorageException(it))
+        }
       )
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
@@ -80,7 +83,10 @@ class AuthenticatedEncryptedPreferences(
             "Illegal decrypted data"
           )
         },
-        error
+        {
+          Logger.log(Level.Error, it.toString(), it)
+          error(StorageException(it))
+        }
       ).also { Logger.log(Level.Debug, "Return value $it for $key") }
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
@@ -89,7 +95,12 @@ class AuthenticatedEncryptedPreferences(
   }
 
   override fun contains(key: String): Boolean = preferences.contains(generateKeyDigest(key))
-    .also { Logger.log(Level.Debug, "Encrypted preferences ${if (it) "has a value" else "does not have a value"} for $it key $key") }
+    .also {
+      Logger.log(
+        Level.Debug,
+        "Encrypted preferences ${if (it) "has a value" else "does not have a value"} for $it key $key"
+      )
+    }
 
   @Synchronized
   override fun remove(key: String) {
@@ -119,7 +130,14 @@ class AuthenticatedEncryptedPreferences(
     biometricSecretKey.decrypt(
       Base64.decode(value, DEFAULT), authenticator,
       { decryptedValue ->
-        success(fromByteArray(decryptedValue, kClass).also { Logger.log(Level.Debug, "Return value $it for key $key") })
+        success(
+          fromByteArray(decryptedValue, kClass).also {
+            Logger.log(
+              Level.Debug,
+              "Return value $it for key $key"
+            )
+          }
+        )
       },
       error
     )

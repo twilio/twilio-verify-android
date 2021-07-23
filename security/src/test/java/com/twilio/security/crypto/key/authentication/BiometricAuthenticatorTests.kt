@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.twilio.security.crypto.key.cipher
+package com.twilio.security.crypto.key.authentication
 
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -27,10 +27,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.security.crypto.key.authentication.BiometricAuthenticatorContext
-import com.twilio.security.crypto.key.authentication.BiometricError
-import com.twilio.security.crypto.key.authentication.BiometricException
-import com.twilio.security.crypto.key.authentication.BiometricPromptHelper
 import java.security.Signature
 import javax.crypto.Cipher
 import org.junit.Assert.assertEquals
