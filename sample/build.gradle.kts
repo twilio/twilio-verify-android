@@ -57,6 +57,9 @@ android {
       )
       signingConfig = signingConfigs.getByName("release")
     }
+    getByName("debug") {
+      signingConfig = signingConfigs.getByName("release")
+    }
   }
 
   lintOptions {
