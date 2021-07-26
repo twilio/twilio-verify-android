@@ -18,6 +18,7 @@ secrets.tar
 vendor/
 .bundle/
 /builds
+*.gpg
 
 # Built application files
 *.apk
