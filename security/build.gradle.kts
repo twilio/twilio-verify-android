@@ -17,10 +17,11 @@
 //region Plugins
 apply(from = "../jacoco.gradle.kts")
 plugins {
-  id(MavenPublish.plugin)
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.kotlinAndroidExtensions)
+  id(Config.Plugins.maven_publish)
+  id(Config.Plugins.signing)
   jacoco
 }
 //endregion
@@ -61,33 +62,46 @@ android {
 //endregion
 
 //region Publish
-val pomPackaging: String by project
 val pomGroup: String by project
 val pomArtifactId: String by project
-/*
- * Maven upload configuration that can be used for any maven repo
- */
-tasks {
-  "uploadArchives"(Upload::class) {
-    repositories {
-      withConvention(MavenRepositoryHandlerConvention::class) {
-        mavenDeployer {
-          withGroovyBuilder {
-            MavenPublish.Bintray.repository(
-              MavenPublish.Bintray.url to uri(MavenPublish.mavenRepo(project))
-            ) {
-              MavenPublish.Bintray.authentication(
-                MavenPublish.Bintray.userName to MavenPublish.mavenUsername(project),
-                MavenPublish.Bintray.password to MavenPublish.mavenPassword(project)
-              )
+
+publishing {
+  publications {
+    create<MavenPublication>("TwilioSecurity") {
+      groupId = pomGroup
+      artifactId = pomArtifactId
+      version = securityVersionName
+      artifact("$buildDir/outputs/aar/security-release.aar")
+
+      pom.withXml {
+        asNode().apply {
+          appendNode("name", "twilio-security-android")
+          appendNode("description", "Twilio Security library.")
+          appendNode("url", "https://github.com/twilio/twilio-verify-android")
+          appendNode("licenses").apply {
+            appendNode("license").apply {
+              appendNode("name", "Apache License, Version 2.0")
+              appendNode("url", "https://github.com/twilio/twilio-verify-android/blob/main/LICENSE")
             }
           }
-          pom.project {
-            withGroovyBuilder {
-              MavenPublish.Bintray.version(securityVersionName)
-              MavenPublish.Bintray.groupId(pomGroup)
-              MavenPublish.Bintray.artifactId(pomArtifactId)
-              MavenPublish.Bintray.packaging(pomPackaging)
+          appendNode("developers").apply {
+            appendNode("developer").apply {
+              appendNode("id", "Twilio")
+              appendNode("name", "Twilio")
+            }
+          }
+          appendNode("scm").apply {
+            appendNode("connection", "scm:git:github.com/twilio/twilio-verify-android.git")
+            appendNode("developerConnection", "scm:git:ssh://github.com/twilio/twilio-verify-android.git")
+            appendNode("url", "https://github.com/twilio/twilio-verify-android/tree/main")
+          }
+          appendNode("dependencies").apply {
+            project.configurations["releaseImplementation"].allDependencies.forEach {
+              appendNode("dependency").apply {
+                appendNode("groupId", it.group)
+                appendNode("artifactId", it.name)
+                appendNode("version", it.version)
+              }
             }
           }
         }
@@ -96,40 +110,12 @@ tasks {
   }
 }
 
-task("bintrayLibraryReleaseCandidateUpload", GradleBuild::class) {
-  description = "Publish Security SDK release candidate to internal bintray"
-  group = MavenPublish.Bintray.group
-  buildName = "Security"
-  buildFile = file("build.gradle.kts")
-  tasks = listOf("assembleRelease", "uploadArchives")
-  startParameter.projectProperties.plusAssign(
-    gradle.startParameter.projectProperties +
-      MavenPublish.Bintray.credentials(
-        project,
-        "https://api.bintray.com/maven/twilio/internal-releases/twilio-security-android/;publish=1",
-        MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
-      )
-  )
-}
-
-task("bintrayLibraryReleaseUpload", GradleBuild::class) {
-  description = "Publish Security SDK release to bintray"
-  group = MavenPublish.Bintray.group
-  buildName = "Security"
-  buildFile = file("build.gradle.kts")
-  tasks = listOf("assembleRelease", "uploadArchives")
-  startParameter.projectProperties.plusAssign(
-    gradle.startParameter.projectProperties + MavenPublish.Bintray.credentials(
-      project,
-      "https://api.bintray.com/maven/twilio/releases/twilio-security-android/;publish=1",
-      MavenPublish.Bintray.user, MavenPublish.Bintray.apiKey
-    )
-  )
+signing {
+  sign(publishing.publications)
 }
 //endregion
 
 dependencies {
-  implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
   testImplementation("junit:junit:4.12")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")

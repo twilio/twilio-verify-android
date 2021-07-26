@@ -23,6 +23,9 @@ plugins {
   id(Config.Plugins.firebasePerformance)
   jacoco
 }
+repositories {
+  mavenLocal()
+}
 
 val verifyVersionName: String by rootProject.allprojects.first { it.name == Modules.verify }.extra
 val verifyVersionCode: String by rootProject.allprojects.first { it.name == Modules.verify }.extra
@@ -52,6 +55,9 @@ android {
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
       )
+      signingConfig = signingConfigs.getByName("release")
+    }
+    getByName("debug") {
       signingConfig = signingConfigs.getByName("release")
     }
   }

@@ -23,14 +23,111 @@
     >
 
   <TextView
-      android:id="@+id/challengeInfo"
+      android:id="@+id/challengeSidLabel"
       style="@style/TextAppearance.AppCompat.Medium"
-      android:layout_width="match_parent"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginStart="8dp"
       android:layout_marginTop="8dp"
+      android:text="@string/challenge_sid"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      tools:text="Challenge Info"
+      />
+  <TextView
+      android:id="@+id/challengeSidText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toEndOf="@+id/challengeSidLabel"
+      app:layout_constraintTop_toTopOf="@+id/challengeSidLabel"
+      tools:text="Challenge sid"
+      />
+  <TextView
+      android:id="@+id/challengeMessageLabel"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/challenge_message"
+      app:layout_constraintStart_toStartOf="@+id/challengeSidLabel"
+      app:layout_constraintTop_toBottomOf="@+id/challengeSidText"
+      />
+  <TextView
+      android:id="@+id/challengeMessageText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toEndOf="@+id/challengeMessageLabel"
+      app:layout_constraintTop_toTopOf="@+id/challengeMessageLabel"
+      tools:text="Challenge message"
+      />
+  <TextView
+      android:id="@+id/challengeStatusLabel"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/challenge_status"
+      app:layout_constraintStart_toStartOf="@+id/challengeMessageLabel"
+      app:layout_constraintTop_toBottomOf="@+id/challengeMessageText"
+      />
+  <TextView
+      android:id="@+id/challengeStatusText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      app:layout_constraintStart_toEndOf="@+id/challengeStatusLabel"
+      app:layout_constraintTop_toTopOf="@+id/challengeStatusLabel"
+      tools:text="Challenge status"
+      />
+  <TextView
+      android:id="@+id/challengeCreatedAtLabel"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/challenge_created_at"
+      app:layout_constraintStart_toStartOf="@+id/challengeStatusLabel"
+      app:layout_constraintTop_toBottomOf="@+id/challengeStatusText"
+      />
+  <TextView
+      android:id="@+id/challengeCreatedAtText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toEndOf="@+id/challengeCreatedAtLabel"
+      app:layout_constraintTop_toTopOf="@+id/challengeCreatedAtLabel"
+      tools:text="Challenge created at"
+      />
+  <TextView
+      android:id="@+id/challengeExpireOnLabel"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/challenge_expire_on"
+      app:layout_constraintStart_toStartOf="@+id/challengeCreatedAtLabel"
+      app:layout_constraintTop_toBottomOf="@+id/challengeCreatedAtText"
+      />
+  <TextView
+      android:id="@+id/challengeExpireOnText"
+      style="@style/TextAppearance.AppCompat.Medium"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginStart="8dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toEndOf="@+id/challengeExpireOnLabel"
+      app:layout_constraintTop_toTopOf="@+id/challengeExpireOnLabel"
+      tools:text="Challenge expire on"
       />
 </androidx.constraintlayout.widget.ConstraintLayout>

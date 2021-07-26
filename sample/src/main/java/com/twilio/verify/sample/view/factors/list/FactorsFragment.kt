@@ -36,8 +36,8 @@ import com.twilio.verify.sample.viewmodel.DeleteFactorError
 import com.twilio.verify.sample.viewmodel.FactorList
 import com.twilio.verify.sample.viewmodel.FactorsError
 import com.twilio.verify.sample.viewmodel.FactorsViewModel
+import kotlinx.android.synthetic.main.fragment_factors.addFactorButton
 import kotlinx.android.synthetic.main.fragment_factors.content
-import kotlinx.android.synthetic.main.fragment_factors.createFactor
 import kotlinx.android.synthetic.main.fragment_factors.factors
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -56,7 +56,7 @@ class FactorsFragment : Fragment() {
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    createFactor.setOnClickListener { findNavController().navigate(R.id.action_create_factor) }
+    addFactorButton.setOnClickListener { findNavController().navigate(R.id.action_create_factor) }
     factors.apply {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(requireContext())
