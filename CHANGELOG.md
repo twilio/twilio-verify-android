@@ -1,3 +1,22 @@
+# 0.3.1 (2021-07-26)
+
+### Bug fixes
+- Update error codes (#164) ([308d053](https://github.com/twilio/twilio-verify-android/commit/308d053dab3f367513104cee285321a2d733097e))
+
+### Building system
+- Publishing to MavenCentral (#170) ([e638380](https://github.com/twilio/twilio-verify-android/commit/e63838079e94df526a4b78d7dff60a43b5e1ae99))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 72.9KB          |
+| x86_64          | 72.9KB          |
+| armeabi-v7a     | 72.9KB          |
+| arm64-v8a       | 72.9KB          |
+| universal       | 72.9KB          |
+
+
 # 0.3.0 (2020-12-03)
 
 ### Features
