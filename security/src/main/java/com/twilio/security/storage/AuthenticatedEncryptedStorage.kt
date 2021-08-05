@@ -32,6 +32,7 @@ interface AuthenticatedEncryptedStorage {
     key: String,
     value: T,
     authenticator: BiometricAuthenticator,
+    success: () -> Unit,
     error: (Exception) -> Unit
   )
 
