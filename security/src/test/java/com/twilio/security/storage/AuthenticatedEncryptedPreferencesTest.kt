@@ -53,9 +53,9 @@ class AuthenticatedEncryptedPreferencesTest {
     }
     whenever(editor.putString(eq(generateKeyDigest(key)), any())).thenReturn(editor)
     whenever(editor.commit()).thenReturn(true)
-    encryptedPreferences.put(key, value, authenticator) {
+    encryptedPreferences.put(key, value, authenticator, {}, {
       fail()
-    }
+    })
     verify(editor).putString(
       generateKeyDigest(key), Base64.encodeToString(value.toByteArray(), Base64.DEFAULT)
     )
@@ -75,10 +75,10 @@ class AuthenticatedEncryptedPreferencesTest {
         firstValue.invoke(exception)
       }
     }
-    encryptedPreferences.put(key, value, authenticator) {
+    encryptedPreferences.put(key, value, authenticator, { fail() }, {
       assertTrue(it is StorageException)
       assertEquals(exception, it.cause)
-    }
+    })
   }
 
   @Test
@@ -94,11 +94,11 @@ class AuthenticatedEncryptedPreferencesTest {
         firstValue.invoke(exception)
       }
     }
-    encryptedPreferences.put(key, value, authenticator) {
+    encryptedPreferences.put(key, value, authenticator, { fail() }, {
       assertTrue(it is StorageException)
       assertEquals(exception, it.cause)
       assertEquals(NoBiometricEnrolled.message, exception.message)
-    }
+    })
   }
 
   @Test
@@ -115,10 +115,10 @@ class AuthenticatedEncryptedPreferencesTest {
     }
     whenever(editor.putString(eq(generateKeyDigest(key)), any())).thenReturn(editor)
     whenever(editor.commit()).thenReturn(false)
-    encryptedPreferences.put(key, value, authenticator) {
+    encryptedPreferences.put(key, value, authenticator, { fail() }, {
       assertTrue(it is StorageException)
       assertTrue(it.cause is IllegalStateException)
-    }
+    })
   }
 
   @Test

@@ -37,6 +37,7 @@ class AuthenticatedEncryptedPreferences(
     key: String,
     value: T,
     authenticator: BiometricAuthenticator,
+    success: () -> Unit,
     error: (Exception) -> Unit
   ) {
     try {
@@ -54,6 +55,7 @@ class AuthenticatedEncryptedPreferences(
             throw IllegalStateException("Error saving value")
           }
           Logger.log(Level.Debug, "Saved $keyToSave")
+          success()
         },
         {
           Logger.log(Level.Error, it.toString(), it)
