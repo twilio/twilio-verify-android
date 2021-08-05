@@ -11,15 +11,15 @@ import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
 import com.twilio.security.crypto.providerName
 import com.twilio.security.storage.key.BiometricSecretKey
+import java.security.KeyStore
+import java.security.Signature
+import javax.crypto.Cipher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
-import java.security.KeyStore
-import java.security.Signature
-import javax.crypto.Cipher
 
 class AuthenticatedEncryptedPreferencesTests {
 
@@ -72,9 +72,12 @@ class AuthenticatedEncryptedPreferencesTests {
   fun testPutAndGet_intValue_shouldGetIntValue() {
     val key = "value"
     val expectedValue = 123
-    authenticatedEncryptedPreferences.put(key, expectedValue, authenticator, {}, {
-      fail(it.message)
-    })
+    authenticatedEncryptedPreferences.put(
+      key, expectedValue, authenticator, {},
+      {
+        fail(it.message)
+      }
+    )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = authenticatedEncryptedPreferences.get(
       key, Int::class, authenticator,
@@ -91,9 +94,12 @@ class AuthenticatedEncryptedPreferencesTests {
   fun testPutAndGet_booleanValue_shouldGetBooleanValue() {
     val key = "value"
     val expectedValue = true
-    authenticatedEncryptedPreferences.put(key, expectedValue, authenticator, {}, {
-      fail(it.message)
-    })
+    authenticatedEncryptedPreferences.put(
+      key, expectedValue, authenticator, {},
+      {
+        fail(it.message)
+      }
+    )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = authenticatedEncryptedPreferences.get(
       key, Boolean::class, authenticator,
@@ -110,9 +116,12 @@ class AuthenticatedEncryptedPreferencesTests {
   fun testPutAndGet_stringValue_shouldGetStringValue() {
     val key = "value"
     val expectedValue = "sfdsfdgdfguqweuwr"
-    authenticatedEncryptedPreferences.put(key, expectedValue, authenticator, {}, {
-      fail(it.message)
-    })
+    authenticatedEncryptedPreferences.put(
+      key, expectedValue, authenticator, {},
+      {
+        fail(it.message)
+      }
+    )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = authenticatedEncryptedPreferences.get(
       key, String::class, authenticator,
@@ -174,9 +183,12 @@ class AuthenticatedEncryptedPreferencesTests {
     val expectedValues = arrayListOf(TestObject("name", 33), true, 1, 1.23434, "test")
     expectedValues.forEachIndexed { index, expectedValue ->
       val key = "key$index"
-      authenticatedEncryptedPreferences.put(key, expectedValue, authenticator, {}, {
-        fail(it.message)
-      })
+      authenticatedEncryptedPreferences.put(
+        key, expectedValue, authenticator, {},
+        {
+          fail(it.message)
+        }
+      )
       assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
       val value = authenticatedEncryptedPreferences.get(
         key, expectedValue::class, authenticator,
