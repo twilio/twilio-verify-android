@@ -8,13 +8,17 @@ import android.content.SharedPreferences.Editor
 import android.util.Base64
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import com.twilio.security.crypto.key.authentication.BiometricError.NoBiometricEnrolled
 import com.twilio.security.crypto.key.authentication.BiometricException
+import com.twilio.security.crypto.key.template.CipherTemplate
 import com.twilio.security.storage.key.BiometricSecretKey
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -31,12 +35,13 @@ class AuthenticatedEncryptedPreferencesTest {
   private val biometricSecretKey: BiometricSecretKey = mock()
   private val serializer: Serializer = mock()
   private val authenticator: BiometricAuthenticator = mock()
+  private val keyManager: KeyManager = mock()
   private lateinit var encryptedPreferences: AuthenticatedEncryptedPreferences
 
   @Before
   fun setup() {
     encryptedPreferences =
-      AuthenticatedEncryptedPreferences(biometricSecretKey, preferences, serializer)
+      AuthenticatedEncryptedPreferences(biometricSecretKey, preferences, keyManager, serializer)
   }
 
   @Test
@@ -256,5 +261,85 @@ class AuthenticatedEncryptedPreferencesTest {
     encryptedPreferences.clear()
     verify(editor).clear()
     verify(editor).apply()
+  }
+
+  @Test
+  fun testRecreate_withKeyManagerNotContainingStorageAndEmptyPreferences_shouldCallCreate() {
+    val editor: Editor = mock()
+    val storageAlias = "alias"
+
+    val template: CipherTemplate = mock {
+      on { alias } doReturn storageAlias
+    }
+    whenever(biometricSecretKey.template).thenReturn(template)
+    whenever(preferences.edit()).thenReturn(editor)
+    whenever(editor.clear()).thenReturn(editor)
+    whenever(keyManager.contains(storageAlias)).thenReturn(false)
+    whenever(preferences.all).thenReturn(emptyMap<String, Any>())
+    encryptedPreferences.recreate()
+    verify(editor).clear()
+    verify(editor).apply()
+    verify(biometricSecretKey).delete()
+    verify(biometricSecretKey).create()
+  }
+
+  @Test
+  fun testRecreate_withKeyManagerNotContainingStorageAndPreferencesNotEmpty_shouldNotCallCreate() {
+    val editor: Editor = mock()
+    val storageAlias = "alias"
+
+    val template: CipherTemplate = mock {
+      on { alias } doReturn storageAlias
+    }
+    whenever(biometricSecretKey.template).thenReturn(template)
+    whenever(preferences.edit()).thenReturn(editor)
+    whenever(editor.clear()).thenReturn(editor)
+    whenever(keyManager.contains(storageAlias)).thenReturn(false)
+    whenever(preferences.all).thenReturn(mapOf("key" to "value"))
+    encryptedPreferences.recreate()
+    verify(editor).clear()
+    verify(editor).apply()
+    verify(biometricSecretKey).delete()
+    verify(biometricSecretKey, never()).create()
+  }
+
+  @Test
+  fun testRecreate_withKeyManagerContainingStorageAndPreferencesWithData_shouldNotCallCreate() {
+    val editor: Editor = mock()
+    val storageAlias = "alias"
+
+    val template: CipherTemplate = mock {
+      on { alias } doReturn storageAlias
+    }
+    whenever(biometricSecretKey.template).thenReturn(template)
+    whenever(preferences.edit()).thenReturn(editor)
+    whenever(editor.clear()).thenReturn(editor)
+    whenever(keyManager.contains(storageAlias)).thenReturn(true)
+    whenever(preferences.all).thenReturn(mapOf("key" to "value"))
+    encryptedPreferences.recreate()
+    verify(editor).clear()
+    verify(editor).apply()
+    verify(biometricSecretKey).delete()
+    verify(biometricSecretKey, never()).create()
+  }
+
+  @Test
+  fun testRecreate_withKeyManagerContainingStorageAndPreferencesWithoutData_shouldNotCallCreate() {
+    val editor: Editor = mock()
+    val storageAlias = "alias"
+
+    val template: CipherTemplate = mock {
+      on { alias } doReturn storageAlias
+    }
+    whenever(biometricSecretKey.template).thenReturn(template)
+    whenever(preferences.edit()).thenReturn(editor)
+    whenever(editor.clear()).thenReturn(editor)
+    whenever(keyManager.contains(storageAlias)).thenReturn(true)
+    whenever(preferences.all).thenReturn(emptyMap<String, Any>())
+    encryptedPreferences.recreate()
+    verify(editor).clear()
+    verify(editor).apply()
+    verify(biometricSecretKey).delete()
+    verify(biometricSecretKey, never()).create()
   }
 }

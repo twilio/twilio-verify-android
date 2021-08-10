@@ -51,7 +51,7 @@ class AuthenticatedEncryptedPreferencesTests {
     biometricSecretKey.create()
     authenticator = TestAuthenticator()
     authenticatedEncryptedPreferences = AuthenticatedEncryptedPreferences(
-      biometricSecretKey, sharedPreferences,
+      biometricSecretKey, sharedPreferences, androidKeyManager,
       TestObjectSerializer(
         DefaultSerializer()
       )

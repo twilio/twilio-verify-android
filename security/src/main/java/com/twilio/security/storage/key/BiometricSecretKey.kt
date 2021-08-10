@@ -27,7 +27,7 @@ import com.twilio.security.crypto.key.template.CipherTemplate
 import java.security.InvalidKeyException
 
 class BiometricSecretKey(
-  private val template: CipherTemplate,
+  val template: CipherTemplate,
   private val keyManager: KeyManager
 ) : AuthenticatedSecretKey {
 

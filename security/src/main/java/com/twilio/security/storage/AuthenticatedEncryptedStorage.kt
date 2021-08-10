@@ -48,6 +48,7 @@ interface AuthenticatedEncryptedStorage {
   fun contains(key: String): Boolean
   fun remove(key: String)
   fun clear()
+  fun recreate()
 }
 
 fun authenticatedEncryptedPreferences(
@@ -61,5 +62,5 @@ fun authenticatedEncryptedPreferences(
   if (!keyManager.contains(storageAlias) && sharedPreferences.all.isEmpty()) {
     biometricSecretKey.create()
   }
-  return AuthenticatedEncryptedPreferences(biometricSecretKey, sharedPreferences, DefaultSerializer())
+  return AuthenticatedEncryptedPreferences(biometricSecretKey, sharedPreferences, keyManager, DefaultSerializer())
 }
