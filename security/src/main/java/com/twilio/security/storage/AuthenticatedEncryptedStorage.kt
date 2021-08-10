@@ -62,5 +62,5 @@ fun authenticatedEncryptedPreferences(
   if (!keyManager.contains(storageAlias) && sharedPreferences.all.isEmpty()) {
     biometricSecretKey.create()
   }
-  return AuthenticatedEncryptedPreferences(biometricSecretKey, sharedPreferences, keyManager, DefaultSerializer())
+  return AuthenticatedEncryptedPreferences(biometricSecretKey, sharedPreferences, DefaultSerializer())
 }

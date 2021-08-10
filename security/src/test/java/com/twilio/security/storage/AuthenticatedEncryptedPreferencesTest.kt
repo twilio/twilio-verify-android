@@ -35,13 +35,12 @@ class AuthenticatedEncryptedPreferencesTest {
   private val biometricSecretKey: BiometricSecretKey = mock()
   private val serializer: Serializer = mock()
   private val authenticator: BiometricAuthenticator = mock()
-  private val keyManager: KeyManager = mock()
   private lateinit var encryptedPreferences: AuthenticatedEncryptedPreferences
 
   @Before
   fun setup() {
     encryptedPreferences =
-      AuthenticatedEncryptedPreferences(biometricSecretKey, preferences, keyManager, serializer)
+      AuthenticatedEncryptedPreferences(biometricSecretKey, preferences, serializer)
   }
 
   @Test
@@ -271,6 +270,8 @@ class AuthenticatedEncryptedPreferencesTest {
     val template: CipherTemplate = mock {
       on { alias } doReturn storageAlias
     }
+    val keyManager: KeyManager = mock()
+    whenever(biometricSecretKey.keyManager).thenReturn(keyManager)
     whenever(biometricSecretKey.template).thenReturn(template)
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)
@@ -291,6 +292,8 @@ class AuthenticatedEncryptedPreferencesTest {
     val template: CipherTemplate = mock {
       on { alias } doReturn storageAlias
     }
+    val keyManager: KeyManager = mock()
+    whenever(biometricSecretKey.keyManager).thenReturn(keyManager)
     whenever(biometricSecretKey.template).thenReturn(template)
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)
@@ -311,6 +314,8 @@ class AuthenticatedEncryptedPreferencesTest {
     val template: CipherTemplate = mock {
       on { alias } doReturn storageAlias
     }
+    val keyManager: KeyManager = mock()
+    whenever(biometricSecretKey.keyManager).thenReturn(keyManager)
     whenever(biometricSecretKey.template).thenReturn(template)
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)
@@ -331,6 +336,8 @@ class AuthenticatedEncryptedPreferencesTest {
     val template: CipherTemplate = mock {
       on { alias } doReturn storageAlias
     }
+    val keyManager: KeyManager = mock()
+    whenever(biometricSecretKey.keyManager).thenReturn(keyManager)
     whenever(biometricSecretKey.template).thenReturn(template)
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)

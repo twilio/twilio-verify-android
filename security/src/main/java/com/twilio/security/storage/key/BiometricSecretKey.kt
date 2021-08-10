@@ -28,7 +28,7 @@ import java.security.InvalidKeyException
 
 class BiometricSecretKey(
   val template: CipherTemplate,
-  private val keyManager: KeyManager
+  val keyManager: KeyManager
 ) : AuthenticatedSecretKey {
 
   override fun create() {
