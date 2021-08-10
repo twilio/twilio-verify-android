@@ -263,7 +263,7 @@ class AuthenticatedEncryptedPreferencesTest {
   }
 
   @Test
-  fun testRecreate_withKeyManagerNotContainingStorageAndEmptyPreferences_shouldCallCreate() {
+  fun testRecreate_withKeyManagerNotContainingStorageAndPreferencesWithoutData_shouldCallCreate() {
     val editor: Editor = mock()
     val storageAlias = "alias"
 
@@ -285,7 +285,7 @@ class AuthenticatedEncryptedPreferencesTest {
   }
 
   @Test
-  fun testRecreate_withKeyManagerNotContainingStorageAndPreferencesNotEmpty_shouldNotCallCreate() {
+  fun testRecreate_withKeyManagerNotContainingStorageAndPreferencesWithData_shouldNotCallCreate() {
     val editor: Editor = mock()
     val storageAlias = "alias"
 
