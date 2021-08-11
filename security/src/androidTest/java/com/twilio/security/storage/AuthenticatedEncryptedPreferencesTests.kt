@@ -43,16 +43,15 @@ class AuthenticatedEncryptedPreferencesTests {
     }
     sharedPreferences =
       context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-    val biometricSecretKey =
+    authenticator = TestAuthenticator()
+    authenticatedEncryptedPreferences = AuthenticatedEncryptedPreferences(
+      sharedPreferences, alias, androidKeyManager, TestObjectSerializer(DefaultSerializer())
+    )
+    authenticatedEncryptedPreferences.biometricSecretKey =
       BiometricSecretKey(
         AESGCMNoPaddingCipherTemplate(alias, androidKeyManager.contains(alias)),
         androidKeyManager
       )
-    biometricSecretKey.create()
-    authenticator = TestAuthenticator()
-    authenticatedEncryptedPreferences = AuthenticatedEncryptedPreferences(
-      biometricSecretKey, sharedPreferences, TestObjectSerializer(DefaultSerializer())
-    )
   }
 
   @After

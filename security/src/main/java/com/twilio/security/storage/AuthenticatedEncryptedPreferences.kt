@@ -19,17 +19,22 @@ package com.twilio.security.storage
 import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Base64.DEFAULT
+import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
+import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
 import com.twilio.security.storage.key.BiometricSecretKey
 import kotlin.reflect.KClass
 
 class AuthenticatedEncryptedPreferences(
-  override val biometricSecretKey: BiometricSecretKey,
   private val preferences: SharedPreferences,
+  private val storageAlias: String,
+  override val keyManager: KeyManager,
   override val serializer: Serializer
 ) : AuthenticatedEncryptedStorage {
+
+  internal var biometricSecretKey: BiometricSecretKey? = null
 
   @Throws(StorageException::class)
   @Synchronized
@@ -43,7 +48,7 @@ class AuthenticatedEncryptedPreferences(
     try {
       Logger.log(Level.Info, "Saving $key")
       val rawValue = toByteArray(value)
-      biometricSecretKey.encrypt(
+      getKey().encrypt(
         rawValue, authenticator,
         { encrypted ->
           val keyToSave = generateKeyDigest(key)
@@ -123,11 +128,8 @@ class AuthenticatedEncryptedPreferences(
   @Synchronized
   override fun recreate() {
     clear()
-    biometricSecretKey.delete()
-    val storageAlias = biometricSecretKey.template.alias
-    if (!biometricSecretKey.keyManager.contains(storageAlias) && preferences.all.isEmpty()) {
-      biometricSecretKey.create()
-    }
+    getKey().delete()
+    create()
   }
 
   private fun <T : Any> getValue(
@@ -139,7 +141,7 @@ class AuthenticatedEncryptedPreferences(
   ) {
     Logger.log(Level.Debug, "Getting value for $key")
     val value = preferences.getString(key, null) ?: throw IllegalArgumentException("key not found")
-    biometricSecretKey.decrypt(
+    getKey().decrypt(
       Base64.decode(value, DEFAULT), authenticator,
       { decryptedValue ->
         success(
@@ -163,4 +165,20 @@ class AuthenticatedEncryptedPreferences(
     data: ByteArray,
     kClass: KClass<T>
   ): T? = serializer.fromByteArray(data, kClass)
+
+  private fun getKey(): BiometricSecretKey {
+    if (biometricSecretKey == null) {
+      biometricSecretKey = BiometricSecretKey(
+        AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true), keyManager
+      )
+    }
+    create()
+    return biometricSecretKey as BiometricSecretKey
+  }
+
+  private fun create() {
+    if (!keyManager.contains(storageAlias) && preferences.all.isEmpty()) {
+      biometricSecretKey?.create()
+    }
+  }
 }

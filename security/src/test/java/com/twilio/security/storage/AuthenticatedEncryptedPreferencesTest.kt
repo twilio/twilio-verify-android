@@ -8,7 +8,6 @@ import android.content.SharedPreferences.Editor
 import android.util.Base64
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -18,7 +17,6 @@ import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import com.twilio.security.crypto.key.authentication.BiometricError.NoBiometricEnrolled
 import com.twilio.security.crypto.key.authentication.BiometricException
-import com.twilio.security.crypto.key.template.CipherTemplate
 import com.twilio.security.storage.key.BiometricSecretKey
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -32,15 +30,18 @@ import org.robolectric.RobolectricTestRunner
 class AuthenticatedEncryptedPreferencesTest {
 
   private val preferences: SharedPreferences = mock()
-  private val biometricSecretKey: BiometricSecretKey = mock()
+  private val storageAlias: String = "alias"
+  private val keyManager: KeyManager = mock()
   private val serializer: Serializer = mock()
   private val authenticator: BiometricAuthenticator = mock()
   private lateinit var encryptedPreferences: AuthenticatedEncryptedPreferences
+  private var biometricSecretKey: BiometricSecretKey = mock()
 
   @Before
   fun setup() {
     encryptedPreferences =
-      AuthenticatedEncryptedPreferences(biometricSecretKey, preferences, serializer)
+      AuthenticatedEncryptedPreferences(preferences, storageAlias, keyManager, serializer)
+    encryptedPreferences.biometricSecretKey = biometricSecretKey
   }
 
   @Test
@@ -57,6 +58,7 @@ class AuthenticatedEncryptedPreferencesTest {
     }
     whenever(editor.putString(eq(generateKeyDigest(key)), any())).thenReturn(editor)
     whenever(editor.commit()).thenReturn(true)
+
     encryptedPreferences.put(
       key, value, authenticator, {},
       {
@@ -135,6 +137,30 @@ class AuthenticatedEncryptedPreferencesTest {
         assertTrue(it.cause is IllegalStateException)
       }
     )
+  }
+
+  @Test
+  fun testPut_withKeyManagerNotContainingStorageAndPreferencesWithoutData_shouldCallCreate() {
+    whenever(keyManager.contains(storageAlias)).thenReturn(false)
+    whenever(preferences.all).thenReturn(emptyMap<String, Any>())
+    encryptedPreferences.put("key", "value", authenticator, {}, {})
+    verify(biometricSecretKey).create()
+  }
+
+  @Test
+  fun testPut_withKeyManagerContainingStorageAndPreferencesWithoutData_shouldNotCallCreate() {
+    whenever(keyManager.contains(storageAlias)).thenReturn(true)
+    whenever(preferences.all).thenReturn(emptyMap<String, Any>())
+    encryptedPreferences.put("key", "value", authenticator, {}, {})
+    verify(biometricSecretKey, never()).create()
+  }
+
+  @Test
+  fun testPut_withKeyManagerNotContainingStorageAndPreferencesWithData_shouldNotCallCreate() {
+    whenever(keyManager.contains(storageAlias)).thenReturn(false)
+    whenever(preferences.all).thenReturn(mapOf("key" to "value"))
+    encryptedPreferences.put("key", "value", authenticator, {}, {})
+    verify(biometricSecretKey, never()).create()
   }
 
   @Test
@@ -235,6 +261,54 @@ class AuthenticatedEncryptedPreferencesTest {
   }
 
   @Test
+  fun testGet_withKeyManagerNotContainingStorageAndPreferencesWithoutData_shouldCallCreate() {
+    val key = "key"
+    val rawValue = "value".toByteArray()
+    whenever(preferences.getString(generateKeyDigest(key), null)).thenReturn(
+      Base64.encodeToString(
+        rawValue,
+        Base64.DEFAULT
+      )
+    )
+    whenever(keyManager.contains(storageAlias)).thenReturn(false)
+    whenever(preferences.all).thenReturn(emptyMap<String, Any>())
+    encryptedPreferences.get(key, String::class, authenticator, {}, {})
+    verify(biometricSecretKey).create()
+  }
+
+  @Test
+  fun testGet_withKeyManagerContainingStorageAndPreferencesWithoutData_shouldNotCallCreate() {
+    val key = "key"
+    val rawValue = "value".toByteArray()
+    whenever(preferences.getString(generateKeyDigest(key), null)).thenReturn(
+      Base64.encodeToString(
+        rawValue,
+        Base64.DEFAULT
+      )
+    )
+    whenever(keyManager.contains(storageAlias)).thenReturn(true)
+    whenever(preferences.all).thenReturn(emptyMap<String, Any>())
+    encryptedPreferences.get(key, String::class, authenticator, {}, {})
+    verify(biometricSecretKey, never()).create()
+  }
+
+  @Test
+  fun testGet_withKeyManagerNotContainingStorageAndPreferencesWithData_shouldNotCallCreate() {
+    val key = "key"
+    val rawValue = "value".toByteArray()
+    whenever(preferences.getString(generateKeyDigest(key), null)).thenReturn(
+      Base64.encodeToString(
+        rawValue,
+        Base64.DEFAULT
+      )
+    )
+    whenever(keyManager.contains(storageAlias)).thenReturn(false)
+    whenever(preferences.all).thenReturn(mapOf("key" to "value"))
+    encryptedPreferences.get("key", String::class, authenticator, {}, {})
+    verify(biometricSecretKey, never()).create()
+  }
+
+  @Test
   fun testContains_withKey_shouldCallPreferences() {
     val key = "key"
     encryptedPreferences.contains(key)
@@ -265,17 +339,9 @@ class AuthenticatedEncryptedPreferencesTest {
   @Test
   fun testRecreate_withKeyManagerNotContainingStorageAndPreferencesWithoutData_shouldCallCreate() {
     val editor: Editor = mock()
-    val storageAlias = "alias"
-
-    val template: CipherTemplate = mock {
-      on { alias } doReturn storageAlias
-    }
-    val keyManager: KeyManager = mock()
-    whenever(biometricSecretKey.keyManager).thenReturn(keyManager)
-    whenever(biometricSecretKey.template).thenReturn(template)
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)
-    whenever(keyManager.contains(storageAlias)).thenReturn(false)
+    whenever(keyManager.contains(storageAlias)).thenReturn(true).thenReturn(false)
     whenever(preferences.all).thenReturn(emptyMap<String, Any>())
     encryptedPreferences.recreate()
     verify(editor).clear()
@@ -287,14 +353,6 @@ class AuthenticatedEncryptedPreferencesTest {
   @Test
   fun testRecreate_withKeyManagerNotContainingStorageAndPreferencesWithData_shouldNotCallCreate() {
     val editor: Editor = mock()
-    val storageAlias = "alias"
-
-    val template: CipherTemplate = mock {
-      on { alias } doReturn storageAlias
-    }
-    val keyManager: KeyManager = mock()
-    whenever(biometricSecretKey.keyManager).thenReturn(keyManager)
-    whenever(biometricSecretKey.template).thenReturn(template)
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)
     whenever(keyManager.contains(storageAlias)).thenReturn(false)
@@ -309,14 +367,7 @@ class AuthenticatedEncryptedPreferencesTest {
   @Test
   fun testRecreate_withKeyManagerContainingStorageAndPreferencesWithData_shouldNotCallCreate() {
     val editor: Editor = mock()
-    val storageAlias = "alias"
-
-    val template: CipherTemplate = mock {
-      on { alias } doReturn storageAlias
-    }
     val keyManager: KeyManager = mock()
-    whenever(biometricSecretKey.keyManager).thenReturn(keyManager)
-    whenever(biometricSecretKey.template).thenReturn(template)
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)
     whenever(keyManager.contains(storageAlias)).thenReturn(true)
@@ -331,14 +382,6 @@ class AuthenticatedEncryptedPreferencesTest {
   @Test
   fun testRecreate_withKeyManagerContainingStorageAndPreferencesWithoutData_shouldNotCallCreate() {
     val editor: Editor = mock()
-    val storageAlias = "alias"
-
-    val template: CipherTemplate = mock {
-      on { alias } doReturn storageAlias
-    }
-    val keyManager: KeyManager = mock()
-    whenever(biometricSecretKey.keyManager).thenReturn(keyManager)
-    whenever(biometricSecretKey.template).thenReturn(template)
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)
     whenever(keyManager.contains(storageAlias)).thenReturn(true)
