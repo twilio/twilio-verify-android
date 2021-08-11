@@ -337,59 +337,15 @@ class AuthenticatedEncryptedPreferencesTest {
   }
 
   @Test
-  fun testRecreate_withKeyManagerNotContainingStorageAndPreferencesWithoutData_shouldCallCreate() {
+  fun testRecreate_shouldClearPreferences_shouldDeleteKey_shouldCreateANewKey() {
     val editor: Editor = mock()
     whenever(preferences.edit()).thenReturn(editor)
     whenever(editor.clear()).thenReturn(editor)
-    whenever(keyManager.contains(storageAlias)).thenReturn(true).thenReturn(false)
-    whenever(preferences.all).thenReturn(emptyMap<String, Any>())
+    whenever(keyManager.contains(storageAlias)).thenReturn(true)
     encryptedPreferences.recreate()
     verify(editor).clear()
     verify(editor).apply()
     verify(biometricSecretKey).delete()
     verify(biometricSecretKey).create()
-  }
-
-  @Test
-  fun testRecreate_withKeyManagerNotContainingStorageAndPreferencesWithData_shouldNotCallCreate() {
-    val editor: Editor = mock()
-    whenever(preferences.edit()).thenReturn(editor)
-    whenever(editor.clear()).thenReturn(editor)
-    whenever(keyManager.contains(storageAlias)).thenReturn(false)
-    whenever(preferences.all).thenReturn(mapOf("key" to "value"))
-    encryptedPreferences.recreate()
-    verify(editor).clear()
-    verify(editor).apply()
-    verify(biometricSecretKey).delete()
-    verify(biometricSecretKey, never()).create()
-  }
-
-  @Test
-  fun testRecreate_withKeyManagerContainingStorageAndPreferencesWithData_shouldNotCallCreate() {
-    val editor: Editor = mock()
-    val keyManager: KeyManager = mock()
-    whenever(preferences.edit()).thenReturn(editor)
-    whenever(editor.clear()).thenReturn(editor)
-    whenever(keyManager.contains(storageAlias)).thenReturn(true)
-    whenever(preferences.all).thenReturn(mapOf("key" to "value"))
-    encryptedPreferences.recreate()
-    verify(editor).clear()
-    verify(editor).apply()
-    verify(biometricSecretKey).delete()
-    verify(biometricSecretKey, never()).create()
-  }
-
-  @Test
-  fun testRecreate_withKeyManagerContainingStorageAndPreferencesWithoutData_shouldNotCallCreate() {
-    val editor: Editor = mock()
-    whenever(preferences.edit()).thenReturn(editor)
-    whenever(editor.clear()).thenReturn(editor)
-    whenever(keyManager.contains(storageAlias)).thenReturn(true)
-    whenever(preferences.all).thenReturn(emptyMap<String, Any>())
-    encryptedPreferences.recreate()
-    verify(editor).clear()
-    verify(editor).apply()
-    verify(biometricSecretKey).delete()
-    verify(biometricSecretKey, never()).create()
   }
 }

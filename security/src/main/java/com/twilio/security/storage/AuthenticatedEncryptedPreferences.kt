@@ -129,7 +129,7 @@ class AuthenticatedEncryptedPreferences(
   override fun recreate() {
     clear()
     getKey().delete()
-    create()
+    biometricSecretKey?.create()
   }
 
   private fun <T : Any> getValue(
@@ -172,11 +172,11 @@ class AuthenticatedEncryptedPreferences(
         AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true), keyManager
       )
     }
-    create()
+    createIfNeeded()
     return biometricSecretKey as BiometricSecretKey
   }
 
-  private fun create() {
+  private fun createIfNeeded() {
     if (!keyManager.contains(storageAlias) && preferences.all.isEmpty()) {
       biometricSecretKey?.create()
     }
