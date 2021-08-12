@@ -17,6 +17,7 @@
 package com.twilio.security.storage
 
 import android.content.SharedPreferences
+import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
@@ -24,7 +25,7 @@ import com.twilio.security.storage.key.BiometricSecretKey
 import kotlin.reflect.KClass
 
 interface AuthenticatedEncryptedStorage {
-  val biometricSecretKey: BiometricSecretKey
+  val keyManager: KeyManager
   val serializer: Serializer
 
   @Throws(StorageException::class)
@@ -48,6 +49,7 @@ interface AuthenticatedEncryptedStorage {
   fun contains(key: String): Boolean
   fun remove(key: String)
   fun clear()
+  fun recreate()
 }
 
 fun authenticatedEncryptedPreferences(
@@ -61,5 +63,5 @@ fun authenticatedEncryptedPreferences(
   if (!keyManager.contains(storageAlias) && sharedPreferences.all.isEmpty()) {
     biometricSecretKey.create()
   }
-  return AuthenticatedEncryptedPreferences(biometricSecretKey, sharedPreferences, DefaultSerializer())
+  return AuthenticatedEncryptedPreferences(sharedPreferences, storageAlias, keyManager, DefaultSerializer())
 }
