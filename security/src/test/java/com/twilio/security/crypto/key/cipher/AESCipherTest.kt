@@ -94,7 +94,12 @@ class AESCipherTest {
     val expectedEncryptedData: EncryptedData = mock()
     val authenticator: Authenticator = mock()
     val cipher: Cipher = mock()
-    whenever(androidKeyStoreOperations.getCipherForEncryption(eq(cipherAlgorithm), eq(key))).thenReturn(
+    whenever(
+      androidKeyStoreOperations.getCipherForEncryption(
+        eq(cipherAlgorithm),
+        eq(key)
+      )
+    ).thenReturn(
       cipher
     )
     argumentCaptor<(Cipher) -> Unit>().apply {
@@ -102,7 +107,9 @@ class AESCipherTest {
         firstValue.invoke(cipher)
       }
     }
-    whenever(androidKeyStoreOperations.encrypt(eq(data), eq(cipher))).thenReturn(expectedEncryptedData)
+    whenever(androidKeyStoreOperations.encrypt(eq(data), eq(cipher))).thenReturn(
+      expectedEncryptedData
+    )
     aesCipher.encrypt(
       data, authenticator,
       { encryptedData ->
@@ -118,7 +125,12 @@ class AESCipherTest {
     val expectedError: RuntimeException = mock()
     val authenticator: Authenticator = mock()
     val cipher: Cipher = mock()
-    whenever(androidKeyStoreOperations.getCipherForEncryption(eq(cipherAlgorithm), eq(key))).thenReturn(
+    whenever(
+      androidKeyStoreOperations.getCipherForEncryption(
+        eq(cipherAlgorithm),
+        eq(key)
+      )
+    ).thenReturn(
       cipher
     )
     argumentCaptor<(Exception) -> Unit>().apply {
@@ -126,7 +138,12 @@ class AESCipherTest {
         firstValue.invoke(expectedError)
       }
     }
-    aesCipher.encrypt(data, authenticator, { fail() }, { error -> assertEquals(expectedError, error) })
+    aesCipher.encrypt(
+      data,
+      authenticator,
+      { fail() },
+      { error -> assertEquals(expectedError, error) }
+    )
   }
 
   @Test
@@ -134,10 +151,48 @@ class AESCipherTest {
     val data = "test".toByteArray()
     val authenticator: Authenticator = mock()
     val expectedError: RuntimeException = mock()
-    whenever(androidKeyStoreOperations.getCipherForEncryption(eq(cipherAlgorithm), eq(key))).thenThrow(
+    whenever(
+      androidKeyStoreOperations.getCipherForEncryption(
+        eq(cipherAlgorithm),
+        eq(key)
+      )
+    ).thenThrow(
       expectedError
     )
-    aesCipher.encrypt(data, authenticator, { fail() }, { error -> assertEquals(expectedError, error) })
+    aesCipher.encrypt(
+      data,
+      authenticator,
+      { fail() },
+      { error -> assertEquals(expectedError, error) }
+    )
+  }
+
+  @Test
+  fun `Error encrypting data with successful authentication and error encrypting should call error`() {
+    val data = "test".toByteArray()
+    val authenticator: Authenticator = mock()
+    val cipher: Cipher = mock()
+    val expectedError: RuntimeException = mock()
+    whenever(
+      androidKeyStoreOperations.getCipherForEncryption(
+        eq(cipherAlgorithm),
+        eq(key)
+      )
+    ).thenReturn(
+      cipher
+    )
+    argumentCaptor<(Cipher) -> Unit>().apply {
+      whenever(authenticator.startAuthentication(eq(cipher), capture(), any())).then {
+        firstValue.invoke(cipher)
+      }
+    }
+    whenever(androidKeyStoreOperations.encrypt(eq(data), eq(cipher))).thenThrow(expectedError)
+    aesCipher.encrypt(
+      data,
+      authenticator,
+      { fail() },
+      { error -> assertEquals(expectedError, error) }
+    )
   }
 
   @Test
@@ -146,7 +201,13 @@ class AESCipherTest {
     val expectedData = "test".toByteArray()
     val authenticator: Authenticator = mock()
     val cipher: Cipher = mock()
-    whenever(androidKeyStoreOperations.getCipherForDecryption(eq(cipherAlgorithm), eq(key), eq(encryptedData))).thenReturn(
+    whenever(
+      androidKeyStoreOperations.getCipherForDecryption(
+        eq(cipherAlgorithm),
+        eq(key),
+        eq(encryptedData)
+      )
+    ).thenReturn(
       cipher
     )
     argumentCaptor<(Cipher) -> Unit>().apply {
@@ -154,7 +215,9 @@ class AESCipherTest {
         firstValue.invoke(cipher)
       }
     }
-    whenever(androidKeyStoreOperations.decrypt(eq(encryptedData), eq(cipher))).thenReturn(expectedData)
+    whenever(androidKeyStoreOperations.decrypt(eq(encryptedData), eq(cipher))).thenReturn(
+      expectedData
+    )
     aesCipher.decrypt(
       encryptedData, authenticator,
       { decryptedData ->
@@ -170,7 +233,13 @@ class AESCipherTest {
     val expectedError: RuntimeException = mock()
     val authenticator: Authenticator = mock()
     val cipher: Cipher = mock()
-    whenever(androidKeyStoreOperations.getCipherForDecryption(eq(cipherAlgorithm), eq(key), eq(encryptedData))).thenReturn(
+    whenever(
+      androidKeyStoreOperations.getCipherForDecryption(
+        eq(cipherAlgorithm),
+        eq(key),
+        eq(encryptedData)
+      )
+    ).thenReturn(
       cipher
     )
     argumentCaptor<(Exception) -> Unit>().apply {
@@ -178,7 +247,12 @@ class AESCipherTest {
         firstValue.invoke(expectedError)
       }
     }
-    aesCipher.decrypt(encryptedData, authenticator, { fail() }, { error -> assertEquals(expectedError, error) })
+    aesCipher.decrypt(
+      encryptedData,
+      authenticator,
+      { fail() },
+      { error -> assertEquals(expectedError, error) }
+    )
   }
 
   @Test
@@ -186,10 +260,21 @@ class AESCipherTest {
     val encryptedData: EncryptedData = mock()
     val authenticator: Authenticator = mock()
     val expectedError: RuntimeException = mock()
-    whenever(androidKeyStoreOperations.getCipherForDecryption(eq(cipherAlgorithm), eq(key), eq(encryptedData))).thenThrow(
+    whenever(
+      androidKeyStoreOperations.getCipherForDecryption(
+        eq(cipherAlgorithm),
+        eq(key),
+        eq(encryptedData)
+      )
+    ).thenThrow(
       expectedError
     )
-    aesCipher.decrypt(encryptedData, authenticator, { fail() }, { error -> assertEquals(expectedError, error) })
+    aesCipher.decrypt(
+      encryptedData,
+      authenticator,
+      { fail() },
+      { error -> assertEquals(expectedError, error) }
+    )
   }
 
   @Test
@@ -244,5 +329,36 @@ class AESCipherTest {
       )
     )
     aesCipher.decrypt(expectedEncryptedData)
+  }
+
+  @Test
+  fun `Error decrypting data with successful authentication and error decrypting should call error`() {
+    val encryptedData: EncryptedData = mock()
+    val authenticator: Authenticator = mock()
+    val cipher: Cipher = mock()
+    val expectedError: RuntimeException = mock()
+    whenever(
+      androidKeyStoreOperations.getCipherForDecryption(
+        eq(cipherAlgorithm),
+        eq(key),
+        eq(encryptedData)
+      )
+    ).thenReturn(
+      cipher
+    )
+    argumentCaptor<(Cipher) -> Unit>().apply {
+      whenever(authenticator.startAuthentication(eq(cipher), capture(), any())).then {
+        firstValue.invoke(cipher)
+      }
+    }
+    whenever(androidKeyStoreOperations.decrypt(eq(encryptedData), eq(cipher))).thenThrow(
+      expectedError
+    )
+    aesCipher.decrypt(
+      encryptedData,
+      authenticator,
+      { fail() },
+      { error -> assertEquals(expectedError, error) }
+    )
   }
 }
