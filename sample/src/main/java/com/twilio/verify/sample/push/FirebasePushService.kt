@@ -89,9 +89,14 @@ class FirebasePushService() : FirebaseMessagingService() {
         factorSid,
         challengeSid,
         Approved
-      ), {
+      ),
+      {
         showChallenge(challengeSid, factorSid, message, true)
-      }, {})
+      },
+      {
+        it.printStackTrace()
+      }
+    )
   }
 
   private fun showChallenge(
