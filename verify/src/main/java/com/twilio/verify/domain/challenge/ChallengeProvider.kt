@@ -21,6 +21,7 @@ import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.ChallengeListOrder
 
 internal interface ChallengeProvider {
   fun get(
@@ -41,6 +42,7 @@ internal interface ChallengeProvider {
     factor: Factor,
     status: ChallengeStatus?,
     pageSize: Int,
+    order: ChallengeListOrder,
     pageToken: String?,
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit

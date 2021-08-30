@@ -87,7 +87,7 @@ internal class ChallengeFacade(
       { factor ->
         execute(success, error) { onSuccess, onError ->
           repository.getAll(
-            factor, challengeListPayload.status, challengeListPayload.pageSize,
+            factor, challengeListPayload.status, challengeListPayload.pageSize, challengeListPayload.order,
             challengeListPayload.pageToken,
             { list ->
               onSuccess(list)

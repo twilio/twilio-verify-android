@@ -15,6 +15,7 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListOrder.Asc
 import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
@@ -264,7 +265,7 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(ChallengeList) -> Unit>().apply {
       whenever(
-        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), capture(), any())
+        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(Asc), eq(null), capture(), any())
       ).then {
         firstValue.invoke(expectedChallengeList)
       }
@@ -298,7 +299,7 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
-        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), any(), capture())
+        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(Asc), eq(null), any(), capture())
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }

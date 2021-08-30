@@ -27,6 +27,7 @@ import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.ChallengeListOrder
 import org.json.JSONObject
 
 internal class ChallengeRepository(
@@ -97,6 +98,7 @@ internal class ChallengeRepository(
     factor: Factor,
     status: ChallengeStatus?,
     pageSize: Int,
+    order: ChallengeListOrder,
     pageToken: String?,
     success: (ChallengeList) -> Unit,
     error: (TwilioVerifyException) -> Unit
@@ -109,7 +111,7 @@ internal class ChallengeRepository(
         error(e)
       }
     }
-    apiClient.getAll(factor, status?.value, pageSize, pageToken, ::toResponse, error)
+    apiClient.getAll(factor, status?.value, pageSize, order, pageToken, ::toResponse, error)
   }
 
   private fun toFactorChallenge(challenge: Challenge) =

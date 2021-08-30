@@ -16,6 +16,8 @@
 
 package com.twilio.verify.models
 
+import com.twilio.verify.models.ChallengeListOrder.Asc
+
 /**
  * Describes the information required to fetch a **ChallengeList**
  */
@@ -33,7 +35,16 @@ class ChallengeListPayload(
    */
   val status: ChallengeStatus? = null,
   /**
+   * Sort challenges in order by creation date of the challenge
+   */
+  val order: ChallengeListOrder = Asc,
+  /**
    * Token used to retrieve the next page in the pagination arrangement
    */
   val pageToken: String? = null
 )
+
+enum class ChallengeListOrder {
+  Asc,
+  Desc
+}
