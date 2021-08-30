@@ -393,7 +393,7 @@ class TwilioVerifyTest {
   fun `Get all challenges should call success`() {
     val factorSid = "factorSid123"
     createFactor(factorSid, Verified)
-    val challengeListPayload = ChallengeListPayload(factorSid, 1, null, null)
+    val challengeListPayload = ChallengeListPayload(factorSid, 1, null, pageToken = null)
     val expectedChallenges = JSONArray(
       listOf(
         challengeJSONObject("sid123", factorSid),

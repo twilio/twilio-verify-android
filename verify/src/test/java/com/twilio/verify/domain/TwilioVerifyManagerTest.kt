@@ -17,6 +17,7 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.service.ServiceFacade
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListOrder.Desc
 import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
@@ -336,7 +337,7 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Get all challenges should call success`() {
-    val challengeListPayload = ChallengeListPayload("factorSid", 1, null, null)
+    val challengeListPayload = ChallengeListPayload("factorSid", 1, null, Desc, null)
     val expectedChallengeList: ChallengeList = mock()
     argumentCaptor<(ChallengeList) -> Unit>().apply {
       whenever(challengeFacade.getAllChallenges(any(), capture(), any())).then {
@@ -360,7 +361,7 @@ class TwilioVerifyManagerTest {
 
   @Test
   fun `Error getting all challenges should call error`() {
-    val challengeListPayload = ChallengeListPayload("factorSid", 1, null, null)
+    val challengeListPayload = ChallengeListPayload("factorSid", 1, null, pageToken = null)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(challengeFacade.getAllChallenges(any(), any(), capture())).then {
