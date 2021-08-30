@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.R.layout
+import com.twilio.verify.sample.model.AppModel
 import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
 import com.twilio.verify.sample.view.showError
@@ -100,6 +101,7 @@ class FactorChallengesFragment : Fragment() {
     challenges.addItemDecoration(dividerItemDecoration)
     factorViewModel.loadFactor(sid)
     challengesViewModel.loadChallenges(sid)
+    silentApproveCheck.isChecked = AppModel.silentlyApproveChallengesPerFactor[sid] == true
     silentApproveCheck.setOnCheckedChangeListener { _, isChecked ->
       factorViewModel.changeSilentApproveChallenges(sid, isChecked)
     }
