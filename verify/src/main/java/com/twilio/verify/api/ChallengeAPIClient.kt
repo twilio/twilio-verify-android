@@ -24,8 +24,8 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.challenge.models.FactorChallenge
-import com.twilio.verify.models.Factor
 import com.twilio.verify.models.ChallengeListOrder
+import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.BasicAuthorization
 import com.twilio.verify.networking.HttpMethod.Get

@@ -24,10 +24,10 @@ import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListOrder
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.ChallengeListOrder
 import org.json.JSONObject
 
 internal class ChallengeRepository(

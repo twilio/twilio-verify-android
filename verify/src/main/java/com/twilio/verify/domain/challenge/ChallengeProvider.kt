@@ -19,9 +19,9 @@ package com.twilio.verify.domain.challenge
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListOrder
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.Factor
-import com.twilio.verify.models.ChallengeListOrder
 
 internal interface ChallengeProvider {
   fun get(
