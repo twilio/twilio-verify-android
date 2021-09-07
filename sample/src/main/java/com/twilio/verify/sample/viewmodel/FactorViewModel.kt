@@ -21,6 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.twilio.verify.models.Factor
 import com.twilio.verify.sample.TwilioVerifyAdapter
+import com.twilio.verify.sample.model.AppModel
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.networking.backendAPIClient
 
@@ -53,6 +54,10 @@ class FactorViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : Vi
         factor.value = FactorError(it)
       }
     )
+  }
+
+  fun changeSilentApproveChallenges(sid: String, approveSilently: Boolean) {
+    AppModel.silentlyApproveChallengesPerFactor[sid] = approveSilently
   }
 }
 

@@ -21,17 +21,22 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.bundleOf
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.twilio.verify.models.ChallengeStatus.Approved
+import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.TwilioVerifyAdapter
+import com.twilio.verify.sample.model.AppModel
 import com.twilio.verify.sample.view.MainActivity
 import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
@@ -66,44 +71,80 @@ class FirebasePushService() : FirebaseMessagingService() {
     val challengeSid = bundle.getString(challengeSidKey)
     val message = bundle.getString(messageKey)
     if (factorSid != null && challengeSid != null) {
-      twilioVerifyAdapter.showChallenge(challengeSid, factorSid)
-      message?.let {
-        createNotificationChannel()
-        val i = Intent(this, MainActivity::class.java)
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        i.putExtras(bundleOf(ARG_FACTOR_SID to factorSid, ARG_CHALLENGE_SID to challengeSid))
-        val pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_ONE_SHOT)
-        val builder = NotificationCompat.Builder(
-          this,
-          channelId
-        )
-          .setContentIntent(pendingIntent)
-          .setSmallIcon(R.drawable.ic_challenge)
-          .setContentTitle(getString(R.string.new_challenge))
-          .setContentText(message)
-          .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-          .setAutoCancel(true)
-        with(NotificationManagerCompat.from(this)) {
-          notify(challengeSid.hashCode(), builder.build())
-        }
+      if (AppModel.silentlyApproveChallengesPerFactor[factorSid] == true) {
+        approveChallenge(challengeSid, factorSid, message)
+      } else {
+        showChallenge(challengeSid, factorSid, message)
       }
     }
   }
 
-  private fun createNotificationChannel() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      val name = getString(R.string.channel_name)
-      val descriptionText = getString(R.string.channel_description)
-      val importance = NotificationManager.IMPORTANCE_DEFAULT
-      val channel = NotificationChannel(channelId, name, importance).apply {
-        description = descriptionText
+  private fun approveChallenge(
+    challengeSid: String,
+    factorSid: String,
+    message: String?
+  ) {
+    twilioVerifyAdapter.updateChallenge(
+      UpdatePushChallengePayload(
+        factorSid,
+        challengeSid,
+        Approved
+      ),
+      {
+        showChallenge(challengeSid, factorSid, message, true)
+      },
+      {
+        it.printStackTrace()
       }
-      val notificationManager: NotificationManager =
-        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-      notificationManager.createNotificationChannel(channel)
+    )
+  }
+
+  private fun showChallenge(
+    challengeSid: String,
+    factorSid: String,
+    message: String?,
+    approved: Boolean = false
+  ) {
+    twilioVerifyAdapter.showChallenge(challengeSid, factorSid)
+    val notificationMessage =
+      if (approved) getString(R.string.silent_approved_challenge) else message
+    notificationMessage?.let {
+      if (VERSION.SDK_INT >= VERSION_CODES.O) {
+        createNotificationChannel()
+      }
+      val i = Intent(this, MainActivity::class.java)
+      i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+      i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+      i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+      i.putExtras(bundleOf(ARG_FACTOR_SID to factorSid, ARG_CHALLENGE_SID to challengeSid))
+      val pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_ONE_SHOT)
+      val builder = NotificationCompat.Builder(
+        this,
+        channelId
+      )
+        .setContentIntent(pendingIntent)
+        .setSmallIcon(R.drawable.ic_challenge)
+        .setContentTitle(getString(R.string.new_challenge))
+        .setContentText(notificationMessage)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setAutoCancel(true)
+      with(NotificationManagerCompat.from(this)) {
+        notify(challengeSid.hashCode(), builder.build())
+      }
     }
+  }
+
+  @RequiresApi(VERSION_CODES.O)
+  private fun createNotificationChannel() {
+    val name = getString(R.string.channel_name)
+    val descriptionText = getString(R.string.channel_description)
+    val importance = NotificationManager.IMPORTANCE_DEFAULT
+    val channel = NotificationChannel(channelId, name, importance).apply {
+      description = descriptionText
+    }
+    val notificationManager: NotificationManager =
+      getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    notificationManager.createNotificationChannel(channel)
   }
 
   private fun getBundleFromMessage(remoteMessage: RemoteMessage?): Bundle {

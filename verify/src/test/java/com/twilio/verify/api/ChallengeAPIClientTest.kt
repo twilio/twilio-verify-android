@@ -18,6 +18,7 @@ import com.twilio.verify.domain.challenge.sidKey
 import com.twilio.verify.domain.challenge.signatureFieldsHeaderSeparator
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
+import com.twilio.verify.models.ChallengeListOrder.Asc
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.AuthorizationHeader
@@ -472,7 +473,7 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, null,
+      factorChallenge.factor!!, null, 0, Asc, null,
       { jsonObject ->
         assertEquals(response, jsonObject.toString())
         idlingResource.operationFinished()
@@ -509,7 +510,7 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, null,
+      factorChallenge.factor!!, null, 0, Asc, null,
       { jsonObject ->
         assertEquals(response, jsonObject.toString())
         idlingResource.operationFinished()
@@ -541,7 +542,7 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, null,
+      factorChallenge.factor!!, null, 0, Asc, null,
       {
         fail()
         idlingResource.operationFinished()
@@ -573,7 +574,7 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, null,
+      factorChallenge.factor!!, null, 0, Asc, null,
       {
         fail()
         idlingResource.operationFinished()
@@ -591,7 +592,7 @@ class ChallengeAPIClientTest {
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, null,
+      factorChallenge.factor!!, null, 0, Asc, null,
       {
         fail()
         idlingResource.operationFinished()
