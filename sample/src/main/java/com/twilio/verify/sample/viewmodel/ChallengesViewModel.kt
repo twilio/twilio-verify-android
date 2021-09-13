@@ -20,6 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.twilio.verify.models.Challenge
+import com.twilio.verify.models.ChallengeListOrder.Desc
 import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.sample.TwilioVerifyAdapter
 
@@ -30,10 +31,9 @@ class ChallengesViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) 
 
   fun loadChallenges(factorSid: String) {
     twilioVerifyAdapter.getAllChallenges(
-      ChallengeListPayload(factorSid, PAGE_SIZE),
+      ChallengeListPayload(factorSid, PAGE_SIZE, order = Desc),
       { challengeList ->
-        challenges.value =
-          ChallengeList(challengeList.challenges.sortedByDescending { it.createdAt })
+        challenges.value = ChallengeList(challengeList.challenges)
       },
       {
         challenges.value = ChallengesError(it)

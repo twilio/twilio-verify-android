@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.R.layout
+import com.twilio.verify.sample.model.AppModel
 import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
 import com.twilio.verify.sample.view.showError
@@ -40,6 +41,7 @@ import com.twilio.verify.sample.viewmodel.Factor
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import kotlinx.android.synthetic.main.fragment_factor_challenges.challenges
+import kotlinx.android.synthetic.main.fragment_factor_challenges.silentApproveCheck
 import kotlinx.android.synthetic.main.fragment_factors.content
 import kotlinx.android.synthetic.main.view_factor.factorNameText
 import kotlinx.android.synthetic.main.view_factor.factorSidText
@@ -99,6 +101,10 @@ class FactorChallengesFragment : Fragment() {
     challenges.addItemDecoration(dividerItemDecoration)
     factorViewModel.loadFactor(sid)
     challengesViewModel.loadChallenges(sid)
+    silentApproveCheck.isChecked = AppModel.silentlyApproveChallengesPerFactor[sid] == true
+    silentApproveCheck.setOnCheckedChangeListener { _, isChecked ->
+      factorViewModel.changeSilentApproveChallenges(sid, isChecked)
+    }
   }
 
   private fun showFactor(factor: com.twilio.verify.models.Factor) {

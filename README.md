@@ -119,7 +119,7 @@ In order to run the sample app, you have to create a project and application in 
 * Press Create factor
 * Copy the factor Sid
 
-### Sending a challenge
+### Sending and updating a challenge
 * Go to Create Push Challenge page (/challenge path in your sample backend)
 * Enter the `identity` you used in factor creation
 * Enter the `Factor Sid` you added
@@ -130,6 +130,12 @@ In order to run the sample app, you have to create a project and application in 
 * The app will show the challenge info below the factor information, in a `Challenge` section
 * Approve or deny the challenge
 * After the challenge is updated, you will see the challenge status in the backend's `Create Push Challenge` view
+
+#### Silently approve challenges
+
+You can enable the option "Silently approve challenges" for a factor. After enabling it, every challenge received as a push notification for that factor will be silently approved, so user interaction is not required. The option will be saved for the session, so to test it for background, enable the option and send the app to background by pressing the home button or opening another app.
+
+You can silently approve challenges when your app already knows that the user is trying to login on the same device as the registered device that is being challenged.
 
 <a name='Logging'></a>
 

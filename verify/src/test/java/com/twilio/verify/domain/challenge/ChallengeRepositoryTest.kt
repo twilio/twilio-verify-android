@@ -15,6 +15,8 @@ import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListOrder.Asc
+import com.twilio.verify.models.ChallengeListOrder.Desc
 import com.twilio.verify.models.ChallengeStatus.Expired
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
@@ -289,7 +291,7 @@ class ChallengeRepositoryTest {
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(
         apiClient.getAll(
-          eq(factor), eq(status.value), eq(pageSize), anyOrNull(), capture(), any()
+          eq(factor), eq(status.value), eq(pageSize), eq(Desc), anyOrNull(), capture(), any()
         )
       ).then {
         firstValue.invoke(response)
@@ -297,7 +299,7 @@ class ChallengeRepositoryTest {
     }
     whenever(challengeListMapper.fromApi(response)).thenReturn(challengeList)
     challengeRepository.getAll(
-      factor, status, pageSize, null,
+      factor, status, pageSize, Desc, null,
       {
         assertEquals(challengeList, it)
       },
@@ -315,7 +317,7 @@ class ChallengeRepositoryTest {
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(
         apiClient.getAll(
-          eq(factor), eq(status.value), eq(pageSize), anyOrNull(), capture(), any()
+          eq(factor), eq(status.value), eq(pageSize), eq(Asc), anyOrNull(), capture(), any()
         )
       ).then {
         firstValue.invoke(response)
@@ -323,7 +325,7 @@ class ChallengeRepositoryTest {
     }
     whenever(challengeListMapper.fromApi(response)).thenThrow(expectedException)
     challengeRepository.getAll(
-      factor, status, pageSize, null,
+      factor, status, pageSize, Asc, null,
       {
         fail()
       },
