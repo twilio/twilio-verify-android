@@ -1,3 +1,22 @@
+# 0.4.0 (2021-09-13)
+
+### Features
+- Ordering for challenge list ([790fb17](https://github.com/twilio/twilio-verify-android/commit/790fb17a3326b2dc7b62dd9f12af49b43fd1287c))
+
+### Building system
+- Create tag after pushing new version (#182) ([93d1b4b](https://github.com/twilio/twilio-verify-android/commit/93d1b4b09a390b5da85cdbdea50cf3cff0553ace))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 73.4KB          |
+| x86_64          | 73.4KB          |
+| armeabi-v7a     | 73.4KB          |
+| arm64-v8a       | 73.4KB          |
+| universal       | 73.4KB          |
+
+
 # 0.3.1 (2021-07-26)
 
 ### Bug fixes
