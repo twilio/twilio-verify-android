@@ -120,6 +120,20 @@ task("sonatypeTwilioSecurityStagingRepositoryUpload", GradleBuild::class) {
   )
 }
 
+task("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class) {
+  description = "Publish Twilio Verify to maven local"
+  group = "Publishing"
+  buildName = "TwilioVerify"
+  buildFile = file("build.gradle.kts")
+  tasks = listOf(
+    ":verify:assembleRelease",
+    ":verify:publishTwilioVerifyPublicationToMavenLocal"
+  )
+  startParameter.projectProperties.plusAssign(
+    gradle.startParameter.projectProperties + mavenPublishCredentials()
+  )
+}
+
 fun mavenPublishCredentials(): Map<String, String> {
   return MavenPublish.credentials(
     project,
