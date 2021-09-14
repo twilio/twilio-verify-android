@@ -22,7 +22,7 @@ plugins {
 
 buildscript {
   repositories {
-    jcenter()
+    mavenCentral()
     google()
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
   }
@@ -41,7 +41,7 @@ buildscript {
 allprojects {
   repositories {
     google()
-    jcenter()
+    mavenCentral()
   }
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
