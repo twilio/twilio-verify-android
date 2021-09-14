@@ -32,11 +32,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.bundleOf
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.twilio.verify.models.ChallengeStatus.Approved
-import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.TwilioVerifyAdapter
-import com.twilio.verify.sample.model.AppModel
 import com.twilio.verify.sample.view.MainActivity
 import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
@@ -71,44 +68,17 @@ class FirebasePushService() : FirebaseMessagingService() {
     val challengeSid = bundle.getString(challengeSidKey)
     val message = bundle.getString(messageKey)
     if (factorSid != null && challengeSid != null) {
-      if (AppModel.silentlyApproveChallengesPerFactor[factorSid] == true) {
-        approveChallenge(challengeSid, factorSid, message)
-      } else {
-        showChallenge(challengeSid, factorSid, message)
-      }
+      showChallenge(challengeSid, factorSid, message)
     }
-  }
-
-  private fun approveChallenge(
-    challengeSid: String,
-    factorSid: String,
-    message: String?
-  ) {
-    twilioVerifyAdapter.updateChallenge(
-      UpdatePushChallengePayload(
-        factorSid,
-        challengeSid,
-        Approved
-      ),
-      {
-        showChallenge(challengeSid, factorSid, message, true)
-      },
-      {
-        it.printStackTrace()
-      }
-    )
   }
 
   private fun showChallenge(
     challengeSid: String,
     factorSid: String,
-    message: String?,
-    approved: Boolean = false
+    message: String?
   ) {
     twilioVerifyAdapter.showChallenge(challengeSid, factorSid)
-    val notificationMessage =
-      if (approved) getString(R.string.silent_approved_challenge) else message
-    notificationMessage?.let {
+    message?.let {
       if (VERSION.SDK_INT >= VERSION_CODES.O) {
         createNotificationChannel()
       }
@@ -125,7 +95,7 @@ class FirebasePushService() : FirebaseMessagingService() {
         .setContentIntent(pendingIntent)
         .setSmallIcon(R.drawable.ic_challenge)
         .setContentTitle(getString(R.string.new_challenge))
-        .setContentText(notificationMessage)
+        .setContentText(message)
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setAutoCancel(true)
       with(NotificationManagerCompat.from(this)) {

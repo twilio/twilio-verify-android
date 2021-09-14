@@ -22,7 +22,7 @@ plugins {
 
 buildscript {
   repositories {
-    jcenter()
+    mavenCentral()
     google()
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
   }
@@ -41,7 +41,7 @@ buildscript {
 allprojects {
   repositories {
     google()
-    jcenter()
+    mavenCentral()
   }
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
@@ -114,6 +114,20 @@ task("sonatypeTwilioSecurityStagingRepositoryUpload", GradleBuild::class) {
     ":security:assembleRelease",
     ":security:publishTwilioSecurityPublicationToSonatypeRepository",
     "closeSonatypeStagingRepository"
+  )
+  startParameter.projectProperties.plusAssign(
+    gradle.startParameter.projectProperties + mavenPublishCredentials()
+  )
+}
+
+task("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class) {
+  description = "Publish Twilio Verify to maven local"
+  group = "Publishing"
+  buildName = "TwilioVerify"
+  buildFile = file("build.gradle.kts")
+  tasks = listOf(
+    ":verify:assembleRelease",
+    ":verify:publishTwilioVerifyPublicationToMavenLocal"
   )
   startParameter.projectProperties.plusAssign(
     gradle.startParameter.projectProperties + mavenPublishCredentials()
