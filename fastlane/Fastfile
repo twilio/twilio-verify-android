@@ -122,7 +122,7 @@ platform :android do
       description: notes,
       commitish: "main"
     )
-    gradle(task: "publishTwilioVerifyPublicationToMavenLocal")
+    gradle(task: "mavenLocalTwilioVerifyReleaseUpload")
     plain_notes = conventional_changelog(
             format: 'plain',
             commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
