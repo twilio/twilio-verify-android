@@ -103,10 +103,15 @@ In order to run the sample app, you have to create a project and application in 
 
 ## Running the Sample backend
 
-* Clone this repo: https://github.com/twilio/verify-push-sample-backend
 * Configure a [Push Credential](https://www.twilio.com/docs/verify/quickstarts/push-android#create-a-push-credential) for the sample app, using the same [Firebase project](#FirebaseConfiguration) you configured
 * Configure a [Verify Service](https://www.twilio.com/docs/verify/quickstarts/push-android#create-a-verify-service-and-add-the-push-credential), using the Push Credential for the sample app
-* Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/master/README.md)
+* Go to: https://www.twilio.com/code-exchange/verify-push-backend
+* Use the `Quick Deploy to Twilio` option
+  - You should log in to your Twilio account
+  - Enter the Verify Service Sid you created above, you can find it [here](https://www.twilio.com/console/verify/services)
+  - Deploy the application
+  - Press `Go to live application`
+  - You will see the start page. Copy the url and replace `index.html` with `access-token`.(e.g. https://verify-push-backend-xxxxx.twil.io/access-token). This will be your `Access Token generation URL`
 
 <a name='UsingSampleApp'></a>
 
@@ -115,7 +120,7 @@ In order to run the sample app, you have to create a project and application in 
 ### Adding a factor
 * Press Create factor in the factor list (main view)
 * Enter the identity to use. This value should be an UUID that identifies the user to prevent PII information use
-* Enter the Access token URL (Access token generation URL, including the path, e.g. https://yourapp.ngrok.io/accessTokens)
+* Enter the Access token URL (Access token generation URL, including the path, e.g. https://verify-push-backend-xxxxx.twil.io/access-token)
 * Press Create factor
 * Copy the factor Sid
 
