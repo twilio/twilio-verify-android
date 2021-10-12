@@ -3,8 +3,8 @@
 <!-- Assignee: Please assign yourself to this PR -->
 <!-- Labels: Please add proper labels accordingly (task, bug, housekeeping, etc) -->
 
-<!-- Ticket: Please add the Jira ticket number or the Github issue number according to your case -->
-## Jira Ticket
+<!-- Ticket: Please add the ticket number or the Github issue number according to your case -->
+## Ticket
 - [#####]
 
 ## Github Issue
