@@ -624,7 +624,7 @@ class PushFactoryTest {
             assertEquals(friendlyName, updateFactorPayload.friendlyName)
             assertEquals(identity, updateFactorPayload.identity)
             assertEquals(PUSH, updateFactorPayload.type)
-            assertEquals(NOTIFICATION_PLATFORM_KEY, NONE_PUSH_TYPE)
+            assertEquals(NONE_PUSH_TYPE, updateFactorPayload.config[NOTIFICATION_PLATFORM_KEY])
             assertFalse(updateFactorPayload.config.containsKey(NOTIFICATION_TOKEN_KEY))
           },
           any(), any()
@@ -684,7 +684,7 @@ class PushFactoryTest {
             assertEquals(friendlyName, updateFactorPayload.friendlyName)
             assertEquals(identity, updateFactorPayload.identity)
             assertEquals(PUSH, updateFactorPayload.type)
-            assertEquals(NOTIFICATION_PLATFORM_KEY, NONE_PUSH_TYPE)
+            assertEquals(NONE_PUSH_TYPE, updateFactorPayload.config[NOTIFICATION_PLATFORM_KEY])
             assertFalse(updateFactorPayload.config.containsKey(NOTIFICATION_TOKEN_KEY))
           },
           any(), any()
