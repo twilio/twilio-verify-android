@@ -56,12 +56,5 @@ fun authenticatedEncryptedPreferences(
   storageAlias: String,
   sharedPreferences: SharedPreferences
 ): AuthenticatedEncryptedStorage {
-  val keyManager = keyManager()
-  val biometricSecretKey = BiometricSecretKey(
-    AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true), keyManager
-  )
-  if (!keyManager.contains(storageAlias) && sharedPreferences.all.isEmpty()) {
-    biometricSecretKey.create()
-  }
-  return AuthenticatedEncryptedPreferences(sharedPreferences, storageAlias, keyManager, DefaultSerializer())
+  return AuthenticatedEncryptedPreferences(sharedPreferences, storageAlias, keyManager(), DefaultSerializer())
 }
