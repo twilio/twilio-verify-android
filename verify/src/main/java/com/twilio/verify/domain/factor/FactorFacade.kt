@@ -53,8 +53,8 @@ internal class FactorFacade(
       when (factorPayload) {
         is PushFactorPayload -> {
           pushFactory.create(
-            factorPayload.accessToken, factorPayload.friendlyName, factorPayload.pushToken,
-            factorPayload.serviceSid, factorPayload.identity, onSuccess, onError
+            factorPayload.accessToken, factorPayload.friendlyName, factorPayload.serviceSid,
+            factorPayload.identity, factorPayload.pushToken, onSuccess, onError
           )
         }
       }
@@ -101,7 +101,8 @@ internal class FactorFacade(
     try {
       factorProvider.get(factorSid)
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) }, StorageError
+        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) },
+        StorageError
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -117,7 +118,8 @@ internal class FactorFacade(
       factorProvider.getAll()
         .find { it.serviceSid == serviceSid }
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) }, StorageError
+        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) },
+        StorageError
       )
     } catch (e: TwilioVerifyException) {
       error(e)
