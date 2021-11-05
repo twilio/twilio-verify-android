@@ -19,9 +19,7 @@ package com.twilio.security.storage
 import android.content.SharedPreferences
 import com.twilio.security.crypto.KeyManager
 import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
-import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
-import com.twilio.security.storage.key.BiometricSecretKey
 import kotlin.reflect.KClass
 
 interface AuthenticatedEncryptedStorage {
