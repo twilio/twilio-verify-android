@@ -22,6 +22,7 @@
 * [Update factor's push token](#UpdatePushToken)
 * [Delete a factor](#DeleteFactor)
 * [Clear local storage](#ClearLocalStorage)
+* [Contributing](#Contributing)
 
 <a name='About'></a>
 
