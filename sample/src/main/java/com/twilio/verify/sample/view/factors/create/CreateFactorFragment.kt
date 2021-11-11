@@ -39,6 +39,7 @@ import kotlinx.android.synthetic.main.fragment_create_factor.accessTokenUrlInput
 import kotlinx.android.synthetic.main.fragment_create_factor.content
 import kotlinx.android.synthetic.main.fragment_create_factor.createFactorButton
 import kotlinx.android.synthetic.main.fragment_create_factor.identityInput
+import kotlinx.android.synthetic.main.fragment_create_factor.receivePushNotificationsCheck
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -117,12 +118,14 @@ class CreateFactorFragment : Fragment() {
     accessTokenUrl: String
   ) {
     createFactorButton.isEnabled = false
-    val createFactorData = CreateFactorData(identity, "$identity's factor", token, accessTokenUrl)
+    val pushToken = if (receivePushNotificationsCheck.isChecked) token else null
+    val createFactorData =
+      CreateFactorData(identity, "$identity's factor", accessTokenUrl, pushToken)
     factorViewModel.createFactor(createFactorData)
   }
 
   private fun onSuccess(factor: Factor) {
-    Snackbar.make(content, "Factor ${factor.sid} created", LENGTH_SHORT)
+    Snackbar.make(content, "Factor ${factor.sid} created", LENGTH_SHORT).show()
     findNavController().navigate(R.id.action_show_new_factor)
   }
 
