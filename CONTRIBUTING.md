@@ -20,7 +20,7 @@ If this is your first time contributing to an open-source project, [check out ou
 Please open a pull request on the [twilio-verify-android](https://github.com/twilio/twilio-verify-android) repository from your fork and fill out the pull request template.
 
 ## Code of conduct
-We want to make sure that this project is as welcoming to people as possible. By interacting with the project in any shape or from you are agreeing to the project's [Code of Conduct](https://google.com). If you feel like another individual has violated the code of conduct, please raise a complaint to [open-source@twilio.com](mailto:open-source@twilio.com).
+We want to make sure that this project is as welcoming to people as possible. By interacting with the project in any shape or from you are agreeing to the project's [Code of Conduct](../CODE_OF_CONDUCT.md). If you feel like another individual has violated the code of conduct, please raise a complaint to [open-source@twilio.com](mailto:open-source@twilio.com).
 
 ## Licensing 
 All third party contributors acknowledge that any contributions they provide will be made under the same open source license that the open source project provided under.
