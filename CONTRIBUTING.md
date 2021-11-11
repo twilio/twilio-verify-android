@@ -9,8 +9,8 @@ If this is your first time contributing to an open-source project, [check out ou
 ## Requirements
 - A GitHub account
 - git installed on your computer. [Learn how to install it](https://help.github.com/en/articles/set-up-git)
-- Meet the [project requirements](https://github.com/twilio/twilio-verify-android/blob/calcala/ACCSEC-21769-add-contributing.md/README.md#Requirements)
-- [Run the sample app](https://github.com/twilio/twilio-verify-android/blob/calcala/ACCSEC-21769-add-contributing.md/README.md#SampleApp)
+- Meet the [project requirements](./README.md#Requirements)
+- [Run the sample app](./README.md#SampleApp)
 
 ## Commit convention and versioning
 
