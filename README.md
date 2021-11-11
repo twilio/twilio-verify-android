@@ -217,3 +217,8 @@ twilioVerify.clearLocalStorage {
 }
 ```
 Note: Calling this method will not delete factors in **Verify Push API**, so you need to delete them from your backend to prevent invalid/deleted factors when getting factors for an identity.
+
+<a name='Contributing'></a>
+
+## Contributing
+This project wolcomes contributions. Please check out our [Contributing guide](https://google.com) to learn more on how to get started.
