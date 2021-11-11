@@ -222,4 +222,4 @@ Note: Calling this method will not delete factors in **Verify Push API**, so you
 <a name='Contributing'></a>
 
 ## Contributing
-This project wolcomes contributions. Please check out our [Contributing guide](https://google.com) to learn more on how to get started.
+This project wolcomes contributions. Please check out our [Contributing guide](./CONTRIBUTING.md) to learn more on how to get started.
