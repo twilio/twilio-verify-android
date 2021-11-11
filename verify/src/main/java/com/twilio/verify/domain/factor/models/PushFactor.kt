@@ -38,4 +38,12 @@ internal class PushFactor(
   var keyPairAlias: String? = null
 }
 
-internal data class Config(internal val credentialSid: String)
+internal data class Config(
+  internal val credentialSid: String,
+  internal val notificationPlatform: NotificationPlatform = NotificationPlatform.FCM
+)
+
+internal enum class NotificationPlatform(val value: String) {
+  FCM("fcm"),
+  None("none")
+}
