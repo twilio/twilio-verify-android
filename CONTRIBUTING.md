@@ -12,9 +12,22 @@ If this is your first time contributing to an open-source project, [check out ou
 - Meet the [project requirements](./README.md#Requirements)
 - [Run the sample app](./README.md#SampleApp)
 
-## Commit convention and versioning
-
 ## Testing
+1. Enter the directory of the project. For example:
+
+```bash
+cd twilio-verify-android
+```
+2. You can run the test suite by running:
+
+```bash
+./gradlew test
+```
+3. You can run the UI tests by running:
+
+```bash
+./gradlew connectedAndroidTest
+```
 
 ## Creating a pull request
 Please open a pull request on the [twilio-verify-android](https://github.com/twilio/twilio-verify-android) repository from your fork and fill out the pull request template.
