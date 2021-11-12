@@ -1,6 +1,6 @@
 # Contributing to Twilio Verify Android
 ## What are good ways to contribute?
-We welcome any kind of contributions. From filling issues, to fixing typos and bugs all the way to creating entirely new templates.
+We welcome any kind of contributions. From filling issues, to fixing typos and bugs all the way to implementing improvements.
 
 Please be aware though that pull requests that only reword sentences that might already convey the content correctly, might not be merged.
 
