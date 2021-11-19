@@ -19,6 +19,6 @@ package com.twilio.verify.sample.model
 data class CreateFactorData(
   val identity: String,
   val factorName: String,
-  val pushToken: String,
-  val accessTokenUrl: String
+  val accessTokenUrl: String,
+  val pushToken: String?
 )
