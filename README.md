@@ -22,6 +22,8 @@
 * [Update factor's push token](#UpdatePushToken)
 * [Delete a factor](#DeleteFactor)
 * [Clear local storage](#ClearLocalStorage)
+* [Contributing](#Contributing)
+* [License](#License)
 
 <a name='About'></a>
 
@@ -218,3 +220,14 @@ twilioVerify.clearLocalStorage {
 }
 ```
 Note: Calling this method will not delete factors in **Verify Push API**, so you need to delete them from your backend to prevent invalid/deleted factors when getting factors for an identity.
+
+<a name='Contributing'></a>
+
+## Contributing
+This project wolcomes contributions. Please check out our [Contributing guide](./CONTRIBUTING.md) to learn more on how to get started.
+
+<a name='License'></a>
+
+## License
+[Apache © Twilio Inc.](./LICENSE)
+
