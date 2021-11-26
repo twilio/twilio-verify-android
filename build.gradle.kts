@@ -25,6 +25,7 @@ buildscript {
     mavenCentral()
     google()
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
+    jcenter()
   }
   dependencies {
     classpath(Config.Dependencies.androidTools)
@@ -42,6 +43,7 @@ allprojects {
   repositories {
     google()
     mavenCentral()
+    jcenter()
   }
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
