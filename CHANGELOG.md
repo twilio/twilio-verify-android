@@ -1,3 +1,25 @@
+# 0.5.0 (2021-11-26)
+
+### Features
+- Support notification platform none to allow not sending push token. Factors with notification platform none will not receive push notifications for challenges and polling should be implemented to get pending challenges ([4fd8967](https://github.com/twilio/twilio-verify-android/commit/4fd8967274783fc9088a9c5908df0b78c4e90148))
+
+### Building system
+- Update FTL devices ([2535df5](https://github.com/twilio/twilio-verify-android/commit/2535df51a0658d51eff3b347f8c84695b7af5eb5))
+
+### Documentation
+- Update documentation to use new sample backend ([5708592](https://github.com/twilio/twilio-verify-android/commit/5708592e02fd78cf0924d0d538e1287f3d63cf05))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 74KB            |
+| x86_64          | 74KB            |
+| armeabi-v7a     | 74KB            |
+| arm64-v8a       | 74KB            |
+| universal       | 74KB            |
+
+
 # 0.4.0 (2021-09-13)
 
 ### Features
