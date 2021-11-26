@@ -22,6 +22,8 @@
 * [Update factor's push token](#UpdatePushToken)
 * [Delete a factor](#DeleteFactor)
 * [Clear local storage](#ClearLocalStorage)
+* [Contributing](#Contributing)
+* [License](#License)
 
 <a name='About'></a>
 
@@ -121,6 +123,7 @@ In order to run the sample app, you have to create a project and application in 
 * Press Create factor in the factor list (main view)
 * Enter the identity to use. This value should be an UUID that identifies the user to prevent PII information use
 * Enter the Access token URL (Access token generation URL, including the path, e.g. https://verify-push-backend-xxxxx.twil.io/access-token)
+* Decide if you want to enable push notifications for challenges associated to this factor. If you disable this option, push notifications will not be sent and you will get the factor's pending challenges only in the factor screen (pressing the factor)
 * Press Create factor
 * Copy the factor Sid
 
@@ -217,3 +220,14 @@ twilioVerify.clearLocalStorage {
 }
 ```
 Note: Calling this method will not delete factors in **Verify Push API**, so you need to delete them from your backend to prevent invalid/deleted factors when getting factors for an identity.
+
+<a name='Contributing'></a>
+
+## Contributing
+This project wolcomes contributions. Please check out our [Contributing guide](./CONTRIBUTING.md) to learn more on how to get started.
+
+<a name='License'></a>
+
+## License
+[Apache © Twilio Inc.](./LICENSE)
+

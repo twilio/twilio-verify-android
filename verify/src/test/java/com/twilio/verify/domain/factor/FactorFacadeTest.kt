@@ -45,8 +45,8 @@ class FactorFacadeTest {
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(
         pushFactory.create(
-          eq(factorPayload.accessToken), eq(factorPayload.friendlyName), eq(factorPayload.pushToken),
-          eq(factorPayload.serviceSid), eq(factorPayload.identity), capture(), any()
+          eq(factorPayload.accessToken), eq(factorPayload.friendlyName), eq(factorPayload.serviceSid),
+          eq(factorPayload.identity), eq(factorPayload.pushToken), capture(), any()
         )
       ).then {
         firstValue.invoke(expectedFactor)
@@ -75,8 +75,8 @@ class FactorFacadeTest {
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
         pushFactory.create(
-          eq(factorPayload.accessToken), eq(factorPayload.friendlyName), eq(factorPayload.pushToken),
-          eq(factorPayload.serviceSid), eq(factorPayload.identity), any(), capture()
+          eq(factorPayload.accessToken), eq(factorPayload.friendlyName), eq(factorPayload.serviceSid),
+          eq(factorPayload.identity), eq(factorPayload.pushToken), any(), capture()
         )
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
