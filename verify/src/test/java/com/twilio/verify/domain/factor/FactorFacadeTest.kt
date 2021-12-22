@@ -155,6 +155,12 @@ class FactorFacadeTest {
     idlingResource.waitForIdle()
   }
 
+  @Test(expected = TwilioVerifyException::class)
+  fun `Verify a factor with blank factor sid should throw`() {
+    val verifyFactorPayload = VerifyPushFactorPayload("   ")
+    factorFacade.verifyFactor(verifyFactorPayload, { fail() }, { fail() })
+  }
+
   @Test
   fun `Update a factor should call success`() {
     val sid = "sid"
@@ -213,6 +219,12 @@ class FactorFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test(expected = TwilioVerifyException::class)
+  fun `Update a factor with blank factor sid should throw`() {
+    val updateFactorPayload = UpdatePushFactorPayload("   ", "pushToken")
+    factorFacade.updateFactor(updateFactorPayload, { fail() }, { fail() })
   }
 
   @Test
@@ -275,6 +287,11 @@ class FactorFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test(expected = TwilioVerifyException::class)
+  fun `Get a factor with blank factor sid should throw`() {
+    factorFacade.getFactor("", { fail() }, { fail() })
   }
 
   @Test
@@ -430,6 +447,11 @@ class FactorFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test(expected = TwilioVerifyException::class)
+  fun `Delete a factor with blank factor sid should throw`() {
+    factorFacade.deleteFactor("", { fail() }, { fail() })
   }
 
   @Test

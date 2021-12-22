@@ -46,6 +46,12 @@ internal class ChallengeFacade(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
+    if (sid.isBlank()) {
+      throw TwilioVerifyException(
+        IllegalArgumentException("Empty challenge sid").also { Logger.log(Level.Error, it.toString(), it) },
+        InputError
+      )
+    }
     execute(success, error) { onSuccess, onError ->
       factorFacade.getFactor(
         factorSid,

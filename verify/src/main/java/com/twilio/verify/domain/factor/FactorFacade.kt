@@ -67,6 +67,12 @@ internal class FactorFacade(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
+    if (verifyFactorPayload.sid.isBlank()) {
+      throw TwilioVerifyException(
+        IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+        InputError
+      )
+    }
     execute(success, error) { onSuccess, onError ->
       when (verifyFactorPayload) {
         is VerifyPushFactorPayload -> {
@@ -83,6 +89,12 @@ internal class FactorFacade(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
+    if (updateFactorPayload.sid.isBlank()) {
+      throw TwilioVerifyException(
+        IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+        InputError
+      )
+    }
     execute(success, error) { onSuccess, onError ->
       when (updateFactorPayload) {
         is UpdatePushFactorPayload -> {
@@ -149,6 +161,12 @@ internal class FactorFacade(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
+    if (factorSid.isBlank()) {
+      throw TwilioVerifyException(
+        IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+        InputError
+      )
+    }
     execute(success, error) { onSuccess, onError ->
       try {
         pushFactory.delete(factorSid, onSuccess, onError)

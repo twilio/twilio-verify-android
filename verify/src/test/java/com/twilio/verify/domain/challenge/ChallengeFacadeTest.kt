@@ -102,6 +102,11 @@ class ChallengeFacadeTest {
     idlingResource.waitForIdle()
   }
 
+  @Test(expected = TwilioVerifyException::class)
+  fun `Get a challenge with blank challenge sid should throw`() {
+    challengeFacade.getChallenge("", "factorSid", { fail() }, { fail() })
+  }
+
   @Test
   fun `Error getting the factor when getting a challenge should call error`() {
     val sid = "sid"
@@ -197,6 +202,21 @@ class ChallengeFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test(expected = TwilioVerifyException::class)
+  fun `Update a challenge with blank challenge sid should throw`() {
+    val challengeSid = ""
+    val factorSid = "factorSid"
+    val status = Approved
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
+    val expectedFactor: PushFactor = mock()
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+    challengeFacade.updateChallenge(updateChallengePayload, { fail() }, { fail() })
   }
 
   @Test
