@@ -88,7 +88,7 @@ class EncryptedPreferencesTest {
     exceptionRule.expectCause(instanceOf(IllegalStateException::class.java))
     encryptedPreferences.put(key, value)
   }
-  
+
   @Test
   fun testGet_withValueForKey_shouldReturnValue() {
     val key = "key"
