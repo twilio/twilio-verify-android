@@ -67,19 +67,23 @@ internal class FactorFacade(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    if (verifyFactorPayload.sid.isBlank()) {
-      throw TwilioVerifyException(
-        IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
-        InputError
-      )
-    }
     execute(success, error) { onSuccess, onError ->
-      when (verifyFactorPayload) {
-        is VerifyPushFactorPayload -> {
-          pushFactory.verify(
-            verifyFactorPayload.sid, onSuccess, onError
+      try {
+        if (verifyFactorPayload.sid.isBlank()) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
           )
         }
+        when (verifyFactorPayload) {
+          is VerifyPushFactorPayload -> {
+            pushFactory.verify(
+              verifyFactorPayload.sid, onSuccess, onError
+            )
+          }
+        }
+      } catch (e: TwilioVerifyException) {
+        onError(e)
       }
     }
   }
@@ -89,19 +93,23 @@ internal class FactorFacade(
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    if (updateFactorPayload.sid.isBlank()) {
-      throw TwilioVerifyException(
-        IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
-        InputError
-      )
-    }
     execute(success, error) { onSuccess, onError ->
-      when (updateFactorPayload) {
-        is UpdatePushFactorPayload -> {
-          pushFactory.update(
-            updateFactorPayload.sid, updateFactorPayload.pushToken, onSuccess, onError
+      try {
+        if (updateFactorPayload.sid.isBlank()) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
           )
         }
+        when (updateFactorPayload) {
+          is UpdatePushFactorPayload -> {
+            pushFactory.update(
+              updateFactorPayload.sid, updateFactorPayload.pushToken, onSuccess, onError
+            )
+          }
+        }
+      } catch (e: TwilioVerifyException) {
+        onError(e)
       }
     }
   }
@@ -161,14 +169,14 @@ internal class FactorFacade(
     success: () -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    if (factorSid.isBlank()) {
-      throw TwilioVerifyException(
-        IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
-        InputError
-      )
-    }
     execute(success, error) { onSuccess, onError ->
       try {
+        if (factorSid.isBlank()) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
+          )
+        }
         pushFactory.delete(factorSid, onSuccess, onError)
       } catch (e: TwilioVerifyException) {
         error(e)

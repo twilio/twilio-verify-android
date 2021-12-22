@@ -46,22 +46,26 @@ internal class ChallengeFacade(
     success: (Challenge) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
-    if (sid.isBlank()) {
-      throw TwilioVerifyException(
-        IllegalArgumentException("Empty challenge sid").also { Logger.log(Level.Error, it.toString(), it) },
-        InputError
-      )
-    }
     execute(success, error) { onSuccess, onError ->
-      factorFacade.getFactor(
-        factorSid,
-        { factor ->
-          when (factor) {
-            is PushFactor -> pushChallengeProcessor.get(sid, factor, onSuccess, onError)
-          }
-        },
-        onError
-      )
+      try {
+        if (sid.isBlank()) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Empty challenge sid").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
+          )
+        }
+        factorFacade.getFactor(
+          factorSid,
+          { factor ->
+            when (factor) {
+              is PushFactor -> pushChallengeProcessor.get(sid, factor, onSuccess, onError)
+            }
+          },
+          onError
+        )
+      } catch (e: TwilioVerifyException) {
+        onError(e)
+      }
     }
   }
 

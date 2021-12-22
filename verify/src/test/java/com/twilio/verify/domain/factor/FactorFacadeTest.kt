@@ -155,8 +155,8 @@ class FactorFacadeTest {
     idlingResource.waitForIdle()
   }
 
-  @Test(expected = TwilioVerifyException::class)
-  fun `Verify a factor with blank factor sid should throw`() {
+  @Test
+  fun `Verify a factor with blank factor sid should call error`() {
     val verifyFactorPayload = VerifyPushFactorPayload("   ")
     factorFacade.verifyFactor(verifyFactorPayload, { fail() }, { fail() })
   }
@@ -221,10 +221,15 @@ class FactorFacadeTest {
     idlingResource.waitForIdle()
   }
 
-  @Test(expected = TwilioVerifyException::class)
-  fun `Update a factor with blank factor sid should throw`() {
+  @Test
+  fun `Update a factor with blank factor sid should call error`() {
     val updateFactorPayload = UpdatePushFactorPayload("   ", "pushToken")
-    factorFacade.updateFactor(updateFactorPayload, { fail() }, { fail() })
+    factorFacade.updateFactor(
+      updateFactorPayload, { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
@@ -289,9 +294,14 @@ class FactorFacadeTest {
     idlingResource.waitForIdle()
   }
 
-  @Test(expected = TwilioVerifyException::class)
-  fun `Get a factor with blank factor sid should throw`() {
-    factorFacade.getFactor("", { fail() }, { fail() })
+  @Test
+  fun `Get a factor with blank factor sid should call error`() {
+    factorFacade.getFactor(
+      "", { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
@@ -449,9 +459,14 @@ class FactorFacadeTest {
     idlingResource.waitForIdle()
   }
 
-  @Test(expected = TwilioVerifyException::class)
-  fun `Delete a factor with blank factor sid should throw`() {
-    factorFacade.deleteFactor("", { fail() }, { fail() })
+  @Test
+  fun `Delete a factor with blank factor sid should call error`() {
+    factorFacade.deleteFactor(
+      "", { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test

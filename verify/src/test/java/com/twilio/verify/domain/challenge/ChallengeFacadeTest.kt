@@ -102,9 +102,14 @@ class ChallengeFacadeTest {
     idlingResource.waitForIdle()
   }
 
-  @Test(expected = TwilioVerifyException::class)
-  fun `Get a challenge with blank challenge sid should throw`() {
-    challengeFacade.getChallenge("", "factorSid", { fail() }, { fail() })
+  @Test
+  fun `Get a challenge with blank challenge sid should call error`() {
+    challengeFacade.getChallenge(
+      "", "factorSid", { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
@@ -204,7 +209,7 @@ class ChallengeFacadeTest {
     idlingResource.waitForIdle()
   }
 
-  @Test(expected = TwilioVerifyException::class)
+  @Test
   fun `Update a challenge with blank challenge sid should throw`() {
     val challengeSid = ""
     val factorSid = "factorSid"
@@ -216,7 +221,13 @@ class ChallengeFacadeTest {
         firstValue.invoke(expectedFactor)
       }
     }
-    challengeFacade.updateChallenge(updateChallengePayload, { fail() }, { fail() })
+
+    challengeFacade.updateChallenge(
+      updateChallengePayload, { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
