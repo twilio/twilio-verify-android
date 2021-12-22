@@ -23,6 +23,7 @@ import com.twilio.security.storage.encryptedPreferences
 import com.twilio.verify.ENC_SUFFIX
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.VERIFY_SUFFIX
 import com.twilio.verify.api.FactorAPIClient
@@ -99,9 +100,15 @@ internal class FactorFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
+      if (factorSid.isBlank()) {
+        throw TwilioVerifyException(
+          IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+          InputError
+        )
+      }
       factorProvider.get(factorSid)
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) },
+        StorageException("Factor not found: '$factorSid'").also { Logger.log(Level.Error, it.toString(), it) },
         StorageError
       )
     } catch (e: TwilioVerifyException) {

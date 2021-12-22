@@ -116,6 +116,12 @@ internal class ChallengeFacade(
           ).also { Logger.log(Level.Error, it.toString(), it) },
           InputError
         )
+      if (updateChallengePayload.challengeSid.isBlank()) {
+        throw TwilioVerifyException(
+          IllegalArgumentException("Empty challenge sid").also { Logger.log(Level.Error, it.toString(), it) },
+          InputError
+        )
+      }
       pushChallengeProcessor.update(
         updateChallengePayload.challengeSid, factor, status, success, error
       )
