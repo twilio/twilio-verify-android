@@ -103,6 +103,16 @@ class ChallengeFacadeTest {
   }
 
   @Test
+  fun `Get a challenge with blank challenge sid should call error`() {
+    challengeFacade.getChallenge(
+      "", "factorSid", { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
+  }
+
+  @Test
   fun `Error getting the factor when getting a challenge should call error`() {
     val sid = "sid"
     val factorSid = "factorSid"
@@ -197,6 +207,27 @@ class ChallengeFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update a challenge with blank challenge sid should throw`() {
+    val challengeSid = ""
+    val factorSid = "factorSid"
+    val status = Approved
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
+    val expectedFactor: PushFactor = mock()
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+
+    challengeFacade.updateChallenge(
+      updateChallengePayload, { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test

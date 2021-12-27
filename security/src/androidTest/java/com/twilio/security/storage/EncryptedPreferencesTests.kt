@@ -11,6 +11,9 @@ import com.twilio.security.crypto.keyManager
 import com.twilio.security.crypto.providerName
 import com.twilio.security.storage.key.SecretKeyCipher
 import java.security.KeyStore
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 import org.json.JSONException
 import org.json.JSONObject
@@ -93,6 +96,25 @@ class EncryptedPreferencesTests {
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
     val value = encryptedPreferences.get(key, String::class)
     assertEquals(expectedValue, value)
+  }
+
+  @Test
+  fun testPutAndGetMultipleValues_stringValues_shouldGetStringValues() {
+    val delay = 2
+    val numThreads = 5
+    val executor: ExecutorService = Executors.newFixedThreadPool(numThreads)
+    for (i in 1..numThreads) {
+      executor.submit {
+        encryptedPreferences.put("key$i", "value$i")
+      }
+    }
+    executor.shutdown()
+    executor.awaitTermination(delay * numThreads + delay.toLong(), TimeUnit.SECONDS)
+    for (i in 1..numThreads) {
+      assertTrue(sharedPreferences.contains(generateKeyDigest("key$i")))
+      val value = encryptedPreferences.get("key$i", String::class)
+      assertEquals("value$i", value)
+    }
   }
 
   @Test

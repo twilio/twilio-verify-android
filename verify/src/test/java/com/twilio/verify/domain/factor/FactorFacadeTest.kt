@@ -156,6 +156,12 @@ class FactorFacadeTest {
   }
 
   @Test
+  fun `Verify a factor with blank factor sid should call error`() {
+    val verifyFactorPayload = VerifyPushFactorPayload("   ")
+    factorFacade.verifyFactor(verifyFactorPayload, { fail() }, { fail() })
+  }
+
+  @Test
   fun `Update a factor should call success`() {
     val sid = "sid"
     val pushToken = "pushToken"
@@ -213,6 +219,17 @@ class FactorFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update a factor with blank factor sid should call error`() {
+    val updateFactorPayload = UpdatePushFactorPayload("   ", "pushToken")
+    factorFacade.updateFactor(
+      updateFactorPayload, { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
@@ -275,6 +292,16 @@ class FactorFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get a factor with blank factor sid should call error`() {
+    factorFacade.getFactor(
+      "", { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
@@ -430,6 +457,16 @@ class FactorFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Delete a factor with blank factor sid should call error`() {
+    factorFacade.deleteFactor(
+      "", { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test

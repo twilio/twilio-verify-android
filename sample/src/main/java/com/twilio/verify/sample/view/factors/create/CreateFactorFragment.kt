@@ -93,7 +93,7 @@ class CreateFactorFragment : Fragment() {
   private fun startCreateFactor() {
     hideKeyboardFrom()
     when {
-      !this::token.isInitialized ->
+      includePushTokenCheck.isChecked && !this::token.isInitialized ->
         IllegalArgumentException("Invalid push token").showError(content)
       identityInput.text.toString()
         .isEmpty() -> IllegalArgumentException("Invalid identity").showError(

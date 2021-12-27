@@ -433,6 +433,36 @@ class AndroidKeyStoreTest {
   }
 
   @Test
+  fun `Decrypt data using algorithm and invalid provider should return encrypted`() {
+    val data = "test"
+    val encrypted = "encrypted"
+    val provider: Provider = mock {
+      on { name }.doReturn(providerName)
+    }
+    val algorithmParameters: AlgorithmParameters = mock {
+      on { encoded }.doReturn(nextBytes(5))
+      on { algorithm }.doReturn(cipherAlgorithm)
+      on { getProvider() }.doReturn(provider)
+    }
+    val expectedEncryptedData = EncryptedData(
+      AlgorithmParametersSpec(
+        algorithmParameters.encoded, "",
+        algorithmParameters.algorithm
+      ),
+      encrypted.toByteArray()
+    )
+    cipherMockInput.decrypted = data
+    cipherMockInput.algorithmParameters = algorithmParameters
+    val decrypted = androidKeyStore.decrypt(expectedEncryptedData, cipherAlgorithm, key)
+    assertEquals(key, cipherMockOutput.secretKey)
+    assertTrue(cipherMockOutput.cipherInitialized)
+    assertTrue(
+      data.toByteArray()
+        .contentEquals(decrypted)
+    )
+  }
+
+  @Test
   fun `Error decrypting data should throw exception`() {
     val encrypted = "encrypted"
     val provider: Provider = mock {
