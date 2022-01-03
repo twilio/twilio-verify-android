@@ -1,3 +1,19 @@
+# 0.6.0 (2022-01-03)
+
+### Features
+- Validate challenge status before trying to update it. Add validations for empty factor sid or challenge sid. Get decrypt information correctly when the provider is not valid. ([5a68181](https://github.com/twilio/twilio-verify-android/commit/5a681814ef97131fff2578acaa988b2e48d186bc))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 74.3KB          |
+| x86_64          | 74.3KB          |
+| armeabi-v7a     | 74.3KB          |
+| arm64-v8a       | 74.3KB          |
+| universal       | 74.3KB          |
+
+
 # 0.5.0 (2021-11-26)
 
 ### Features
