@@ -24,6 +24,7 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.data.DateAdapter
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.domain.challenge.models.FactorChallenge
+import com.twilio.verify.models.ChallengeListOrder
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.Authentication
 import com.twilio.verify.networking.BasicAuthorization
@@ -41,6 +42,7 @@ internal const val challengeSidPath = "{ChallengeSid}"
 internal const val statusParameter = "Status"
 internal const val pageSizeParameter = "PageSize"
 internal const val pageTokenParameter = "PageToken"
+internal const val orderParameter = "Order"
 internal const val signatureFieldsHeader = "Twilio-Verify-Signature-Fields"
 internal const val updateChallengeURL =
   "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges/$challengeSidPath"
@@ -146,6 +148,7 @@ internal class ChallengeAPIClient(
     factor: Factor,
     status: String?,
     pageSize: Int,
+    order: ChallengeListOrder,
     pageToken: String?,
     success: (response: JSONObject) -> Unit,
     error: (TwilioVerifyException) -> Unit
@@ -157,7 +160,8 @@ internal class ChallengeAPIClient(
           RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
         val queryParameters = mutableMapOf<String, Any>(
           pageSizeParameter to pageSize,
-          FACTOR_SID_KEY to factor.sid
+          FACTOR_SID_KEY to factor.sid,
+          orderParameter to order.name.toLowerCase()
         )
         status?.let {
           queryParameters.put(statusParameter, it)

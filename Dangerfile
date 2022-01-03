@@ -24,8 +24,8 @@ if !(github.pr_body =~ /\b(?=\w)(docs|fix|feat|chore|style|refactor|perf|test)(?
 end
 
 # Ensure that the PR title follows the convention
-if !(github.pr_title =~ /\[ACCSEC-([0-9])+\](.*)/)
-  warn "The Pull Request title does not follow the convention [ACCSEC-0000] PR Title text"
+if !(github.pr_title =~ /\[([0-9])+\](.*)/)
+  warn "The Pull Request title does not follow the convention [00000] PR Title text"
 end
 
 github.dismiss_out_of_range_messages

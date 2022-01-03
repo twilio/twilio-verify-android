@@ -4,11 +4,11 @@ twilio-verify-tests:
     app: ftl/dummy.apk
     test: {{test_build}}
     device:
-        # Moto G4 Plus
-        - {model: athene, version: 23, locale: en, orientation: portrait}
-        # Samsung Galaxy S9+ (US)
-        - {model: star2qlteue, version: 26, locale: en, orientation: portrait}
+        # LG Nexus 5
+        - {model: hammerhead, version: 23, locale: en, orientation: portrait}
+        # Pixel 5e
+        - {model: redfin, version: 30, locale: en, orientation: portrait}
         # Pixel 2
         - {model: walleye, version: 27, locale: en, orientation: portrait}
-        # Pixel 3
-        - {model: flame, version: 29, locale: en, orientation: portrait}
+        # Samsung S20
+        - {model: x1q, version: 29, locale: en, orientation: portrait}

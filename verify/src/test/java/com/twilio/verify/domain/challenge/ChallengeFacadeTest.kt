@@ -15,6 +15,8 @@ import com.twilio.verify.domain.factor.FactorFacade
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
+import com.twilio.verify.models.ChallengeListOrder.Asc
+import com.twilio.verify.models.ChallengeListOrder.Desc
 import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
@@ -98,6 +100,16 @@ class ChallengeFacadeTest {
       }
     )
     idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Get a challenge with blank challenge sid should call error`() {
+    challengeFacade.getChallenge(
+      "", "factorSid", { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
   }
 
   @Test
@@ -198,6 +210,27 @@ class ChallengeFacadeTest {
   }
 
   @Test
+  fun `Update a challenge with blank challenge sid should throw`() {
+    val challengeSid = ""
+    val factorSid = "factorSid"
+    val status = Approved
+    val updateChallengePayload = UpdatePushChallengePayload(factorSid, challengeSid, status)
+    val expectedFactor: PushFactor = mock()
+    argumentCaptor<(Factor) -> Unit>().apply {
+      whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
+        firstValue.invoke(expectedFactor)
+      }
+    }
+
+    challengeFacade.updateChallenge(
+      updateChallengePayload, { fail() },
+      { exception ->
+        assertTrue(exception.cause is IllegalArgumentException)
+      }
+    )
+  }
+
+  @Test
   fun `Error getting the factor when updating a challenge should call error`() {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
@@ -254,7 +287,7 @@ class ChallengeFacadeTest {
   fun `Get all challenges with valid data should call success`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, null)
+    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, Desc, null)
     val expectedFactor: PushFactor = mock()
     val expectedChallengeList: ChallengeList = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -264,7 +297,7 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(ChallengeList) -> Unit>().apply {
       whenever(
-        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), capture(), any())
+        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(Desc), eq(null), capture(), any())
       ).then {
         firstValue.invoke(expectedChallengeList)
       }
@@ -288,7 +321,7 @@ class ChallengeFacadeTest {
   fun `Error getting all challenges should call error`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, null)
+    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, pageToken = null)
     val expectedFactor: PushFactor = mock()
     val expectedException: Exception = mock()
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -298,7 +331,7 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
-        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(null), any(), capture())
+        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(Asc), eq(null), any(), capture())
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
@@ -322,7 +355,7 @@ class ChallengeFacadeTest {
   fun `Error getting the factor when getting all challenges should call error`() {
     val factorSid = "factorSid"
     val pageSize = 1
-    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, null)
+    val challengeListPayload = ChallengeListPayload(factorSid, pageSize, null, pageToken = null)
     val expectedException: Exception = mock()
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), any(), capture())).then {

@@ -22,6 +22,8 @@
 * [Update factor's push token](#UpdatePushToken)
 * [Delete a factor](#DeleteFactor)
 * [Clear local storage](#ClearLocalStorage)
+* [Contributing](#Contributing)
+* [License](#License)
 
 <a name='About'></a>
 
@@ -103,10 +105,15 @@ In order to run the sample app, you have to create a project and application in 
 
 ## Running the Sample backend
 
-* Clone this repo: https://github.com/twilio/verify-push-sample-backend
 * Configure a [Push Credential](https://www.twilio.com/docs/verify/quickstarts/push-android#create-a-push-credential) for the sample app, using the same [Firebase project](#FirebaseConfiguration) you configured
 * Configure a [Verify Service](https://www.twilio.com/docs/verify/quickstarts/push-android#create-a-verify-service-and-add-the-push-credential), using the Push Credential for the sample app
-* Run the steps in the [README file](https://github.com/twilio/verify-push-sample-backend/blob/master/README.md)
+* Go to: https://www.twilio.com/code-exchange/verify-push-backend
+* Use the `Quick Deploy to Twilio` option
+  - You should log in to your Twilio account
+  - Enter the Verify Service Sid you created above, you can find it [here](https://www.twilio.com/console/verify/services)
+  - Deploy the application
+  - Press `Go to live application`
+  - You will see the start page. Copy the url and replace `index.html` with `access-token`.(e.g. https://verify-push-backend-xxxxx.twil.io/access-token). This will be your `Access Token generation URL`
 
 <a name='UsingSampleApp'></a>
 
@@ -115,11 +122,12 @@ In order to run the sample app, you have to create a project and application in 
 ### Adding a factor
 * Press Create factor in the factor list (main view)
 * Enter the identity to use. This value should be an UUID that identifies the user to prevent PII information use
-* Enter the Access token URL (Access token generation URL, including the path, e.g. https://yourapp.ngrok.io/accessTokens)
+* Enter the Access token URL (Access token generation URL, including the path, e.g. https://verify-push-backend-xxxxx.twil.io/access-token)
+* Decide if you want to enable push notifications for challenges associated to this factor. If you disable this option, push notifications will not be sent and you will get the factor's pending challenges only in the factor screen (pressing the factor)
 * Press Create factor
 * Copy the factor Sid
 
-### Sending a challenge
+### Sending and updating a challenge
 * Go to Create Push Challenge page (/challenge path in your sample backend)
 * Enter the `identity` you used in factor creation
 * Enter the `Factor Sid` you added
@@ -130,6 +138,12 @@ In order to run the sample app, you have to create a project and application in 
 * The app will show the challenge info below the factor information, in a `Challenge` section
 * Approve or deny the challenge
 * After the challenge is updated, you will see the challenge status in the backend's `Create Push Challenge` view
+
+#### Silently approve challenges
+
+You can silently approve challenges when your app already knows that the user is trying to complete an action (actively logging in, making a transaction, etc.) on the same device as the registered device that is being challenged.
+
+You can enable the option "Silently approve challenges" for a factor. After enabling it, every challenge received as a push notification when the app is in foreground for that factor will be silently approved, so user interaction is not required. The option will be saved for the session, so the selection will not be persisted.
 
 <a name='Logging'></a>
 
@@ -206,3 +220,14 @@ twilioVerify.clearLocalStorage {
 }
 ```
 Note: Calling this method will not delete factors in **Verify Push API**, so you need to delete them from your backend to prevent invalid/deleted factors when getting factors for an identity.
+
+<a name='Contributing'></a>
+
+## Contributing
+This project wolcomes contributions. Please check out our [Contributing guide](./CONTRIBUTING.md) to learn more on how to get started.
+
+<a name='License'></a>
+
+## License
+[Apache © Twilio Inc.](./LICENSE)
+

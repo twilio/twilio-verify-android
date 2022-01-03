@@ -103,8 +103,6 @@ platform :android do
       commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
     tag = next_version
     UI.important(notes)
-    add_git_tag(tag: tag)
-    push_git_tags(tag: tag)
 
     UI.message("Updating CHANGELOG.md")
     sdk_size = sh("cat ../builds/sizeReport/TwilioVerifySizeImpactReport.txt")
@@ -113,6 +111,8 @@ platform :android do
     git_add(path: ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"])
     sh("git commit -m \"Version bump to #{next_version} [skip ci]\"")
     push_to_git_remote
+    add_git_tag(tag: tag)
+    push_git_tags(tag: tag)
 
     set_github_release(
       repository_name: "twilio/twilio-verify-android",
@@ -122,7 +122,7 @@ platform :android do
       description: notes,
       commitish: "main"
     )
-    gradle(task: "publishTwilioVerifyPublicationToMavenLocal")
+    gradle(task: "mavenLocalTwilioVerifyReleaseUpload")
     plain_notes = conventional_changelog(
             format: 'plain',
             commit_url: 'https://github.com/twilio/twilio-verify-android/commit')

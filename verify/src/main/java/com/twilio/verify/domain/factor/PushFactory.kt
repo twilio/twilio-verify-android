@@ -33,6 +33,7 @@ import com.twilio.verify.models.FactorType.PUSH
 
 internal const val PUBLIC_KEY_KEY = "PublicKey"
 internal const val FCM_PUSH_TYPE = "fcm"
+internal const val NONE_PUSH_TYPE = "none"
 internal const val SDK_VERSION_KEY = "SdkVersion"
 internal const val APP_ID_KEY = "AppId"
 internal const val NOTIFICATION_PLATFORM_KEY = "NotificationPlatform"
@@ -48,9 +49,9 @@ internal class PushFactory(
   fun create(
     accessToken: String,
     friendlyName: String,
-    pushToken: String,
     serviceSid: String,
     identity: String,
+    pushToken: String?,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
@@ -121,7 +122,7 @@ internal class PushFactory(
 
   fun update(
     sid: String,
-    pushToken: String,
+    pushToken: String?,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
@@ -190,10 +191,16 @@ internal class PushFactory(
   ): Map<String, String> = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
 
   private fun config(
-    pushToken: String
-  ): Map<String, String> = mapOf(
+    pushToken: String?
+  ): Map<String, String> = mutableMapOf(
     SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-    APP_ID_KEY to context.applicationInfo.packageName,
-    NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE, NOTIFICATION_TOKEN_KEY to pushToken
-  )
+    APP_ID_KEY to context.applicationInfo.packageName
+  ).apply {
+    if (pushToken.isNullOrBlank()) {
+      put(NOTIFICATION_PLATFORM_KEY, NONE_PUSH_TYPE)
+    } else {
+      put(NOTIFICATION_PLATFORM_KEY, FCM_PUSH_TYPE)
+      put(NOTIFICATION_TOKEN_KEY, pushToken)
+    }
+  }
 }

@@ -24,6 +24,7 @@ import com.twilio.verify.data.fromRFC3339Date
 import com.twilio.verify.data.toRFC3339Date
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.FactorDataPayload
+import com.twilio.verify.domain.factor.models.NotificationPlatform
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
@@ -43,6 +44,7 @@ internal const val serviceSidKey = "service_sid"
 internal const val identityKey = "entity_identity"
 internal const val keyPairAliasKey = "key_pair"
 internal const val dateCreatedKey = "date_created"
+internal const val notificationPlatformKey = "notification_platform"
 
 internal class FactorMapper {
 
@@ -120,7 +122,10 @@ internal class FactorMapper {
           .put(keyPairAliasKey, (factor as PushFactor).keyPairAlias)
           .put(statusKey, factor.status.value)
           .put(
-            configKey, JSONObject().put(credentialSidKey, factor.config.credentialSid)
+            configKey,
+            JSONObject()
+              .put(credentialSidKey, factor.config.credentialSid)
+              .put(notificationPlatformKey, factor.config.notificationPlatform.value)
           )
           .put(dateCreatedKey, toRFC3339Date(factor.createdAt))
           .toString()
@@ -147,8 +152,12 @@ internal class FactorMapper {
           jsonObject.getString(dateCreatedKey)
         ),
         config = Config(
-          jsonObject.getJSONObject(configKey)
-            .getString(credentialSidKey)
+          jsonObject.getJSONObject(configKey).getString(credentialSidKey),
+          NotificationPlatform.values().find {
+            it.value == jsonObject.getJSONObject(configKey).optString(
+              notificationPlatformKey
+            )
+          } ?: NotificationPlatform.FCM
         )
       )
     } catch (e: JSONException) {

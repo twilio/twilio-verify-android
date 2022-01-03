@@ -37,4 +37,6 @@
   <string name="challenge_status">Status:</string>
   <string name="challenge_created_at">Created at:</string>
   <string name="challenge_expire_on">Expire on:</string>
+  <string name="silent_approve">Silently approve challenges</string>
+  <string name="include_push_token">Enable push notifications</string>
 </resources>

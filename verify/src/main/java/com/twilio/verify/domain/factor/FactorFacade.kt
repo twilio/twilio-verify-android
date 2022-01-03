@@ -23,6 +23,7 @@ import com.twilio.security.storage.encryptedPreferences
 import com.twilio.verify.ENC_SUFFIX
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
+import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
 import com.twilio.verify.VERIFY_SUFFIX
 import com.twilio.verify.api.FactorAPIClient
@@ -53,8 +54,8 @@ internal class FactorFacade(
       when (factorPayload) {
         is PushFactorPayload -> {
           pushFactory.create(
-            factorPayload.accessToken, factorPayload.friendlyName, factorPayload.pushToken,
-            factorPayload.serviceSid, factorPayload.identity, onSuccess, onError
+            factorPayload.accessToken, factorPayload.friendlyName, factorPayload.serviceSid,
+            factorPayload.identity, factorPayload.pushToken, onSuccess, onError
           )
         }
       }
@@ -67,12 +68,22 @@ internal class FactorFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
-      when (verifyFactorPayload) {
-        is VerifyPushFactorPayload -> {
-          pushFactory.verify(
-            verifyFactorPayload.sid, onSuccess, onError
+      try {
+        if (verifyFactorPayload.sid.isBlank()) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
           )
         }
+        when (verifyFactorPayload) {
+          is VerifyPushFactorPayload -> {
+            pushFactory.verify(
+              verifyFactorPayload.sid, onSuccess, onError
+            )
+          }
+        }
+      } catch (e: TwilioVerifyException) {
+        onError(e)
       }
     }
   }
@@ -83,12 +94,22 @@ internal class FactorFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
-      when (updateFactorPayload) {
-        is UpdatePushFactorPayload -> {
-          pushFactory.update(
-            updateFactorPayload.sid, updateFactorPayload.pushToken, onSuccess, onError
+      try {
+        if (updateFactorPayload.sid.isBlank()) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
           )
         }
+        when (updateFactorPayload) {
+          is UpdatePushFactorPayload -> {
+            pushFactory.update(
+              updateFactorPayload.sid, updateFactorPayload.pushToken, onSuccess, onError
+            )
+          }
+        }
+      } catch (e: TwilioVerifyException) {
+        onError(e)
       }
     }
   }
@@ -99,9 +120,16 @@ internal class FactorFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     try {
+      if (factorSid.isBlank()) {
+        throw TwilioVerifyException(
+          IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+          InputError
+        )
+      }
       factorProvider.get(factorSid)
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) }, StorageError
+        StorageException("Factor not found: '$factorSid'").also { Logger.log(Level.Error, it.toString(), it) },
+        StorageError
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -117,7 +145,8 @@ internal class FactorFacade(
       factorProvider.getAll()
         .find { it.serviceSid == serviceSid }
         ?.let { success(it) } ?: throw TwilioVerifyException(
-        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) }, StorageError
+        StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) },
+        StorageError
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -142,6 +171,12 @@ internal class FactorFacade(
   ) {
     execute(success, error) { onSuccess, onError ->
       try {
+        if (factorSid.isBlank()) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
+          )
+        }
         pushFactory.delete(factorSid, onSuccess, onError)
       } catch (e: TwilioVerifyException) {
         error(e)

@@ -47,15 +47,25 @@ internal class ChallengeFacade(
     error: (TwilioVerifyException) -> Unit
   ) {
     execute(success, error) { onSuccess, onError ->
-      factorFacade.getFactor(
-        factorSid,
-        { factor ->
-          when (factor) {
-            is PushFactor -> pushChallengeProcessor.get(sid, factor, onSuccess, onError)
-          }
-        },
-        onError
-      )
+      try {
+        if (sid.isBlank()) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Empty challenge sid").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
+          )
+        }
+        factorFacade.getFactor(
+          factorSid,
+          { factor ->
+            when (factor) {
+              is PushFactor -> pushChallengeProcessor.get(sid, factor, onSuccess, onError)
+            }
+          },
+          onError
+        )
+      } catch (e: TwilioVerifyException) {
+        onError(e)
+      }
     }
   }
 
@@ -87,7 +97,7 @@ internal class ChallengeFacade(
       { factor ->
         execute(success, error) { onSuccess, onError ->
           repository.getAll(
-            factor, challengeListPayload.status, challengeListPayload.pageSize,
+            factor, challengeListPayload.status, challengeListPayload.pageSize, challengeListPayload.order,
             challengeListPayload.pageToken,
             { list ->
               onSuccess(list)
@@ -116,6 +126,12 @@ internal class ChallengeFacade(
           ).also { Logger.log(Level.Error, it.toString(), it) },
           InputError
         )
+      if (updateChallengePayload.challengeSid.isBlank()) {
+        throw TwilioVerifyException(
+          IllegalArgumentException("Empty challenge sid").also { Logger.log(Level.Error, it.toString(), it) },
+          InputError
+        )
+      }
       pushChallengeProcessor.update(
         updateChallengePayload.challengeSid, factor, status, success, error
       )

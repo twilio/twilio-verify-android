@@ -1,3 +1,79 @@
+# 0.6.0 (2022-01-03)
+
+### Features
+- Validate challenge status before trying to update it. Add validations for empty factor sid or challenge sid. Get decrypt information correctly when the provider is not valid. ([5a68181](https://github.com/twilio/twilio-verify-android/commit/5a681814ef97131fff2578acaa988b2e48d186bc))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 74.3KB          |
+| x86_64          | 74.3KB          |
+| armeabi-v7a     | 74.3KB          |
+| arm64-v8a       | 74.3KB          |
+| universal       | 74.3KB          |
+
+
+# 0.5.0 (2021-11-26)
+
+### Features
+- Support notification platform none to allow not sending push token. Factors with notification platform none will not receive push notifications for challenges and polling should be implemented to get pending challenges ([4fd8967](https://github.com/twilio/twilio-verify-android/commit/4fd8967274783fc9088a9c5908df0b78c4e90148))
+
+### Building system
+- Update FTL devices ([2535df5](https://github.com/twilio/twilio-verify-android/commit/2535df51a0658d51eff3b347f8c84695b7af5eb5))
+
+### Documentation
+- Update documentation to use new sample backend ([5708592](https://github.com/twilio/twilio-verify-android/commit/5708592e02fd78cf0924d0d538e1287f3d63cf05))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 74KB            |
+| x86_64          | 74KB            |
+| armeabi-v7a     | 74KB            |
+| arm64-v8a       | 74KB            |
+| universal       | 74KB            |
+
+
+# 0.4.0 (2021-09-13)
+
+### Features
+- Ordering for challenge list ([790fb17](https://github.com/twilio/twilio-verify-android/commit/790fb17a3326b2dc7b62dd9f12af49b43fd1287c))
+
+### Building system
+- Create tag after pushing new version (#182) ([93d1b4b](https://github.com/twilio/twilio-verify-android/commit/93d1b4b09a390b5da85cdbdea50cf3cff0553ace))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 73.4KB          |
+| x86_64          | 73.4KB          |
+| armeabi-v7a     | 73.4KB          |
+| arm64-v8a       | 73.4KB          |
+| universal       | 73.4KB          |
+
+
+# 0.3.1 (2021-07-26)
+
+### Bug fixes
+- Update error codes (#164) ([308d053](https://github.com/twilio/twilio-verify-android/commit/308d053dab3f367513104cee285321a2d733097e))
+
+### Building system
+- Publishing to MavenCentral (#170) ([e638380](https://github.com/twilio/twilio-verify-android/commit/e63838079e94df526a4b78d7dff60a43b5e1ae99))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 72.9KB          |
+| x86_64          | 72.9KB          |
+| armeabi-v7a     | 72.9KB          |
+| arm64-v8a       | 72.9KB          |
+| universal       | 72.9KB          |
+
+
 # 0.3.0 (2020-12-03)
 
 ### Features
