@@ -42,9 +42,12 @@ class EncryptedPreferences(
       val encrypted = secretKeyProvider.encrypt(rawValue)
       val keyToSave = generateKeyDigest(key)
       Logger.log(Level.Debug, "Saving $keyToSave")
-      preferences.edit()
+      val result = preferences.edit()
         .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
-        .apply()
+        .commit()
+      if (!result) {
+        throw IllegalStateException("Error saving value")
+      }
       Logger.log(Level.Debug, "Saved $keyToSave")
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)

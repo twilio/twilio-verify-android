@@ -160,9 +160,15 @@ class AndroidKeyStore(
     return Cipher.getInstance(cipherAlgorithm)
       .run {
         val algorithmParameterSpec =
-          AlgorithmParameters.getInstance(
-            data.algorithmParameters.algorithm, data.algorithmParameters.provider
-          )
+          try {
+            AlgorithmParameters.getInstance(
+              data.algorithmParameters.algorithm, data.algorithmParameters.provider
+            )
+          } catch (e: Exception) {
+            AlgorithmParameters.getInstance(
+              data.algorithmParameters.algorithm
+            )
+          }
             .apply {
               init(data.algorithmParameters.encoded)
             }

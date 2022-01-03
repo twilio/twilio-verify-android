@@ -28,6 +28,7 @@ import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus
+import com.twilio.verify.models.ChallengeStatus.Pending
 import org.json.JSONObject
 
 internal class PushChallengeProcessor(
@@ -71,6 +72,12 @@ internal class PushChallengeProcessor(
         ) {
           throw TwilioVerifyException(
             IllegalArgumentException("Wrong factor for challenge").also { Logger.log(Level.Error, it.toString(), it) }, InputError
+          )
+        }
+        if (challenge.status != Pending) {
+          throw TwilioVerifyException(
+            IllegalArgumentException("Responded or expired challenge can not be updated").also { Logger.log(Level.Error, it.toString(), it) },
+            InputError
           )
         }
         val keyPairAlias = factor.keyPairAlias?.takeIf { it.isNotBlank() }
