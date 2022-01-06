@@ -58,7 +58,7 @@ class FailureResponse(
   val apiError: APIError? by lazy {
     return@lazy errorBody?.let {
       try {
-        val json = JSONObject(errorBody)
+        val json = JSONObject(it)
         return@let APIError(json.getString(CODE_KEY), json.getString(MESSAGE_KEY), json.optString(MORE_INFO_KEY))
       } catch (e: Exception) {
         Logger.log(Level.Networking, "Unable to convert error body to Verify API error, details: $e")
