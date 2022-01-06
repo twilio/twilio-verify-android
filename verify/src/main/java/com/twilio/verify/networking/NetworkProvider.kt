@@ -56,12 +56,18 @@ class FailureResponse(
   val headers: Map<String, List<String>>?
 ) {
   val apiError: APIError? by lazy {
-    return@lazy errorBody?.let {
+    return@lazy errorBody?.let { errorBody ->
       try {
-        val json = JSONObject(it)
-        return@let APIError(json.getString(CODE_KEY), json.getString(MESSAGE_KEY), json.optString(MORE_INFO_KEY))
+        val json = JSONObject(errorBody)
+        return@let APIError(
+          json.getString(CODE_KEY),
+          json.getString(MESSAGE_KEY),
+          json.optString(MORE_INFO_KEY).takeUnless { it.isBlank() || it == JSONObject.NULL })
       } catch (e: Exception) {
-        Logger.log(Level.Networking, "Unable to convert error body to Verify API error, details: $e")
+        Logger.log(
+          Level.Networking,
+          "Unable to convert error body to Verify API error, details: $e"
+        )
         return@let null
       }
     }
@@ -71,5 +77,5 @@ class FailureResponse(
 class APIError(
   val code: String,
   val message: String,
-  val moreInfo: String
+  val moreInfo: String?
 )
