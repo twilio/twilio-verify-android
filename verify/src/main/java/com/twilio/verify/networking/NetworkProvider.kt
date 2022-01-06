@@ -16,6 +16,10 @@
 
 package com.twilio.verify.networking
 
+import com.twilio.security.logger.Level
+import com.twilio.security.logger.Logger
+import org.json.JSONObject
+
 interface NetworkProvider {
   fun execute(
     request: Request,
@@ -32,7 +36,7 @@ class NetworkException constructor(
   constructor(
     failureResponse: FailureResponse?
   ) : this(
-    "Network exception with status code ${failureResponse?.responseCode} and body: ${failureResponse?.errorBody}",
+    "Network exception with status code ${failureResponse?.statusCode} and body: ${failureResponse?.errorBody}",
     null,
     failureResponse
   )
@@ -42,8 +46,30 @@ class NetworkException constructor(
   )
 }
 
+internal const val CODE_KEY = "code"
+internal const val MESSAGE_KEY = "message"
+internal const val MORE_INFO_KEY = "more_info"
+
 class FailureResponse(
-  val responseCode: Int,
+  val statusCode: Int,
   val errorBody: String?,
   val headers: Map<String, List<String>>?
+) {
+  val apiError: APIError? by lazy {
+    return@lazy errorBody?.let {
+      try {
+        val json = JSONObject(errorBody)
+        return@let APIError(json.getString(CODE_KEY), json.getString(MESSAGE_KEY), json.optString(MORE_INFO_KEY))
+      } catch (e: Exception) {
+        Logger.log(Level.Networking, "Unable to convert error body to Verify API error, details: $e")
+        return@let null
+      }
+    }
+  }
+}
+
+class APIError(
+  val code: String,
+  val message: String,
+  val moreInfo: String
 )

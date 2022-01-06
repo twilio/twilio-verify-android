@@ -35,7 +35,7 @@ internal open class BaseAPIClient(private val dateProvider: DateProvider) {
     error: (TwilioVerifyException) -> Unit
   ) {
     if (retries > 0) {
-      when (exception.failureResponse?.responseCode) {
+      when (exception.failureResponse?.statusCode) {
         unauthorized ->
           exception.failureResponse.headers?.get(dateHeaderKey)
             ?.first()

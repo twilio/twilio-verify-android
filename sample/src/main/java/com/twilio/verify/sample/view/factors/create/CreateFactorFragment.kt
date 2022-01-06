@@ -26,10 +26,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.iid.FirebaseInstanceId
+import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Factor
+import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.sample.R
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.view.showError
@@ -69,7 +72,7 @@ class CreateFactorFragment : Fragment() {
           createFactorButton.isEnabled = true
           when (it) {
             is com.twilio.verify.sample.viewmodel.Factor -> onSuccess(it.factor)
-            is FactorError -> it.exception.showError(content)
+            is FactorError -> showError(it.exception)
           }
         }
       )
@@ -132,5 +135,22 @@ class CreateFactorFragment : Fragment() {
   private fun hideKeyboardFrom() {
     val imm = activity?.getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
     imm?.hideSoftInputFromWindow(content.windowToken, 0)
+  }
+
+  private fun showError(exception: Throwable) {
+    when (exception) {
+      is TwilioVerifyException -> handleNetworkException(exception as TwilioVerifyException)
+      else -> exception.showError(content)
+    }
+  }
+
+  private fun handleNetworkException(exception: TwilioVerifyException) {
+    (exception.cause as? NetworkException)?.failureResponse?.apiError?.let {
+      Snackbar.make(
+        content,
+        "Code: ${it.code} - ${it.message}",
+        BaseTransientBottomBar.LENGTH_LONG
+      ).show()
+    } ?: exception.showError(content)
   }
 }
