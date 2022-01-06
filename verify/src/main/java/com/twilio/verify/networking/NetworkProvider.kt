@@ -62,7 +62,8 @@ class FailureResponse(
         return@let APIError(
           json.getString(CODE_KEY),
           json.getString(MESSAGE_KEY),
-          json.optString(MORE_INFO_KEY).takeUnless { it.isBlank() || it == JSONObject.NULL })
+          json.optString(MORE_INFO_KEY).takeUnless { it.isBlank() || it == JSONObject.NULL }
+        )
       } catch (e: Exception) {
         Logger.log(
           Level.Networking,
@@ -74,7 +75,7 @@ class FailureResponse(
   }
 }
 
-class APIError(
+data class APIError(
   val code: String,
   val message: String,
   val moreInfo: String?
