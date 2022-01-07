@@ -200,7 +200,7 @@ internal class FactorAPIClient(
             success()
           },
           { exception ->
-            when (exception.failureResponse?.responseCode) {
+            when (exception.failureResponse?.statusCode) {
               notFound -> success()
               unauthorized ->
                 if (retries == 0) {
