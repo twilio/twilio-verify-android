@@ -53,10 +53,10 @@ class NetworkAdapter : NetworkProvider {
         os.close()
         Logger.log(Level.Networking, "Request: $this")
       }
-      val responseCode = httpUrlConnection.responseCode
-      Logger.log(Level.Networking, "Response code: $responseCode")
+      val statusCode = httpUrlConnection.responseCode
+      Logger.log(Level.Networking, "Response code: $statusCode")
       when {
-        responseCode < 300 -> {
+        statusCode < 300 -> {
           val response = httpUrlConnection.inputStream.bufferedReader()
             .use { it.readText() }.also { Logger.log(Level.Networking, "Response body: $it") }
           success(Response(body = response, headers = httpUrlConnection.headerFields))
@@ -66,7 +66,7 @@ class NetworkAdapter : NetworkProvider {
             .use { it.readText() }.also { Logger.log(Level.Networking, "Error body: $it") }
           error(
             NetworkException(
-              FailureResponse(responseCode, errorBody, httpUrlConnection.headerFields)
+              FailureResponse(statusCode, errorBody, httpUrlConnection.headerFields)
             )
           )
         }
