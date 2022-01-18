@@ -1,3 +1,19 @@
+# 0.6.1 (2022-01-18)
+
+### Bug fixes
+- Improved network error to get Verify API error ([b48bdc2](https://github.com/twilio/twilio-verify-android/commit/b48bdc2f76918f48bf6ed90369fa75fc51d6ffd9))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 75.3KB          |
+| x86_64          | 75.3KB          |
+| armeabi-v7a     | 75.3KB          |
+| arm64-v8a       | 75.3KB          |
+| universal       | 75.3KB          |
+
+
 # 0.6.0 (2022-01-03)
 
 ### Features
