@@ -183,6 +183,22 @@ Key Storage | 60405 | Exception while storing/loading key pairs
 Initialization | 60406 | Exception while initializing an object
 Authentication Token | 60407 | Exception while generating token
 
+### Getting Verify API errors
+You can control Verify API error codes listed [here](https://www.twilio.com/docs/api/errors) by following the next example:
+
+```
+twilioVerify.createFactor(factorPayload, { factor ->
+  // Success
+}, { exception ->
+  (exception.cause as? NetworkException)?.failureResponse?.apiError?.let {
+    // Gets Verify API error response
+    Log.d(TAG, "Code: ${it.code} - ${it.message}")
+  }
+})
+```
+
+Check an example [here](https://github.com/twilio/twilio-verify-android/blob/main/sample/src/main/java/com/twilio/verify/sample/view/factors/create/CreateFactorFragment.kt#L147)
+
 <a name='UpdatePushToken'></a>
 
 ## Update factor's push token
