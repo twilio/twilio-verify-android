@@ -18,6 +18,7 @@
 plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexus) version (Config.Versions.nexus)
+  id(Config.Plugins.sonarqube) version (Config.Versions.sonarqube)
 }
 
 buildscript {
