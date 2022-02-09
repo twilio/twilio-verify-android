@@ -87,7 +87,7 @@ class TwilioVerifyException(
 }
 
 /**
- * Exception types returned as cause for an TwilioVerifyException on validation errors.
+ * Exception types returned as cause for a [TwilioVerifyException] and [InputError] code on validation errors.
  *
  * @param message associated message of the exception.
  */

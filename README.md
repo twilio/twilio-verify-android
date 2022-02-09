@@ -210,7 +210,7 @@ twilioVerify.updateChallenge(updateChallengePayload, {
   }
 })
 ```
-You can find the associated exceptions for validations [here](https://github.com/twilio/twilio-verify-android/blob/main/verify/src/main/java/com/twilio/verify/TwilioVerifyException.kt#L89)
+You can find the associated exceptions for validations [here](https://github.com/twilio/twilio-verify-android/blob/main/verify/src/main/java/com/twilio/verify/TwilioVerifyException.kt#L94)
 
 <a name='UpdatePushToken'></a>
 
