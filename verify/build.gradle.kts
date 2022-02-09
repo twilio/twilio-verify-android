@@ -200,7 +200,7 @@ task("generateSizeReport") {
 
 dependencies {
   debugImplementation(project(":${Modules.security}"))
-  releaseImplementation("com.twilio:twilio-security-android:0.1.0")
+  releaseImplementation("com.twilio:twilio-security-android:0.2.0")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
   androidTestImplementation("androidx.test.ext:junit:1.1.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
