@@ -11,6 +11,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.IdlingResource
+import com.twilio.verify.InputException
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.challenge.models.FactorChallenge
@@ -233,7 +234,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
       }
     )
@@ -260,7 +261,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
       }
     )
@@ -350,7 +351,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
       }
     )
@@ -384,7 +385,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
       }
     )
@@ -421,7 +422,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
       }
     )
@@ -459,7 +460,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
       }
     )
@@ -584,7 +585,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
       }
     )

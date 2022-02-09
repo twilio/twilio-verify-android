@@ -10,6 +10,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.InputException
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
@@ -160,7 +161,7 @@ class ChallengeRepositoryTest {
     challengeRepository.get(
       sid, factor, { fail() },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InputException)
       }
     )
   }
@@ -195,7 +196,7 @@ class ChallengeRepositoryTest {
     challengeRepository.get(
       sid, factor, { fail() },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InputException)
       }
     )
   }
@@ -261,7 +262,7 @@ class ChallengeRepositoryTest {
     }
     challengeRepository.update(
       challenge, payload, { fail() },
-      { exception -> assertTrue(exception.cause is IllegalArgumentException) }
+      { exception -> assertTrue(exception.cause is InputException) }
     )
   }
 
@@ -277,7 +278,7 @@ class ChallengeRepositoryTest {
     }
     challengeRepository.update(
       challenge, payload, { fail() },
-      { exception -> assertTrue(exception.cause is IllegalArgumentException) }
+      { exception -> assertTrue(exception.cause is InputException) }
     )
   }
 

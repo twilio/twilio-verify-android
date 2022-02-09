@@ -21,6 +21,7 @@ import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
 import com.twilio.security.storage.encryptedPreferences
 import com.twilio.verify.ENC_SUFFIX
+import com.twilio.verify.EmptyFactorSidException
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
@@ -71,7 +72,7 @@ internal class FactorFacade(
       try {
         if (verifyFactorPayload.sid.isBlank()) {
           throw TwilioVerifyException(
-            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            EmptyFactorSidException.also { Logger.log(Level.Error, it.toString(), it) },
             InputError
           )
         }
@@ -97,7 +98,7 @@ internal class FactorFacade(
       try {
         if (updateFactorPayload.sid.isBlank()) {
           throw TwilioVerifyException(
-            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            EmptyFactorSidException.also { Logger.log(Level.Error, it.toString(), it) },
             InputError
           )
         }
@@ -122,7 +123,7 @@ internal class FactorFacade(
     try {
       if (factorSid.isBlank()) {
         throw TwilioVerifyException(
-          IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+          EmptyFactorSidException.also { Logger.log(Level.Error, it.toString(), it) },
           InputError
         )
       }
@@ -173,7 +174,7 @@ internal class FactorFacade(
       try {
         if (factorSid.isBlank()) {
           throw TwilioVerifyException(
-            IllegalArgumentException("Empty factor sid").also { Logger.log(Level.Error, it.toString(), it) },
+            EmptyFactorSidException.also { Logger.log(Level.Error, it.toString(), it) },
             InputError
           )
         }

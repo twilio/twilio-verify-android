@@ -8,7 +8,9 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.EmptyChallengeSidException
 import com.twilio.verify.IdlingResource
+import com.twilio.verify.InputException
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.domain.factor.FactorFacade
@@ -20,6 +22,7 @@ import com.twilio.verify.models.ChallengeListOrder.Desc
 import com.twilio.verify.models.ChallengeListPayload
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.Factor
+import com.twilio.verify.models.FactorType.PUSH
 import com.twilio.verify.models.UpdateChallengePayload
 import com.twilio.verify.models.UpdatePushChallengePayload
 import org.junit.Assert.assertEquals
@@ -107,7 +110,7 @@ class ChallengeFacadeTest {
     challengeFacade.getChallenge(
       "", "factorSid", { fail() },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is EmptyChallengeSidException)
       }
     )
   }
@@ -225,7 +228,7 @@ class ChallengeFacadeTest {
     challengeFacade.updateChallenge(
       updateChallengePayload, { fail() },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is EmptyChallengeSidException)
       }
     )
   }
@@ -263,6 +266,7 @@ class ChallengeFacadeTest {
     val updateChallengePayload: UpdateChallengePayload = mock()
     whenever(updateChallengePayload.factorSid).thenReturn(factorSid)
     val expectedFactor: PushFactor = mock()
+    whenever(expectedFactor.type).thenReturn(PUSH)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorFacade.getFactor(eq(factorSid), capture(), any())).then {
         firstValue.invoke(expectedFactor)
@@ -276,7 +280,7 @@ class ChallengeFacadeTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
       }
     )

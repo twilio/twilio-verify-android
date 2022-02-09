@@ -18,14 +18,20 @@ package com.twilio.verify.domain.challenge
 
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
+import com.twilio.verify.AlreadyUpdatedChallengeException
+import com.twilio.verify.ExpiredChallengeException
+import com.twilio.verify.InvalidChallengeException
+import com.twilio.verify.InvalidFactorException
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
+import com.twilio.verify.WrongFactorException
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListOrder
 import com.twilio.verify.models.ChallengeStatus
+import com.twilio.verify.models.ChallengeStatus.Expired
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
@@ -51,7 +57,14 @@ internal class ChallengeRepository(
           .also { challenge ->
             if (challenge.factorSid != factor.sid) {
               throw TwilioVerifyException(
-                IllegalArgumentException("Wrong factor for challenge").also { Logger.log(Level.Error, it.toString(), it) }, InputError
+                WrongFactorException.also {
+                  Logger.log(
+                    Level.Error,
+                    it.toString(),
+                    it
+                  )
+                },
+                InputError
               )
             }
             toFactorChallenge(challenge).factor = factor
@@ -75,14 +88,39 @@ internal class ChallengeRepository(
         get(factorChallenge.sid, it, success, error)
       } ?: error(
         TwilioVerifyException(
-          IllegalArgumentException("Invalid factor").also { Logger.log(Level.Error, it.toString(), it) }, InputError
+          InvalidFactorException.also {
+            Logger.log(
+              Level.Error,
+              it.toString(),
+              it
+            )
+          },
+          InputError
         )
       )
     }
     try {
+      if (challenge.status == Expired) {
+        throw TwilioVerifyException(
+          ExpiredChallengeException.also {
+            Logger.log(
+              Level.Error,
+              it.toString(),
+              it
+            )
+          },
+          InputError
+        )
+      }
       if (challenge.status != Pending) {
         throw TwilioVerifyException(
-          IllegalArgumentException("Responded or expired challenge can not be updated").also { Logger.log(Level.Error, it.toString(), it) },
+          AlreadyUpdatedChallengeException.also {
+            Logger.log(
+              Level.Error,
+              it.toString(),
+              it
+            )
+          },
           InputError
         )
       }
@@ -116,6 +154,13 @@ internal class ChallengeRepository(
 
   private fun toFactorChallenge(challenge: Challenge) =
     (challenge as? FactorChallenge) ?: throw TwilioVerifyException(
-      IllegalArgumentException("Invalid challenge").also { Logger.log(Level.Error, it.toString(), it) }, InputError
+      InvalidChallengeException.also {
+        Logger.log(
+          Level.Error,
+          it.toString(),
+          it
+        )
+      },
+      InputError
     )
 }
