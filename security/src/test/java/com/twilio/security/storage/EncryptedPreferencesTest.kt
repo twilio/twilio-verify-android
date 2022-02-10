@@ -11,7 +11,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.twilio.security.storage.key.SecretKeyProvider
+import com.twilio.security.storage.key.EncryptionSecretKey
 import kotlin.reflect.KClass
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertEquals
@@ -30,7 +30,7 @@ class EncryptedPreferencesTest {
   val exceptionRule: ExpectedException = ExpectedException.none()
 
   private val preferences: SharedPreferences = mock()
-  private val secretKeyProvider: SecretKeyProvider = mock()
+  private val secretKeyProvider: EncryptionSecretKey = mock()
   private val serializer: Serializer = mock()
   private lateinit var encryptedPreferences: EncryptedPreferences
 

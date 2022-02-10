@@ -21,12 +21,11 @@ import android.util.Base64
 import android.util.Base64.DEFAULT
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
-import com.twilio.security.storage.key.SecretKeyProvider
-import java.security.MessageDigest
+import com.twilio.security.storage.key.EncryptionSecretKey
 import kotlin.reflect.KClass
 
 class EncryptedPreferences(
-  override val secretKeyProvider: SecretKeyProvider,
+  override val encryptionSecretKey: EncryptionSecretKey,
   private val preferences: SharedPreferences,
   override val serializer: Serializer
 ) : EncryptedStorage {
@@ -39,7 +38,7 @@ class EncryptedPreferences(
     try {
       Logger.log(Level.Info, "Saving $key")
       val rawValue = toByteArray(value)
-      val encrypted = secretKeyProvider.encrypt(rawValue)
+      val encrypted = encryptionSecretKey.encrypt(rawValue)
       val keyToSave = generateKeyDigest(key)
       Logger.log(Level.Debug, "Saving $keyToSave")
       val result = preferences.edit()
@@ -117,7 +116,7 @@ class EncryptedPreferences(
   ): T? {
     Logger.log(Level.Debug, "Getting value for $key")
     val value = preferences.getString(key, null) ?: throw IllegalArgumentException("key not found")
-    return fromByteArray(secretKeyProvider.decrypt(Base64.decode(value, DEFAULT)), kClass)
+    return fromByteArray(encryptionSecretKey.decrypt(Base64.decode(value, DEFAULT)), kClass)
       .also { Logger.log(Level.Debug, "Return value $it for key $key") }
   }
 
@@ -129,11 +128,4 @@ class EncryptedPreferences(
     data: ByteArray,
     kClass: KClass<T>
   ): T? = serializer.fromByteArray(data, kClass)
-}
-
-internal fun generateKeyDigest(key: String): String {
-  Logger.log(Level.Debug, "Generating key digest for $key")
-  val messageDigest = MessageDigest.getInstance("SHA-256")
-  return Base64.encodeToString(messageDigest.digest(key.toByteArray()), DEFAULT)
-    .also { Logger.log(Level.Debug, "Generated key digest for $key: $it") }
 }

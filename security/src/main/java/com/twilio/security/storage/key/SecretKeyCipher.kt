@@ -24,7 +24,7 @@ import com.twilio.security.crypto.key.template.CipherTemplate
 class SecretKeyCipher(
   private val template: CipherTemplate,
   private val keyManager: KeyManager
-) : SecretKeyProvider {
+) : EncryptionSecretKey {
 
   override fun create() {
     keyManager.cipher(template.templateForCreation())

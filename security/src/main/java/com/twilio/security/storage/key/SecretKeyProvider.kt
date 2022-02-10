@@ -17,17 +17,28 @@
 package com.twilio.security.storage.key
 
 import com.twilio.security.crypto.KeyException
+import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 
 interface SecretKeyProvider {
   @Throws(KeyException::class)
   fun create()
 
   @Throws(KeyException::class)
+  fun delete()
+}
+
+interface EncryptionSecretKey : SecretKeyProvider {
+  @Throws(KeyException::class)
   fun encrypt(data: ByteArray): ByteArray
 
   @Throws(KeyException::class)
   fun decrypt(data: ByteArray): ByteArray
+}
 
-  @Throws(KeyException::class)
-  fun delete()
+interface AuthenticatedSecretKey : SecretKeyProvider {
+  @Throws(Exception::class)
+  fun encrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit)
+
+  @Throws(Exception::class)
+  fun decrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit)
 }
