@@ -94,6 +94,7 @@ class ChallengeFragment : Fragment() {
             }
           }
         )
+      factorViewModel.loadFactor(factorSid)
       challengeViewModel.getChallenge()
         .observe(
           viewLifecycleOwner,
@@ -106,7 +107,6 @@ class ChallengeFragment : Fragment() {
             }
           }
         )
-      factorViewModel.loadFactor(factorSid)
       challengeViewModel.loadChallenge(challengeSid, factorSid)
     }
   }
@@ -114,7 +114,7 @@ class ChallengeFragment : Fragment() {
   private fun handleError(exception: Exception) {
     exception.showError(content)
     if (exception.cause is ExpiredChallengeException || exception.cause is AlreadyUpdatedChallengeException) {
-      activity?.finish()
+      challengeViewModel.loadChallenge(challengeSid, factorSid)
     }
   }
 
