@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Twilio Inc.
+ * Copyright (c) 2021 Twilio Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.twilio.security.crypto.key.template
+package com.twilio.security.crypto.key.authentication
 
-internal interface Template {
-  val alias: String
-  val algorithm: String
-  val shouldExist: Boolean
-  val authenticationRequired: Boolean
+import java.security.Signature
+import javax.crypto.Cipher
+
+interface Authenticator {
+  fun startAuthentication(signatureObject: Signature, success: (Signature) -> Unit, error: (Exception) -> Unit)
+  fun startAuthentication(cipherObject: Cipher, success: (Cipher) -> Unit, error: (Exception) -> Unit)
 }
