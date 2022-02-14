@@ -19,6 +19,8 @@ package com.twilio.verify.domain.challenge
 import android.content.Context
 import com.twilio.security.logger.Level
 import com.twilio.security.logger.Logger
+import com.twilio.verify.EmptyChallengeSidException
+import com.twilio.verify.InvalidUpdateChallengePayloadException
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InitializationError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
@@ -50,7 +52,13 @@ internal class ChallengeFacade(
       try {
         if (sid.isBlank()) {
           throw TwilioVerifyException(
-            IllegalArgumentException("Empty challenge sid").also { Logger.log(Level.Error, it.toString(), it) },
+            EmptyChallengeSidException.also {
+              Logger.log(
+                Level.Error,
+                it.toString(),
+                it
+              )
+            },
             InputError
           )
         }
@@ -97,7 +105,10 @@ internal class ChallengeFacade(
       { factor ->
         execute(success, error) { onSuccess, onError ->
           repository.getAll(
-            factor, challengeListPayload.status, challengeListPayload.pageSize, challengeListPayload.order,
+            factor,
+            challengeListPayload.status,
+            challengeListPayload.pageSize,
+            challengeListPayload.order,
             challengeListPayload.pageToken,
             { list ->
               onSuccess(list)
@@ -121,14 +132,24 @@ internal class ChallengeFacade(
     try {
       val status = (updateChallengePayload as? UpdatePushChallengePayload)?.status
         ?: throw TwilioVerifyException(
-          IllegalArgumentException(
-            "Invalid update challenge input for factor ${factor.type}"
-          ).also { Logger.log(Level.Error, it.toString(), it) },
+          InvalidUpdateChallengePayloadException(factor.type).also {
+            Logger.log(
+              Level.Error,
+              it.toString(),
+              it
+            )
+          },
           InputError
         )
       if (updateChallengePayload.challengeSid.isBlank()) {
         throw TwilioVerifyException(
-          IllegalArgumentException("Empty challenge sid").also { Logger.log(Level.Error, it.toString(), it) },
+          EmptyChallengeSidException.also {
+            Logger.log(
+              Level.Error,
+              it.toString(),
+              it
+            )
+          },
           InputError
         )
       }

@@ -16,6 +16,8 @@
 
 package com.twilio.verify
 
+import com.twilio.verify.models.FactorType
+
 private const val NETWORK_CODE = 60401
 private const val MAPPER_CODE = 60402
 private const val STORAGE_CODE = 60403
@@ -83,3 +85,22 @@ class TwilioVerifyException(
     AuthenticationTokenError("{$AUTHENTICATION_TOKEN_CODE} Exception while generating token")
   }
 }
+
+/**
+ * Exception types returned as cause for a [TwilioVerifyException] and [InputError] code on validation errors.
+ *
+ * @param message associated message of the exception.
+ */
+sealed class InputException(override val message: String) : Exception(message)
+object ExpiredChallengeException : InputException("Expired challenge can not be updated")
+object AlreadyUpdatedChallengeException : InputException("Responded challenge can not be updated")
+object NotUpdatedChallengeException : InputException("Challenge was not updated")
+object InvalidChallengeException : InputException("Invalid challenge for received factor")
+object EmptyChallengeSidException : InputException("Empty challenge sid")
+data class InvalidUpdateChallengePayloadException(private val factorType: FactorType) :
+  InputException("Invalid update challenge payload for factor $factorType")
+
+object EmptyFactorSidException : InputException("Empty factor sid")
+object WrongFactorException : InputException("Wrong factor for challenge")
+object InvalidFactorException : InputException("Invalid factor")
+object SignatureFieldsException : InputException("Signature fields or response not set")

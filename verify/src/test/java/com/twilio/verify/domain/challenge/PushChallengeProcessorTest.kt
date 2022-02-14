@@ -10,14 +10,21 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.AlreadyUpdatedChallengeException
+import com.twilio.verify.ExpiredChallengeException
 import com.twilio.verify.IdlingResource
+import com.twilio.verify.InvalidChallengeException
+import com.twilio.verify.NotUpdatedChallengeException
+import com.twilio.verify.SignatureFieldsException
 import com.twilio.verify.TwilioVerifyException
+import com.twilio.verify.WrongFactorException
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.challenge.models.FactorChallenge
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Denied
+import com.twilio.verify.models.ChallengeStatus.Expired
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
 import org.json.JSONException
@@ -233,7 +240,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InvalidChallengeException)
         idlingResource.operationFinished()
       }
     )
@@ -260,7 +267,62 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is WrongFactorException)
+        idlingResource.operationFinished()
+      }
+    )
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update challenge with expired status should call error`() {
+    val sid = "sid123"
+    val factor: PushFactor = mock()
+    val challenge: FactorChallenge = mock()
+    whenever(challenge.status).thenReturn(Expired)
+    whenever(challenge.factor).thenReturn(factor)
+    argumentCaptor<(Challenge) -> Unit>().apply {
+      whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(challenge)
+      }
+    }
+    idlingResource.startOperation()
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is ExpiredChallengeException)
+        idlingResource.operationFinished()
+      }
+    )
+    idlingResource.waitForIdle()
+  }
+
+  @Test
+  fun `Update challenge with responded status should call error`() {
+    val sid = "sid123"
+    val factor: PushFactor = mock()
+    val challenge: FactorChallenge = mock()
+    whenever(challenge.status).thenReturn(Denied)
+    whenever(challenge.factor).thenReturn(factor)
+    argumentCaptor<(Challenge) -> Unit>().apply {
+      whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
+        firstValue.invoke(challenge)
+      }
+    }
+    whenever(factor.keyPairAlias).thenReturn("")
+    idlingResource.startOperation()
+    pushChallengeProcessor.update(
+      sid, factor, Approved,
+      {
+        fail()
+        idlingResource.operationFinished()
+      },
+      { exception ->
+        assertTrue(exception.cause is AlreadyUpdatedChallengeException)
         idlingResource.operationFinished()
       }
     )
@@ -350,7 +412,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is SignatureFieldsException)
         idlingResource.operationFinished()
       }
     )
@@ -384,7 +446,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is SignatureFieldsException)
         idlingResource.operationFinished()
       }
     )
@@ -421,7 +483,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is SignatureFieldsException)
         idlingResource.operationFinished()
       }
     )
@@ -459,7 +521,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is SignatureFieldsException)
         idlingResource.operationFinished()
       }
     )
@@ -548,14 +610,24 @@ class PushChallengeProcessorTest {
   @Test
   fun `Update challenge with updated challenge's status different than sent should call error`() {
     val sid = "sid123"
+    val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val challenge: FactorChallenge = mock()
+    val response = JSONObject().apply {
+      put(sidKey, sid)
+      put(factorSidKey, factorSid)
+    }
+    val challenge: FactorChallenge = FactorChallenge(
+      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
+      response.keys()
+        .asSequence()
+        .toList(),
+      response
+    ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
     val verifyJwt = "verifyJwt"
     val status = Approved
-    whenever(challenge.status).thenReturn(Pending)
-    whenever(challenge.factor).thenReturn(factor)
+    whenever(updatedChallenge.status).thenReturn(Pending)
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(challenge)
@@ -575,7 +647,6 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     whenever(jwtGenerator.generateJWT(any(), any(), any())).thenReturn(verifyJwt)
-    whenever(updatedChallenge.status).thenReturn(Denied)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
       sid, factor, status,
@@ -584,7 +655,7 @@ class PushChallengeProcessorTest {
         idlingResource.operationFinished()
       },
       { exception ->
-        assertTrue(exception.cause is IllegalStateException)
+        assertTrue(exception.cause is NotUpdatedChallengeException)
         idlingResource.operationFinished()
       }
     )

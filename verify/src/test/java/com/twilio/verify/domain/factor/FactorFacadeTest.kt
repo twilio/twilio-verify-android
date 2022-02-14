@@ -11,7 +11,9 @@ import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.EmptyFactorSidException
 import com.twilio.verify.IdlingResource
+import com.twilio.verify.InputException
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.InputError
 import com.twilio.verify.TwilioVerifyException.ErrorCode.StorageError
@@ -227,7 +229,7 @@ class FactorFacadeTest {
     factorFacade.updateFactor(
       updateFactorPayload, { fail() },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is EmptyFactorSidException)
       }
     )
   }
@@ -299,7 +301,7 @@ class FactorFacadeTest {
     factorFacade.getFactor(
       "", { fail() },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InputException)
       }
     )
   }

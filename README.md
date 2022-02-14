@@ -160,7 +160,7 @@ You may want to log only certain processes that are happening in the SDK, or you
 
 ### Usage
 To start logging, enable the default logging service or/and pass your custom implementations
-```
+```kotlin
 TwilioVerify.Builder(applicationContext).apply {
   if (BuildConfig.DEBUG) {
     enableDefaultLoggingService(LogLevel.Debug)
@@ -186,7 +186,7 @@ Authentication Token | 60407 | Exception while generating token
 ### Getting Verify API errors
 You can control Verify API error codes listed [here](https://www.twilio.com/docs/api/errors) by following the next example:
 
-```
+```kotlin
 twilioVerify.createFactor(factorPayload, { factor ->
   // Success
 }, { exception ->
@@ -199,11 +199,24 @@ twilioVerify.createFactor(factorPayload, { factor ->
 
 Check an example [here](https://github.com/twilio/twilio-verify-android/blob/main/sample/src/main/java/com/twilio/verify/sample/view/factors/create/CreateFactorFragment.kt#L147)
 
+### Getting the exception's cause
+You can get the cause for an error accesing the associated exception
+```kotlin
+twilioVerify.updateChallenge(updateChallengePayload, {
+  // Success
+}, { exception ->
+  if (exception.cause is ExpiredChallengeException) {
+    // Handle expired challenge case
+  }
+})
+```
+You can find the associated exceptions for validations [here](https://github.com/twilio/twilio-verify-android/blob/main/verify/src/main/java/com/twilio/verify/TwilioVerifyException.kt#L94)
+
 <a name='UpdatePushToken'></a>
 
 ## Update factor's push token
 You can update the factor's push token in case it changed, calling the `TwilioVerify.updateFactor` method:
-```
+```kotlin
 val updateFactorPayload = UpdatePushFactorPayload(factorSid, newPushtoken)
 twilioVerify.updateFactor(updateFactorPayload, { factor ->
   // Success
@@ -218,7 +231,7 @@ Firebase provides a method to be notified when the push token is updated. See [F
 
 ## Delete a factor
 You can delete a factor calling the `TwilioVerify.deleteFactor` method:
-```
+```kotlin
 twilioVerify.deleteFactor(factorSid, {
   // Success
 }, { exception ->
@@ -230,7 +243,7 @@ twilioVerify.deleteFactor(factorSid, {
 
 ## Clear local storage
 You can clear local storage calling the `TwilioVerify.clearLocalStorage` method:
-```
+```kotlin
 twilioVerify.clearLocalStorage {
   // Operation finished
 }
