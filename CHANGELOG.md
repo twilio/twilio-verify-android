@@ -1,3 +1,19 @@
+# 0.7.0 (2022-02-24)
+
+### Features
+- Improve input error to provide reason of failure (#203) ([d2a9169](https://github.com/twilio/twilio-verify-android/commit/d2a9169940bc921cdef5dfbc765af2e311ed4001))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 76.6KB          |
+| x86_64          | 76.6KB          |
+| armeabi-v7a     | 76.6KB          |
+| arm64-v8a       | 76.6KB          |
+| universal       | 76.6KB          |
+
+
 # 0.6.1 (2022-01-18)
 
 ### Bug fixes
