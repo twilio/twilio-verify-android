@@ -32,7 +32,7 @@ val securityVersionCode: String by extra
 //region Android
 android {
   compileSdkVersion(Config.Versions.compileSDKVersion)
-
+  testOptions.unitTests.isIncludeAndroidResources = true
   defaultConfig {
     minSdkVersion(Config.Versions.minSDKVersion)
     targetSdkVersion(Config.Versions.targetSDKVersion)
@@ -117,10 +117,14 @@ signing {
 
 dependencies {
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
+  compileOnly("androidx.biometric:biometric:1.1.0")
   testImplementation("junit:junit:4.12")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-  testImplementation("org.robolectric:robolectric:4.3.1")
+  testImplementation("org.robolectric:robolectric:4.4")
+  testImplementation("androidx.test:core:1.2.0")
+  testImplementation("org.hamcrest:hamcrest-library:1.3")
   testImplementation("org.mockito:mockito-inline:2.28.2")
+  testImplementation("androidx.biometric:biometric:1.1.0")
   androidTestImplementation("androidx.test.ext:junit:1.1.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
 }

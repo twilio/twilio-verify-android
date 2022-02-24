@@ -134,7 +134,7 @@ class AndroidKeyManager(
     return getCipherKey(
       template.alias
     ).takeIf {
-      key != null && key == it
+      key != null && key == it && androidKeyStore.contains(template.alias)
     } ?: throw IllegalArgumentException("New secret key not found")
   }
 

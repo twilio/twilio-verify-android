@@ -28,7 +28,8 @@ sealed class SignerTemplate : Template {
 
 data class ECP256SignerTemplate(
   override val alias: String,
-  override val shouldExist: Boolean = false
+  override val shouldExist: Boolean = false,
+  override val authenticationRequired: Boolean = false
 ) : SignerTemplate() {
   override val algorithm = KeyProperties.KEY_ALGORITHM_EC
   override val keyGenParameterSpec: KeyGenParameterSpec =
@@ -36,6 +37,7 @@ data class ECP256SignerTemplate(
       ECGenParameterSpec("secp256r1")
     )
       .setDigests(KeyProperties.DIGEST_SHA256)
+      .setUserAuthenticationRequired(authenticationRequired)
       .build()
   override val signatureAlgorithm = "SHA256withECDSA"
 }

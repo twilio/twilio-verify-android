@@ -23,6 +23,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.twilio.verify.AlreadyUpdatedChallengeException
+import com.twilio.verify.ExpiredChallengeException
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.Factor
@@ -92,6 +94,7 @@ class ChallengeFragment : Fragment() {
             }
           }
         )
+      factorViewModel.loadFactor(factorSid)
       challengeViewModel.getChallenge()
         .observe(
           viewLifecycleOwner,
@@ -100,11 +103,17 @@ class ChallengeFragment : Fragment() {
             denyButton.isEnabled = true
             when (it) {
               is com.twilio.verify.sample.viewmodel.Challenge -> showChallenge(it.challenge)
-              is ChallengeError -> it.exception.showError(content)
+              is ChallengeError -> handleError(it.exception)
             }
           }
         )
-      factorViewModel.loadFactor(factorSid)
+      challengeViewModel.loadChallenge(challengeSid, factorSid)
+    }
+  }
+
+  private fun handleError(exception: Exception) {
+    exception.showError(content)
+    if (exception.cause is ExpiredChallengeException || exception.cause is AlreadyUpdatedChallengeException) {
       challengeViewModel.loadChallenge(challengeSid, factorSid)
     }
   }

@@ -10,6 +10,9 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import com.twilio.verify.AlreadyUpdatedChallengeException
+import com.twilio.verify.ExpiredChallengeException
+import com.twilio.verify.InputException
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.api.ChallengeAPIClient
 import com.twilio.verify.domain.challenge.models.FactorChallenge
@@ -17,6 +20,7 @@ import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
 import com.twilio.verify.models.ChallengeListOrder.Asc
 import com.twilio.verify.models.ChallengeListOrder.Desc
+import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.ChallengeStatus.Expired
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Factor
@@ -160,7 +164,7 @@ class ChallengeRepositoryTest {
     challengeRepository.get(
       sid, factor, { fail() },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InputException)
       }
     )
   }
@@ -195,7 +199,7 @@ class ChallengeRepositoryTest {
     challengeRepository.get(
       sid, factor, { fail() },
       { exception ->
-        assertTrue(exception.cause is IllegalArgumentException)
+        assertTrue(exception.cause is InputException)
       }
     )
   }
@@ -261,7 +265,7 @@ class ChallengeRepositoryTest {
     }
     challengeRepository.update(
       challenge, payload, { fail() },
-      { exception -> assertTrue(exception.cause is IllegalArgumentException) }
+      { exception -> assertTrue(exception.cause is InputException) }
     )
   }
 
@@ -277,7 +281,23 @@ class ChallengeRepositoryTest {
     }
     challengeRepository.update(
       challenge, payload, { fail() },
-      { exception -> assertTrue(exception.cause is IllegalArgumentException) }
+      { exception -> assertTrue(exception.cause is ExpiredChallengeException) }
+    )
+  }
+
+  @Test
+  fun `Update responded challenge should call error`() {
+    val payload = "payload123"
+    val challenge: FactorChallenge = mock()
+    whenever(challenge.status).thenReturn(Approved)
+    argumentCaptor<() -> Unit>().apply {
+      whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
+        firstValue.invoke()
+      }
+    }
+    challengeRepository.update(
+      challenge, payload, { fail() },
+      { exception -> assertTrue(exception.cause is AlreadyUpdatedChallengeException) }
     )
   }
 
