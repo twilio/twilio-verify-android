@@ -119,7 +119,7 @@ class TwilioVerifyKotlinAdapter(
     return when (accessTokenResponse.getFactorType()) {
       PUSH -> PushFactorPayload(
         createFactorData.factorName, accessTokenResponse.serviceSid,
-        accessTokenResponse.identity, createFactorData.pushToken, accessTokenResponse.token
+        accessTokenResponse.identity, createFactorData.pushToken, accessTokenResponse.token, createFactorData.metadata
       )
       else -> throw IllegalStateException("Unexpected value: " + accessTokenResponse.factorType)
     }

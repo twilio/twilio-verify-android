@@ -55,6 +55,11 @@ interface Factor {
    * Indicates the creation date of the Factor.
    */
   val createdAt: Date
+
+  /**
+   * Custom metadata associated with the factor when created
+   */
+  val metadata: Map<String, String>?
 }
 
 /**

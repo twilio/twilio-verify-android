@@ -123,12 +123,13 @@ class CreateFactorFragment : Fragment() {
     createFactorButton.isEnabled = false
     val pushToken = if (includePushTokenCheck.isChecked) token else null
     val createFactorData =
-      CreateFactorData(identity, "$identity's factor", accessTokenUrl, pushToken)
+      CreateFactorData(identity, "$identity's factor", accessTokenUrl, pushToken, mapOf("os" to "Android"))
     factorViewModel.createFactor(createFactorData)
   }
 
   private fun onSuccess(factor: Factor) {
-    Snackbar.make(content, "Factor ${factor.sid} created", LENGTH_SHORT).show()
+    Snackbar.make(content, "Factor ${factor.sid} created", LENGTH_SHORT)
+      .show()
     findNavController().navigate(R.id.action_show_new_factor)
   }
 
@@ -150,7 +151,8 @@ class CreateFactorFragment : Fragment() {
         content,
         "Code: ${it.code} - ${it.message}",
         BaseTransientBottomBar.LENGTH_LONG
-      ).show()
+      )
+        .show()
     } ?: exception.showError(content)
   }
 }

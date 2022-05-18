@@ -31,7 +31,8 @@ internal class PushFactor(
   override val identity: String,
   override var status: FactorStatus = Unverified,
   override val createdAt: Date,
-  val config: Config
+  val config: Config,
+  override val metadata: Map<String, String>? = null
 ) : Factor {
   override val type: FactorType = PUSH
 

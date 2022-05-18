@@ -130,7 +130,7 @@ public class TwilioVerifyJavaAdapter implements TwilioVerifyAdapter {
         return new PushFactorPayload(createFactorData.getFactorName(),
             accessTokenResponse.getServiceSid(),
             accessTokenResponse.getIdentity(), createFactorData.getPushToken(),
-            accessTokenResponse.getToken());
+            accessTokenResponse.getToken(), createFactorData.getMetadata());
       default:
         throw new IllegalStateException("Unexpected value: " + accessTokenResponse.getFactorType());
     }
