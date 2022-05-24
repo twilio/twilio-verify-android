@@ -56,6 +56,7 @@ internal const val FRIENDLY_NAME_KEY = "FriendlyName"
 internal const val FACTOR_TYPE_KEY = "FactorType"
 internal const val BINDING_KEY = "Binding"
 internal const val CONFIG_KEY = "Config"
+internal const val METADATA_KEY = "Metadata"
 internal const val AUTHENTICATION_USER = "token"
 
 internal class FactorAPIClient(
@@ -254,6 +255,7 @@ internal class FactorAPIClient(
     ).apply {
       putAll(createFactorPayload.binding.map { "$BINDING_KEY.${it.key}" to it.value })
       putAll(createFactorPayload.config.map { "$CONFIG_KEY.${it.key}" to it.value })
+      put(METADATA_KEY, createFactorPayload.metadata?.let { JSONObject(it) }.toString())
     }
 
   private fun verifyFactorBody(

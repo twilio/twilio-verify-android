@@ -45,6 +45,7 @@ internal const val identityKey = "entity_identity"
 internal const val keyPairAliasKey = "key_pair"
 internal const val dateCreatedKey = "date_created"
 internal const val notificationPlatformKey = "notification_platform"
+internal const val metadataKey = "metadata"
 
 internal class FactorMapper {
 
@@ -128,6 +129,11 @@ internal class FactorMapper {
               .put(notificationPlatformKey, factor.config.notificationPlatform.value)
           )
           .put(dateCreatedKey, toRFC3339Date(factor.createdAt))
+          .apply {
+            factor.metadata?.let {
+              put(metadataKey, JSONObject(it))
+            }
+          }
           .toString()
     }
   }
@@ -158,7 +164,10 @@ internal class FactorMapper {
               notificationPlatformKey
             )
           } ?: NotificationPlatform.FCM
-        )
+        ),
+        metadata = jsonObject.optJSONObject(metadataKey)?.let {
+          it.keys().asSequence().associateWith { key -> it.getString(key) }
+        }
       )
     } catch (e: JSONException) {
       Logger.log(Level.Error, e.toString(), e)

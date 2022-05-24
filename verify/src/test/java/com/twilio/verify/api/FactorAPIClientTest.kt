@@ -42,6 +42,7 @@ import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
 import java.net.URL
 import java.util.Date
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -159,19 +160,21 @@ class FactorAPIClientTest {
       NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
       NOTIFICATION_TOKEN_KEY to pushToken
     )
+    val metadata = mapOf("os" to "Android")
     val expectedBody = mutableMapOf(
       FRIENDLY_NAME_KEY to friendlyNameMock,
       FACTOR_TYPE_KEY to factorTypeMock.factorTypeName
     ).apply {
       putAll(binding.map { "$BINDING_KEY.${it.key}" to it.value })
       putAll(config.map { "$CONFIG_KEY.${it.key}" to it.value })
+      put(METADATA_KEY, JSONObject(metadata).toString())
     }
 
     val factorPayload =
       CreateFactorPayload(
         friendlyNameMock, factorTypeMock,
         serviceSid,
-        identity, config, binding, "accessToken"
+        identity, config, binding, "accessToken", metadata
       )
 
     factorAPIClient.create(factorPayload, {}, {})

@@ -20,5 +20,6 @@ data class CreateFactorData(
   val identity: String,
   val factorName: String,
   val accessTokenUrl: String,
-  val pushToken: String?
+  val pushToken: String?,
+  val metadata: Map<String, String>? = null
 )

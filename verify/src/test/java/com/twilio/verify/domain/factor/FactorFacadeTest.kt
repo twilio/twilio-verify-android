@@ -4,6 +4,7 @@
 package com.twilio.verify.domain.factor
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -48,7 +49,7 @@ class FactorFacadeTest {
       whenever(
         pushFactory.create(
           eq(factorPayload.accessToken), eq(factorPayload.friendlyName), eq(factorPayload.serviceSid),
-          eq(factorPayload.identity), eq(factorPayload.pushToken), capture(), any()
+          eq(factorPayload.identity), eq(factorPayload.pushToken), anyOrNull(), capture(), any()
         )
       ).then {
         firstValue.invoke(expectedFactor)
@@ -78,7 +79,7 @@ class FactorFacadeTest {
       whenever(
         pushFactory.create(
           eq(factorPayload.accessToken), eq(factorPayload.friendlyName), eq(factorPayload.serviceSid),
-          eq(factorPayload.identity), eq(factorPayload.pushToken), any(), capture()
+          eq(factorPayload.identity), eq(factorPayload.pushToken), anyOrNull(), any(), capture()
         )
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
