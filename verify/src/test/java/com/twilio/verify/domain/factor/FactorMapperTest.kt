@@ -40,6 +40,7 @@ class FactorMapperTest {
       CreateFactorPayload(
         "factor name", PUSH, "serviceSid123", "identity123", emptyMap(), emptyMap(), "accessToken"
       )
+    val metadata = mapOf("os" to "Android")
     val jsonObject = JSONObject()
       .put(sidKey, "sid123")
       .put(friendlyNameKey, "factor name")
@@ -47,6 +48,7 @@ class FactorMapperTest {
       .put(statusKey, Unverified.value)
       .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
       .put(dateCreatedKey, toRFC3339Date(Date()))
+      .put(metadataKey, JSONObject(metadata))
     val factor = factorMapper.fromApi(jsonObject, factorPayload) as PushFactor
     assertEquals(factorPayload.type, factor.type)
     assertEquals(factorPayload.serviceSid, factor.serviceSid)
@@ -56,6 +58,7 @@ class FactorMapperTest {
     assertEquals(jsonObject.getString(accountSidKey), factor.accountSid)
     assertEquals(jsonObject.getString(statusKey), factor.status.value)
     assertEquals(jsonObject.getString(dateCreatedKey), toRFC3339Date(factor.createdAt))
+    assertEquals(metadata, factor.metadata)
   }
 
   @Test
@@ -130,6 +133,7 @@ class FactorMapperTest {
 
   @Test
   fun `Map a valid json from storage should return a factor`() {
+    val metadata = mapOf("os" to "Android")
     val jsonObject = JSONObject()
       .put(sidKey, "sid123")
       .put(friendlyNameKey, "factor name")
@@ -141,6 +145,7 @@ class FactorMapperTest {
       .put(statusKey, Unverified.value)
       .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
       .put(dateCreatedKey, toRFC3339Date(Date()))
+      .put(metadataKey, JSONObject(metadata))
     val factor = factorMapper.fromStorage(jsonObject.toString()) as PushFactor
     assertEquals(PUSH, factor.type)
     assertEquals(jsonObject.getString(serviceSidKey), factor.serviceSid)
@@ -150,6 +155,7 @@ class FactorMapperTest {
     assertEquals(jsonObject.getString(keyPairAliasKey), factor.keyPairAlias)
     assertEquals(jsonObject.getString(statusKey), factor.status.value)
     assertEquals(jsonObject.getString(dateCreatedKey), toRFC3339Date(factor.createdAt))
+    assertEquals(metadata, factor.metadata)
   }
 
   @Test
