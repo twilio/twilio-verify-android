@@ -255,7 +255,9 @@ internal class FactorAPIClient(
     ).apply {
       putAll(createFactorPayload.binding.map { "$BINDING_KEY.${it.key}" to it.value })
       putAll(createFactorPayload.config.map { "$CONFIG_KEY.${it.key}" to it.value })
-      put(METADATA_KEY, createFactorPayload.metadata?.let { JSONObject(it) }.toString())
+      createFactorPayload.metadata?.let { JSONObject(it) }?.let {
+        put(METADATA_KEY, it.toString())
+      }
     }
 
   private fun verifyFactorBody(
