@@ -122,8 +122,9 @@ class CreateFactorFragment : Fragment() {
   ) {
     createFactorButton.isEnabled = false
     val pushToken = if (includePushTokenCheck.isChecked) token else null
+    val metadata = if (!includePushTokenCheck.isChecked) mapOf("os" to "Android") else null
     val createFactorData =
-      CreateFactorData(identity, "$identity's factor", accessTokenUrl, pushToken, mapOf("os" to "Android"))
+      CreateFactorData(identity, "$identity's factor", accessTokenUrl, pushToken, metadata)
     factorViewModel.createFactor(createFactorData)
   }
 
