@@ -218,6 +218,20 @@ class FactorMapperTest {
   }
 
   @Test
+  fun `Map a factor with metadata to JSON should return complete factor data as JSONObject`() {
+    val metadata = mapOf("os" to "Android")
+    val factor = PushFactor(
+      sid = "sid123", friendlyName = "factor name", accountSid = "accountSid123",
+      serviceSid = "serviceSid123", identity = "identity123", status = Unverified,
+      createdAt = Date(), config = Config("credentialSid"), metadata = metadata
+    ).apply { keyPairAlias = "keyPairAlias123" }
+    val json = factorMapper.toJSON(factor)
+    val jsonObject = JSONObject(json)
+    assertEquals(PUSH.factorTypeName, jsonObject.getString(typeKey))
+    assertEquals(JSONObject(metadata).toString(), jsonObject.getJSONObject(metadataKey).toString())
+  }
+
+  @Test
   fun `Evaluate is factor for valid json should return true`() {
     val jsonObject = JSONObject()
       .put(sidKey, "sid123")
