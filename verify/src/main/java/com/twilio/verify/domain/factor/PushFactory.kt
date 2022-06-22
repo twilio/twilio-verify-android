@@ -52,6 +52,7 @@ internal class PushFactory(
     serviceSid: String,
     identity: String,
     pushToken: String?,
+    metadata: Map<String, String>?,
     success: (Factor) -> Unit,
     error: (TwilioVerifyException) -> Unit
   ) {
@@ -63,7 +64,7 @@ internal class PushFactory(
       val config = config(pushToken)
       val createFactorPayload = CreateFactorPayload(
         friendlyName, PUSH, serviceSid,
-        identity, config, binding, accessToken
+        identity, config, binding, accessToken, metadata
       )
       Logger.log(Level.Debug, "Create push factor for $createFactorPayload")
 

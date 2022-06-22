@@ -55,6 +55,11 @@ interface Factor {
    * Indicates the creation date of the Factor.
    */
   val createdAt: Date
+
+  /**
+   * Custom metadata associated with the factor when created. This is added by the Device/SDK directly to allow for the inclusion of device information.
+   */
+  val metadata: Map<String, String>?
 }
 
 /**
