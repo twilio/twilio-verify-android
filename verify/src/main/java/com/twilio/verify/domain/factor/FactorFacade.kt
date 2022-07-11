@@ -56,7 +56,7 @@ internal class FactorFacade(
         is PushFactorPayload -> {
           pushFactory.create(
             factorPayload.accessToken, factorPayload.friendlyName, factorPayload.serviceSid,
-            factorPayload.identity, factorPayload.pushToken, onSuccess, onError
+            factorPayload.identity, factorPayload.pushToken, factorPayload.metadata, onSuccess, onError
           )
         }
       }

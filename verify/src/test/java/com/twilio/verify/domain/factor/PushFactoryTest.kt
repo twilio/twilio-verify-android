@@ -78,7 +78,7 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, pushToken,
+      accessToken, friendlyName, serviceSid, identity, pushToken, null,
       {
         verify(factorProvider).create(
           check { pushFactor ->
@@ -139,7 +139,7 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, null,
+      accessToken, friendlyName, serviceSid, identity, null, null,
       {
         verify(factorProvider).create(
           check { pushFactor ->
@@ -200,7 +200,7 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, "",
+      accessToken, friendlyName, serviceSid, identity, "", null,
       {
         verify(factorProvider).create(
           check { pushFactor ->
@@ -241,7 +241,7 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, pushToken, serviceSid, identity,
+      accessToken, friendlyName, pushToken, serviceSid, identity, null,
       {
         fail()
         idlingResource.operationFinished()
@@ -278,7 +278,7 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, pushToken,
+      accessToken, friendlyName, serviceSid, identity, pushToken, null,
       {
         fail()
         idlingResource.operationFinished()
@@ -316,7 +316,7 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, pushToken,
+      accessToken, friendlyName, serviceSid, identity, pushToken, null,
       {
         fail()
         idlingResource.operationFinished()

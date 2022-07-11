@@ -1,3 +1,19 @@
+# 0.8.0 (2022-06-22)
+
+### Features
+- Allow sending custom metadata when creating a factor ([71ca610](https://github.com/twilio/twilio-verify-android/commit/71ca61078be40f31799f4909fe25fa69883b540e))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 77.2KB          |
+| x86_64          | 77.2KB          |
+| armeabi-v7a     | 77.2KB          |
+| arm64-v8a       | 77.2KB          |
+| universal       | 77.2KB          |
+
+
 # 0.7.0 (2022-02-24)
 
 ### Features

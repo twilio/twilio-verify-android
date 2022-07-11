@@ -42,6 +42,7 @@ import com.twilio.verify.networking.Response
 import com.twilio.verify.networking.userAgent
 import java.net.URL
 import java.util.Date
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -172,6 +173,58 @@ class FactorAPIClientTest {
         friendlyNameMock, factorTypeMock,
         serviceSid,
         identity, config, binding, "accessToken"
+      )
+
+    factorAPIClient.create(factorPayload, {}, {})
+    val requestCaptor = argumentCaptor<Request>().apply {
+      verify(networkProvider).execute(capture(), any(), any())
+    }
+
+    requestCaptor.firstValue.apply {
+      assertEquals(URL(expectedURL), url)
+      assertEquals(HttpMethod.Post, httpMethod)
+      assertEquals(expectedBody, body)
+      assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
+      assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
+      assertTrue(headers.containsKey(AuthorizationHeader))
+      assertTrue(headers.containsKey(userAgent))
+    }
+  }
+
+  @Test
+  fun `Create factor request with metadata should match to the expected params`() {
+    val serviceSid = "serviceSid"
+    val identity = "identity"
+    val expectedURL = "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, serviceSid, true)
+      .replace(
+        IDENTITY_PATH, identity
+      )
+    val friendlyNameMock = "Test"
+    val factorTypeMock = PUSH
+    val pushToken = "ABCD"
+    val publicKey = "12345"
+    val binding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
+    val config = mapOf(
+      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+      APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+      NOTIFICATION_TOKEN_KEY to pushToken
+    )
+    val metadata = mapOf("os" to "Android")
+    val expectedBody = mutableMapOf(
+      FRIENDLY_NAME_KEY to friendlyNameMock,
+      FACTOR_TYPE_KEY to factorTypeMock.factorTypeName
+    ).apply {
+      putAll(binding.map { "$BINDING_KEY.${it.key}" to it.value })
+      putAll(config.map { "$CONFIG_KEY.${it.key}" to it.value })
+      put(METADATA_KEY, JSONObject(metadata).toString())
+    }
+
+    val factorPayload =
+      CreateFactorPayload(
+        friendlyNameMock, factorTypeMock,
+        serviceSid,
+        identity, config, binding, "accessToken", metadata
       )
 
     factorAPIClient.create(factorPayload, {}, {})
