@@ -35,7 +35,7 @@ fun Throwable.showError(
     message = "$message. ${it.message}"
   }
   val snackbar = Snackbar.make(content, message, Snackbar.LENGTH_INDEFINITE)
-  snackbar.setAction(R.string.dismiss){
+  snackbar.setAction(R.string.dismiss) {
     snackbar.dismiss()
   }
   snackbar.show()

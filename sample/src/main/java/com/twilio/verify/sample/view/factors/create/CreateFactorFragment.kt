@@ -152,7 +152,7 @@ class CreateFactorFragment : Fragment() {
         "Code: ${it.code} - ${it.message}",
         BaseTransientBottomBar.LENGTH_INDEFINITE
       )
-      snackbar.setAction(R.string.dismiss){
+      snackbar.setAction(R.string.dismiss) {
         snackbar.dismiss()
       }
       snackbar.show()
