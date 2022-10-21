@@ -21,10 +21,10 @@ import android.text.format.DateUtils
 import android.text.format.DateUtils.FORMAT_SHOW_DATE
 import android.text.format.DateUtils.FORMAT_SHOW_TIME
 import android.view.View
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.twilio.verify.InputException
 import com.twilio.verify.models.ChallengeDetails
+import com.twilio.verify.sample.R
 
 fun Throwable.showError(
   content: View
@@ -34,7 +34,11 @@ fun Throwable.showError(
   (cause as? InputException)?.let {
     message = "$message. ${it.message}"
   }
-  Snackbar.make(content, message, BaseTransientBottomBar.LENGTH_LONG).show()
+  val snackbar = Snackbar.make(content, message, Snackbar.LENGTH_INDEFINITE)
+  snackbar.setAction(R.string.dismiss){
+    snackbar.dismiss()
+  }
+  snackbar.show()
 }
 
 fun ChallengeDetails.string(context: Context?): String {

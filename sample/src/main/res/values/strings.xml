@@ -39,4 +39,5 @@
   <string name="challenge_expire_on">Expire on:</string>
   <string name="silent_approve">Silently approve challenges</string>
   <string name="include_push_token">Enable push notifications</string>
+  <string name="dismiss">Dismiss</string>
 </resources>
