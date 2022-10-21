@@ -226,7 +226,7 @@ jobs:
       - run:
           name: Run security integration tests on single device
           command:
-            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ftl/dummy.apk --test builds/security-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/security-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
   verify_instrumentation_tests_single_device:
     executor: *executor
     steps:
@@ -238,7 +238,7 @@ jobs:
       - run:
           name: Run verify integration tests on single device
           command:
-            sudo gcloud firebase test android run --project twilio-firebase-266721 --type instrumentation --app ftl/dummy.apk --test builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
   security_instrumentation_tests_multiple_devices:
     executor: *executor
     steps:
@@ -253,7 +253,7 @@ jobs:
       - run:
           name: Run security integration tests on multiple devices
           command:
-            sudo gcloud firebase test android run --project twilio-firebase-266721 ftl/security-ftl-config.yaml:twilio-security-tests
+            sudo gcloud firebase test android run --project twilioverify-sampleapp ftl/security-ftl-config.yaml:twilio-security-tests
   verify_instrumentation_tests_multiple_devices:
     executor: *executor
     steps:
@@ -268,7 +268,7 @@ jobs:
       - run:
           name: Run verify integration tests on multiple devices
           command:
-            sudo gcloud firebase test android run --project twilio-firebase-266721 ftl/verify-ftl-config.yaml:twilio-verify-tests
+            sudo gcloud firebase test android run --project twilioverify-sampleapp ftl/verify-ftl-config.yaml:twilio-verify-tests
   sdk_size_report:
     executor: *executor
     steps:
