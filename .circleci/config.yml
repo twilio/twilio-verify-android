@@ -46,7 +46,7 @@ references:
       name: Authorize gcloud and set config defaults
       command: |
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-        sudo gcloud --quiet config set project twilio-firebase-266721
+        sudo gcloud --quiet config set project twilioverify-sampleapp
 
   # Firebase app distribution
   store_gcloud_app_distribution_service: &store_gcloud_app_distribution_service
