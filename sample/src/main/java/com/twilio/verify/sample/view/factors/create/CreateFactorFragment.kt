@@ -26,7 +26,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.iid.FirebaseInstanceId
 import com.twilio.verify.TwilioVerifyException
@@ -150,7 +149,7 @@ class CreateFactorFragment : Fragment() {
       val snackbar = Snackbar.make(
         content,
         "Code: ${it.code} - ${it.message}",
-        BaseTransientBottomBar.LENGTH_INDEFINITE
+        Snackbar.LENGTH_INDEFINITE
       )
       snackbar.setAction(R.string.dismiss) {
         snackbar.dismiss()
