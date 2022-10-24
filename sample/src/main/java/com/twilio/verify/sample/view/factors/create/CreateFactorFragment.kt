@@ -149,7 +149,7 @@ class CreateFactorFragment : Fragment() {
       val snackbar = Snackbar.make(
         content,
         "Code: ${it.code} - ${it.message}",
-        Snackbar.LENGTH_LONG
+        Snackbar.LENGTH_INDEFINITE
       )
       snackbar.setAction(R.string.dismiss) {
         snackbar.dismiss()
