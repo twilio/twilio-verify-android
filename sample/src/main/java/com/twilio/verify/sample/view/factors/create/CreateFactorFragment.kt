@@ -26,8 +26,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.iid.FirebaseInstanceId
 import com.twilio.verify.TwilioVerifyException
@@ -129,7 +127,7 @@ class CreateFactorFragment : Fragment() {
   }
 
   private fun onSuccess(factor: Factor) {
-    Snackbar.make(content, "Factor ${factor.sid} created", LENGTH_SHORT)
+    Snackbar.make(content, "Factor ${factor.sid} created", Snackbar.LENGTH_LONG)
       .show()
     findNavController().navigate(R.id.action_show_new_factor)
   }
@@ -148,12 +146,15 @@ class CreateFactorFragment : Fragment() {
 
   private fun handleNetworkException(exception: TwilioVerifyException) {
     (exception.cause as? NetworkException)?.failureResponse?.apiError?.let {
-      Snackbar.make(
+      val snackbar = Snackbar.make(
         content,
         "Code: ${it.code} - ${it.message}",
-        BaseTransientBottomBar.LENGTH_LONG
+        Snackbar.LENGTH_LONG
       )
-        .show()
+      snackbar.setAction(R.string.dismiss) {
+        snackbar.dismiss()
+      }
+      snackbar.show()
     } ?: exception.showError(content)
   }
 }
