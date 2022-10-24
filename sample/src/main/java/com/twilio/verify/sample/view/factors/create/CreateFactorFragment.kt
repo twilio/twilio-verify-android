@@ -148,12 +148,15 @@ class CreateFactorFragment : Fragment() {
 
   private fun handleNetworkException(exception: TwilioVerifyException) {
     (exception.cause as? NetworkException)?.failureResponse?.apiError?.let {
-      Snackbar.make(
+      val snackbar = Snackbar.make(
         content,
         "Code: ${it.code} - ${it.message}",
         BaseTransientBottomBar.LENGTH_LONG
       )
-        .show()
+      snackbar.setAction("Action") {
+        snackbar.dismiss()
+      }
+      snackbar.show()
     } ?: exception.showError(content)
   }
 }
