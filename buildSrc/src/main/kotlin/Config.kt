@@ -41,6 +41,7 @@ object Config {
     const val signing = "signing"
     const val ktlint = "plugins.ktlint"
     const val gitHooks = "plugins.git-hooks"
+    const val sonarqube = "org.sonarqube"
   }
 
   object Versions {
@@ -55,6 +56,7 @@ object Config {
     const val jacoco = "0.8.5"
     const val apkscale = "0.1.0"
     const val nexus = "1.0.0"
+    const val sonarqube = "3.2.0"
   }
 
   object Groups {
