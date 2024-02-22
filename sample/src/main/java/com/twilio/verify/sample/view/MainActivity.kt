@@ -21,18 +21,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.UpdatePushChallengePayload
+import com.twilio.verify.sample.R
 import com.twilio.verify.sample.R.id
-import com.twilio.verify.sample.R.layout
 import com.twilio.verify.sample.TwilioVerifyAdapter
+import com.twilio.verify.sample.databinding.ActivityMainBinding
 import com.twilio.verify.sample.model.AppModel
 import com.twilio.verify.sample.push.NewChallenge
 import com.twilio.verify.sample.push.VerifyEventBus
 import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
-import kotlinx.android.synthetic.main.activity_main.nav_host_fragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -43,9 +44,13 @@ class MainActivity : AppCompatActivity() {
 
   val twilioVerifyAdapter: TwilioVerifyAdapter by inject()
 
+  private lateinit var binding: ActivityMainBinding
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(layout.activity_main)
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    val view = binding.root
+    setContentView(view)
     showChallengeIfNeeded()
   }
 
@@ -61,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
   private fun showChallengeIfNeeded() {
     if (intent.hasExtra(ARG_FACTOR_SID) && intent.hasExtra(ARG_CHALLENGE_SID)) {
-      showChallenge(intent.getStringExtra(ARG_FACTOR_SID), intent.getStringExtra(ARG_CHALLENGE_SID))
+      showChallenge(intent.getStringExtra(ARG_FACTOR_SID)!!, intent.getStringExtra(ARG_CHALLENGE_SID)!!)
     }
   }
 
@@ -84,8 +89,7 @@ class MainActivity : AppCompatActivity() {
     val bundle = bundleOf(
       ARG_CHALLENGE_SID to challengeSid, ARG_FACTOR_SID to factorSid
     )
-    nav_host_fragment?.findNavController()
-      ?.navigate(id.action_show_challenge, bundle)
+    findNavController(R.id.nav_host_fragment).navigate(id.action_show_challenge, bundle)
   }
 
   private fun approveChallenge(

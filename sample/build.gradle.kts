@@ -19,7 +19,6 @@ plugins {
   id(Config.Plugins.androidApplication)
   id(Config.Plugins.googleServices)
   id(Config.Plugins.kotlinAndroid)
-  id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.firebasePerformance)
   jacoco
 }
@@ -31,11 +30,12 @@ val verifyVersionName: String by rootProject.allprojects.first { it.name == Modu
 val verifyVersionCode: String by rootProject.allprojects.first { it.name == Modules.verify }.extra
 
 android {
-  compileSdkVersion(Config.Versions.compileSDKVersion)
+  namespace = "com.twilio.verify.sample"
+  compileSdk = Config.Versions.compileSDKVersion
   defaultConfig {
     applicationId = "com.twilio.verify.sample"
-    minSdkVersion(Config.Versions.minSDKVersion)
-    targetSdkVersion(Config.Versions.targetSDKVersion)
+    minSdk = Config.Versions.minSDKVersion
+    targetSdk = Config.Versions.targetSDKVersion
     versionCode = verifyVersionCode.toInt()
     versionName = verifyVersionName
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -62,14 +62,18 @@ android {
     }
   }
 
-  lintOptions {
+  lint {
     lintConfig = rootProject.file(".lint/config.xml")
-    isCheckAllWarnings = true
+    checkAllWarnings = true
   }
 
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+  }
+
+  buildFeatures {
+    viewBinding = true
   }
 }
 
@@ -83,9 +87,10 @@ dependencies {
   implementation("androidx.appcompat:appcompat:1.1.0")
   implementation("androidx.core:core-ktx:1.2.0")
   implementation("androidx.constraintlayout:constraintlayout:1.1.3")
-  implementation("com.google.firebase:firebase-analytics:17.4.1")
-  implementation("com.google.firebase:firebase-messaging:20.1.7")
-  implementation("com.google.firebase:firebase-perf:19.0.7")
+  implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+  implementation("com.google.firebase:firebase-messaging-ktx")
+  implementation("com.google.firebase:firebase-analytics-ktx")
+  implementation("com.google.firebase:firebase-perf-ktx")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1")
   implementation("com.squareup.okhttp3:okhttp:4.4.0")
@@ -93,8 +98,7 @@ dependencies {
   implementation("com.google.android.material:material:1.1.0")
   implementation("androidx.navigation:navigation-fragment-ktx:2.2.2")
   implementation("androidx.navigation:navigation-ui-ktx:2.2.2")
-  implementation("io.insert-koin:koin-android:2.2.2")
-  implementation("io.insert-koin:koin-androidx-viewmodel:2.2.2")
+  implementation("io.insert-koin:koin-android:3.5.3")
   testImplementation("junit:junit:4.12")
   testImplementation("org.robolectric:robolectric:4.3.1")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")

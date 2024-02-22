@@ -20,7 +20,6 @@ apply(from = "version.gradle.kts")
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
-  id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.dokka)
   id(Config.Plugins.maven_publish)
   id(Config.Plugins.signing)
@@ -34,17 +33,23 @@ val verifyVersionCode: String by extra
 val baseURL: String by extra
 //region Android
 android {
-  compileSdkVersion(Config.Versions.compileSDKVersion)
+  namespace = "com.twilio.verify"
+  compileSdk = Config.Versions.compileSDKVersion
+
+  buildFeatures {
+    buildConfig = true
+  }
 
   defaultConfig {
-    minSdkVersion(Config.Versions.minSDKVersion)
+    minSdk = Config.Versions.minSDKVersion
     targetSdkVersion(Config.Versions.targetSDKVersion)
-    versionCode = verifyVersionCode.toInt()
-    versionName = verifyVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
     buildConfigField("String", "BASE_URL", baseURL)
+    buildConfigField("String", "VERSION_NAME", "\"$verifyVersionName\"")
+    buildConfigField("String", "VERSION_CODE", "\"$verifyVersionCode\"")
+    version = verifyVersionName
   }
 
   buildTypes {
@@ -60,10 +65,10 @@ android {
     unitTests.isIncludeAndroidResources = true
     unitTests.isReturnDefaultValues = true
   }
-  lintOptions {
+  lint {
     lintConfig = rootProject.file(".lint/config.xml")
     xmlReport = true
-    isCheckAllWarnings = true
+    checkAllWarnings = true
   }
 }
 //endregion
@@ -196,6 +201,10 @@ task("generateSizeReport") {
     targetFile.createNewFile()
     targetFile.writeText(sizeReport)
   }
+}
+
+kotlin {
+  jvmToolchain(17)
 }
 
 dependencies {

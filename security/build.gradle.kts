@@ -19,7 +19,6 @@ apply(from = "../jacoco.gradle.kts")
 plugins {
   id(Config.Plugins.androidLibrary)
   id(Config.Plugins.kotlinAndroid)
-  id(Config.Plugins.kotlinAndroidExtensions)
   id(Config.Plugins.maven_publish)
   id(Config.Plugins.signing)
   jacoco
@@ -31,13 +30,13 @@ val securityVersionCode: String by extra
 
 //region Android
 android {
-  compileSdkVersion(Config.Versions.compileSDKVersion)
+  namespace = "com.twilio.security"
+  compileSdk = Config.Versions.compileSDKVersion
   testOptions.unitTests.isIncludeAndroidResources = true
   defaultConfig {
-    minSdkVersion(Config.Versions.minSDKVersion)
-    targetSdkVersion(Config.Versions.targetSDKVersion)
-    versionCode = securityVersionCode.toInt()
-    versionName = securityVersionName
+    minSdk = Config.Versions.minSDKVersion
+    lint.targetSdk = Config.Versions.targetSDKVersion
+    version = securityVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
@@ -53,10 +52,10 @@ android {
     }
   }
 
-  lintOptions {
+  lint {
     lintConfig = rootProject.file(".lint/config.xml")
     xmlReport = true
-    isCheckAllWarnings = true
+    checkAllWarnings = true
   }
 }
 //endregion
@@ -112,6 +111,10 @@ publishing {
 
 signing {
   sign(publishing.publications)
+}
+
+kotlin {
+  jvmToolchain(17)
 }
 //endregion
 

@@ -27,39 +27,45 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.models.Factor
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.sample.R
+import com.twilio.verify.sample.databinding.FragmentCreateFactorBinding
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.view.showError
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
-import kotlinx.android.synthetic.main.fragment_create_factor.accessTokenUrlInput
-import kotlinx.android.synthetic.main.fragment_create_factor.content
-import kotlinx.android.synthetic.main.fragment_create_factor.createFactorButton
-import kotlinx.android.synthetic.main.fragment_create_factor.identityInput
-import kotlinx.android.synthetic.main.fragment_create_factor.includePushTokenCheck
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CreateFactorFragment : Fragment() {
 
   private lateinit var token: String
-  private val factorViewModel: FactorViewModel by viewModel()
+  private val factorViewModel: FactorViewModel by activityViewModel()
+  private var _binding: FragmentCreateFactorBinding? = null
+  private val binding get() = _binding!!
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(R.layout.fragment_create_factor, container, false)
+    _binding = FragmentCreateFactorBinding.inflate(inflater, container, false)
+    val view = binding.root
+    return view
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    createFactorButton.setOnClickListener {
+    binding.createFactorButton.setOnClickListener {
       startCreateFactor()
     }
     getPushToken()
@@ -67,7 +73,7 @@ class CreateFactorFragment : Fragment() {
       .observe(
         viewLifecycleOwner,
         Observer {
-          createFactorButton.isEnabled = true
+          binding.createFactorButton.isEnabled = true
           when (it) {
             is com.twilio.verify.sample.viewmodel.Factor -> onSuccess(it.factor)
             is FactorError -> showError(it.exception)
@@ -77,39 +83,36 @@ class CreateFactorFragment : Fragment() {
   }
 
   private fun getPushToken() {
-    FirebaseInstanceId.getInstance()
-      .instanceId.addOnCompleteListener(
-        OnCompleteListener { task ->
-          if (!task.isSuccessful) {
-            task.exception?.let { it.showError(content) }
-            return@OnCompleteListener
-          }
-          task.result?.token?.let {
-            token = it
-          }
-        }
-      )
+    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+      if (!task.isSuccessful) {
+        task.exception?.let { it.showError(binding.content) }
+        return@OnCompleteListener
+      }
+      task.result?.let {
+        token = it
+      }
+    })
   }
 
   private fun startCreateFactor() {
     hideKeyboardFrom()
     when {
-      includePushTokenCheck.isChecked && !this::token.isInitialized ->
-        IllegalArgumentException("Invalid push token").showError(content)
-      identityInput.text.toString()
+      binding.includePushTokenCheck.isChecked && !this::token.isInitialized ->
+        IllegalArgumentException("Invalid push token").showError(binding.content)
+      binding.identityInput.text.toString()
         .isEmpty() -> IllegalArgumentException("Invalid identity").showError(
-        content
+        binding.content
       )
-      accessTokenUrlInput.text.toString()
-        .isEmpty() || accessTokenUrlInput.text.toString()
+      binding.accessTokenUrlInput.text.toString()
+        .isEmpty() || binding.accessTokenUrlInput.text.toString()
         .toHttpUrlOrNull() == null ->
         IllegalArgumentException(
           "Invalid access token url"
         ).showError(
-          content
+          binding.content
         )
       else -> {
-        createFactor(identityInput.text.toString(), accessTokenUrlInput.text.toString())
+        createFactor(binding.identityInput.text.toString(), binding.accessTokenUrlInput.text.toString())
       }
     }
   }
@@ -118,36 +121,36 @@ class CreateFactorFragment : Fragment() {
     identity: String,
     accessTokenUrl: String
   ) {
-    createFactorButton.isEnabled = false
-    val pushToken = if (includePushTokenCheck.isChecked) token else null
-    val metadata = if (!includePushTokenCheck.isChecked) mapOf("os" to "Android") else null
+    binding.createFactorButton.isEnabled = false
+    val pushToken = if (binding.includePushTokenCheck.isChecked) token else null
+    val metadata = if (!binding.includePushTokenCheck.isChecked) mapOf("os" to "Android") else null
     val createFactorData =
       CreateFactorData(identity, "$identity's factor", accessTokenUrl, pushToken, metadata)
     factorViewModel.createFactor(createFactorData)
   }
 
   private fun onSuccess(factor: Factor) {
-    Snackbar.make(content, "Factor ${factor.sid} created", Snackbar.LENGTH_LONG)
+    Snackbar.make(binding.content, "Factor ${factor.sid} created", Snackbar.LENGTH_LONG)
       .show()
     findNavController().navigate(R.id.action_show_new_factor)
   }
 
   private fun hideKeyboardFrom() {
     val imm = activity?.getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
-    imm?.hideSoftInputFromWindow(content.windowToken, 0)
+    imm?.hideSoftInputFromWindow(binding.content.windowToken, 0)
   }
 
   private fun showError(exception: Throwable) {
     when (exception) {
       is TwilioVerifyException -> handleNetworkException(exception as TwilioVerifyException)
-      else -> exception.showError(content)
+      else -> exception.showError(binding.content)
     }
   }
 
   private fun handleNetworkException(exception: TwilioVerifyException) {
     (exception.cause as? NetworkException)?.failureResponse?.apiError?.let {
       val snackbar = Snackbar.make(
-        content,
+        binding.content,
         "Code: ${it.code} - ${it.message}",
         Snackbar.LENGTH_INDEFINITE
       )
@@ -155,6 +158,6 @@ class CreateFactorFragment : Fragment() {
         snackbar.dismiss()
       }
       snackbar.show()
-    } ?: exception.showError(content)
+    } ?: exception.showError(binding.content)
   }
 }

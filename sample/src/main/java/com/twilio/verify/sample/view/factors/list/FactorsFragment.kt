@@ -29,35 +29,41 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.twilio.verify.models.Factor
 import com.twilio.verify.sample.R
-import com.twilio.verify.sample.R.layout
+import com.twilio.verify.sample.databinding.FragmentFactorsBinding
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
 import com.twilio.verify.sample.view.showError
 import com.twilio.verify.sample.viewmodel.DeleteFactorError
 import com.twilio.verify.sample.viewmodel.FactorList
 import com.twilio.verify.sample.viewmodel.FactorsError
 import com.twilio.verify.sample.viewmodel.FactorsViewModel
-import kotlinx.android.synthetic.main.fragment_factors.addFactorButton
-import kotlinx.android.synthetic.main.fragment_factors.content
-import kotlinx.android.synthetic.main.fragment_factors.factors
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FactorsFragment : Fragment() {
 
   private lateinit var viewAdapter: FactorsAdapter
-  private val factorsViewModel: FactorsViewModel by viewModel()
+  private val factorsViewModel: FactorsViewModel by activityViewModel()
+  private var _binding: FragmentFactorsBinding? = null
+  private val binding get() = _binding!!
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(layout.fragment_factors, container, false)
+    _binding = FragmentFactorsBinding.inflate(inflater, container, false)
+    return binding.root
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    addFactorButton.setOnClickListener { findNavController().navigate(R.id.action_create_factor) }
-    factors.apply {
+    binding.addFactorButton.setOnClickListener { findNavController().navigate(R.id.action_create_factor) }
+    binding.factors.apply {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(requireContext())
       ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete)
@@ -76,8 +82,8 @@ class FactorsFragment : Fragment() {
         Observer {
           when (it) {
             is FactorList -> showFactors(it.factors)
-            is FactorsError -> it.exception.showError(content)
-            is DeleteFactorError -> it.exception.showError(content)
+            is FactorsError -> it.exception.showError(binding.content)
+            is DeleteFactorError -> it.exception.showError(binding.content)
           }
         }
       )
@@ -99,7 +105,7 @@ class FactorsFragment : Fragment() {
       )
       findNavController().navigate(R.id.action_show_challenges, bundle)
     }
-    factors.apply {
+    binding.factors.apply {
       adapter = viewAdapter
     }
   }

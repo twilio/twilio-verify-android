@@ -33,6 +33,7 @@ import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
+import java.lang.IllegalArgumentException
 
 class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : NetworkProvider {
   override fun execute(
@@ -101,6 +102,7 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
           )
         }
       }
+      else -> throw IllegalArgumentException("Invalid http method")
     }
     return requestBuilder.build()
   }
