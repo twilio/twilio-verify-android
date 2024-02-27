@@ -89,8 +89,8 @@ class FirebasePushService() : FirebaseMessagingService() {
       i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
       i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
       i.putExtras(bundleOf(ARG_FACTOR_SID to factorSid, ARG_CHALLENGE_SID to challengeSid))
-      val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) { PendingIntent.FLAG_MUTABLE} else {PendingIntent.FLAG_ONE_SHOT}
-      val pendingIntent = PendingIntent.getActivity(this, 0, i, flags)
+      val flags = PendingIntent.FLAG_ONE_SHOT
+      val pendingIntent = PendingIntent.getActivity(this, 0, i, flags or PendingIntent.FLAG_IMMUTABLE)
       val builder = NotificationCompat.Builder(
         this,
         channelId
