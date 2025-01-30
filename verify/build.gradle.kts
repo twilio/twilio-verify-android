@@ -42,7 +42,7 @@ android {
 
   defaultConfig {
     minSdk = Config.Versions.minSDKVersion
-    targetSdkVersion(Config.Versions.targetSDKVersion)
+    targetSdk = Config.Versions.targetSDKVersion
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
@@ -75,8 +75,6 @@ android {
 
 //region KDoc
 tasks.dokkaHtml {
-  outputDirectory = "../docs/$verifyVersionName"
-  disableAutoconfiguration = false
   dokkaSourceSets {
     configureEach {
       includeNonPublic = false
@@ -104,7 +102,6 @@ val dokkaHtmlJar by tasks.creating(Jar::class) {
   dependsOn(tasks.dokkaHtml)
   from(
     tasks.dokkaHtml.get()
-      .getOutputDirectoryAsFile()
   )
   archiveClassifier.set("html-doc")
 }
@@ -176,6 +173,7 @@ apkscale {
   abis = setOf("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
 }
 
+@Suppress("UNCHECKED_CAST")
 task("generateSizeReport") {
   dependsOn("assembleRelease", "measureSize")
   description = "Calculate Verify SDK Size Impact"
@@ -191,13 +189,13 @@ task("generateSizeReport") {
     val jsonSlurper = groovy.json.JsonSlurper()
     val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
     val releaseOutput = apkscaleOutput[0] as Map<*, *>
-    val sizes = releaseOutput["size"] as Map<String, String>
-    sizes.forEach { (arch, sizeImpact) ->
+    val sizes = releaseOutput["size"] as? Map<String, String>
+    sizes?.forEach { (arch, sizeImpact) ->
       sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
     }
     val sizeReportDir = "$buildDir/outputs/sizeReport"
     mkdir(sizeReportDir)
-    val targetFile = file("$sizeReportDir/${rootProject.name.capitalize()}SizeImpactReport.txt")
+    val targetFile = file("$sizeReportDir/${rootProject.name.replaceFirstChar { it.titlecase() }}SizeImpactReport.txt")
     targetFile.createNewFile()
     targetFile.writeText(sizeReport)
   }

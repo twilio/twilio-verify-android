@@ -40,8 +40,8 @@ buildscript {
 
 allprojects {
   repositories {
-    google()
     mavenCentral()
+    google()
   }
   plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
@@ -64,7 +64,6 @@ task("sonatypeTwilioVerifyReleaseUpload", GradleBuild::class) {
   description = "Publish Twilio Verify to MavenCentral"
   group = "Publishing"
   buildName = "TwilioVerify"
-  buildFile = file("build.gradle.kts")
   tasks = listOf(
     ":verify:assembleRelease",
     ":verify:publishTwilioVerifyPublicationToSonatypeRepository",
@@ -79,7 +78,6 @@ task("sonatypeTwilioVerifyStagingRepositoryUpload", GradleBuild::class) {
   description = "Publish Twilio Verify to nexus staging repository"
   group = "Publishing"
   buildName = "TwilioVerify"
-  buildFile = file("build.gradle.kts")
   tasks = listOf(
     ":verify:assembleRelease",
     ":verify:publishTwilioVerifyPublicationToSonatypeRepository",
@@ -94,7 +92,6 @@ task("sonatypeTwilioSecurityReleaseUpload", GradleBuild::class) {
   description = "Publish Twilio Security to MavenCentral"
   group = "Publishing"
   buildName = "TwilioSecurity"
-  buildFile = file("build.gradle.kts")
   tasks = listOf(
     ":security:assembleRelease",
     ":security:publishTwilioSecurityPublicationToSonatypeRepository",
@@ -109,7 +106,6 @@ task("sonatypeTwilioSecurityStagingRepositoryUpload", GradleBuild::class) {
   description = "Publish Twilio Security to nexus staging repository"
   group = "Publishing"
   buildName = "TwilioSecurity"
-  buildFile = file("build.gradle.kts")
   tasks = listOf(
     ":security:assembleRelease",
     ":security:publishTwilioSecurityPublicationToSonatypeRepository",
@@ -124,7 +120,6 @@ task("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class) {
   description = "Publish Twilio Verify to maven local"
   group = "Publishing"
   buildName = "TwilioVerify"
-  buildFile = file("build.gradle.kts")
   tasks = listOf(
     ":verify:assembleRelease",
     ":verify:publishTwilioVerifyPublicationToMavenLocal"

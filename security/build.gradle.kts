@@ -35,7 +35,7 @@ android {
   testOptions.unitTests.isIncludeAndroidResources = true
   defaultConfig {
     minSdk = Config.Versions.minSDKVersion
-    lint.targetSdk = Config.Versions.targetSDKVersion
+    targetSdk = Config.Versions.targetSDKVersion
     version = securityVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
