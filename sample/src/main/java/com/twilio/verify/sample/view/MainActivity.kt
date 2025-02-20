@@ -17,12 +17,12 @@
 package com.twilio.verify.sample.view
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.sample.R
@@ -50,6 +50,8 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     binding = ActivityMainBinding.inflate(layoutInflater)
     val view = binding.root
+    val targetSdkVersion = applicationContext.applicationInfo.targetSdkVersion
+    Toast.makeText(this, "TARGET SDK VERSION $targetSdkVersion", Toast.LENGTH_SHORT).show()
     setContentView(view)
     showChallengeIfNeeded()
   }

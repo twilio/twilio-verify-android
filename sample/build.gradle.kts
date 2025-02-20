@@ -36,7 +36,7 @@ android {
     applicationId = "com.twilio.verify.sample"
     minSdk = Config.Versions.minSDKVersion
     targetSdk = Config.Versions.targetSDKVersion
-    versionCode = verifyVersionCode.toInt()
+    layout.buildDirectory
     versionName = verifyVersionName
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -80,7 +80,7 @@ android {
 dependencies {
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
   debugImplementation(project(":${Modules.verify}"))
-  releaseImplementation("com.twilio:twilio-verify-android:$verifyVersionName")
+  releaseImplementation("com.twilio:twilio-verify-android:0.8.0")
   implementation("com.squareup.retrofit2:retrofit:2.9.0")
   implementation("com.squareup.retrofit2:converter-gson:2.9.0")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Config.Versions.kotlin}")

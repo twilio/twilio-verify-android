@@ -70,7 +70,7 @@ publishing {
       groupId = pomGroup
       artifactId = pomArtifactId
       version = securityVersionName
-      artifact("$buildDir/outputs/aar/security-release.aar")
+      artifact("${layout.buildDirectory}/outputs/aar/security-release.aar")
 
       pom.withXml {
         asNode().apply {

@@ -29,7 +29,7 @@ tasks {
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
     args = listOf(
-      "--reporter=plain", "--reporter=checkstyle,output=$buildDir/reports/ktlint/ktlint.xml",
+      "--reporter=plain", "--reporter=checkstyle,output=${layout.buildDirectory}/reports/ktlint/ktlint.xml",
       "--android", "src/**/*.kt", "**/*.gradle.kts"
     )
     isIgnoreExitValue = true

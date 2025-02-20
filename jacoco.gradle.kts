@@ -21,7 +21,7 @@ tasks.withType<Test> {
   }
 }
 
-private val classDirectoriesTree = fileTree("${project.buildDir}") {
+private val classDirectoriesTree = fileTree("${project.layout.buildDirectory}") {
   include(
     "**/classes/**/main/**",
     "**/intermediates/classes/debug/**",
@@ -44,7 +44,7 @@ private val classDirectoriesTree = fileTree("${project.buildDir}") {
 
 private val sourceDirectoriesTree = files("$projectDir/src/main/java")
 
-private val executionDataTree = fileTree("${project.buildDir}") {
+private val executionDataTree = fileTree("${project.layout.buildDirectory}") {
   include(
     "outputs/code_coverage/**/*.ec",
     "jacoco/jacocoTestReportDebug.exec",
@@ -57,8 +57,8 @@ fun JacocoReportsContainer.reports() {
   csv.required = false
   xml.required = true
   html.required = true
-  html.outputLocation = file("$buildDir/reports/code-coverage/html")
-  xml.outputLocation = file("$buildDir/reports/code-coverage/xml")
+  html.outputLocation = file("${layout.buildDirectory}/reports/code-coverage/html")
+  xml.outputLocation = file("${layout.buildDirectory}/reports/code-coverage/xml")
 }
 
 fun JacocoReport.setDirectories() {
