@@ -16,8 +16,8 @@
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-  id(Config.Plugins.dokka) version Config.Versions.dokka
-  id(Config.Plugins.nexus) version (Config.Versions.nexus)
+  id("org.jetbrains.dokka") version "2.0.0"
+  id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
 buildscript {
@@ -45,8 +45,6 @@ allprojects {
     mavenCentral()
     jcenter()
   }
-  plugins.apply(Config.Plugins.ktlint)
-  plugins.apply(Config.Plugins.gitHooks)
 }
 
 nexusPublishing {
