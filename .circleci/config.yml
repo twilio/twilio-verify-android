@@ -8,7 +8,7 @@ references:
     .
 
   executor: &executor
-    android/android_machina
+    android/android_machine
 
   ## Cache
   gradle_key: &gradle_key
