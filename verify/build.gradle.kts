@@ -210,7 +210,7 @@ dependencies {
   releaseImplementation("com.twilio:twilio-security-android:0.2.0")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
   androidTestImplementation("androidx.test.ext:junit:1.1.1")
-  androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
+  androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
   androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.3.1")
   androidTestImplementation("com.squareup.okhttp3:okhttp-tls:4.3.1")
   androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")

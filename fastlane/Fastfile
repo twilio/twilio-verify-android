@@ -23,7 +23,7 @@ platform :android do
   desc "Assemble build"
   lane :assemble do
     gradle(
-      tasks: ["assembleDebug", "assembleDebugAndroidTest", ":security::assembleDebugAndroidTest"]
+      tasks: ["assembleDebug", "assembleDebugAndroidTest", ":security:assembleDebugAndroidTest"]
     )
   end
   
