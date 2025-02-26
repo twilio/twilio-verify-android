@@ -205,7 +205,9 @@ interface TwilioVerify {
      */
     @Throws(TwilioVerifyException::class)
     fun build(): TwilioVerify {
-      loggerServices.forEach { LoggerImplementation.addService(it) }
+      for (service in loggerServices) {
+        LoggerImplementation.addService(service)
+      }
       Logger.loggerContract = LoggerImplementation
       val factorFacade = FactorFacade.Builder()
         .context(context)
