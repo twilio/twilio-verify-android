@@ -52,7 +52,7 @@ object Config {
     const val targetSDKVersion = 35
     const val dokka = "2.0.0"
     const val jacoco = "0.8.12"
-    const val apkscale = "0.1.0"
+    const val apkscale = "0.1.7"
     const val nexus = "1.0.0"
   }
 

@@ -4,17 +4,11 @@ twilio-security-tests:
     app: ftl/dummy.apk
     test: {{test_build}}
     device:
-        # Pixel 2
-        - {model: walleye, version: 27, locale: en, orientation: portrait}
-        # Pixel
-        - {model: sailfish, version: 25, locale: en, orientation: portrait}
-        # Galaxy A5 2017
-        - {model: HWMHA, version: 24, locale: en, orientation: portrait}
-        # LG Nexus 5
-        - {model: hammerhead, version: 23, locale: en, orientation: portrait}
-        # Samsung Galaxy S9 (US)
-        - {model: starqltechn, version: 26, locale: en, orientation: portrait}
-        # Samsung S20
-        - {model: x1q, version: 29, locale: en, orientation: portrait}
+        # Pixel2
+        - {model: Pixel2, version: 28, locale: en, orientation: portrait}
         # Pixel 5e
-        - { model: redfin, version: 30, locale: en, orientation: portrait }
+        - {model: redfin, version: 30, locale: en, orientation: portrait}
+        # Google Oriole
+        - {model: oriole, version: 31, locale: en, orientation: portrait}
+        # Pixel 9
+        - {model: tokay, version: 34, locale: en, orientation: portrait}
