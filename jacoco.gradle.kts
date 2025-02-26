@@ -24,7 +24,6 @@ tasks.withType<Test> {
 private val classDirectoriesTree = fileTree(project.layout.buildDirectory.asFile) {
   include(
     "**/classes/**/main/**",
-    "**/intermediates/classes/debug/**",
     "**/intermediates/javac/debug/*/classes/**", // Android Gradle Plugin 3.2.x support.
     "**/tmp/kotlin-classes/debug/**"
   )
@@ -42,7 +41,7 @@ private val classDirectoriesTree = fileTree(project.layout.buildDirectory.asFile
   )
 }
 
-private val sourceDirectoriesTree = project.layout.projectDirectory.dir("src/main/java").asFile
+private val sourceDirectoriesTree = files("$projectDir/src/main/java")
 
 private val executionDataTree = fileTree(project.layout.buildDirectory.asFile) {
   include(
@@ -54,11 +53,11 @@ private val executionDataTree = fileTree(project.layout.buildDirectory.asFile) {
 }
 
 fun JacocoReportsContainer.reports() {
-  csv.required.set(false)
-  xml.required.set(true)
-  html.required.set(true)
-  html.outputLocation.set(layout.buildDirectory.dir("reports/code-coverage/html"))
-  xml.outputLocation.set(layout.buildDirectory.file("reports/code-coverage/xml"))
+  csv.required = false
+  xml.required = true
+  html.required = true
+  html.outputLocation = file("${layout.buildDirectory}/reports/code-coverage/html")
+  xml.outputLocation = file("${layout.buildDirectory}/reports/code-coverage/xml")
 }
 
 fun JacocoReport.setDirectories() {
