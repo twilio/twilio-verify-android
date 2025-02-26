@@ -117,7 +117,7 @@ publishing {
       groupId = pomGroup
       artifactId = pomArtifactId
       version = verifyVersionName
-      artifact("${layout.buildDirectory}/outputs/aar/verify-release.aar")
+      artifact(layout.buildDirectory.file("outputs/aar/verify-release.aar"))
       artifact(dokkaHtmlJar)
       artifact(sourcesJar)
 

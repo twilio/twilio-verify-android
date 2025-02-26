@@ -95,7 +95,7 @@ publishing {
       groupId = pomGroup
       artifactId = pomArtifactId
       version = securityVersionName
-      artifact("${layout.buildDirectory}/outputs/aar/security-release.aar")
+      artifact(layout.buildDirectory.file("outputs/aar/security-release.aar"))
 
       pom.withXml {
         asNode().apply {

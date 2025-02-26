@@ -36,7 +36,7 @@ android {
     applicationId = "com.twilio.verify.sample"
     minSdk = Config.Versions.minSDKVersion
     targetSdk = Config.Versions.targetSDKVersion
-    layout.buildDirectory
+    versionCode = verifyVersionCode.toInt()
     versionName = verifyVersionName
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
