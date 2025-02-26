@@ -32,7 +32,6 @@ val securityVersionCode: String by extra
 android {
   namespace = "com.twilio.security"
   compileSdk = Config.Versions.compileSDKVersion
-  testOptions.unitTests.isIncludeAndroidResources = true
   defaultConfig {
     minSdk = Config.Versions.minSDKVersion
     targetSdk = Config.Versions.targetSDKVersion
@@ -57,7 +56,33 @@ android {
     xmlReport = true
     checkAllWarnings = true
   }
+
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+  }
+
+  testOptions {
+    unitTests {
+      isIncludeAndroidResources = true
+    }
+  }
 }
+
+tasks.withType<Test>().configureEach {
+  jvmArgs(
+    "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",
+    "--add-exports=java.base/java.lang.invoke=ALL-UNNAMED",
+    "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
+    "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
+    "--add-opens=java.base/java.lang=ALL-UNNAMED",
+    "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+    "--add-opens=java.base/java.io=ALL-UNNAMED",
+    "--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED",
+    "--add-opens=java.base/javax.crypto=ALL-UNNAMED"
+  )
+}
+
 //endregion
 
 //region Publish
@@ -119,15 +144,14 @@ kotlin {
 //endregion
 
 dependencies {
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Config.Versions.kotlin}")
   compileOnly("androidx.biometric:biometric:1.1.0")
-  testImplementation("junit:junit:4.12")
-  testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-  testImplementation("org.robolectric:robolectric:4.4")
-  testImplementation("androidx.test:core:1.2.0")
-  testImplementation("org.hamcrest:hamcrest-library:1.3")
-  testImplementation("org.mockito:mockito-inline:2.28.2")
+  testImplementation("junit:junit:4.13.2")
+  testImplementation("io.mockk:mockk:1.13.16")
+  testImplementation("org.robolectric:robolectric:4.14.1")
+  testImplementation("androidx.test:core:1.6.1")
+  testImplementation("org.hamcrest:hamcrest-library:2.2")
   testImplementation("androidx.biometric:biometric:1.1.0")
-  androidTestImplementation("androidx.test.ext:junit:1.1.1")
+  androidTestImplementation("androidx.test.ext:junit:1.2.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

@@ -229,7 +229,7 @@ class FactorRepositoryTest {
     whenever(storage.get(sid)).thenReturn(null)
     exceptionRule.expect(TwilioVerifyException::class.java)
     exceptionRule.expectCause(
-      instanceOf(
+      instanceOf<Throwable>(
         StorageException::class.java
       )
     )

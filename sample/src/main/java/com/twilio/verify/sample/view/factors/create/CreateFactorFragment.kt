@@ -39,7 +39,6 @@ import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CreateFactorFragment : Fragment() {
 
@@ -83,15 +82,17 @@ class CreateFactorFragment : Fragment() {
   }
 
   private fun getPushToken() {
-    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-      if (!task.isSuccessful) {
-        task.exception?.let { it.showError(binding.content) }
-        return@OnCompleteListener
+    FirebaseMessaging.getInstance().token.addOnCompleteListener(
+      OnCompleteListener { task ->
+        if (!task.isSuccessful) {
+          task.exception?.let { it.showError(binding.content) }
+          return@OnCompleteListener
+        }
+        task.result?.let {
+          token = it
+        }
       }
-      task.result?.let {
-        token = it
-      }
-    })
+    )
   }
 
   private fun startCreateFactor() {

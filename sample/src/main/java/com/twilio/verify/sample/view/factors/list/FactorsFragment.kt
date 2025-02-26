@@ -37,7 +37,6 @@ import com.twilio.verify.sample.viewmodel.FactorList
 import com.twilio.verify.sample.viewmodel.FactorsError
 import com.twilio.verify.sample.viewmodel.FactorsViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FactorsFragment : Fragment() {
 

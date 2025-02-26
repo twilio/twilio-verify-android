@@ -41,7 +41,6 @@ import com.twilio.verify.sample.viewmodel.Factor
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FactorChallengesFragment : Fragment() {
   private lateinit var sid: String
@@ -51,7 +50,6 @@ class FactorChallengesFragment : Fragment() {
   private val challengesViewModel: ChallengesViewModel by activityViewModel()
   private var _binding: FragmentFactorChallengesBinding? = null
   private val binding get() = _binding!!
-
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

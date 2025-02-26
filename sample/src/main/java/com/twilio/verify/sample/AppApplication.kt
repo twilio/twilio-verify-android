@@ -23,10 +23,8 @@ import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.ChallengesViewModel
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import com.twilio.verify.sample.viewmodel.FactorsViewModel
-import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.context.startKoin
 import org.koin.dsl.module

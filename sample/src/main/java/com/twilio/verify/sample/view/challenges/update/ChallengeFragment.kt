@@ -35,9 +35,8 @@ import com.twilio.verify.sample.viewmodel.ChallengeError
 import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
-import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.text.DateFormat
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 const val ARG_CHALLENGE_SID = "challengeSid"
 const val ARG_FACTOR_SID = "factorSid"
