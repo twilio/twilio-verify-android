@@ -37,8 +37,8 @@ checkstyle_formatter.report "security/build/reports/ktlint/ktlint.xml"
 checkstyle_formatter.report "sample/build/reports/ktlint/ktlint.xml"
 checkstyle_formatter.report "build/reports/ktlint/ktlint.xml"
 
-android_lint.report_file = "verify/build/reports/lint-results.xml"
-android_lint.report_file = "security/build/reports/lint-results.xml"
+android_lint.report_file = "verify/build/reports/lint-results-debug.xml"
+android_lint.report_file = "security/build/reports/lint-results-debug.xml"
 android_lint.skip_gradle_task = true
 android_lint.filtering = true
 android_lint.severity = "Error"

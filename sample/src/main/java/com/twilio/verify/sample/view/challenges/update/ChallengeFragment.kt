@@ -28,7 +28,7 @@ import com.twilio.verify.ExpiredChallengeException
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.Factor
-import com.twilio.verify.sample.R
+import com.twilio.verify.sample.databinding.FragmentChallengeBinding
 import com.twilio.verify.sample.view.showError
 import com.twilio.verify.sample.view.string
 import com.twilio.verify.sample.viewmodel.ChallengeError
@@ -36,21 +36,7 @@ import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import java.text.DateFormat
-import kotlinx.android.synthetic.main.fragment_challenge.approveButton
-import kotlinx.android.synthetic.main.fragment_challenge.challengeActionsGroup
-import kotlinx.android.synthetic.main.fragment_challenge.challengeInfoText
-import kotlinx.android.synthetic.main.fragment_challenge.content
-import kotlinx.android.synthetic.main.fragment_challenge.denyButton
-import kotlinx.android.synthetic.main.view_challenge.challengeCreatedAtText
-import kotlinx.android.synthetic.main.view_challenge.challengeExpireOnText
-import kotlinx.android.synthetic.main.view_challenge.challengeMessageText
-import kotlinx.android.synthetic.main.view_challenge.challengeSidText
-import kotlinx.android.synthetic.main.view_challenge.challengeStatusText
-import kotlinx.android.synthetic.main.view_factor.factorNameText
-import kotlinx.android.synthetic.main.view_factor.factorSidText
-import kotlinx.android.synthetic.main.view_factor.factorStatusText
-import kotlinx.android.synthetic.main.view_factor.identityText
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 const val ARG_CHALLENGE_SID = "challengeSid"
 const val ARG_FACTOR_SID = "factorSid"
@@ -58,8 +44,10 @@ const val ARG_FACTOR_SID = "factorSid"
 class ChallengeFragment : Fragment() {
   private lateinit var challengeSid: String
   private lateinit var factorSid: String
-  private val factorViewModel: FactorViewModel by viewModel()
-  private val challengeViewModel: ChallengeViewModel by viewModel()
+  private val factorViewModel: FactorViewModel by activityViewModel()
+  private val challengeViewModel: ChallengeViewModel by activityViewModel()
+  private var _binding: FragmentChallengeBinding? = null
+  private val binding get() = _binding!!
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -78,7 +66,13 @@ class ChallengeFragment : Fragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(R.layout.fragment_challenge, container, false)
+    _binding = FragmentChallengeBinding.inflate(inflater, container, false)
+    return binding.root
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -90,7 +84,7 @@ class ChallengeFragment : Fragment() {
           Observer {
             when (it) {
               is com.twilio.verify.sample.viewmodel.Factor -> showFactor(it.factor)
-              is FactorError -> it.exception.showError(content)
+              is FactorError -> it.exception.showError(binding.content)
             }
           }
         )
@@ -99,8 +93,8 @@ class ChallengeFragment : Fragment() {
         .observe(
           viewLifecycleOwner,
           Observer {
-            approveButton.isEnabled = true
-            denyButton.isEnabled = true
+            binding.approveButton.isEnabled = true
+            binding.denyButton.isEnabled = true
             when (it) {
               is com.twilio.verify.sample.viewmodel.Challenge -> showChallenge(it.challenge)
               is ChallengeError -> handleError(it.exception)
@@ -112,49 +106,49 @@ class ChallengeFragment : Fragment() {
   }
 
   private fun handleError(exception: Exception) {
-    exception.showError(content)
+    exception.showError(binding.content)
     if (exception.cause is ExpiredChallengeException || exception.cause is AlreadyUpdatedChallengeException) {
       challengeViewModel.loadChallenge(challengeSid, factorSid)
     }
   }
 
   private fun showFactor(factor: Factor) {
-    factorSidText.apply {
+    binding.factor.factorSidText.apply {
       text = factor.sid
       setTextIsSelectable(true)
     }
-    factorNameText.apply {
+    binding.factor.factorNameText.apply {
       text = factor.friendlyName
       setTextIsSelectable(true)
     }
-    identityText.apply {
+    binding.factor.identityText.apply {
       text = factor.identity
       setTextIsSelectable(true)
     }
-    factorStatusText.text = factor.status.value
+    binding.factor.factorStatusText.text = factor.status.value
   }
 
   private fun showChallenge(challenge: Challenge) {
-    challengeSidText.apply {
+    binding.challenge.challengeSidText.apply {
       text = challenge.sid
       setTextIsSelectable(true)
     }
-    challengeMessageText.apply {
+    binding.challenge.challengeMessageText.apply {
       text = challenge.challengeDetails.message
       setTextIsSelectable(true)
     }
-    challengeStatusText.text = challenge.status.value
-    challengeCreatedAtText.text = DateUtils.formatDateTime(
+    binding.challenge.challengeStatusText.text = challenge.status.value
+    binding.challenge.challengeCreatedAtText.text = DateUtils.formatDateTime(
       context,
       challenge.createdAt.time,
       DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
     )
-    challengeExpireOnText.text = DateUtils.formatDateTime(
+    binding.challenge.challengeExpireOnText.text = DateUtils.formatDateTime(
       context,
       challenge.expirationDate.time,
       DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
     )
-    challengeActionsGroup?.visibility =
+    binding.challengeActionsGroup?.visibility =
       if (challenge.status == ChallengeStatus.Pending) View.VISIBLE else View.GONE
     val info = "Updated at: " +
       "${
@@ -172,11 +166,11 @@ class ChallengeFragment : Fragment() {
           }"
         } ?: ""
         )
-    challengeInfoText?.text = info
-    approveButton?.setOnClickListener {
+    binding.challengeInfoText?.text = info
+    binding.approveButton?.setOnClickListener {
       updateChallenge(challenge, ChallengeStatus.Approved)
     }
-    denyButton?.setOnClickListener {
+    binding.denyButton?.setOnClickListener {
       updateChallenge(challenge, ChallengeStatus.Denied)
     }
   }
@@ -185,8 +179,8 @@ class ChallengeFragment : Fragment() {
     challenge: Challenge,
     status: ChallengeStatus
   ) {
-    approveButton.isEnabled = false
-    denyButton.isEnabled = false
+    binding.approveButton.isEnabled = false
+    binding.denyButton.isEnabled = false
     challengeViewModel.updateChallenge(challenge, status)
   }
 }

@@ -25,6 +25,7 @@ import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import java.io.IOException
+import java.lang.IllegalArgumentException
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Headers
@@ -101,6 +102,7 @@ class OkHttpProvider(private val okHttpClient: OkHttpClient = okHttpClient()) : 
           )
         }
       }
+      else -> throw IllegalArgumentException("Invalid http method")
     }
     return requestBuilder.build()
   }

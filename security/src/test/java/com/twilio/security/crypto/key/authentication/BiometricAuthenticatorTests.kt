@@ -18,15 +18,10 @@ package com.twilio.security.crypto.key.authentication
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.given
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import java.security.Signature
 import javax.crypto.Cipher
 import org.junit.Assert.assertEquals
@@ -42,24 +37,21 @@ class BiometricAuthenticatorTests {
   private val subtitle = "subtitle"
   private val negativeOption = "negativeOption"
   private val fragmentActivity: FragmentActivity = Robolectric.buildActivity(FragmentActivity::class.java).setup().get()
-  private val biometricPromptHelper: BiometricPromptHelper = mock()
-  private val biometricManager: BiometricManager = mock()
+  private val biometricPromptHelper: BiometricPromptHelper = mockk()
+  private val biometricManager: BiometricManager = mockk()
   private val authenticator =
     BiometricAuthenticatorContext(title, subtitle, fragmentActivity, negativeOption, biometricPromptHelper, biometricManager)
 
   @Test(expected = Test.None::class)
   fun `Availability success`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }.returns(BiometricManager.BIOMETRIC_SUCCESS)
     authenticator.checkAvailability()
   }
 
   @Test
   fun `Availability no dependency error`() {
     try {
-      given(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)).willAnswer {
-        throw NoSuchMethodError()
-      }
+      every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }.throws(NoSuchMethodError())
       authenticator.checkAvailability()
       fail()
     } catch (e: Exception) {
@@ -70,8 +62,8 @@ class BiometricAuthenticatorTests {
   @Test
   fun `Availability unsupported error`() {
     try {
-      whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-        .thenReturn(BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED)
+      every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }
+        .returns(BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED)
       authenticator.checkAvailability()
       fail()
     } catch (e: Exception) {
@@ -82,8 +74,8 @@ class BiometricAuthenticatorTests {
   @Test
   fun `Availability hardware unavailable error`() {
     try {
-      whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-        .thenReturn(BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE)
+      every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }
+        .returns(BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE)
       authenticator.checkAvailability()
       fail()
     } catch (e: Exception) {
@@ -94,8 +86,8 @@ class BiometricAuthenticatorTests {
   @Test
   fun `Availability no biometric enrolled error`() {
     try {
-      whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-        .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+      every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }
+        .returns(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
       authenticator.checkAvailability()
       fail()
     } catch (e: Exception) {
@@ -106,8 +98,8 @@ class BiometricAuthenticatorTests {
   @Test
   fun `Availability no hardware error`() {
     try {
-      whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-        .thenReturn(BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE)
+      every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }
+        .returns(BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE)
       authenticator.checkAvailability()
       fail()
     } catch (e: Exception) {
@@ -118,8 +110,8 @@ class BiometricAuthenticatorTests {
   @Test
   fun `Availability security update required error`() {
     try {
-      whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-        .thenReturn(BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED)
+      every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }
+        .returns(BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED)
       authenticator.checkAvailability()
       fail()
     } catch (e: Exception) {
@@ -129,31 +121,31 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication without availability should not call biometric prompt`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
-    val signature: Signature = mock()
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }
+      .returns(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+    val signature: Signature = mockk()
     authenticator.startAuthentication(
       signature, { fail() },
       {
-        verify(biometricPromptHelper, never()).createBiometricPrompt(any(), any())
+        verify(exactly = 0) { biometricPromptHelper.createBiometricPrompt(any(), any()) }
       }
     )
   }
 
   @Test
   fun `Start signature authentication with availability with succeeded authentication should call success`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }
+      .returns(BiometricManager.BIOMETRIC_SUCCESS)
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) }.returns(biometricPrompt)
+    val authenticationResult: BiometricPrompt.AuthenticationResult = mockk {
+      every { cryptoObject }.returns(BiometricPrompt.CryptoObject(signature))
     }
-    val authenticationResult: BiometricPrompt.AuthenticationResult = mock {
-      on(it.cryptoObject) doReturn BiometricPrompt.CryptoObject(signature)
-    }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationSucceeded(authenticationResult)
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationSucceeded(authenticationResult)
     }
     authenticator.startAuthentication(
       signature,
@@ -168,118 +160,140 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with failed authentication should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationFailed()
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationFailed()
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
-      {
-        assertEquals(it.message, BiometricException(BiometricError.AuthenticationFailed).message)
+      signature,
+      { fail("Expected failure callback") },
+      { exception ->
+        assertEquals(exception.message, BiometricException(BiometricError.AuthenticationFailed).message)
       }
     )
   }
 
   @Test
   fun `Start signature authentication with availability with hardware unavailable error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_HW_UNAVAILABLE, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_HW_UNAVAILABLE, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
-      {
-        assertEquals(it.message, BiometricException(BiometricError.HardwareUnavailable).message)
+      signature,
+      { fail("Expected failure callback") },
+      { exception ->
+        assertEquals(exception.message, BiometricException(BiometricError.HardwareUnavailable).message)
       }
     )
   }
 
   @Test
-  fun `Start signature authentication with availability with hardware unavailable to process error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+  fun `Start signature authentication with availability with hardware unable to process error should call error with expected exception`() {
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_UNABLE_TO_PROCESS, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_UNABLE_TO_PROCESS, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
-      {
-        assertEquals(it.message, BiometricException(BiometricError.UnableToProcess).message)
+      signature,
+      { fail("Expected failure callback") },
+      { exception ->
+        assertEquals(exception.message, BiometricException(BiometricError.UnableToProcess).message)
       }
     )
   }
 
   @Test
   fun `Start signature authentication with availability with timeout error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_TIMEOUT, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_TIMEOUT, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
-      {
-        assertEquals(it.message, BiometricException(BiometricError.Timeout).message)
+      signature,
+      { fail("Expected failure callback") },
+      { exception ->
+        assertEquals(exception.message, BiometricException(BiometricError.Timeout).message)
       }
     )
   }
 
   @Test
   fun `Start signature authentication with availability with no space error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_NO_SPACE, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_NO_SPACE, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
-      {
-        assertEquals(it.message, BiometricException(BiometricError.DeviceStorage).message)
+      signature,
+      { fail("Expected failure callback") },
+      { exception ->
+        assertEquals(exception.message, BiometricException(BiometricError.DeviceStorage).message)
       }
     )
   }
 
   @Test
   fun `Start signature authentication with availability with canceled error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_CANCELED, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_CANCELED, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.OperationCanceled).message)
       }
@@ -288,18 +302,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with lockout error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_LOCKOUT, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_LOCKOUT, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Lockout).message)
       }
@@ -308,18 +324,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with vendor error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_VENDOR, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_VENDOR, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Vendor).message)
       }
@@ -328,18 +346,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with lockout permanent error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_LOCKOUT_PERMANENT, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_LOCKOUT_PERMANENT, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.LockoutPermanent).message)
       }
@@ -348,18 +368,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with user canceled error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_USER_CANCELED, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_USER_CANCELED, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UserCanceled).message)
       }
@@ -368,18 +390,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with no biometrics error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_NO_BIOMETRICS, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_NO_BIOMETRICS, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoBiometricEnrolled).message)
       }
@@ -388,18 +412,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with hardware not present error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_HW_NOT_PRESENT, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_HW_NOT_PRESENT, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoHardware).message)
       }
@@ -408,18 +434,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with negative button error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_NEGATIVE_BUTTON, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_NEGATIVE_BUTTON, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UserCanceled).message)
       }
@@ -428,18 +456,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with no device credential error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoDeviceCredential).message)
       }
@@ -448,18 +478,20 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start signature authentication with availability with security update required error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val signature: Signature = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val signature: Signature = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED, "error")
-    }
+
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.SecureUpdateRequired).message)
       }
@@ -468,57 +500,63 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with succeeded authentication should call success`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk(relaxed = true)
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+
+    val authenticationResult: BiometricPrompt.AuthenticationResult = mockk {
+      every { cryptoObject } returns BiometricPrompt.CryptoObject(cipher)
     }
-    val authenticationResult: BiometricPrompt.AuthenticationResult = mock {
-      on(it.cryptoObject) doReturn BiometricPrompt.CryptoObject(cipher)
+
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationSucceeded(authenticationResult)
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationSucceeded(authenticationResult)
-    }
+
     authenticator.startAuthentication(
       cipher,
       {
         assertEquals(it, cipher)
       },
       {
-        fail()
+        fail("Expected success callback to be invoked")
       }
     )
   }
 
   @Test
   fun `Start cipher authentication without availability should not call biometric prompt`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
-    val cipher: Cipher = mock()
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) }
+      .returns(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+
+    val cipher: Cipher = mockk()
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
-        verify(biometricPromptHelper, never()).createBiometricPrompt(any(), any())
+        verify(exactly = 0) { biometricPromptHelper.createBiometricPrompt(any(), any()) }
       }
     )
   }
 
   @Test
   fun `Start cipher authentication with availability with failed authentication should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationFailed()
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationFailed()
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.AuthenticationFailed).message)
       }
@@ -527,18 +565,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with hardware unavailable error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_HW_UNAVAILABLE, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_HW_UNAVAILABLE, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.HardwareUnavailable).message)
       }
@@ -546,19 +585,20 @@ class BiometricAuthenticatorTests {
   }
 
   @Test
-  fun `Start cipher authentication with availability with hardware unavailable to process error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+  fun `Start cipher authentication with availability with hardware unable to process error should call error with expected exception`() {
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_UNABLE_TO_PROCESS, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_UNABLE_TO_PROCESS, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UnableToProcess).message)
       }
@@ -567,18 +607,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with timeout error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_TIMEOUT, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_TIMEOUT, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Timeout).message)
       }
@@ -587,18 +628,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with no space error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_NO_SPACE, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_NO_SPACE, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.DeviceStorage).message)
       }
@@ -607,18 +649,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with canceled error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_CANCELED, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_CANCELED, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.OperationCanceled).message)
       }
@@ -627,18 +670,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with lockout error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_LOCKOUT, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_LOCKOUT, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Lockout).message)
       }
@@ -647,18 +691,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with vendor error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_VENDOR, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_VENDOR, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Vendor).message)
       }
@@ -667,18 +712,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with lockout permanent error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_LOCKOUT_PERMANENT, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_LOCKOUT_PERMANENT, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.LockoutPermanent).message)
       }
@@ -687,18 +733,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with user canceled error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_USER_CANCELED, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_USER_CANCELED, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UserCanceled).message)
       }
@@ -707,18 +754,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with no biometrics error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_NO_BIOMETRICS, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_NO_BIOMETRICS, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoBiometricEnrolled).message)
       }
@@ -727,18 +775,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with hardware not present error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_HW_NOT_PRESENT, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_HW_NOT_PRESENT, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoHardware).message)
       }
@@ -747,18 +796,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with negative button error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_NEGATIVE_BUTTON, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_NEGATIVE_BUTTON, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UserCanceled).message)
       }
@@ -767,18 +817,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with no device credential error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoDeviceCredential).message)
       }
@@ -787,18 +838,19 @@ class BiometricAuthenticatorTests {
 
   @Test
   fun `Start cipher authentication with availability with security update required error should call error with expected exception`() {
-    whenever(biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
-      .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
-    val cipher: Cipher = mock()
-    val biometricPrompt: BiometricPrompt = mock()
-    val authenticationCallback = argumentCaptor<BiometricPrompt.AuthenticationCallback>().apply {
-      whenever(biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture())).thenReturn(biometricPrompt)
+    every { biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) } returns BiometricManager.BIOMETRIC_SUCCESS
+
+    val cipher: Cipher = mockk()
+    val biometricPrompt: BiometricPrompt = mockk()
+    val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
+
+    every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
+    every { biometricPrompt.authenticate(any(), any()) } answers {
+      authenticationCallback.captured.onAuthenticationError(BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED, "error")
     }
-    whenever(biometricPrompt.authenticate(any(), any())).then {
-      authenticationCallback.firstValue.onAuthenticationError(BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED, "error")
-    }
+
     authenticator.startAuthentication(
-      cipher, { fail() },
+      cipher, { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.SecureUpdateRequired).message)
       }

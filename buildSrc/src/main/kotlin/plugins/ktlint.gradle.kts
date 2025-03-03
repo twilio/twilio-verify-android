@@ -27,9 +27,9 @@ tasks {
     group = "verification"
     description = "Check Kotlin code style."
     classpath = ktlint
-    main = "com.pinterest.ktlint.Main"
+    mainClass.set("com.pinterest.ktlint.Main")
     args = listOf(
-      "--reporter=plain", "--reporter=checkstyle,output=$buildDir/reports/ktlint/ktlint.xml",
+      "--reporter=plain", "--reporter=checkstyle,output=${layout.buildDirectory.get().asFile}/reports/ktlint/ktlint.xml",
       "--android", "src/**/*.kt", "**/*.gradle.kts"
     )
     isIgnoreExitValue = true
@@ -39,7 +39,7 @@ tasks {
     group = "formatting"
     description = "Fix Kotlin code style deviations."
     classpath = ktlint
-    main = "com.pinterest.ktlint.Main"
+    mainClass.set("com.pinterest.ktlint.Main")
     args("--android", "-F", "src/**/*.kt")
   }
 }

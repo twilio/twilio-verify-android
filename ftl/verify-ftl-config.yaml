@@ -4,11 +4,11 @@ twilio-verify-tests:
     app: ftl/dummy.apk
     test: {{test_build}}
     device:
-        # LG Nexus 5
-        - {model: hammerhead, version: 23, locale: en, orientation: portrait}
+        # Pixel2
+        - { model: Pixel2, version: 28, locale: en, orientation: portrait }
         # Pixel 5e
-        - {model: redfin, version: 30, locale: en, orientation: portrait}
-        # Pixel 2
-        - {model: walleye, version: 27, locale: en, orientation: portrait}
-        # Samsung S20
-        - {model: x1q, version: 29, locale: en, orientation: portrait}
+        - { model: redfin, version: 30, locale: en, orientation: portrait }
+        # Google Oriole
+        - { model: oriole, version: 31, locale: en, orientation: portrait }
+        # Pixel 9
+        - { model: tokay, version: 34, locale: en, orientation: portrait }

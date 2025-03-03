@@ -37,7 +37,7 @@ class NetworkAdapter : NetworkProvider {
       httpUrlConnection = request.url.openConnection() as HttpsURLConnection
       Logger.log(Level.Networking, "--> ${request.httpMethod.method} ${request.url}")
       httpUrlConnection.requestMethod = request.httpMethod.method
-      request.headers.forEach { (key, value) ->
+      for ((key, value) in request.headers) {
         httpUrlConnection.setRequestProperty(key, value)
         Logger.log(Level.Networking, "$key: $value")
       }

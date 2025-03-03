@@ -1,7 +1,7 @@
 package com.twilio.security.crypto.mocks.keystore
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.reflect.Field
@@ -39,9 +39,9 @@ class KeyStoreMock : KeyStoreSpi() {
       throw keyStoreMockInput.error!!
     }
     if (keyStoreMockInput.key is KeyPair) {
-      val certificate: Certificate = mock()
+      val certificate: Certificate = mockk()
       val publicKey = (keyStoreMockInput.key as? KeyPair)?.public
-      whenever(certificate.publicKey).thenReturn(publicKey)
+      every { certificate.publicKey }.returns(publicKey)
       return certificate
     }
     return null
@@ -142,9 +142,9 @@ class KeyStoreMock : KeyStoreSpi() {
     return when (keyStoreMockInput.key) {
       is SecretKey -> (keyStoreMockInput.key as? SecretKey)?.let { SecretKeyEntry(it) }
       is KeyPair -> (keyStoreMockInput.key as? KeyPair)?.let {
-        val certificate: Certificate = mock()
+        val certificate: Certificate = mockk()
         val publicKey = (keyStoreMockInput.key as? KeyPair)?.public
-        whenever(certificate.publicKey).thenReturn(publicKey)
+        every { certificate.publicKey }.returns(publicKey)
         PrivateKeyEntry(it.private, arrayOf(certificate))
       }
       else -> null
@@ -170,9 +170,19 @@ fun setProviderAsVerified(provider: Provider) {
   field: Field,
   newValue: Any?
 ) {
+
   field.isAccessible = true
-  val modifiersField: Field = Field::class.java.getDeclaredField("modifiers")
-  modifiersField.isAccessible = true
-  modifiersField.setInt(field, field.modifiers and Modifier.FINAL.inv())
+  val getDeclaredFields0 = Class::class.java.getDeclaredMethod("getDeclaredFields0", Boolean::class.javaPrimitiveType)
+  getDeclaredFields0.isAccessible = true
+  val fields = getDeclaredFields0.invoke(Field::class.java, false) as Array<Field>
+  var modifiers: Field? = null
+  for (each in fields) {
+    if ("modifiers" == each.name) {
+      modifiers = each
+      break
+    }
+  }
+  modifiers?.isAccessible = true
+  modifiers?.setInt(field, field.modifiers and Modifier.FINAL.inv())
   field.set(null, newValue)
 }

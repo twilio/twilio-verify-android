@@ -16,6 +16,7 @@
 
 package com.twilio.verify.sample.push
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -72,6 +73,7 @@ class FirebasePushService() : FirebaseMessagingService() {
     }
   }
 
+  @SuppressLint("MissingPermission")
   private fun showChallenge(
     challengeSid: String,
     factorSid: String,
@@ -87,7 +89,8 @@ class FirebasePushService() : FirebaseMessagingService() {
       i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
       i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
       i.putExtras(bundleOf(ARG_FACTOR_SID to factorSid, ARG_CHALLENGE_SID to challengeSid))
-      val pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_ONE_SHOT)
+      val flags = PendingIntent.FLAG_ONE_SHOT
+      val pendingIntent = PendingIntent.getActivity(this, 0, i, flags or PendingIntent.FLAG_IMMUTABLE)
       val builder = NotificationCompat.Builder(
         this,
         channelId

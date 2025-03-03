@@ -59,7 +59,7 @@ class ServiceMapperTest {
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     serviceMapper.fromApi(jsonObject)
   }
@@ -74,7 +74,7 @@ class ServiceMapperTest {
       put(updatedDateKey, "2020-02-21T18:39:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(ParseException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(ParseException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     serviceMapper.fromApi(jsonObject)
   }

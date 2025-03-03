@@ -3,8 +3,8 @@
  */
 package com.twilio.security.logger
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Test
 
 class LoggerTest {
@@ -14,9 +14,9 @@ class LoggerTest {
     val level = Level.Debug
     val message = "Message"
     val throwable = IllegalArgumentException("test")
-    val loggerContract: LoggerContract = mock()
+    val loggerContract: LoggerContract = mockk(relaxed = true)
     Logger.loggerContract = loggerContract
     Logger.log(level, message, throwable)
-    verify(loggerContract).log(level, message, throwable)
+    verify { loggerContract.log(level, message, throwable) }
   }
 }

@@ -40,11 +40,11 @@ None
 <a name='Requirements'></a>
 
 ## Requirements
-* Android Studio 4.0 or higher
-* Java 8
+* Android Studio Ladybug or higher
+* Java 17
 * Android 6.0 (23) SDK or higher
-* Gradle 6.3
-* Kotlin 1.3.72
+* Gradle 8.2.0
+* Kotlin 2.1.10
 
 <a name='Documentation'></a>
 

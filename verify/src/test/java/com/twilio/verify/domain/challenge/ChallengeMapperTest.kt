@@ -406,7 +406,7 @@ class ChallengeMapperTest {
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeMapper.fromApi(jsonObject)
   }
@@ -428,7 +428,7 @@ class ChallengeMapperTest {
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeMapper.fromApi(jsonObject)
   }
@@ -468,7 +468,7 @@ class ChallengeMapperTest {
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeMapper.fromApi(jsonObject)
   }
@@ -509,7 +509,7 @@ class ChallengeMapperTest {
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(ParseException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(ParseException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeMapper.fromApi(jsonObject)
   }
@@ -550,7 +550,7 @@ class ChallengeMapperTest {
       put(expirationDateKey, "2020-02-27T08:50:57-08:00")
     }
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(ParseException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(ParseException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeMapper.fromApi(jsonObject)
   }

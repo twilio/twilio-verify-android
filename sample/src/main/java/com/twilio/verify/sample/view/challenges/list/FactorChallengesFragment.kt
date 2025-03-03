@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.sample.R
-import com.twilio.verify.sample.R.layout
+import com.twilio.verify.sample.databinding.FragmentFactorChallengesBinding
 import com.twilio.verify.sample.model.AppModel
 import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
@@ -40,21 +40,16 @@ import com.twilio.verify.sample.viewmodel.ChallengesViewModel
 import com.twilio.verify.sample.viewmodel.Factor
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
-import kotlinx.android.synthetic.main.fragment_factor_challenges.challenges
-import kotlinx.android.synthetic.main.fragment_factor_challenges.silentApproveCheck
-import kotlinx.android.synthetic.main.fragment_factors.content
-import kotlinx.android.synthetic.main.view_factor.factorNameText
-import kotlinx.android.synthetic.main.view_factor.factorSidText
-import kotlinx.android.synthetic.main.view_factor.factorStatusText
-import kotlinx.android.synthetic.main.view_factor.identityText
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class FactorChallengesFragment : Fragment() {
   private lateinit var sid: String
   private lateinit var viewAdapter: RecyclerView.Adapter<*>
   private lateinit var viewManager: LinearLayoutManager
-  private val factorViewModel: FactorViewModel by viewModel()
-  private val challengesViewModel: ChallengesViewModel by viewModel()
+  private val factorViewModel: FactorViewModel by activityViewModel()
+  private val challengesViewModel: ChallengesViewModel by activityViewModel()
+  private var _binding: FragmentFactorChallengesBinding? = null
+  private val binding get() = _binding!!
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -68,7 +63,13 @@ class FactorChallengesFragment : Fragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(layout.fragment_factor_challenges, container, false)
+    _binding = FragmentFactorChallengesBinding.inflate(inflater, container, false)
+    return binding.root
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -80,7 +81,7 @@ class FactorChallengesFragment : Fragment() {
         Observer {
           when (it) {
             is Factor -> showFactor(it.factor)
-            is FactorError -> it.exception.showError(content)
+            is FactorError -> it.exception.showError(binding.content)
           }
         }
       )
@@ -90,37 +91,37 @@ class FactorChallengesFragment : Fragment() {
         Observer {
           when (it) {
             is ChallengeList -> showChallenges(it.challenges)
-            is ChallengesError -> it.exception.showError(content)
+            is ChallengesError -> it.exception.showError(binding.content)
           }
         }
       )
     val dividerItemDecoration = DividerItemDecoration(
-      challenges.context,
+      binding.challenges.context,
       viewManager.orientation
     )
-    challenges.addItemDecoration(dividerItemDecoration)
+    binding.challenges.addItemDecoration(dividerItemDecoration)
     factorViewModel.loadFactor(sid)
     challengesViewModel.loadChallenges(sid)
-    silentApproveCheck.isChecked = AppModel.silentlyApproveChallengesPerFactor[sid] == true
-    silentApproveCheck.setOnCheckedChangeListener { _, isChecked ->
+    binding.silentApproveCheck.isChecked = AppModel.silentlyApproveChallengesPerFactor[sid] == true
+    binding.silentApproveCheck.setOnCheckedChangeListener { _, isChecked ->
       factorViewModel.changeSilentApproveChallenges(sid, isChecked)
     }
   }
 
   private fun showFactor(factor: com.twilio.verify.models.Factor) {
-    factorSidText.apply {
+    binding.factor.factorSidText.apply {
       text = factor.sid
       setTextIsSelectable(true)
     }
-    factorNameText.apply {
+    binding.factor.factorNameText.apply {
       text = factor.friendlyName
       setTextIsSelectable(true)
     }
-    identityText.apply {
+    binding.factor.identityText.apply {
       text = factor.identity
       setTextIsSelectable(true)
     }
-    factorStatusText.text = factor.status.value
+    binding.factor.factorStatusText.text = factor.status.value
   }
 
   private fun showChallenges(challenges: List<Challenge>) {
@@ -131,7 +132,7 @@ class FactorChallengesFragment : Fragment() {
       )
       findNavController().navigate(R.id.action_show_challenge, bundle)
     }
-    this.challenges.apply {
+    binding.challenges.apply {
       setHasFixedSize(true)
       layoutManager = viewManager
       adapter = viewAdapter
