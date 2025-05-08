@@ -4,8 +4,8 @@ twilio-security-tests:
     app: ftl/dummy.apk
     test: {{test_build}}
     device:
-        # Pixel2
-        - {model: Pixel2, version: 28, locale: en, orientation: portrait}
+        # Pixel3
+        - {model: blueline, version: 28, locale: en, orientation: portrait}
         # Pixel 5e
         - {model: redfin, version: 30, locale: en, orientation: portrait}
         # Google Oriole
