@@ -343,31 +343,50 @@ workflows:
 
   workflow:
     jobs:
-      - assemble_build
+      - assemble_build:
+          context:
+            - verify-push-android
       - lint:
+          context:
+            - verify-push-android
           requires:
             - assemble_build
       - unit_tests:
+          context:
+            - verify-push-android
           requires:
             - assemble_build
       - security_instrumentation_tests_single_device:
+          context:
+            - verify-push
           requires:
             - lint
             - unit_tests
       - verify_instrumentation_tests_single_device:
+          context:
+            - verify-push
           requires:
             - lint
             - unit_tests
       - security_instrumentation_tests_multiple_devices:
+          context:
+            - verify-push
           requires:
             - security_instrumentation_tests_single_device
       - verify_instrumentation_tests_multiple_devices:
+          context:
+            - verify-push
           requires:
             - verify_instrumentation_tests_single_device
       - sdk_size_report:
+          context:
+            - verify-push-android
           requires:
             - verify_instrumentation_tests_single_device
       - distribute_debug_sample_app:
+          context:
+            - verify-push
+            - verify-push-android
           requires:
             - security_instrumentation_tests_multiple_devices
             - verify_instrumentation_tests_multiple_devices
@@ -379,6 +398,9 @@ workflows:
                 - /hotfix.*/
                 - dev
       - release_sdk:
+          context:
+            - verify-push
+            - verify-push-android
           requires:
             - security_instrumentation_tests_multiple_devices
             - verify_instrumentation_tests_multiple_devices
