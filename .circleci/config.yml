@@ -401,6 +401,7 @@ workflows:
           context:
             - verify-push
             - verify-push-android
+            - verify-maven-publishing-android
           requires:
             - security_instrumentation_tests_multiple_devices
             - verify_instrumentation_tests_multiple_devices
