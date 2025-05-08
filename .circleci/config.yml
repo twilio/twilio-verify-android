@@ -227,7 +227,7 @@ jobs:
       - run:
           name: Run security integration tests on single device
           command:
-            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/security-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/security-debug-androidTest.apk --device model=husky,version=34,locale=en,orientation=portrait
   verify_instrumentation_tests_single_device:
     executor: *executor
     steps:
@@ -239,7 +239,7 @@ jobs:
       - run:
           name: Run verify integration tests on single device
           command:
-            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/verify-debug-androidTest.apk --device model=husky,version=34,locale=en,orientation=portrait
   security_instrumentation_tests_multiple_devices:
     executor: *executor
     steps:

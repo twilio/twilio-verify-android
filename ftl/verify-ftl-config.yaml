@@ -10,5 +10,5 @@ twilio-verify-tests:
         - { model: redfin, version: 30, locale: en, orientation: portrait }
         # Google Oriole
         - { model: oriole, version: 31, locale: en, orientation: portrait }
-        # Pixel 9
-        - { model: tokay, version: 34, locale: en, orientation: portrait }
+        # Pixel 7
+        - { model: panther, version: 33, locale: en, orientation: portrait }
