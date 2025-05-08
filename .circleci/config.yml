@@ -40,7 +40,7 @@ references:
   store_google_service_account: &store_google_service_account
     run:
       name: Store Google Service Account
-      command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      command: echo $GCLOUD_SERVICE_KEY | base64 --decode > ${HOME}/gcloud-service-key.json
 
   authorize_gcloud: &authorize_gcloud
     run:
@@ -53,7 +53,7 @@ references:
   store_gcloud_app_distribution_service: &store_gcloud_app_distribution_service
     run:
       name: Store GCloud App Distribution service
-      command: echo $GCLOUD_APP_DISTRIBUTION_SERVICE_KEY > ${HOME}/gcloud-app-distribution-service-key.json
+      command: echo $GCLOUD_APP_DISTRIBUTION_SERVICE_KEY | base64 --decode > ${HOME}/gcloud-app-distribution-service-key.json
 
   #Reporting
   sdk_sizer: &sdk_sizer
