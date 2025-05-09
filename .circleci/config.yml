@@ -40,7 +40,7 @@ references:
   store_google_service_account: &store_google_service_account
     run:
       name: Store Google Service Account
-      command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      command: echo $GCLOUD_SERVICE_KEY | base64 --decode > ${HOME}/gcloud-service-key.json
 
   authorize_gcloud: &authorize_gcloud
     run:
@@ -53,7 +53,7 @@ references:
   store_gcloud_app_distribution_service: &store_gcloud_app_distribution_service
     run:
       name: Store GCloud App Distribution service
-      command: echo $GCLOUD_APP_DISTRIBUTION_SERVICE_KEY > ${HOME}/gcloud-app-distribution-service-key.json
+      command: echo $GCLOUD_APP_DISTRIBUTION_SERVICE_KEY | base64 --decode > ${HOME}/gcloud-app-distribution-service-key.json
 
   #Reporting
   sdk_sizer: &sdk_sizer
@@ -227,7 +227,7 @@ jobs:
       - run:
           name: Run security integration tests on single device
           command:
-            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/security-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/security-debug-androidTest.apk --device model=husky,version=34,locale=en,orientation=portrait
   verify_instrumentation_tests_single_device:
     executor: *executor
     steps:
@@ -239,7 +239,7 @@ jobs:
       - run:
           name: Run verify integration tests on single device
           command:
-            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/verify-debug-androidTest.apk --device model=blueline,version=28,locale=en,orientation=portrait
+            sudo gcloud firebase test android run --project twilioverify-sampleapp --type instrumentation --app ftl/dummy.apk --test builds/verify-debug-androidTest.apk --device model=husky,version=34,locale=en,orientation=portrait
   security_instrumentation_tests_multiple_devices:
     executor: *executor
     steps:
@@ -343,31 +343,51 @@ workflows:
 
   workflow:
     jobs:
-      - assemble_build
+      - assemble_build:
+          context:
+            - verify-push-android
       - lint:
+          context:
+            - verify-push
+            - verify-push-android
           requires:
             - assemble_build
       - unit_tests:
+          context:
+            - verify-push-android
           requires:
             - assemble_build
       - security_instrumentation_tests_single_device:
+          context:
+            - verify-push
           requires:
             - lint
             - unit_tests
       - verify_instrumentation_tests_single_device:
+          context:
+            - verify-push
           requires:
             - lint
             - unit_tests
       - security_instrumentation_tests_multiple_devices:
+          context:
+            - verify-push
           requires:
             - security_instrumentation_tests_single_device
       - verify_instrumentation_tests_multiple_devices:
+          context:
+            - verify-push
           requires:
             - verify_instrumentation_tests_single_device
       - sdk_size_report:
+          context:
+            - verify-push-android
           requires:
             - verify_instrumentation_tests_single_device
       - distribute_debug_sample_app:
+          context:
+            - verify-push
+            - verify-push-android
           requires:
             - security_instrumentation_tests_multiple_devices
             - verify_instrumentation_tests_multiple_devices
@@ -379,6 +399,10 @@ workflows:
                 - /hotfix.*/
                 - dev
       - release_sdk:
+          context:
+            - verify-push
+            - verify-push-android
+            - verify-maven-publishing-android
           requires:
             - security_instrumentation_tests_multiple_devices
             - verify_instrumentation_tests_multiple_devices

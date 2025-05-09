@@ -5,10 +5,10 @@ twilio-security-tests:
     test: {{test_build}}
     device:
         # Pixel2
-        - {model: Pixel2, version: 28, locale: en, orientation: portrait}
+        - {model: Pixel2.arm, version: 28, locale: en, orientation: portrait}
         # Pixel 5e
         - {model: redfin, version: 30, locale: en, orientation: portrait}
         # Google Oriole
         - {model: oriole, version: 31, locale: en, orientation: portrait}
-        # Pixel 9
-        - {model: tokay, version: 34, locale: en, orientation: portrait}
+        # Pixel 7
+        - {model: panther, version: 33, locale: en, orientation: portrait}
