@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   android: circleci/android@3.1.0
-  ruby: circleci/ruby@2.5.3
 
 references:
   workspace: &workspace
@@ -88,7 +87,7 @@ commands:
           key: v1-gems-{{ checksum "Gemfile.lock" }}
       - run:
           name: Install Gems
-          command: bundle check || bundle install
+          command: bundle check || (bundle config set --local path 'vendor/bundle' && bundle install)
       - save_cache:
           key: v1-gems-{{ checksum "Gemfile.lock" }}
           paths:
