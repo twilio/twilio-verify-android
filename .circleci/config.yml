@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   android: circleci/android@3.1.0
-  ruby: circleci/ruby@2.5.3
 
 references:
   workspace: &workspace

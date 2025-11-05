@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem 'abbrev'
 gem "fastlane", ">= 2.228.0"
 gem "danger", ">= 8.3.1"
 gem "danger-checkstyle_formatter", ">= 0.0.3"
