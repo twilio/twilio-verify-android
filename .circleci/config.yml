@@ -391,13 +391,13 @@ workflows:
           requires:
             - security_instrumentation_tests_multiple_devices
             - verify_instrumentation_tests_multiple_devices
-          filters:
-            branches:
-              only:
-                - /feature.*/
-                - /release.*/
-                - /hotfix.*/
-                - dev
+          # filters:
+          #   branches:
+          #     only:
+          #       - /feature.*/
+          #       - /release.*/
+          #       - /hotfix.*/
+          #       - dev
       - release_sdk:
           context:
             - verify-push
