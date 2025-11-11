@@ -20,12 +20,14 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.twilio.verify.models.ChallengeStatus.Approved
 import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.sample.R
-import com.twilio.verify.sample.R.id
 import com.twilio.verify.sample.TwilioVerifyAdapter
 import com.twilio.verify.sample.databinding.ActivityMainBinding
 import com.twilio.verify.sample.model.AppModel
@@ -48,9 +50,30 @@ class MainActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     binding = ActivityMainBinding.inflate(layoutInflater)
+    WindowCompat.setDecorFitsSystemWindows(window, false)
+    val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+    windowInsetsController.isAppearanceLightStatusBars = false
+    windowInsetsController.isAppearanceLightNavigationBars = true
     val view = binding.root
     setContentView(view)
+    addMarginsListenerForEdgeToEdge()
     showChallengeIfNeeded()
+  }
+
+  private fun addMarginsListenerForEdgeToEdge() {
+    ViewCompat.setOnApplyWindowInsetsListener(binding.content) { v, insets ->
+      val innerPadding = insets.getInsets(
+        WindowInsetsCompat.Type.navigationBars()
+          or WindowInsetsCompat.Type.displayCutout()
+      )
+      v.setPadding(
+        innerPadding.left,
+        innerPadding.top,
+        innerPadding.right,
+        innerPadding.bottom
+      )
+      insets
+    }
   }
 
   override fun onResume() {
@@ -88,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     val bundle = bundleOf(
       ARG_CHALLENGE_SID to challengeSid, ARG_FACTOR_SID to factorSid
     )
-    findNavController(R.id.nav_host_fragment).navigate(id.action_show_challenge, bundle)
+    findNavController(R.id.nav_host_fragment).navigate(R.id.action_show_challenge, bundle)
   }
 
   private fun approveChallenge(
