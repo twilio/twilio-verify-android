@@ -20,6 +20,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -156,6 +157,23 @@ class MainActivity : AppCompatActivity() {
         arrayOf(Manifest.permission.POST_NOTIFICATIONS),
         NOTIFICATION_PERMISSION_CODE
       )
+    }
+  }
+
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    if (requestCode == NOTIFICATION_PERMISSION_CODE) {
+      if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+        Toast.makeText(
+          this,
+          "Permission denied, notifications won't show up",
+          Toast.LENGTH_LONG
+        ).show()
+      }
     }
   }
 }
