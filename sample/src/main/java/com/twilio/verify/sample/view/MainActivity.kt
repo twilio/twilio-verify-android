@@ -16,9 +16,15 @@
 
 package com.twilio.verify.sample.view
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -39,6 +45,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
+const val NOTIFICATION_PERMISSION_CODE = 100
+
 class MainActivity : AppCompatActivity() {
 
   private lateinit var subscriberJob: Job
@@ -58,6 +66,9 @@ class MainActivity : AppCompatActivity() {
     setContentView(view)
     addMarginsListenerForEdgeToEdge()
     showChallengeIfNeeded()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      requestNotificationPermission()
+    }
   }
 
   private fun addMarginsListenerForEdgeToEdge() {
@@ -134,5 +145,17 @@ class MainActivity : AppCompatActivity() {
         it.printStackTrace()
       }
     )
+  }
+
+  @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+  private fun requestNotificationPermission() {
+    val permission = Manifest.permission.POST_NOTIFICATIONS
+    if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(
+        this,
+        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+        NOTIFICATION_PERMISSION_CODE
+      )
+    }
   }
 }

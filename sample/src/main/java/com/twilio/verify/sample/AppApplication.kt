@@ -17,8 +17,13 @@
 package com.twilio.verify.sample
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import com.google.firebase.FirebaseApp
 import com.twilio.verify.sample.kotlin.TwilioVerifyKotlinProvider
+import com.twilio.verify.sample.push.channelId
 import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.ChallengesViewModel
 import com.twilio.verify.sample.viewmodel.FactorViewModel
@@ -49,10 +54,25 @@ class AppApplication : Application() {
   override fun onCreate() {
     super.onCreate()
     FirebaseApp.initializeApp(this)
+    createNotificationChannel()
     startKoin {
       androidLogger()
       androidContext(this@AppApplication)
       modules(appModule, viewModelModule)
+    }
+  }
+
+  private fun createNotificationChannel() {
+    if (VERSION.SDK_INT >= VERSION_CODES.O) {
+      val name = getString(R.string.channel_name)
+      val descriptionText = getString(R.string.channel_description)
+      val importance = NotificationManager.IMPORTANCE_DEFAULT
+      val channel = NotificationChannel(channelId, name, importance).apply {
+        description = descriptionText
+      }
+      val notificationManager: NotificationManager =
+        getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+      notificationManager.createNotificationChannel(channel)
     }
   }
 }
