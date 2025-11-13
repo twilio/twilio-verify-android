@@ -17,16 +17,10 @@
 package com.twilio.verify.sample.push
 
 import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -81,9 +75,6 @@ class FirebasePushService() : FirebaseMessagingService() {
   ) {
     twilioVerifyAdapter.showChallenge(challengeSid, factorSid)
     message?.let {
-      if (VERSION.SDK_INT >= VERSION_CODES.O) {
-        createNotificationChannel()
-      }
       val i = Intent(this, MainActivity::class.java)
       i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
       i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -105,19 +96,6 @@ class FirebasePushService() : FirebaseMessagingService() {
         notify(challengeSid.hashCode(), builder.build())
       }
     }
-  }
-
-  @RequiresApi(VERSION_CODES.O)
-  private fun createNotificationChannel() {
-    val name = getString(R.string.channel_name)
-    val descriptionText = getString(R.string.channel_description)
-    val importance = NotificationManager.IMPORTANCE_DEFAULT
-    val channel = NotificationChannel(channelId, name, importance).apply {
-      description = descriptionText
-    }
-    val notificationManager: NotificationManager =
-      getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    notificationManager.createNotificationChannel(channel)
   }
 
   private fun getBundleFromMessage(remoteMessage: RemoteMessage?): Bundle {
