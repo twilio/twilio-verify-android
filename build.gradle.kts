@@ -50,8 +50,8 @@ allprojects {
 nexusPublishing {
   repositories {
     sonatype {
-      username = Config.projectProperty(project, MavenPublish.ossrhUsernameEnv)
-      password = Config.projectProperty(project, MavenPublish.ossrhPasswordEnv)
+      username = Config.projectProperty(project, MavenPublish.sonatypeUsernameEnv)
+      password = Config.projectProperty(project, MavenPublish.sonatypePasswordEnv)
       stagingProfileId.set(Config.projectProperty(project, MavenPublish.sonatypeStagingProfileIdEnv))
       nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
       snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
@@ -137,8 +137,8 @@ fun mavenPublishCredentials(): Map<String, String> {
     MavenPublish.signingKeyIdEnv,
     MavenPublish.signingPasswordEnv,
     MavenPublish.signingSecretKeyRingFileEnv,
-    MavenPublish.ossrhUsernameEnv,
-    MavenPublish.ossrhPasswordEnv,
+    MavenPublish.sonatypeUsernameEnv,
+    MavenPublish.sonatypePasswordEnv,
     MavenPublish.sonatypeStagingProfileIdEnv
   )
 }
