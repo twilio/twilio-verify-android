@@ -17,7 +17,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
-  id(Config.Plugins.nexus) version (Config.Versions.nexus)
+  id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
 }
 
 buildscript {
@@ -50,9 +50,11 @@ allprojects {
 nexusPublishing {
   repositories {
     sonatype {
-      username.set(Config.projectProperty(project, MavenPublish.ossrhUsernameEnv))
-      password.set(Config.projectProperty(project, MavenPublish.ossrhPasswordEnv))
+      username = Config.projectProperty(project, MavenPublish.sonatypeUsernameEnv)
+      password = Config.projectProperty(project, MavenPublish.sonatypePasswordEnv)
       stagingProfileId.set(Config.projectProperty(project, MavenPublish.sonatypeStagingProfileIdEnv))
+      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
     }
   }
 
@@ -135,8 +137,8 @@ fun mavenPublishCredentials(): Map<String, String> {
     MavenPublish.signingKeyIdEnv,
     MavenPublish.signingPasswordEnv,
     MavenPublish.signingSecretKeyRingFileEnv,
-    MavenPublish.ossrhUsernameEnv,
-    MavenPublish.ossrhPasswordEnv,
+    MavenPublish.sonatypeUsernameEnv,
+    MavenPublish.sonatypePasswordEnv,
     MavenPublish.sonatypeStagingProfileIdEnv
   )
 }
