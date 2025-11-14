@@ -41,7 +41,9 @@ class BiometricSecretKey(
       {
         success(toByteArray(it))
       },
-      { exception -> error(mapException(exception)) }
+      { exception ->
+        error(mapException(exception))
+      }
     )
   }
 

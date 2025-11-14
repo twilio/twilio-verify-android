@@ -50,7 +50,7 @@ class KeyStoreAdapterTest {
     val alias = "alias"
     whenever(keyManager.signer(any())).thenThrow(KeyException::class.java)
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(KeyException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
     keyStoreAdapter.create(alias)
   }
@@ -87,7 +87,7 @@ class KeyStoreAdapterTest {
     whenever(keyManager.signer(any())).thenReturn(signer)
     whenever(signer.sign(message.toByteArray())).thenThrow(KeyException::class.java)
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(KeyException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
     keyStoreAdapter.signAndEncode(alias, message)
   }
@@ -100,7 +100,7 @@ class KeyStoreAdapterTest {
     whenever(keyManager.signer(any())).thenReturn(signer)
     whenever(signer.sign(message.toByteArray())).thenThrow(KeyException::class.java)
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(KeyException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
     keyStoreAdapter.sign(alias, message)
   }
@@ -117,7 +117,7 @@ class KeyStoreAdapterTest {
     val alias = "alias"
     whenever(keyManager.delete(alias)).thenThrow(KeyException::class.java)
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(KeyException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(KeyException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(KeyStorageError))
     keyStoreAdapter.delete(alias)
   }

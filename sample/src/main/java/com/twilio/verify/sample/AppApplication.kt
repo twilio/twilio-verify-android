@@ -17,15 +17,20 @@
 package com.twilio.verify.sample
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import com.google.firebase.FirebaseApp
 import com.twilio.verify.sample.kotlin.TwilioVerifyKotlinProvider
+import com.twilio.verify.sample.push.channelId
 import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.ChallengesViewModel
 import com.twilio.verify.sample.viewmodel.FactorViewModel
 import com.twilio.verify.sample.viewmodel.FactorsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
@@ -40,19 +45,34 @@ class AppApplication : Application() {
   }
 
   private val viewModelModule = module {
-    viewModel { FactorsViewModel(get()) }
-    viewModel { FactorViewModel(get()) }
-    viewModel { ChallengesViewModel(get()) }
-    viewModel { ChallengeViewModel(get()) }
+    viewModelOf(::FactorsViewModel)
+    viewModelOf(::FactorViewModel)
+    viewModelOf(::ChallengesViewModel)
+    viewModelOf(::ChallengeViewModel)
   }
 
   override fun onCreate() {
     super.onCreate()
     FirebaseApp.initializeApp(this)
+    createNotificationChannel()
     startKoin {
       androidLogger()
       androidContext(this@AppApplication)
       modules(appModule, viewModelModule)
+    }
+  }
+
+  private fun createNotificationChannel() {
+    if (VERSION.SDK_INT >= VERSION_CODES.O) {
+      val name = getString(R.string.channel_name)
+      val descriptionText = getString(R.string.channel_description)
+      val importance = NotificationManager.IMPORTANCE_DEFAULT
+      val channel = NotificationChannel(channelId, name, importance).apply {
+        description = descriptionText
+      }
+      val notificationManager: NotificationManager =
+        getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+      notificationManager.createNotificationChannel(channel)
     }
   }
 }

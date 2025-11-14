@@ -141,8 +141,8 @@ internal class PushChallengeProcessor(
   ): String {
     try {
       val payload = JSONObject().apply {
-        signatureFields.forEach {
-          put(it, response[it])
+        for (key in signatureFields) {
+          put(key, response[key])
         }
         put(statusKey, status.value)
       }

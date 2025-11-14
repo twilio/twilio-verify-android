@@ -29,6 +29,7 @@ import java.net.URL
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Headers
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.ResponseBody
@@ -46,8 +47,9 @@ class OkHttpProviderTest {
 
   @Test
   fun `Execute request with success response should call success`() {
-    val request: Request = mock() {
-      on { url } doReturn URL("https://twilio.com")
+    val mockUrl = URL("https://twilio.com")
+    val request: Request = mock {
+      on { url } doReturn mockUrl
       on { httpMethod } doReturn Post
     }
     val call: Call = mock()
@@ -63,13 +65,21 @@ class OkHttpProviderTest {
         headersBuilder.add(header.key, value)
       }
     }
+
+    val httpUrl = mock<HttpUrl> {
+      on { toUrl() } doReturn mockUrl
+    }
     val response = Response.Builder()
       .body(responseBody)
       .headers(headersBuilder.build())
       .message("message")
       .code(200)
       .protocol(mock())
-      .request(mock())
+      .request(
+        mock {
+          on { url } doReturn httpUrl
+        }
+      )
       .build()
     argumentCaptor<(Callback)>().apply {
       whenever(call.enqueue(capture())).then {
@@ -90,8 +100,9 @@ class OkHttpProviderTest {
 
   @Test
   fun `Execute request with success response but with invalid response code should call error`() {
-    val request: Request = mock() {
-      on { url } doReturn URL("https://twilio.com")
+    val mockUrl = URL("https://twilio.com")
+    val request: Request = mock {
+      on { url } doReturn mockUrl
       on { httpMethod } doReturn Post
     }
     val call: Call = mock()
@@ -100,12 +111,20 @@ class OkHttpProviderTest {
     val responseBody: ResponseBody = mock() {
       on { string() } doReturn bodyJson.toString()
     }
+
+    val httpUrl = mock<HttpUrl> {
+      on { toUrl() } doReturn mockUrl
+    }
     val response = Response.Builder()
       .body(responseBody)
       .message("message")
       .code(400)
       .protocol(mock())
-      .request(mock())
+      .request(
+        mock {
+          on { url } doReturn httpUrl
+        }
+      )
       .build()
     argumentCaptor<(Callback)>().apply {
       whenever(call.enqueue(capture())).then {

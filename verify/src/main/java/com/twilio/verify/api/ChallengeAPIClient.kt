@@ -161,7 +161,7 @@ internal class ChallengeAPIClient(
         val queryParameters = mutableMapOf<String, Any>(
           pageSizeParameter to pageSize,
           FACTOR_SID_KEY to factor.sid,
-          orderParameter to order.name.toLowerCase()
+          orderParameter to order.name.lowercase()
         )
         status?.let {
           queryParameters.put(statusParameter, it)

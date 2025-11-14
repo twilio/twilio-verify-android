@@ -314,7 +314,7 @@ class FactorChallengeListMapperTest {
     }
 
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeListMapper.fromApi(jsonObject)
   }
@@ -331,7 +331,7 @@ class FactorChallengeListMapperTest {
     }
 
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeListMapper.fromApi(jsonObject)
   }
@@ -348,7 +348,7 @@ class FactorChallengeListMapperTest {
     }
 
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(Matchers.instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(Matchers.instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(TwilioVerifyException.ErrorCode.MapperError))
     challengeListMapper.fromApi(jsonObject)
   }

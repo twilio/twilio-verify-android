@@ -71,7 +71,7 @@ class FactorMapperTest {
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     factorMapper.fromApi(jsonObject, factorPayload)
   }
@@ -94,7 +94,7 @@ class FactorMapperTest {
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(IllegalArgumentException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     factorMapper.fromApi(jsonObject, factorPayload)
   }
@@ -109,7 +109,7 @@ class FactorMapperTest {
       .put(friendlyNameKey, "factor name")
       .put(accountSidKey, "accountSid123")
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     factorMapper.fromApi(jsonObject, factorPayload)
   }
@@ -126,7 +126,7 @@ class FactorMapperTest {
       .put(accountSidKey, "accountSid123")
       .put(serviceSidKey, "serviceSid123")
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     factorMapper.fromApi(jsonObject, factorPayload)
   }
@@ -168,7 +168,7 @@ class FactorMapperTest {
       .put(keyPairAliasKey, "keyPairAlias123")
       .put(identityKey, "identity123")
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(IllegalArgumentException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     factorMapper.fromStorage(jsonObject.toString())
   }
@@ -184,7 +184,7 @@ class FactorMapperTest {
       .put(typeKey, "test")
       .put(keyPairAliasKey, "keyPairAlias123")
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(IllegalArgumentException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(IllegalArgumentException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     factorMapper.fromStorage(jsonObject.toString())
   }
@@ -193,7 +193,7 @@ class FactorMapperTest {
   fun `Map an invalid json from storage should throw an exception`() {
     val json = "test"
     exceptionRule.expect(TwilioVerifyException::class.java)
-    exceptionRule.expectCause(instanceOf(JSONException::class.java))
+    exceptionRule.expectCause(instanceOf<Throwable>(JSONException::class.java))
     exceptionRule.expect(ErrorCodeMatcher(MapperError))
     factorMapper.fromStorage(json)
   }
