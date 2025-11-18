@@ -32,6 +32,9 @@ object MavenPublish {
 
   fun credentials(
     project: Project,
+    signingKeyId: String,
+    signingPassword: String,
+    signingKeyRingFile: String,
     sonatypeUsername: String,
     sonatypePassword: String,
     sonatypeStagingProfileId: String
