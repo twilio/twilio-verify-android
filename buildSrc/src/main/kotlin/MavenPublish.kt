@@ -17,9 +17,15 @@
 import org.gradle.api.Project
 
 object MavenPublish {
+  const val signingKeyIdKey = "signing.keyId"
+  const val signingPasswordKey = "signing.password"
+  const val signingSecretKeyRingFileKey = "signing.secretKeyRingFile"
   const val sonatypeUsernameKey = "sonatypeUsername"
   const val sonatypePasswordKey = "sonatypePassword"
   const val sonatypeStagingProfileIdKey = "sonatypeStagingProfileId"
+  const val signingKeyIdEnv = "SIGNING_KEY_ID"
+  const val signingPasswordEnv = "SIGNING_PASSWORD"
+  const val signingSecretKeyRingFileEnv = "SIGNING_SECRET_KEY_RING_FILE"
   const val sonatypeUsernameEnv = "SONATYPE_USERNAME"
   const val sonatypePasswordEnv = "SONATYPE_PASSWORD"
   const val sonatypeStagingProfileIdEnv = "SONATYPE_STAGING_PROFILE_ID"
@@ -31,6 +37,9 @@ object MavenPublish {
     sonatypeStagingProfileId: String
   ): Map<String, String> {
     return mapOf(
+      signingKeyIdKey to Config.projectProperty(project, signingKeyId),
+      signingPasswordKey to Config.projectProperty(project, signingPassword),
+      signingSecretKeyRingFileKey to Config.projectProperty(project, signingKeyRingFile),
       sonatypeUsernameKey to Config.projectProperty(project, sonatypeUsername),
       sonatypePasswordKey to Config.projectProperty(project, sonatypePassword),
       sonatypeStagingProfileIdKey to Config.projectProperty(project, sonatypeStagingProfileId)
