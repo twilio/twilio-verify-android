@@ -281,7 +281,6 @@ jobs:
       - *restore_gradle_cache
       - *decrypt_google_services
       - *store_gcloud_app_distribution_service
-      - *signing_key
       - *release
       - *save_gradle_cache
 workflows:
