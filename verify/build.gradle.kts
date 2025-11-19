@@ -111,50 +111,52 @@ val sourcesJar by tasks.creating(Jar::class) {
   from(android.sourceSets.getByName("main").java.srcDirs)
 }
 
-publishing {
-  publications {
-    create<MavenPublication>("TwilioVerify") {
-      groupId = pomGroup
-      artifactId = pomArtifactId
-      version = verifyVersionName
-      artifact(layout.buildDirectory.file("outputs/aar/verify-release.aar"))
-      artifact(dokkaHtmlJar)
-      artifact(sourcesJar)
+afterEvaluate {
+  publishing {
+    publications {
+      create<MavenPublication>("TwilioVerify") {
+        groupId = pomGroup
+        artifactId = pomArtifactId
+        version = verifyVersionName
+        artifact(layout.buildDirectory.file("outputs/aar/verify-release.aar"))
+        artifact(dokkaHtmlJar)
+        artifact(sourcesJar)
 
-      pom.withXml {
-        asNode().apply {
-          appendNode("name", "twilio-verify-android")
-          appendNode(
-            "description",
-            "Twilio Verify Push SDK helps you verify users by adding a low-friction, secure, " +
-              "cost-effective, \"push verification\" factor into your own mobile application. This fully" +
-              " managed API service allows you to seamlessly verify users in-app via a secure channel," +
-              " without the risks, hassles or costs of One-Time Passcodes (OTPs)."
-          )
-          appendNode("url", "https://github.com/twilio/twilio-verify-android")
-          appendNode("licenses").apply {
-            appendNode("license").apply {
-              appendNode("name", "Apache License, Version 2.0")
-              appendNode("url", "https://github.com/twilio/twilio-verify-android/blob/main/LICENSE")
+        pom.withXml {
+          asNode().apply {
+            appendNode("name", "twilio-verify-android")
+            appendNode(
+              "description",
+              "Twilio Verify Push SDK helps you verify users by adding a low-friction, secure, " +
+                "cost-effective, \"push verification\" factor into your own mobile application. This fully" +
+                " managed API service allows you to seamlessly verify users in-app via a secure channel," +
+                " without the risks, hassles or costs of One-Time Passcodes (OTPs)."
+            )
+            appendNode("url", "https://github.com/twilio/twilio-verify-android")
+            appendNode("licenses").apply {
+              appendNode("license").apply {
+                appendNode("name", "Apache License, Version 2.0")
+                appendNode("url", "https://github.com/twilio/twilio-verify-android/blob/main/LICENSE")
+              }
             }
-          }
-          appendNode("developers").apply {
-            appendNode("developer").apply {
-              appendNode("id", "Twilio")
-              appendNode("name", "Twilio")
+            appendNode("developers").apply {
+              appendNode("developer").apply {
+                appendNode("id", "Twilio")
+                appendNode("name", "Twilio")
+              }
             }
-          }
-          appendNode("scm").apply {
-            appendNode("connection", "scm:git:github.com/twilio/twilio-verify-android.git")
-            appendNode("developerConnection", "scm:git:ssh://github.com/twilio/twilio-verify-android.git")
-            appendNode("url", "https://github.com/twilio/twilio-verify-android/tree/main")
-          }
-          appendNode("dependencies").apply {
-            project.configurations["releaseImplementation"].allDependencies.forEach {
-              appendNode("dependency").apply {
-                appendNode("groupId", it.group)
-                appendNode("artifactId", it.name)
-                appendNode("version", it.version)
+            appendNode("scm").apply {
+              appendNode("connection", "scm:git:github.com/twilio/twilio-verify-android.git")
+              appendNode("developerConnection", "scm:git:ssh://github.com/twilio/twilio-verify-android.git")
+              appendNode("url", "https://github.com/twilio/twilio-verify-android/tree/main")
+            }
+            appendNode("dependencies").apply {
+              project.configurations["releaseImplementation"].allDependencies.forEach {
+                appendNode("dependency").apply {
+                  appendNode("groupId", it.group)
+                  appendNode("artifactId", it.name)
+                  appendNode("version", it.version)
+                }
               }
             }
           }
