@@ -123,6 +123,11 @@ publishing {
       artifact(dokkaHtmlJar)
       artifact(sourcesJar)
 
+      // Make sure generateMetadataFileForTwilioVerifyPublication depends on sourcesJar
+      tasks.named("generateMetadataFileForTwilioVerifyPublication") {
+        dependsOn(sourcesJar)
+      }
+
       pom.withXml {
         asNode().apply {
           appendNode("name", "twilio-verify-android")
