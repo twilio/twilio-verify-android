@@ -121,7 +121,6 @@ publishing {
         from(components["release"])
       }
       artifact(dokkaHtmlJar)
-      artifact(sourcesJar)
 
       // Make sure generateMetadataFileForTwilioVerifyPublication depends on sourcesJar
       tasks.named("generateMetadataFileForTwilioVerifyPublication") {
