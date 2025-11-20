@@ -179,7 +179,7 @@ task("generateSizeReport") {
         "\n" +
         "| ABI             | APK Size Impact |\n" +
         "| --------------- | --------------- |\n"
-    val apkscaleOutputFile = file("${layout.buildDirectory}/apkscale/build/outputs/reports/apkscale.json")
+    val apkscaleOutputFile = file("${layout.buildDirectory.get().asFile}/apkscale/build/outputs/reports/apkscale.json")
     val jsonSlurper = groovy.json.JsonSlurper()
     val apkscaleOutput = jsonSlurper.parseText(apkscaleOutputFile.readText()) as List<*>
     val releaseOutput = apkscaleOutput[0] as Map<*, *>
@@ -187,7 +187,7 @@ task("generateSizeReport") {
     sizes?.forEach { (arch, sizeImpact) ->
       sizeReport += "| ${arch.padEnd(16)}| ${sizeImpact.padEnd(16)}|\n"
     }
-    val sizeReportDir = "${layout.buildDirectory}/outputs/sizeReport"
+    val sizeReportDir = "${layout.buildDirectory.get().asFile}/outputs/sizeReport"
     mkdir(sizeReportDir)
     val targetFile = file("$sizeReportDir/${rootProject.name.replaceFirstChar { it.titlecase() }}SizeImpactReport.txt")
     targetFile.createNewFile()
