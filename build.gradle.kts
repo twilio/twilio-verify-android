@@ -142,6 +142,9 @@ task("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class) {
 fun mavenPublishCredentials(): Map<String, String> =
   MavenPublish.credentials(
     project,
+    MavenPublish.signingKeyIdEnv,
+    MavenPublish.signingPasswordEnv,
+    MavenPublish.signingSecretKeyRingFileEnv,
     MavenPublish.sonatypeUsernameEnv,
     MavenPublish.sonatypePasswordEnv,
     MavenPublish.sonatypeStagingProfileIdEnv
