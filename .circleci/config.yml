@@ -74,6 +74,7 @@ references:
     run:
       name: Release SDK
       command: bundle exec fastlane release
+
   signing_key: &signing_key
     run:
       name: Install signing key
@@ -114,58 +115,7 @@ commands:
       - run:
           name: Generating APK for internal distribution
           command: bundle exec fastlane distribute_debug_sample_app env:<<parameters.env>> url:"\"<<parameters.base_url>>\""
-  upload_codecov:
-    parameters:
-      file:
-        default: ""
-        description: Path to the code coverage data file to upload.
-        type: string
-      flags:
-        default: ""
-        description: Flag the upload to group coverage metrics (e.g. unittests | integration | ui,chrome)
-        type: string
-      token:
-        default: ${CODECOV_TOKEN}
-        description: Set the private repository token as the value of the variable CODECOV_TOKEN using CircleCI Environment Variables.
-        type: string
-      upload_name:
-        default: ${CIRCLE_BUILD_NUM}
-        description: Custom defined name of the upload. Visible in Codecov UI
-        type: string
-      url:
-        default: https://codecov.io/bash
-        description: Custom url to submit the codecov result. Default to "https://codecov.io/bash"
-        type: string
-      when:
-        default: always
-        description: When should this step run?
-        type: string
-    steps:
-      - when:
-          condition: << parameters.file >>
-          steps:
-            - run:
-                command: |
-                  curl -s << parameters.url >> | bash -s -- \
-                    -f "<< parameters.file >>" \
-                    -t "<< parameters.token >>" \
-                    -n "<< parameters.upload_name >>" \
-                    -F "<< parameters.flags >>" \
-                    -Z || echo 'Codecov upload failed'
-                name: Upload Coverage Results
-                when: << parameters.when >>
-      - unless:
-          condition: << parameters.file >>
-          steps:
-            - run:
-                command: |
-                  curl -s << parameters.url >> | bash -s -- \
-                    -t "<< parameters.token >>" \
-                    -n "<< parameters.upload_name >>" \
-                    -F "<< parameters.flags >>" \
-                    -Z || echo 'Codecov upload failed'
-                name: Upload Coverage Results
-                when: << parameters.when >>
+
 jobs:
   assemble_build:
     executor: *executor
@@ -213,9 +163,7 @@ jobs:
           to: test-results/security
       - store_test_results:
           path: "test-results"
-      - upload_codecov:
-          file: verify/build/reports/code-coverage/xml
-          flags: unittests
+
   security_instrumentation_tests_single_device:
     executor: *executor
     steps:

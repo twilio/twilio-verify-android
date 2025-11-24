@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>com.twilio.verify.models</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+    <nav class="navigation theme-dark" id="navigation-wrapper">
+            <a class="library-name--link" href="../../index.html">
+                    verify
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+0.9.0        </div>
+        <div class="navigation-controls">
+        <div class="filter-section filter-section_loading" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active=""
+                        data-filter=":verify:dokkaHtml/release">androidJvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
+                    <div class="dropdown--header"><span>Platform filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":verify:dokkaHtml/release"
+                                       data-filter=":verify:dokkaHtml/release"/>
+                                <span class="checkbox--icon"></span>
+                                androidJvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </div>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                        data-role="dropdown-listbox">
+                        <div class="dropdown--header">
+                            <span>
+                                    verify
+                            </span>
+                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                            </button>
+                        </div>
+                        <div class="sidebar--inner" id="sideMenu"></div>
+                    </ul>
+                    <div class="dropdown--overlay"></div>
+                </div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="package" id="content" pageIds="verify::com.twilio.verify.models////PointingToDeclaration//-364581781">
+  <div class="breadcrumbs"><a href="../../index.html">verify</a><span class="delimiter">/</span><span class="current">com.twilio.verify.models</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="936283027%2FClasslikes%2F-364581781" anchor-label="Challenge" id="936283027%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-challenge/index.html"><span><span>Challenge</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="936283027%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-challenge/index.html">Challenge</a></div><div class="brief "><p class="paragraph">Describes the information of a <strong>Challenge</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="280915629%2FClasslikes%2F-364581781" anchor-label="ChallengeDetails" id="280915629%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-challenge-details/index.html"><span>Challenge</span><wbr></wbr><span><span>Details</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="280915629%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-challenge-details/index.html">ChallengeDetails</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>message<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>fields<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="-detail/index.html">Detail</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>date<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Describes the Details of a <strong>Challenge</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="896079765%2FClasslikes%2F-364581781" anchor-label="ChallengeList" id="896079765%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-challenge-list/index.html"><span>Challenge</span><wbr></wbr><span><span>List</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="896079765%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-challenge-list/index.html">ChallengeList</a></div><div class="brief "><p class="paragraph">Describes the information of a <strong>ChallengeList</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-882439201%2FClasslikes%2F-364581781" anchor-label="ChallengeListOrder" id="-882439201%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-challenge-list-order/index.html"><span>Challenge</span><wbr></wbr><span>List</span><wbr></wbr><span><span>Order</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-882439201%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-challenge-list-order/index.html">ChallengeListOrder</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-challenge-list-order/index.html">ChallengeListOrder</a><span class="token operator">&gt; </span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1364023967%2FClasslikes%2F-364581781" anchor-label="ChallengeListPayload" id="1364023967%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-challenge-list-payload/index.html"><span>Challenge</span><wbr></wbr><span>List</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1364023967%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-challenge-list-payload/index.html">ChallengeListPayload</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>factorSid<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>pageSize<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>status<span class="token operator">: </span><a href="-challenge-status/index.html">ChallengeStatus</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>order<span class="token operator">: </span><a href="-challenge-list-order/index.html">ChallengeListOrder</a><span class="token operator"> = </span>Asc<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>pageToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Describes the information required to fetch a <strong>ChallengeList</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="160831041%2FClasslikes%2F-364581781" anchor-label="ChallengeStatus" id="160831041%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-challenge-status/index.html"><span>Challenge</span><wbr></wbr><span><span>Status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="160831041%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-challenge-status/index.html">ChallengeStatus</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-challenge-status/index.html">ChallengeStatus</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph">Describes the approval status of a <strong>Challenge</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="461856955%2FClasslikes%2F-364581781" anchor-label="Detail" id="461856955%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-detail/index.html"><span><span>Detail</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="461856955%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-detail/index.html">Detail</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>label<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Describes the information of a <strong>Challenge Detail</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-958793347%2FClasslikes%2F-364581781" anchor-label="Factor" id="-958793347%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-factor/index.html"><span><span>Factor</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-958793347%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-factor/index.html">Factor</a></div><div class="brief "><p class="paragraph">Describes the information of a <strong>Factor</strong>.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1314784183%2FClasslikes%2F-364581781" anchor-label="FactorPayload" id="1314784183%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-factor-payload/index.html"><span>Factor</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1314784183%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-factor-payload/index.html">FactorPayload</a></div><div class="brief "><p class="paragraph">Describes the information required to create a Factor</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1175317675%2FClasslikes%2F-364581781" anchor-label="FactorStatus" id="1175317675%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-factor-status/index.html"><span>Factor</span><wbr></wbr><span><span>Status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1175317675%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-factor-status/index.html">FactorStatus</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-factor-status/index.html">FactorStatus</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph">Describes the verification status of a factor.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-474478237%2FClasslikes%2F-364581781" anchor-label="FactorType" id="-474478237%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-factor-type/index.html"><span>Factor</span><wbr></wbr><span><span>Type</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-474478237%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-factor-type/index.html">FactorType</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-factor-type/index.html">FactorType</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph">Describes the types a factor can have</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="428724445%2FClasslikes%2F-364581781" anchor-label="Metadata" id="428724445%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-metadata/index.html"><span><span>Metadata</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="428724445%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-metadata/index.html">Metadata</a></div><div class="brief "><p class="paragraph">Describes the <strong>Metadata</strong> of a paginated service</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2112323825%2FClasslikes%2F-364581781" anchor-label="PushFactorPayload" id="2112323825%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-push-factor-payload/index.html"><span>Push</span><wbr></wbr><span>Factor</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2112323825%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-push-factor-payload/index.html">PushFactorPayload</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>friendlyName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>serviceSid<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>identity<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>pushToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>accessToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>metadata<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span> : <a href="-factor-payload/index.html">FactorPayload</a></div><div class="brief "><p class="paragraph">Describes the information required to create a Factor which type is Push</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="938344920%2FClasslikes%2F-364581781" anchor-label="UpdateChallengePayload" id="938344920%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-update-challenge-payload/index.html"><span>Update</span><wbr></wbr><span>Challenge</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="938344920%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-update-challenge-payload/index.html">UpdateChallengePayload</a></div><div class="brief "><p class="paragraph">Describes the information required to update a <strong>Challenge</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-841676256%2FClasslikes%2F-364581781" anchor-label="UpdateFactorPayload" id="-841676256%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-update-factor-payload/index.html"><span>Update</span><wbr></wbr><span>Factor</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-841676256%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-update-factor-payload/index.html">UpdateFactorPayload</a></div><div class="brief "><p class="paragraph">Describes the information required to update a <strong>Factor</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1269853918%2FClasslikes%2F-364581781" anchor-label="UpdatePushChallengePayload" id="1269853918%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-update-push-challenge-payload/index.html"><span>Update</span><wbr></wbr><span>Push</span><wbr></wbr><span>Challenge</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1269853918%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-update-push-challenge-payload/index.html">UpdatePushChallengePayload</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>factorSid<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>challengeSid<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>status<span class="token operator">: </span><a href="-challenge-status/index.html">ChallengeStatus</a></span></span><span class="token punctuation">)</span> : <a href="-update-challenge-payload/index.html">UpdateChallengePayload</a></div><div class="brief "><p class="paragraph">Describes the information required to update a <strong>Push Challenge</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1003279654%2FClasslikes%2F-364581781" anchor-label="UpdatePushFactorPayload" id="-1003279654%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-update-push-factor-payload/index.html"><span>Update</span><wbr></wbr><span>Push</span><wbr></wbr><span>Factor</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1003279654%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-update-push-factor-payload/index.html">UpdatePushFactorPayload</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>sid<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>pushToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span> : <a href="-update-factor-payload/index.html">UpdateFactorPayload</a></div><div class="brief "><p class="paragraph">Describes the information required to update a <strong>Factor</strong> which type is <strong>Push</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1944851920%2FClasslikes%2F-364581781" anchor-label="VerifyFactorPayload" id="1944851920%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-verify-factor-payload/index.html"><span>Verify</span><wbr></wbr><span>Factor</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1944851920%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-verify-factor-payload/index.html">VerifyFactorPayload</a></div><div class="brief "><p class="paragraph">Describes the information required to verify a <strong>Factor</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="729603722%2FClasslikes%2F-364581781" anchor-label="VerifyPushFactorPayload" id="729603722%2FClasslikes%2F-364581781" data-filterable-set=":verify:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":verify:dokkaHtml/release" data-filterable-set=":verify:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-verify-push-factor-payload/index.html"><span>Verify</span><wbr></wbr><span>Push</span><wbr></wbr><span>Factor</span><wbr></wbr><span><span>Payload</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="729603722%2FClasslikes%2F-364581781"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":verify:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-verify-push-factor-payload/index.html">VerifyPushFactorPayload</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>sid<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span> : <a href="-verify-factor-payload/index.html">VerifyFactorPayload</a></div><div class="brief "><p class="paragraph">Describes the information required to verify a <strong>Factor</strong> which type is <strong>Push</strong></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+        <span>© 2025 Copyright</span>
+        <span class="pull-right">
+            <span>Generated by </span>
+            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                <span>dokka</span>
+            </a>
+        </span>
+    </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
