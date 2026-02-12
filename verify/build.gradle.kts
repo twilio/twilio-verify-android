@@ -25,8 +25,19 @@ plugins {
   id(Config.Plugins.signing)
   jacoco
   id(Config.Plugins.apkscale)
+  id(Config.Plugins.kover)
 }
 //endregion
+
+kover {
+  reports {
+    verify {
+      rule {
+        minBound(90)
+      }
+    }
+  }
+}
 
 val verifyVersionName: String by extra
 val verifyVersionCode: String by extra
