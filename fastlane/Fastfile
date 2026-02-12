@@ -30,8 +30,6 @@ platform :android do
   desc "Runs all the tests with coverage"
   lane :unit_tests do
     gradle(
-      tasks: [":verify:koverXmlReportDebug", ":verify:koverVerify"]
-      ## todo: add commands for :sample and :security
       tasks: [
         ":verify:koverHtmlReportDebug", ":verify:koverVerify",
         ":sample:koverHtmlReportDebug", ":sample:koverVerify",
@@ -104,31 +102,6 @@ platform :android do
   desc "Generates release tag, release notes and updates CHANGELOG.md"
   lane :post_release do
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-    notes = conventional_changelog(
-      format: 'markdown',
-      commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-    tag = next_version
-    UI.important(notes)
-
-    UI.message("Updating CHANGELOG.md")
-    sdk_size = sh("cat ../builds/sizeReport/TwilioVerifySizeImpactReport.txt")
-    changelog = "#{notes}\\n\\n#{sdk_size}"
-    sh("echo \"#{changelog}\\n\" | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-    git_add(path: ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"])
-    sh("git commit -m \"Version bump to #{next_version} [skip ci]\"")
-    push_to_git_remote
-    add_git_tag(tag: tag)
-    push_git_tags(tag: tag)
-
-    set_github_release(
-      repository_name: "twilio/twilio-verify-android",
-      api_token: ENV["GH_TOKEN"],
-      name: tag,
-      tag_name: tag,
-      description: notes,
-      commitish: "main"
-    )
-    gradle(task: "mavenLocalTwilioVerifyReleaseUpload")
     plain_notes = conventional_changelog(
             format: 'plain',
             commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
