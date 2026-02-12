@@ -32,6 +32,11 @@ platform :android do
     gradle(
       tasks: [":verify:koverXmlReportDebug", ":verify:koverVerify"]
       ## todo: add commands for :sample and :security
+      tasks: [
+        ":verify:koverHtmlReportDebug", ":verify:koverVerify",
+        ":sample:koverHtmlReportDebug", ":sample:koverVerify",
+        ":security:koverHtmlReportDebug", ":security:koverVerify"
+      ]
     )
   end
 

@@ -145,10 +145,22 @@ jobs:
       - store_artifacts:
           path: "verify/build/reports/kover"
           destination: verify-test-coverage
+      - store_artifacts:
+          path: "sample/build/reports/kover"
+          destination: sampleapp-test-coverage
+      - store_artifacts:
+          path: "security/build/reports/kover"
+          destination: security-test-coverage
       - run: mkdir -p test-results
       - move_directory:
           from: verify/build/test-results/testDebugUnitTest/
           to: test-results/verify
+      - move_directory:
+          from: sample/build/test-results/testDebugUnitTest/
+          to: test-results/sampleapp
+      - move_directory:
+          from: security/build/test-results/testDebugUnitTest/
+          to: test-results/security
       - store_test_results:
           path: "test-results"
 
