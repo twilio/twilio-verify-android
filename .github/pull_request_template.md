@@ -4,11 +4,11 @@
 <!-- Labels: Please add proper labels accordingly (task, bug, housekeeping, etc) -->
 
 <!-- Ticket: Please add the ticket number or the Github issue number according to your case -->
-## Ticket
+## Github Ticket
 - [#####]
 
 ## Github Issue
-- ISSUE-
+- ISSUE
 
 <!-- Description: Please add a detailed description of your contribution. Include associated PRs or dependencies. If you're opening an integration PR, please add proper checklist of remaining items and tag this PR with a "DO NOT MERGE YET" -->
 ## Description
