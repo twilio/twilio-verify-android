@@ -31,6 +31,11 @@ plugins {
 
 kover {
   reports {
+    filters {
+      excludes {
+        classes("**/docs/**")
+      }
+    }
     verify {
       rule {
         minBound(90)
