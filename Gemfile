@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gem 'abbrev'
 gem "fastlane", ">= 2.228.0"
-gem "danger", ">= 8.3.1"
+gem "danger", ">= 9.4.3"
 gem "danger-checkstyle_formatter", ">= 0.0.3"
 gem "danger-android_lint", ">= 0.0.9"
 gem "danger-shroud", ">= 0.0.7"
