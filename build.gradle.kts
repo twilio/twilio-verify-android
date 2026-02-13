@@ -28,6 +28,11 @@ kover {
         classes("**/docs/**")
       }
     }
+    verify {
+      rule {
+        minBound(1)
+      }
+    }
   }
 }
 
