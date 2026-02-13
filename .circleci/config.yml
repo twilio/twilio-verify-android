@@ -306,6 +306,7 @@ workflows:
             - assemble_build
       - unit_tests:
           context:
+            - verify-push
             - verify-push-android
           requires:
             - assemble_build
