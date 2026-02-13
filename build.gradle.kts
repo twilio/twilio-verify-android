@@ -18,7 +18,17 @@
 plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
-  id(Config.Plugins.kover).apply(false) version Config.Versions.kover
+  id(Config.Plugins.kover).apply(true) version Config.Versions.kover
+}
+
+kover {
+  reports {
+    filters {
+      excludes {
+        classes("**/docs/**")
+      }
+    }
+  }
 }
 
 buildscript {

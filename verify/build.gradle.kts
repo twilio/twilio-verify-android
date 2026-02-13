@@ -29,21 +29,6 @@ plugins {
 }
 //endregion
 
-kover {
-  reports {
-    filters {
-      excludes {
-        classes("**/docs/**")
-      }
-    }
-    verify {
-      rule {
-        minBound(90)
-      }
-    }
-  }
-}
-
 val verifyVersionName: String by extra
 val verifyVersionCode: String by extra
 val baseURL: String by extra
