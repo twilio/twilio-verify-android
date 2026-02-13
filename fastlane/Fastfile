@@ -31,9 +31,9 @@ platform :android do
   lane :unit_tests do
     gradle(
       tasks: [
-        ":verify:koverHtmlReportDebug", ":verify:koverVerify",
-        ":sample:koverHtmlReportDebug", ":sample:koverVerify",
-        ":security:koverHtmlReportDebug", ":security:koverVerify"
+        ":verify:koverXmlReportDebug", ":verify:koverVerify",
+        ":sample:koverXmlReportDebug", ":sample:koverVerify",
+        ":security:koverXmlReportDebug", ":security:koverVerify"
       ]
     )
   end

@@ -163,6 +163,10 @@ jobs:
           to: test-results/security
       - store_test_results:
           path: "test-results"
+      - run:
+          name: Run the code coverage reporter
+          command: |
+            bundle exec danger --danger_id=code_coverage_report --dangerfile=dangerfiles/code_coverage_reporter
 
   security_instrumentation_tests_single_device:
     executor: *executor
