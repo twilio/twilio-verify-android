@@ -299,5 +299,3 @@ workflows:
           context:
             - verify-push
             - verify-push-android
-          requires:
-            - assemble_build
