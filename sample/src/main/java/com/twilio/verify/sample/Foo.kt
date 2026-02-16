@@ -1,7 +1,7 @@
 package com.twilio.verify.sample
 
 class Foo {
-  fun bar() {
-    println("Hello World")
+  fun bar(i:Int):Int {
+    return i+1
   }
 }
