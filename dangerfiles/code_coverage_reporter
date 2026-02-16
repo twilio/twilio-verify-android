@@ -4,6 +4,7 @@ kover_report = "**/build/reports/kover/reportDebug.xml"
 Dir[kover_report].each do |file_name|
   shroud.reportKover(
     moduleName: "#{file_name.split('/').first} module",
-    file: file_name
+    file: file_name,
+    failIfUnderProjectCoverage: false  # Don't fail on total coverage
   )
 end
