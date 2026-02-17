@@ -1,3 +1,27 @@
+# 0.9.0 (2025-11-20)
+
+### Features
+- Target Android API 35 ([449d3e2](https://github.com/twilio/twilio-verify-android/commit/449d3e272e62a47664f406e900f3521cf7955963))
+
+### Building system
+- Update gems ([596b19d](https://github.com/twilio/twilio-verify-android/commit/596b19d7efe5e050e5640e8921fb5b3b21734871))
+- CI update ([93deb89](https://github.com/twilio/twilio-verify-android/commit/93deb89005319ee5e159aa9c7664ce4a9e9f815f))
+- update dependencies and pipeline ([b6145fb](https://github.com/twilio/twilio-verify-android/commit/b6145fb1291d12c6ebb19cdb7187f4ee2c8a117c))
+- fix publishing task ([4a317b4](https://github.com/twilio/twilio-verify-android/commit/4a317b4d452ac476fcf57a1e416db94fe5c6be67))
+- fix publishing pipeline ([6c4d980](https://github.com/twilio/twilio-verify-android/commit/6c4d980608696110a0bd3f7ee8b2c1e8339da8b3))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 699.6KB         |
+| x86_64          | 699.6KB         |
+| armeabi-v7a     | 699.6KB         |
+| arm64-v8a       | 699.6KB         |
+| universal       | 699.6KB         |
+
+
+
 # 0.8.0 (2022-06-22)
 
 ### Features

@@ -35,7 +35,7 @@ object Config {
     const val firebasePerformance = "com.google.firebase.firebase-perf"
     const val dokka = "org.jetbrains.dokka"
     const val apkscale = "com.twilio.apkscale"
-    const val nexus = "io.github.gradle-nexus.publish-plugin"
+    const val nexusPublisher = "io.github.gradle-nexus.publish-plugin"
     const val maven_publish = "maven-publish"
     const val signing = "signing"
     const val ktlint = "plugins.ktlint"
@@ -53,7 +53,7 @@ object Config {
     const val dokka = "2.0.0"
     const val jacoco = "0.8.12"
     const val apkscale = "0.1.7"
-    const val nexus = "1.0.0"
+    const val nexusPublisher = "2.0.0"
   }
 
   object Groups {
