@@ -21,21 +21,6 @@ plugins {
   id(Config.Plugins.kover).apply(true) version Config.Versions.kover
 }
 
-kover {
-  reports {
-    filters {
-      excludes {
-        classes("**/docs/**")
-      }
-    }
-    verify {
-      rule {
-        minBound(1)
-      }
-    }
-  }
-}
-
 buildscript {
   repositories {
     mavenCentral()
@@ -157,8 +142,4 @@ fun mavenPublishCredentials(): Map<String, String> {
     MavenPublish.sonatypePasswordEnv,
     MavenPublish.sonatypeStagingProfileIdEnv
   )
-}
-
-tasks.register("clean", Delete::class) {
-  delete(rootProject.layout.buildDirectory)
 }

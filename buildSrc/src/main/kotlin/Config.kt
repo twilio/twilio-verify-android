@@ -51,7 +51,7 @@ object Config {
     const val compileSDKVersion = 35
     const val minSDKVersion = 23
     const val targetSDKVersion = 35
-    const val dokka = "2.0.0"
+    const val dokka = "2.1.0"
     const val jacoco = "0.8.12"
     const val apkscale = "0.1.7"
     const val nexusPublisher = "2.0.0"
