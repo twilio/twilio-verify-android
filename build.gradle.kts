@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.register
+
 /*
  * Copyright (c) 2020 Twilio Inc.
  *
@@ -18,6 +20,7 @@
 plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
+  id(Config.Plugins.kover).apply(true) version Config.Versions.kover
 }
 
 buildscript {
@@ -62,7 +65,7 @@ nexusPublishing {
   connectTimeout.set(java.time.Duration.ofSeconds(60))
 }
 
-task("sonatypeTwilioVerifyReleaseUpload", GradleBuild::class) {
+tasks.register("sonatypeTwilioVerifyReleaseUpload", GradleBuild::class, fun GradleBuild.() {
   description = "Publish Twilio Verify to MavenCentral"
   group = "Publishing"
   buildName = "TwilioVerify"
@@ -74,9 +77,9 @@ task("sonatypeTwilioVerifyReleaseUpload", GradleBuild::class) {
   startParameter.projectProperties.plusAssign(
     gradle.startParameter.projectProperties + mavenPublishCredentials()
   )
-}
+})
 
-task("sonatypeTwilioVerifyStagingRepositoryUpload", GradleBuild::class) {
+tasks.register("sonatypeTwilioVerifyStagingRepositoryUpload", GradleBuild::class, fun GradleBuild.() {
   description = "Publish Twilio Verify to nexus staging repository"
   group = "Publishing"
   buildName = "TwilioVerify"
@@ -88,9 +91,9 @@ task("sonatypeTwilioVerifyStagingRepositoryUpload", GradleBuild::class) {
   startParameter.projectProperties.plusAssign(
     gradle.startParameter.projectProperties + mavenPublishCredentials()
   )
-}
+})
 
-task("sonatypeTwilioSecurityReleaseUpload", GradleBuild::class) {
+tasks.register("sonatypeTwilioSecurityReleaseUpload", GradleBuild::class, fun GradleBuild.() {
   description = "Publish Twilio Security to MavenCentral"
   group = "Publishing"
   buildName = "TwilioSecurity"
@@ -102,9 +105,9 @@ task("sonatypeTwilioSecurityReleaseUpload", GradleBuild::class) {
   startParameter.projectProperties.plusAssign(
     gradle.startParameter.projectProperties + mavenPublishCredentials()
   )
-}
+})
 
-task("sonatypeTwilioSecurityStagingRepositoryUpload", GradleBuild::class) {
+tasks.register("sonatypeTwilioSecurityStagingRepositoryUpload", GradleBuild::class, fun GradleBuild.() {
   description = "Publish Twilio Security to nexus staging repository"
   group = "Publishing"
   buildName = "TwilioSecurity"
@@ -116,9 +119,9 @@ task("sonatypeTwilioSecurityStagingRepositoryUpload", GradleBuild::class) {
   startParameter.projectProperties.plusAssign(
     gradle.startParameter.projectProperties + mavenPublishCredentials()
   )
-}
+})
 
-task("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class) {
+tasks.register("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class, fun GradleBuild.() {
   description = "Publish Twilio Verify to maven local"
   group = "Publishing"
   buildName = "TwilioVerify"
@@ -129,7 +132,7 @@ task("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class) {
   startParameter.projectProperties.plusAssign(
     gradle.startParameter.projectProperties + mavenPublishCredentials()
   )
-}
+})
 
 fun mavenPublishCredentials(): Map<String, String> {
   return MavenPublish.credentials(

@@ -22,6 +22,7 @@ plugins {
   id(Config.Plugins.maven_publish)
   id(Config.Plugins.signing)
   jacoco
+  id(Config.Plugins.kover)
 }
 //endregion
 
@@ -34,7 +35,6 @@ android {
   compileSdk = Config.Versions.compileSDKVersion
   defaultConfig {
     minSdk = Config.Versions.minSDKVersion
-    targetSdk = Config.Versions.targetSDKVersion
     version = securityVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -66,6 +66,7 @@ android {
     unitTests {
       isIncludeAndroidResources = true
     }
+    targetSdk = Config.Versions.targetSDKVersion
   }
 }
 

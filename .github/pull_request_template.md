@@ -4,7 +4,7 @@
 <!-- Labels: Please add proper labels accordingly (task, bug, housekeeping, etc) -->
 
 <!-- Ticket: Please add the ticket number or the Github issue number according to your case -->
-## Ticket
+## Github Ticket
 - [#####]
 
 ## Github Issue

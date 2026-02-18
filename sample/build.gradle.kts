@@ -21,6 +21,7 @@ plugins {
   id(Config.Plugins.kotlinAndroid)
   id(Config.Plugins.firebasePerformance)
   jacoco
+  id(Config.Plugins.kover)
 }
 repositories {
   mavenLocal()

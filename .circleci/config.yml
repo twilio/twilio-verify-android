@@ -143,13 +143,13 @@ jobs:
           command: bundle exec fastlane unit_tests
       - *save_gradle_cache
       - store_artifacts:
-          path: "verify/build/reports"
+          path: "verify/build/reports/kover"
           destination: verify-test-coverage
       - store_artifacts:
-          path: "sample/build/reports"
+          path: "sample/build/reports/kover"
           destination: sampleapp-test-coverage
       - store_artifacts:
-          path: "security/build/reports"
+          path: "security/build/reports/kover"
           destination: security-test-coverage
       - run: mkdir -p test-results
       - move_directory:
@@ -163,6 +163,10 @@ jobs:
           to: test-results/security
       - store_test_results:
           path: "test-results"
+      - run:
+          name: Run the code coverage reporter
+          command: |
+            bundle exec danger --danger_id=code_coverage_report --dangerfile=dangerfiles/code_coverage_reporter
 
   security_instrumentation_tests_single_device:
     executor: *executor
@@ -302,6 +306,7 @@ workflows:
             - assemble_build
       - unit_tests:
           context:
+            - verify-push
             - verify-push-android
           requires:
             - assemble_build
