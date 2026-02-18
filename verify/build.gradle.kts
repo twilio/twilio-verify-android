@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.registering
+
 /*
  * Copyright (c) 2020 Twilio Inc.
  *
@@ -43,7 +45,6 @@ android {
 
   defaultConfig {
     minSdk = Config.Versions.minSDKVersion
-    targetSdk = Config.Versions.targetSDKVersion
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
@@ -65,6 +66,7 @@ android {
   testOptions {
     unitTests.isIncludeAndroidResources = true
     unitTests.isReturnDefaultValues = true
+    targetSdk = Config.Versions.targetSDKVersion
   }
   lint {
     lintConfig = rootProject.file(".lint/config.xml")
@@ -99,7 +101,7 @@ tasks.dokkaHtml {
 val pomGroup: String by project
 val pomArtifactId: String by project
 
-val dokkaHtmlJar by tasks.creating(Jar::class) {
+val dokkaHtmlJar by tasks.registering(Jar::class) {
   dependsOn(tasks.dokkaHtml)
   from(
     tasks.dokkaHtml.get()
@@ -107,7 +109,7 @@ val dokkaHtmlJar by tasks.creating(Jar::class) {
   archiveClassifier.set("html-doc")
 }
 
-val sourcesJar by tasks.creating(Jar::class) {
+val sourcesJar by tasks.registering(Jar::class) {
   archiveClassifier.set("sources")
   from(android.sourceSets.getByName("main").java.srcDirs)
 }
@@ -169,7 +171,7 @@ apkscale {
 }
 
 @Suppress("UNCHECKED_CAST")
-task("generateSizeReport") {
+tasks.register("generateSizeReport") {
   dependsOn("assembleRelease", "measureSize")
   description = "Calculate Verify SDK Size Impact"
   group = "Reporting"

@@ -142,10 +142,18 @@ platform :android do
       commitish: "main"
     )
 
+    gradle(task: "mavenLocalTwilioVerifyReleaseUpload")
+
     plain_notes = conventional_changelog(
-            format: 'plain',
-            commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-    distribute_sample_app(notes: plain_notes, build_type: "Release", url: ENV["PROD_URL"], versionName: next_version)
+      format: 'plain',
+      commit_url: 'https://github.com/twilio/twilio-verify-android/commit'
+    )
+    distribute_sample_app(
+      notes: plain_notes,
+      build_type: "Release",
+      url: ENV["PROD_URL"],
+      versionName: next_version
+    )
   end
 
   desc "Danger check"

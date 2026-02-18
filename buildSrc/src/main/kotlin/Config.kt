@@ -45,7 +45,7 @@ object Config {
 
   object Versions {
     const val kotlin = "2.1.10"
-    const val gradle = "8.2.0"
+    const val gradle = "8.13.0"
     const val googleServices = "4.4.1"
     const val firebasePerformance = "1.4.2"
     const val compileSDKVersion = 35
@@ -53,7 +53,7 @@ object Config {
     const val targetSDKVersion = 35
     const val dokka = "2.1.0"
     const val jacoco = "0.8.12"
-    const val apkscale = "0.1.7"
+    const val apkscale = "0.1.9"
     const val nexusPublisher = "2.0.0"
     const val kover = "0.9.7"
   }
