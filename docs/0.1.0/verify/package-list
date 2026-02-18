@@ -1,8 +1,0 @@
-$dokka.format:html
-$dokka.linkExtension:html
-
-com.twilio.verify
-com.twilio.verify.data
-com.twilio.verify.models
-com.twilio.verify.networking
-
