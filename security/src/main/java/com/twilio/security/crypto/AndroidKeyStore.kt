@@ -38,9 +38,8 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
 class AndroidKeyStore(
-  private val keyStore: KeyStore
+  private val keyStore: KeyStore,
 ) : AndroidKeyStoreOperations {
-
   @Synchronized
   fun contains(alias: String): Boolean = keyStore.containsAlias(alias)
 
@@ -50,8 +49,8 @@ class AndroidKeyStore(
   }
 
   @Synchronized
-  fun getSecretKey(alias: String): SecretKey? {
-    return (
+  fun getSecretKey(alias: String): SecretKey? =
+    (
       keyStore.getKey(alias, null) as? SecretKey ?: run {
         val entry = keyStore.getEntry(alias, null)
         if (entry !is SecretKeyEntry) {
@@ -59,8 +58,7 @@ class AndroidKeyStore(
         }
         entry.secretKey
       }
-      ).also { Logger.log(Level.Debug, "Return secret key for $alias") }
-  }
+    ).also { Logger.log(Level.Debug, "Return secret key for $alias") }
 
   @Synchronized
   fun getKeyPair(alias: String): KeyPair? {
@@ -72,7 +70,7 @@ class AndroidKeyStore(
       Logger.log(
         Level.Debug,
         "Private key ${if (privateKey == null) "is null" else "is not null"} and " +
-          "Certificate ${if (certificate == null) "is null" else "is not null"}"
+          "Certificate ${if (certificate == null) "is null" else "is not null"}",
       )
       null
     }.also { Logger.log(Level.Debug, "Return key pair for $alias") }
@@ -81,11 +79,13 @@ class AndroidKeyStore(
   @Synchronized
   fun createKeyPair(
     algorithm: String,
-    keyGenParameterSpec: KeyGenParameterSpec
+    keyGenParameterSpec: KeyGenParameterSpec,
   ): KeyPair? {
-    val keyPairGenerator = KeyPairGenerator.getInstance(
-      algorithm, keyStore.provider.name
-    )
+    val keyPairGenerator =
+      KeyPairGenerator.getInstance(
+        algorithm,
+        keyStore.provider.name,
+      )
     keyPairGenerator.initialize(keyGenParameterSpec)
     val locale = Locale.getDefault()
     try {
@@ -99,11 +99,13 @@ class AndroidKeyStore(
   @Synchronized
   fun createKey(
     algorithm: String,
-    keyGenParameterSpec: KeyGenParameterSpec
+    keyGenParameterSpec: KeyGenParameterSpec,
   ): Key? {
-    val keyGenerator = KeyGenerator.getInstance(
-      algorithm, keyStore.provider.name
-    )
+    val keyGenerator =
+      KeyGenerator.getInstance(
+        algorithm,
+        keyStore.provider.name,
+      )
     keyGenerator.init(keyGenParameterSpec)
     return keyGenerator.generateKey().also { Logger.log(Level.Debug, "Generated key type $algorithm") }
   }
@@ -112,159 +114,176 @@ class AndroidKeyStore(
   override fun sign(
     data: ByteArray,
     signatureAlgorithm: String,
-    private: PrivateKey
-  ): ByteArray {
-    return Signature.getInstance(signatureAlgorithm)
+    private: PrivateKey,
+  ): ByteArray =
+    Signature
+      .getInstance(signatureAlgorithm)
       .run {
         initSign(private)
         update(data)
         sign()
       }.also { Logger.log(Level.Debug, "Sign data with $signatureAlgorithm") }
-  }
 
   @Synchronized
   override fun encrypt(
     data: ByteArray,
     cipherAlgorithm: String,
-    key: Key
-  ): EncryptedData {
-    return getCipherForEncryption(cipherAlgorithm, key)
+    key: Key,
+  ): EncryptedData =
+    getCipherForEncryption(cipherAlgorithm, key)
       .run {
         EncryptedData(
           AlgorithmParametersSpec(
-            parameters.encoded, parameters.provider.name,
-            parameters.algorithm
+            parameters.encoded,
+            parameters.provider.name,
+            parameters.algorithm,
           ),
-          doFinal(data)
+          doFinal(data),
         ).also { Logger.log(Level.Debug, "Encrypt data with $cipherAlgorithm and result: $it") }
       }
-  }
 
   @Synchronized
-  override fun encrypt(data: ByteArray, cipherObject: Cipher): EncryptedData {
-    return cipherObject
+  override fun encrypt(
+    data: ByteArray,
+    cipherObject: Cipher,
+  ): EncryptedData =
+    cipherObject
       .run {
         EncryptedData(
           AlgorithmParametersSpec(
-            parameters.encoded, parameters.provider.name,
-            parameters.algorithm
+            parameters.encoded,
+            parameters.provider.name,
+            parameters.algorithm,
           ),
-          doFinal(data)
+          doFinal(data),
         ).also { Logger.log(Level.Debug, "Encrypt data with ${cipherObject.algorithm} and result: $it") }
       }
-  }
 
   @Synchronized
   override fun verify(
     data: ByteArray,
     signature: ByteArray,
     signatureAlgorithm: String,
-    public: PublicKey
-  ): Boolean {
-    return Signature.getInstance(signatureAlgorithm)
+    public: PublicKey,
+  ): Boolean =
+    Signature
+      .getInstance(signatureAlgorithm)
       .run {
         initVerify(public)
         update(data)
         verify(signature)
       }.also { Logger.log(Level.Debug, "Verify message with $signatureAlgorithm") }
-  }
 
   @Synchronized
   override fun decrypt(
     data: EncryptedData,
     cipherAlgorithm: String,
-    key: Key
-  ): ByteArray {
-    return getCipherForDecryption(cipherAlgorithm, key, data)
+    key: Key,
+  ): ByteArray =
+    getCipherForDecryption(cipherAlgorithm, key, data)
       .run {
         doFinal(data.encrypted)
       }.also { Logger.log(Level.Debug, "Decrypt encrypted data $data with $cipherAlgorithm") }
-  }
 
   @Synchronized
-  override fun decrypt(data: EncryptedData, cipherObject: Cipher): ByteArray {
-    return cipherObject
+  override fun decrypt(
+    data: EncryptedData,
+    cipherObject: Cipher,
+  ): ByteArray =
+    cipherObject
       .run {
         doFinal(data.encrypted)
       }.also { Logger.log(Level.Debug, "Decrypt encrypted data $data with ${cipherObject.algorithm}") }
-  }
 
-  override fun getCipherForEncryption(cipherAlgorithm: String, key: Key): Cipher {
-    return Cipher.getInstance(cipherAlgorithm)
+  override fun getCipherForEncryption(
+    cipherAlgorithm: String,
+    key: Key,
+  ): Cipher =
+    Cipher
+      .getInstance(cipherAlgorithm)
       .apply {
         init(Cipher.ENCRYPT_MODE, key)
       }
-  }
 
-  override fun getCipherForDecryption(cipherAlgorithm: String, key: Key, data: EncryptedData): Cipher {
-    return Cipher.getInstance(cipherAlgorithm)
+  override fun getCipherForDecryption(
+    cipherAlgorithm: String,
+    key: Key,
+    data: EncryptedData,
+  ): Cipher =
+    Cipher
+      .getInstance(cipherAlgorithm)
       .apply {
         val algorithmParameterSpec =
           try {
             AlgorithmParameters.getInstance(
-              data.algorithmParameters.algorithm, data.algorithmParameters.provider
+              data.algorithmParameters.algorithm,
+              data.algorithmParameters.provider,
             )
-          } catch (e: Exception) {
+          } catch (_: Exception) {
             AlgorithmParameters.getInstance(
-              data.algorithmParameters.algorithm
+              data.algorithmParameters.algorithm,
             )
+          }.apply {
+            init(data.algorithmParameters.encoded)
           }
-            .apply {
-              init(data.algorithmParameters.encoded)
-            }
         init(Cipher.DECRYPT_MODE, key, algorithmParameterSpec)
       }
-  }
 
-  private fun getCertificate(alias: String): Certificate? {
-    return keyStore.getCertificate(alias) ?: run {
+  private fun getCertificate(alias: String): Certificate? =
+    keyStore.getCertificate(alias) ?: run {
       (keyStore.getEntry(alias, null) as? PrivateKeyEntry)?.certificate
     }.also { Logger.log(Level.Debug, "Get certificate for $alias") }
-  }
 
-  private fun getPrivateKey(alias: String): PrivateKey? {
-    return keyStore.getKey(alias, null) as? PrivateKey ?: run {
+  private fun getPrivateKey(alias: String): PrivateKey? =
+    keyStore.getKey(alias, null) as? PrivateKey ?: run {
       (keyStore.getEntry(alias, null) as? PrivateKeyEntry)?.privateKey
     }.also { Logger.log(Level.Debug, "Get private key for $alias") }
-  }
 }
 
 interface AndroidKeyStoreOperations {
   fun sign(
     data: ByteArray,
     signatureAlgorithm: String,
-    private: PrivateKey
+    private: PrivateKey,
   ): ByteArray
 
   fun encrypt(
     data: ByteArray,
     cipherAlgorithm: String,
-    key: Key
+    key: Key,
   ): EncryptedData
 
   fun verify(
     data: ByteArray,
     signature: ByteArray,
     signatureAlgorithm: String,
-    public: PublicKey
+    public: PublicKey,
   ): Boolean
 
   fun decrypt(
     data: EncryptedData,
     cipherAlgorithm: String,
-    key: Key
+    key: Key,
   ): ByteArray
 
   fun encrypt(
     data: ByteArray,
-    cipherObject: Cipher
+    cipherObject: Cipher,
   ): EncryptedData
 
   fun decrypt(
     data: EncryptedData,
-    cipherObject: Cipher
+    cipherObject: Cipher,
   ): ByteArray
 
-  fun getCipherForEncryption(cipherAlgorithm: String, key: Key): Cipher
-  fun getCipherForDecryption(cipherAlgorithm: String, key: Key, data: EncryptedData): Cipher
+  fun getCipherForEncryption(
+    cipherAlgorithm: String,
+    key: Key,
+  ): Cipher
+
+  fun getCipherForDecryption(
+    cipherAlgorithm: String,
+    key: Key,
+    data: EncryptedData,
+  ): Cipher
 }

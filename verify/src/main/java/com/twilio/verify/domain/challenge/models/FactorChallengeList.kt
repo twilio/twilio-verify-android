@@ -31,5 +31,5 @@ internal class FactorChallengeList(
   /**
    * Metadata returned by the /Challenges endpoint, used to fetch subsequent pages of Challenges
    */
-  override val metadata: Metadata
+  override val metadata: Metadata,
 ) : ChallengeList

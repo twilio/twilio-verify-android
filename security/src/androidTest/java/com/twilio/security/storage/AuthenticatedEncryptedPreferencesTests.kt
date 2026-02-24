@@ -6,26 +6,27 @@ package com.twilio.security.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
+import com.twilio.security.crypto.PROVIDER_NAME
 import com.twilio.security.crypto.key.authentication.BiometricAuthenticator
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
-import com.twilio.security.crypto.providerName
 import com.twilio.security.storage.key.BiometricSecretKey
-import java.security.KeyStore
-import java.security.Signature
-import javax.crypto.Cipher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+import java.security.KeyStore
+import java.security.Signature
+import javax.crypto.Cipher
 
 class AuthenticatedEncryptedPreferencesTests {
-
   private val sharedPreferencesName = "TestEncryptedPreferences"
-  private val keyStore = KeyStore.getInstance(providerName)
-    .apply { load(null) }
+  private val keyStore =
+    KeyStore
+      .getInstance(PROVIDER_NAME)
+      .apply { load(null) }
   private val androidKeyManager = keyManager()
   private lateinit var alias: String
   private lateinit var authenticatedEncryptedPreferences: AuthenticatedEncryptedPreferences
@@ -36,21 +37,27 @@ class AuthenticatedEncryptedPreferencesTests {
   @Before
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
-    alias = System.currentTimeMillis()
-      .toString()
+    alias =
+      System
+        .currentTimeMillis()
+        .toString()
     if (keyStore.containsAlias(alias)) {
       keyStore.deleteEntry(alias)
     }
     sharedPreferences =
       context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
     authenticator = TestAuthenticator()
-    authenticatedEncryptedPreferences = AuthenticatedEncryptedPreferences(
-      sharedPreferences, alias, androidKeyManager, TestObjectSerializer(DefaultSerializer())
-    )
+    authenticatedEncryptedPreferences =
+      AuthenticatedEncryptedPreferences(
+        sharedPreferences,
+        alias,
+        androidKeyManager,
+        TestObjectSerializer(DefaultSerializer()),
+      )
     authenticatedEncryptedPreferences.biometricSecretKey =
       BiometricSecretKey(
         AESGCMNoPaddingCipherTemplate(alias, androidKeyManager.contains(alias)),
-        androidKeyManager
+        androidKeyManager,
       )
   }
 
@@ -59,7 +66,8 @@ class AuthenticatedEncryptedPreferencesTests {
     if (this::alias.isInitialized) {
       keyStore.deleteEntry(alias)
     }
-    sharedPreferences.edit()
+    sharedPreferences
+      .edit()
       .clear()
       .apply()
   }
@@ -69,21 +77,27 @@ class AuthenticatedEncryptedPreferencesTests {
     val key = "value"
     val expectedValue = 123
     authenticatedEncryptedPreferences.put(
-      key, expectedValue, authenticator, {},
+      key,
+      expectedValue,
+      authenticator,
+      {},
       {
         fail(it.message)
-      }
+      },
     )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(
-      key, Int::class, authenticator,
-      {
-        assertEquals(expectedValue, it)
-      },
-      {
-        fail(it.message)
-      }
-    )
+    val value =
+      authenticatedEncryptedPreferences.get(
+        key,
+        Int::class,
+        authenticator,
+        {
+          assertEquals(expectedValue, it)
+        },
+        {
+          fail(it.message)
+        },
+      )
   }
 
   @Test
@@ -91,21 +105,27 @@ class AuthenticatedEncryptedPreferencesTests {
     val key = "value"
     val expectedValue = true
     authenticatedEncryptedPreferences.put(
-      key, expectedValue, authenticator, {},
+      key,
+      expectedValue,
+      authenticator,
+      {},
       {
         fail(it.message)
-      }
+      },
     )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(
-      key, Boolean::class, authenticator,
-      {
-        assertEquals(expectedValue, it)
-      },
-      {
-        fail(it.message)
-      }
-    )
+    val value =
+      authenticatedEncryptedPreferences.get(
+        key,
+        Boolean::class,
+        authenticator,
+        {
+          assertEquals(expectedValue, it)
+        },
+        {
+          fail(it.message)
+        },
+      )
   }
 
   @Test
@@ -113,21 +133,27 @@ class AuthenticatedEncryptedPreferencesTests {
     val key = "value"
     val expectedValue = "sfdsfdgdfguqweuwr"
     authenticatedEncryptedPreferences.put(
-      key, expectedValue, authenticator, {},
+      key,
+      expectedValue,
+      authenticator,
+      {},
       {
         fail(it.message)
-      }
+      },
     )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(
-      key, String::class, authenticator,
-      {
-        assertEquals(expectedValue, it)
-      },
-      {
-        fail(it.message)
-      }
-    )
+    val value =
+      authenticatedEncryptedPreferences.get(
+        key,
+        String::class,
+        authenticator,
+        {
+          assertEquals(expectedValue, it)
+        },
+        {
+          fail(it.message)
+        },
+      )
   }
 
   @Test
@@ -135,21 +161,27 @@ class AuthenticatedEncryptedPreferencesTests {
     val key = "value"
     val expectedValue = 1.45657
     authenticatedEncryptedPreferences.put(
-      key, expectedValue, authenticator, {},
+      key,
+      expectedValue,
+      authenticator,
+      {},
       {
         fail(it.message)
-      }
+      },
     )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(
-      key, Double::class, authenticator,
-      {
-        assertEquals(expectedValue, it, 0.0)
-      },
-      {
-        fail(it.message)
-      }
-    )
+    val value =
+      authenticatedEncryptedPreferences.get(
+        key,
+        Double::class,
+        authenticator,
+        {
+          assertEquals(expectedValue, it, 0.0)
+        },
+        {
+          fail(it.message)
+        },
+      )
   }
 
   @Test
@@ -157,21 +189,27 @@ class AuthenticatedEncryptedPreferencesTests {
     val key = "value"
     val expectedValue = TestObject("name", 33)
     authenticatedEncryptedPreferences.put(
-      key, expectedValue, authenticator, {},
+      key,
+      expectedValue,
+      authenticator,
+      {},
       {
         fail(it.message)
-      }
+      },
     )
     assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-    val value = authenticatedEncryptedPreferences.get(
-      key, TestObject::class, authenticator,
-      {
-        assertEquals(expectedValue, it)
-      },
-      {
-        fail(it.message)
-      }
-    )
+    val value =
+      authenticatedEncryptedPreferences.get(
+        key,
+        TestObject::class,
+        authenticator,
+        {
+          assertEquals(expectedValue, it)
+        },
+        {
+          fail(it.message)
+        },
+      )
   }
 
   @Test
@@ -180,21 +218,27 @@ class AuthenticatedEncryptedPreferencesTests {
     expectedValues.forEachIndexed { index, expectedValue ->
       val key = "key$index"
       authenticatedEncryptedPreferences.put(
-        key, expectedValue, authenticator, {},
+        key,
+        expectedValue,
+        authenticator,
+        {},
         {
           fail(it.message)
-        }
+        },
       )
       assertTrue(sharedPreferences.contains(generateKeyDigest(key)))
-      val value = authenticatedEncryptedPreferences.get(
-        key, expectedValue::class, authenticator,
-        {
-          assertEquals(expectedValue, it)
-        },
-        {
-          fail(it.message)
-        }
-      )
+      val value =
+        authenticatedEncryptedPreferences.get(
+          key,
+          expectedValue::class,
+          authenticator,
+          {
+            assertEquals(expectedValue, it)
+          },
+          {
+            fail(it.message)
+          },
+        )
     }
   }
 }
@@ -206,11 +250,19 @@ internal class TestAuthenticator : BiometricAuthenticator {
     exception?.let { throw exception }
   }
 
-  override fun startAuthentication(signatureObject: Signature, success: (Signature) -> Unit, error: (Exception) -> Unit) {
+  override fun startAuthentication(
+    signatureObject: Signature,
+    success: (Signature) -> Unit,
+    error: (Exception) -> Unit,
+  ) {
     exception?.let { error(exception) } ?: success(signatureObject)
   }
 
-  override fun startAuthentication(cipherObject: Cipher, success: (Cipher) -> Unit, error: (Exception) -> Unit) {
+  override fun startAuthentication(
+    cipherObject: Cipher,
+    success: (Cipher) -> Unit,
+    error: (Exception) -> Unit,
+  ) {
     exception?.let { error(exception) } ?: success(cipherObject)
   }
 }

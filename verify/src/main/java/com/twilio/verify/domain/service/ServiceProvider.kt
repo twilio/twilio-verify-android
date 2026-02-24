@@ -25,6 +25,6 @@ internal interface ServiceProvider {
     serviceSid: String,
     factor: Factor,
     success: (Service) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 }

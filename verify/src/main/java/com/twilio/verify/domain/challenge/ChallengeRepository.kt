@@ -39,36 +39,37 @@ import org.json.JSONObject
 internal class ChallengeRepository(
   private val apiClient: ChallengeAPIClient,
   private val challengeMapper: ChallengeMapper = ChallengeMapper(),
-  private val challengeListMapper: ChallengeListMapper = ChallengeListMapper()
+  private val challengeListMapper: ChallengeListMapper = ChallengeListMapper(),
 ) : ChallengeProvider {
-
   override fun get(
     sid: String,
     factor: Factor,
     success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     fun toChallenge(
       response: JSONObject,
-      signatureFieldsHeader: String?
+      SIGNATURE_FIELDS_HEADER: String?,
     ) {
       try {
-        val challenge = challengeMapper.fromApi(response, signatureFieldsHeader)
-          .also { challenge ->
-            if (challenge.factorSid != factor.sid) {
-              throw TwilioVerifyException(
-                WrongFactorException.also {
-                  Logger.log(
-                    Level.Error,
-                    it.toString(),
-                    it
-                  )
-                },
-                InputError
-              )
+        val challenge =
+          challengeMapper
+            .fromApi(response, SIGNATURE_FIELDS_HEADER)
+            .also { challenge ->
+              if (challenge.factorSid != factor.sid) {
+                throw TwilioVerifyException(
+                  WrongFactorException.also {
+                    Logger.log(
+                      Level.Error,
+                      it.toString(),
+                      it,
+                    )
+                  },
+                  InputError,
+                )
+              }
+              toFactorChallenge(challenge).factor = factor
             }
-            toFactorChallenge(challenge).factor = factor
-          }
         success(challenge)
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -81,7 +82,7 @@ internal class ChallengeRepository(
     challenge: Challenge,
     authPayload: String,
     success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     fun getChallenge(factorChallenge: FactorChallenge) {
       factorChallenge.factor?.let {
@@ -92,11 +93,11 @@ internal class ChallengeRepository(
             Logger.log(
               Level.Error,
               it.toString(),
-              it
+              it,
             )
           },
-          InputError
-        )
+          InputError,
+        ),
       )
     }
     try {
@@ -106,10 +107,10 @@ internal class ChallengeRepository(
             Logger.log(
               Level.Error,
               it.toString(),
-              it
+              it,
             )
           },
-          InputError
+          InputError,
         )
       }
       if (challenge.status != Pending) {
@@ -118,10 +119,10 @@ internal class ChallengeRepository(
             Logger.log(
               Level.Error,
               it.toString(),
-              it
+              it,
             )
           },
-          InputError
+          InputError,
         )
       }
       toFactorChallenge(challenge).let { factorChallenge ->
@@ -139,7 +140,7 @@ internal class ChallengeRepository(
     order: ChallengeListOrder,
     pageToken: String?,
     success: (ChallengeList) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     fun toResponse(response: JSONObject) {
       try {
@@ -158,9 +159,9 @@ internal class ChallengeRepository(
         Logger.log(
           Level.Error,
           it.toString(),
-          it
+          it,
         )
       },
-      InputError
+      InputError,
     )
 }

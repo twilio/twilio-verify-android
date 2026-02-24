@@ -10,7 +10,7 @@ import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.KeyGeneratorSpi
 import javax.crypto.SecretKey
 
-internal const val keyGeneratorMockName =
+internal const val KEY_GENERATOR_MOCK_NAME =
   "com.twilio.security.crypto.mocks.keystore.generator.KeyGeneratorMock"
 
 class KeyGeneratorMock : KeyGeneratorSpi() {
@@ -19,13 +19,13 @@ class KeyGeneratorMock : KeyGeneratorSpi() {
 
   override fun engineInit(
     params: AlgorithmParameterSpec?,
-    random: SecureRandom?
+    random: SecureRandom?,
   ) {
   }
 
   override fun engineInit(
     keysize: Int,
-    random: SecureRandom?
+    random: SecureRandom?,
   ) {
   }
 

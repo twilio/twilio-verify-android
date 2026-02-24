@@ -56,7 +56,7 @@ interface TwilioVerify {
   fun createFactor(
     factorPayload: FactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   /**
@@ -68,7 +68,7 @@ interface TwilioVerify {
   fun verifyFactor(
     verifyFactorPayload: VerifyFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   /**
@@ -80,7 +80,7 @@ interface TwilioVerify {
   fun updateFactor(
     updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   /**
@@ -90,7 +90,7 @@ interface TwilioVerify {
    */
   fun getAllFactors(
     success: (List<Factor>) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   /**
@@ -104,7 +104,7 @@ interface TwilioVerify {
     challengeSid: String,
     factorSid: String,
     success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   /**
@@ -117,7 +117,7 @@ interface TwilioVerify {
   fun getAllChallenges(
     challengeListPayload: ChallengeListPayload,
     success: (ChallengeList) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   /**
@@ -129,7 +129,7 @@ interface TwilioVerify {
   fun updateChallenge(
     updateChallengePayload: UpdateChallengePayload,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   /**
@@ -142,7 +142,7 @@ interface TwilioVerify {
   fun deleteFactor(
     factorSid: String,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   /**
@@ -159,7 +159,7 @@ interface TwilioVerify {
    * regarding Factors and Challenges
    */
   class Builder(
-    private var context: Context
+    private var context: Context,
   ) {
     private var keyStorage: KeyStorage = KeyStoreAdapter()
     private var networkProvider: NetworkProvider = NetworkAdapter()
@@ -168,35 +168,33 @@ interface TwilioVerify {
     private var authentication =
       AuthenticationProvider(
         jwtGenerator,
-        DateAdapter(storagePreferences(context))
+        DateAdapter(storagePreferences(context)),
       )
     private var loggerServices: MutableList<LoggerService> = mutableListOf()
 
     /**
      * @param networkProvider
      */
-    fun networkProvider(networkProvider: NetworkProvider) =
-      apply { this.networkProvider = networkProvider }
+    fun networkProvider(networkProvider: NetworkProvider) = apply { this.networkProvider = networkProvider }
 
-    internal fun baseUrl(baseUrl: String) = apply {
-      this.baseUrl = baseUrl
-    }
+    internal fun baseUrl(baseUrl: String) =
+      apply {
+        this.baseUrl = baseUrl
+      }
 
     /**
      * Enable the internal logging service
      *
      * @param logLevel that will allow logging information
      */
-    fun enableDefaultLoggingService(logLevel: LogLevel) =
-      apply { addLoggingService(DefaultLoggerService(logLevel)) }
+    fun enableDefaultLoggingService(logLevel: LogLevel) = apply { addLoggingService(DefaultLoggerService(logLevel)) }
 
     /**
      * Inject your own implementation of a **LoggerService**
      *
      * @param loggerService Custom logger service
      */
-    fun addLoggingService(loggerService: LoggerService) =
-      apply { loggerServices.add(loggerService) }
+    fun addLoggingService(loggerService: LoggerService) = apply { loggerServices.add(loggerService) }
 
     /**
      * Builds an instance of TwilioVerifyManager
@@ -209,35 +207,40 @@ interface TwilioVerify {
         LoggerImplementation.addService(service)
       }
       Logger.loggerContract = LoggerImplementation
-      val factorFacade = FactorFacade.Builder()
-        .context(context)
-        .networkProvider(networkProvider)
-        .keyStorage(keyStorage)
-        .baseUrl(baseUrl)
-        .setAuthentication(authentication)
-        .build()
-      val challengeFacade = ChallengeFacade.Builder()
-        .context(context)
-        .networkProvider(networkProvider)
-        .jwtGenerator(jwtGenerator)
-        .factorFacade(factorFacade)
-        .baseUrl(baseUrl)
-        .setAuthentication(authentication)
-        .build()
-      val serviceFacade = ServiceFacade.Builder()
-        .context(context)
-        .networkProvider(networkProvider)
-        .setFactorFacade(factorFacade)
-        .setAuthentication(authentication)
-        .baseUrl(baseUrl)
-        .build()
+      val factorFacade =
+        FactorFacade
+          .Builder()
+          .context(context)
+          .networkProvider(networkProvider)
+          .keyStorage(keyStorage)
+          .baseUrl(baseUrl)
+          .setAuthentication(authentication)
+          .build()
+      val challengeFacade =
+        ChallengeFacade
+          .Builder()
+          .context(context)
+          .networkProvider(networkProvider)
+          .jwtGenerator(jwtGenerator)
+          .factorFacade(factorFacade)
+          .baseUrl(baseUrl)
+          .setAuthentication(authentication)
+          .build()
+      val serviceFacade =
+        ServiceFacade
+          .Builder()
+          .context(context)
+          .networkProvider(networkProvider)
+          .setFactorFacade(factorFacade)
+          .setAuthentication(authentication)
+          .baseUrl(baseUrl)
+          .build()
       return TwilioVerifyManager(factorFacade, challengeFacade, serviceFacade)
     }
   }
 }
 
-internal fun storagePreferences(context: Context) =
-  context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
+internal fun storagePreferences(context: Context) = context.getSharedPreferences("${context.packageName}.$VERIFY_SUFFIX", Context.MODE_PRIVATE)
 
 internal const val VERIFY_SUFFIX = "verify"
 internal const val ENC_SUFFIX = "enc"

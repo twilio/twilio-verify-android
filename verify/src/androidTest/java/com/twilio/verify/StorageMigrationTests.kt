@@ -7,34 +7,33 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.twilio.security.storage.encryptedPreferences
 import com.twilio.verify.data.CURRENT_VERSION
+import com.twilio.verify.data.PROVIDER
 import com.twilio.verify.data.Storage
-import com.twilio.verify.data.provider
 import com.twilio.verify.data.toRFC3339Date
+import com.twilio.verify.domain.factor.ACCOUNT_SID_KEY
+import com.twilio.verify.domain.factor.CONFIG_KEY
+import com.twilio.verify.domain.factor.CREDENTIAL_SID_KEY
+import com.twilio.verify.domain.factor.DATE_CREATED_KEY
+import com.twilio.verify.domain.factor.FRIENDLY_NAME_KEY
 import com.twilio.verify.domain.factor.FactorMigrations
-import com.twilio.verify.domain.factor.accountSidKey
-import com.twilio.verify.domain.factor.configKey
-import com.twilio.verify.domain.factor.credentialSidKey
-import com.twilio.verify.domain.factor.dateCreatedKey
-import com.twilio.verify.domain.factor.friendlyNameKey
-import com.twilio.verify.domain.factor.identityKey
-import com.twilio.verify.domain.factor.keyPairAliasKey
-import com.twilio.verify.domain.factor.serviceSidKey
-import com.twilio.verify.domain.factor.sidKey
-import com.twilio.verify.domain.factor.statusKey
-import com.twilio.verify.domain.factor.typeKey
+import com.twilio.verify.domain.factor.IDENTITY_KEY
+import com.twilio.verify.domain.factor.KEY_PAIR_ALIAS_KEY
+import com.twilio.verify.domain.factor.SERVICE_SID_KEY
+import com.twilio.verify.domain.factor.SID_KEY
+import com.twilio.verify.domain.factor.STATUS_KEY
+import com.twilio.verify.domain.factor.TYPE_KEY
 import com.twilio.verify.models.FactorStatus.Unverified
 import com.twilio.verify.models.FactorType.PUSH
-import java.security.KeyStore
-import java.util.Date
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.security.KeyStore
+import java.util.Date
 
 class StorageMigrationTests {
-
   private val alias = "test"
   private val storageName = "testStorage"
   private val context: Context = ApplicationProvider.getApplicationContext()
@@ -45,31 +44,39 @@ class StorageMigrationTests {
 
   @After
   fun tearDown() {
-    sharedPreferences.edit()
+    sharedPreferences
+      .edit()
       .clear()
       .apply()
-    encryptedSharedPreferences.edit()
+    encryptedSharedPreferences
+      .edit()
       .clear()
       .apply()
-    val keyStore = KeyStore.getInstance(provider)
-      .apply {
-        load(null)
-      }
+    val keyStore =
+      KeyStore
+        .getInstance(PROVIDER)
+        .apply {
+          load(null)
+        }
     keyStore.deleteEntry(alias)
   }
 
   @Test
   fun testMigrateFromV1ToV2() {
     val factorSids = listOf("sid123", "sid345", "sid678")
-    val factors = factorSids.map { it to createFactorDataForV1(it) }
-      .toMap()
+    val factors =
+      factorSids
+        .map { it to createFactorDataForV1(it) }
+        .toMap()
     factors.forEach {
-      sharedPreferences.edit()
+      sharedPreferences
+        .edit()
         .putString(it.key, it.value)
         .apply()
       assertTrue(sharedPreferences.contains(it.key))
     }
-    sharedPreferences.edit()
+    sharedPreferences
+      .edit()
       .remove(CURRENT_VERSION)
       .apply()
     val factorMigrations = FactorMigrations(sharedPreferences)
@@ -81,18 +88,17 @@ class StorageMigrationTests {
     }
   }
 
-  private fun createFactorDataForV1(sid: String): String {
-    return JSONObject()
-      .put(sidKey, sid)
-      .put(friendlyNameKey, "factor name")
-      .put(accountSidKey, "accountSid123")
-      .put(serviceSidKey, "serviceSid123")
-      .put(identityKey, "identity123")
-      .put(typeKey, PUSH.factorTypeName)
-      .put(keyPairAliasKey, "keyPairAlias123")
-      .put(statusKey, Unverified.value)
-      .put(configKey, JSONObject().put(credentialSidKey, "credentialSid"))
-      .put(dateCreatedKey, toRFC3339Date(Date()))
+  private fun createFactorDataForV1(sid: String): String =
+    JSONObject()
+      .put(SID_KEY, sid)
+      .put(FRIENDLY_NAME_KEY, "factor name")
+      .put(ACCOUNT_SID_KEY, "accountSid123")
+      .put(SERVICE_SID_KEY, "serviceSid123")
+      .put(IDENTITY_KEY, "identity123")
+      .put(TYPE_KEY, PUSH.factorTypeName)
+      .put(KEY_PAIR_ALIAS_KEY, "keyPairAlias123")
+      .put(STATUS_KEY, Unverified.value)
+      .put(CONFIG_KEY, JSONObject().put(CREDENTIAL_SID_KEY, "credentialSid"))
+      .put(DATE_CREATED_KEY, toRFC3339Date(Date()))
       .toString()
-  }
 }

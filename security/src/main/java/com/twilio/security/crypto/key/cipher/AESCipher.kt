@@ -27,7 +27,7 @@ import javax.crypto.SecretKey
 class AESCipher(
   internal val key: SecretKey,
   private val cipherAlgorithm: String,
-  private val androidKeyStoreOperations: AndroidKeyStoreOperations
+  private val androidKeyStoreOperations: AndroidKeyStoreOperations,
 ) : com.twilio.security.crypto.key.cipher.Cipher {
   override fun encrypt(data: ByteArray): EncryptedData {
     try {
@@ -42,7 +42,7 @@ class AESCipher(
     data: ByteArray,
     authenticator: Authenticator,
     success: (EncryptedData) -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   ) {
     try {
       authenticator.startAuthentication(
@@ -50,7 +50,7 @@ class AESCipher(
         {
           encrypt(data, it, success, error)
         },
-        error
+        error,
       )
     } catch (e: Exception) {
       error(e)
@@ -70,7 +70,7 @@ class AESCipher(
     data: EncryptedData,
     authenticator: Authenticator,
     success: (ByteArray) -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   ) {
     try {
       authenticator.startAuthentication(
@@ -78,7 +78,7 @@ class AESCipher(
         {
           decrypt(data, it, success, error)
         },
-        error
+        error,
       )
     } catch (e: Exception) {
       error(e)
@@ -89,7 +89,7 @@ class AESCipher(
     data: ByteArray,
     cipherObject: Cipher,
     success: (EncryptedData) -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   ) {
     try {
       success(androidKeyStoreOperations.encrypt(data, cipherObject))
@@ -102,7 +102,7 @@ class AESCipher(
     data: EncryptedData,
     cipherObject: Cipher,
     success: (ByteArray) -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   ) {
     try {
       success(androidKeyStoreOperations.decrypt(data, cipherObject))

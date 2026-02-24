@@ -39,24 +39,17 @@ import com.twilio.verify.sample.viewmodel.FactorsViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class FactorsFragment : Fragment() {
-
   private lateinit var viewAdapter: FactorsAdapter
   private val factorsViewModel: FactorsViewModel by activityViewModel()
-  private var _binding: FragmentFactorsBinding? = null
-  private val binding get() = _binding!!
+  private lateinit var binding: FragmentFactorsBinding
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? {
-    _binding = FragmentFactorsBinding.inflate(inflater, container, false)
+    binding = FragmentFactorsBinding.inflate(inflater, container, false)
     return binding.root
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -65,17 +58,21 @@ class FactorsFragment : Fragment() {
     binding.factors.apply {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(requireContext())
-      ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete)
+      ContextCompat
+        .getDrawable(requireContext(), R.drawable.ic_delete)
         ?.let {
-          val itemTouchHelper = ItemTouchHelper(
-            SwipeToDeleteCallback(
-              ::delete, it
+          val itemTouchHelper =
+            ItemTouchHelper(
+              SwipeToDeleteCallback(
+                ::delete,
+                it,
+              ),
             )
-          )
           itemTouchHelper.attachToRecyclerView(this)
         }
     }
-    factorsViewModel.getFactors()
+    factorsViewModel
+      .getFactors()
       .observe(
         viewLifecycleOwner,
         Observer {
@@ -84,7 +81,7 @@ class FactorsFragment : Fragment() {
             is FactorsError -> it.exception.showError(binding.content)
             is DeleteFactorError -> it.exception.showError(binding.content)
           }
-        }
+        },
       )
     loadFactors()
   }
@@ -98,12 +95,14 @@ class FactorsFragment : Fragment() {
   }
 
   private fun showFactors(list: List<Factor>) {
-    viewAdapter = FactorsAdapter(list) {
-      val bundle = bundleOf(
-        ARG_FACTOR_SID to it.sid
-      )
-      findNavController().navigate(R.id.action_show_challenges, bundle)
-    }
+    viewAdapter =
+      FactorsAdapter(list) {
+        val bundle =
+          bundleOf(
+            ARG_FACTOR_SID to it.sid,
+          )
+        findNavController().navigate(R.id.action_show_challenges, bundle)
+      }
     binding.factors.apply {
       adapter = viewAdapter
     }

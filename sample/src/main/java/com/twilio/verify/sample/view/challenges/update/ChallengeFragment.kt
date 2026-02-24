@@ -35,8 +35,8 @@ import com.twilio.verify.sample.viewmodel.ChallengeError
 import com.twilio.verify.sample.viewmodel.ChallengeViewModel
 import com.twilio.verify.sample.viewmodel.FactorError
 import com.twilio.verify.sample.viewmodel.FactorViewModel
-import java.text.DateFormat
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import java.text.DateFormat
 
 const val ARG_CHALLENGE_SID = "challengeSid"
 const val ARG_FACTOR_SID = "factorSid"
@@ -46,17 +46,16 @@ class ChallengeFragment : Fragment() {
   private lateinit var factorSid: String
   private val factorViewModel: FactorViewModel by activityViewModel()
   private val challengeViewModel: ChallengeViewModel by activityViewModel()
-  private var _binding: FragmentChallengeBinding? = null
-  private val binding get() = _binding!!
+  private lateinit var binding: FragmentChallengeBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     arguments?.let {
       challengeSid = it.getString(
-        ARG_CHALLENGE_SID
+        ARG_CHALLENGE_SID,
       ) ?: ""
       factorSid = it.getString(
-        ARG_FACTOR_SID
+        ARG_FACTOR_SID,
       ) ?: ""
     }
   }
@@ -64,21 +63,17 @@ class ChallengeFragment : Fragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? {
-    _binding = FragmentChallengeBinding.inflate(inflater, container, false)
+    binding = FragmentChallengeBinding.inflate(inflater, container, false)
     return binding.root
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     if (challengeSid.isNotEmpty() && factorSid.isNotEmpty()) {
-      factorViewModel.getFactor()
+      factorViewModel
+        .getFactor()
         .observe(
           viewLifecycleOwner,
           Observer {
@@ -86,10 +81,11 @@ class ChallengeFragment : Fragment() {
               is com.twilio.verify.sample.viewmodel.Factor -> showFactor(it.factor)
               is FactorError -> it.exception.showError(binding.content)
             }
-          }
+          },
         )
       factorViewModel.loadFactor(factorSid)
-      challengeViewModel.getChallenge()
+      challengeViewModel
+        .getChallenge()
         .observe(
           viewLifecycleOwner,
           Observer {
@@ -99,7 +95,7 @@ class ChallengeFragment : Fragment() {
               is com.twilio.verify.sample.viewmodel.Challenge -> showChallenge(it.challenge)
               is ChallengeError -> handleError(it.exception)
             }
-          }
+          },
         )
       challengeViewModel.loadChallenge(challengeSid, factorSid)
     }
@@ -138,33 +134,38 @@ class ChallengeFragment : Fragment() {
       setTextIsSelectable(true)
     }
     binding.challenge.challengeStatusText.text = challenge.status.value
-    binding.challenge.challengeCreatedAtText.text = DateUtils.formatDateTime(
-      context,
-      challenge.createdAt.time,
-      DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
-    )
-    binding.challenge.challengeExpireOnText.text = DateUtils.formatDateTime(
-      context,
-      challenge.expirationDate.time,
-      DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
-    )
+    binding.challenge.challengeCreatedAtText.text =
+      DateUtils.formatDateTime(
+        context,
+        challenge.createdAt.time,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME,
+      )
+    binding.challenge.challengeExpireOnText.text =
+      DateUtils.formatDateTime(
+        context,
+        challenge.expirationDate.time,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME,
+      )
     binding.challengeActionsGroup?.visibility =
       if (challenge.status == ChallengeStatus.Pending) View.VISIBLE else View.GONE
-    val info = "Updated at: " +
-      "${
-      DateUtils.formatSameDayTime(
-        challenge.updatedAt.time, System.currentTimeMillis(), DateFormat.MEDIUM,
-        DateFormat.MEDIUM
-      )
-      }\n" + challenge.challengeDetails.string(context) +
-      (
-        challenge.hiddenDetails?.let { hiddenDetails ->
-          "Hidden details:\n ${
-          hiddenDetails.map {
-            "  ${it.key} = ${it.value}"
-          }.joinToString("\n")
-          }"
-        } ?: ""
+    val info =
+      "Updated at: " +
+        "${
+          DateUtils.formatSameDayTime(
+            challenge.updatedAt.time,
+            System.currentTimeMillis(),
+            DateFormat.MEDIUM,
+            DateFormat.MEDIUM,
+          )
+        }\n" + challenge.challengeDetails.string(context) +
+        (
+          challenge.hiddenDetails?.let { hiddenDetails ->
+            "Hidden details:\n ${
+              hiddenDetails.map {
+                "  ${it.key} = ${it.value}"
+              }.joinToString("\n")
+            }"
+          } ?: ""
         )
     binding.challengeInfoText?.text = info
     binding.approveButton?.setOnClickListener {
@@ -177,7 +178,7 @@ class ChallengeFragment : Fragment() {
 
   private fun updateChallenge(
     challenge: Challenge,
-    status: ChallengeStatus
+    status: ChallengeStatus,
   ) {
     binding.approveButton.isEnabled = false
     binding.denyButton.isEnabled = false

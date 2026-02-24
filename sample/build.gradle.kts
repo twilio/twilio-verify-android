@@ -22,6 +22,7 @@ plugins {
   id(Config.Plugins.firebasePerformance)
   jacoco
   id(Config.Plugins.kover)
+  id(Config.Plugins.ktlint)
 }
 repositories {
   mavenLocal()
@@ -54,7 +55,7 @@ android {
       isMinifyEnabled = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
-        "proguard-rules.pro"
+        "proguard-rules.pro",
       )
       signingConfig = signingConfigs.getByName("release")
     }

@@ -26,5 +26,5 @@ internal data class CreateFactorPayload(
   override val config: Map<String, String>,
   val binding: Map<String, String>,
   val accessToken: String,
-  val metadata: Map<String, String>? = null
+  val metadata: Map<String, String>? = null,
 ) : FactorDataPayload

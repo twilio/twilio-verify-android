@@ -6,15 +6,10 @@ package com.twilio.security.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
+import com.twilio.security.crypto.PROVIDER_NAME
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.keyManager
-import com.twilio.security.crypto.providerName
 import com.twilio.security.storage.key.SecretKeyCipher
-import java.security.KeyStore
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import kotlin.reflect.KClass
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.After
@@ -22,12 +17,18 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.security.KeyStore
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 
 class EncryptedPreferencesTests {
-
   private val sharedPreferencesName = "TestEncryptedPreferences"
-  private val keyStore = KeyStore.getInstance(providerName)
-    .apply { load(null) }
+  private val keyStore =
+    KeyStore
+      .getInstance(PROVIDER_NAME)
+      .apply { load(null) }
   private val androidKeyManager = keyManager()
   private lateinit var alias: String
   private lateinit var encryptedPreferences: EncryptedPreferences
@@ -37,8 +38,10 @@ class EncryptedPreferencesTests {
   @Before
   fun setup() {
     context = ApplicationProvider.getApplicationContext()
-    alias = System.currentTimeMillis()
-      .toString()
+    alias =
+      System
+        .currentTimeMillis()
+        .toString()
     if (keyStore.containsAlias(alias)) {
       keyStore.deleteEntry(alias)
     }
@@ -47,15 +50,17 @@ class EncryptedPreferencesTests {
     val secretKeyCipher =
       SecretKeyCipher(
         AESGCMNoPaddingCipherTemplate(alias, androidKeyManager.contains(alias)),
-        androidKeyManager
+        androidKeyManager,
       )
     secretKeyCipher.create()
-    encryptedPreferences = EncryptedPreferences(
-      secretKeyCipher, sharedPreferences,
-      TestObjectSerializer(
-        DefaultSerializer()
+    encryptedPreferences =
+      EncryptedPreferences(
+        secretKeyCipher,
+        sharedPreferences,
+        TestObjectSerializer(
+          DefaultSerializer(),
+        ),
       )
-    )
   }
 
   @After
@@ -63,7 +68,8 @@ class EncryptedPreferencesTests {
     if (this::alias.isInitialized) {
       keyStore.deleteEntry(alias)
     }
-    sharedPreferences.edit()
+    sharedPreferences
+      .edit()
       .clear()
       .apply()
   }
@@ -186,40 +192,41 @@ class EncryptedPreferencesTests {
 
 data class TestObject(
   val name: String,
-  val age: Int
+  val age: Int,
 )
 
-internal class TestObjectSerializer(private val defaultSerializer: DefaultSerializer) :
-  Serializer by defaultSerializer {
-  override fun <T : Any> toByteArray(value: T): ByteArray {
-    return when (value) {
+internal class TestObjectSerializer(
+  private val defaultSerializer: DefaultSerializer,
+) : Serializer by defaultSerializer {
+  override fun <T : Any> toByteArray(value: T): ByteArray =
+    when (value) {
       is TestObject -> testObjectToByteArray(value)
       else -> defaultSerializer.toByteArray(value)
     }
-  }
 
   override fun <T : Any> fromByteArray(
     data: ByteArray,
-    kClass: KClass<T>
-  ): T? {
-    return when {
+    kClass: KClass<T>,
+  ): T? =
+    when {
       kClass.isAssignableFrom(TestObject::class) -> testObjectFromString(String(data)) as? T
       else -> defaultSerializer.fromByteArray(data, kClass)
     }
-  }
 
-  private fun testObjectFromString(string: String): TestObject? = try {
-    JSONObject(string)
-  } catch (e: JSONException) {
-    null
-  }?.let {
-    TestObject(it.getString("name"), it.getInt("age"))
-  }
+  private fun testObjectFromString(string: String): TestObject? =
+    try {
+      JSONObject(string)
+    } catch (_: JSONException) {
+      null
+    }?.let {
+      TestObject(it.getString("name"), it.getInt("age"))
+    }
 
-  private fun testObjectToByteArray(testObject: TestObject): ByteArray = JSONObject().apply {
-    put("name", testObject.name)
-    put("age", testObject.age)
-  }
-    .toString()
-    .toByteArray()
+  private fun testObjectToByteArray(testObject: TestObject): ByteArray =
+    JSONObject()
+      .apply {
+        put("name", testObject.name)
+        put("age", testObject.age)
+      }.toString()
+      .toByteArray()
 }

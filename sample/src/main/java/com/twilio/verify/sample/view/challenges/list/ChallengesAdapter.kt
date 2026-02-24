@@ -29,23 +29,21 @@ import com.twilio.verify.sample.R.layout
 
 class ChallengesAdapter(
   private val challenges: List<Challenge>,
-  private val onChallengeClick: (Challenge) -> Unit
-) :
-  Adapter<ChallengesAdapter.ChallengeViewHolder>() {
-
+  private val onChallengeClick: (Challenge) -> Unit,
+) : Adapter<ChallengesAdapter.ChallengeViewHolder>() {
   override fun onCreateViewHolder(
     parent: ViewGroup,
-    viewType: Int
+    viewType: Int,
   ): ChallengeViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     return ChallengeViewHolder(
-      inflater.inflate(layout.view_challenge, parent, false)
+      inflater.inflate(layout.view_challenge, parent, false),
     )
   }
 
   override fun onBindViewHolder(
     holder: ChallengeViewHolder,
-    position: Int
+    position: Int,
   ) {
     val challenge = challenges[position]
     holder.bind(challenge, onChallengeClick)
@@ -53,7 +51,9 @@ class ChallengesAdapter(
 
   override fun getItemCount(): Int = challenges.size
 
-  class ChallengeViewHolder(view: View) : ViewHolder(view) {
+  class ChallengeViewHolder(
+    view: View,
+  ) : ViewHolder(view) {
     private var challengeSid: TextView? = null
     private var challengeMessage: TextView? = null
     private var challengeStatus: TextView? = null
@@ -61,40 +61,47 @@ class ChallengesAdapter(
     private var challengeExpireOn: TextView? = null
 
     init {
-      challengeSid = itemView.findViewById(
-        id.challengeSidText
-      )
-      challengeMessage = itemView.findViewById(
-        id.challengeMessageText
-      )
-      challengeStatus = itemView.findViewById(
-        id.challengeStatusText
-      )
-      challengeCreatedAt = itemView.findViewById(
-        id.challengeCreatedAtText
-      )
-      challengeExpireOn = itemView.findViewById(
-        id.challengeExpireOnText
-      )
+      challengeSid =
+        itemView.findViewById(
+          id.challengeSidText,
+        )
+      challengeMessage =
+        itemView.findViewById(
+          id.challengeMessageText,
+        )
+      challengeStatus =
+        itemView.findViewById(
+          id.challengeStatusText,
+        )
+      challengeCreatedAt =
+        itemView.findViewById(
+          id.challengeCreatedAtText,
+        )
+      challengeExpireOn =
+        itemView.findViewById(
+          id.challengeExpireOnText,
+        )
     }
 
     fun bind(
       challenge: Challenge,
-      onChallengeClick: (Challenge) -> Unit
+      onChallengeClick: (Challenge) -> Unit,
     ) {
       challengeSid?.text = challenge.sid
       challengeMessage?.text = challenge.challengeDetails.message
       challengeStatus?.text = challenge.status.value
-      challengeCreatedAt?.text = DateUtils.formatDateTime(
-        itemView.context,
-        challenge.createdAt.time,
-        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
-      )
-      challengeExpireOn?.text = DateUtils.formatDateTime(
-        itemView.context,
-        challenge.expirationDate.time,
-        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
-      )
+      challengeCreatedAt?.text =
+        DateUtils.formatDateTime(
+          itemView.context,
+          challenge.createdAt.time,
+          DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME,
+        )
+      challengeExpireOn?.text =
+        DateUtils.formatDateTime(
+          itemView.context,
+          challenge.expirationDate.time,
+          DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME,
+        )
       itemView.setOnClickListener {
         onChallengeClick(challenge)
       }

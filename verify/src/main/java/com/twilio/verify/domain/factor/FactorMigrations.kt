@@ -23,32 +23,34 @@ import org.json.JSONObject
 
 internal class FactorMigrations(
   private val sharedPreferences: SharedPreferences,
-  private val factorMapper: FactorMapper = FactorMapper()
+  private val factorMapper: FactorMapper = FactorMapper(),
 ) {
   fun migrations(): List<Migration> {
+    val migrationV1ToV2 =
+      object : Migration {
+        override val startVersion: Int = 1
+        override val endVersion: Int = 2
 
-    val migrationV1ToV2 = object : Migration {
-      override val startVersion: Int = 1
-      override val endVersion: Int = 2
-
-      override fun migrate(data: List<String>): List<Entry> {
-        val factors = sharedPreferences.all.values.filterIsInstance<String>()
-        return factors.filter { factorMapper.isFactor(it) }
-          .map { JSONObject(it) }
-          .map {
-            Entry(
-              factorMapper.getSid(it), it.toString()
-            )
-          }
-          .apply {
-            forEach {
-              sharedPreferences.edit()
-                .remove(it.key)
-                .apply()
+        override fun migrate(data: List<String>): List<Entry> {
+          val factors = sharedPreferences.all.values.filterIsInstance<String>()
+          return factors
+            .filter { factorMapper.isFactor(it) }
+            .map { JSONObject(it) }
+            .map {
+              Entry(
+                factorMapper.getSid(it),
+                it.toString(),
+              )
+            }.apply {
+              forEach {
+                sharedPreferences
+                  .edit()
+                  .remove(it.key)
+                  .apply()
+              }
             }
-          }
+        }
       }
-    }
 
     return listOf(migrationV1ToV2)
   }

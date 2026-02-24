@@ -36,7 +36,7 @@ class PushFactorPayload(
   override val identity: String,
   val pushToken: String?,
   val accessToken: String,
-  val metadata: Map<String, String>? = null
+  val metadata: Map<String, String>? = null,
 ) : FactorPayload {
   override val factorType: FactorType
     get() = FactorType.PUSH

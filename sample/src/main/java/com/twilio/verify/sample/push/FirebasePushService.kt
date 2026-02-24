@@ -34,15 +34,14 @@ import com.twilio.verify.sample.view.challenges.update.ARG_CHALLENGE_SID
 import com.twilio.verify.sample.view.challenges.update.ARG_FACTOR_SID
 import org.koin.android.ext.android.inject
 
-internal const val typeKey = "type"
-internal const val factorSidKey = "factor_sid"
-internal const val challengeType = "verify_push_challenge"
-internal const val challengeSidKey = "challenge_sid"
-internal const val messageKey = "message"
-internal const val channelId = "challenges"
+internal const val TYPE_KEY = "type"
+internal const val FACTOR_SID_KEY = "factor_sid"
+internal const val CHALLENGE_TYPE = "verify_push_challenge"
+internal const val CHALLENGE_SID_KEY = "challenge_sid"
+internal const val MESSAGE_KEY = "message"
+internal const val CHANNEL_ID = "challenges"
 
-class FirebasePushService() : FirebaseMessagingService() {
-
+class FirebasePushService : FirebaseMessagingService() {
   @VisibleForTesting
   val twilioVerifyAdapter: TwilioVerifyAdapter by inject()
 
@@ -53,15 +52,15 @@ class FirebasePushService() : FirebaseMessagingService() {
 
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
     val bundle = getBundleFromMessage(remoteMessage)
-    when (bundle.getString(typeKey)) {
-      challengeType -> newChallenge(bundle)
+    when (bundle.getString(TYPE_KEY)) {
+      CHALLENGE_TYPE -> newChallenge(bundle)
     }
   }
 
   private fun newChallenge(bundle: Bundle) {
-    val factorSid = bundle.getString(factorSidKey)
-    val challengeSid = bundle.getString(challengeSidKey)
-    val message = bundle.getString(messageKey)
+    val factorSid = bundle.getString(FACTOR_SID_KEY)
+    val challengeSid = bundle.getString(CHALLENGE_SID_KEY)
+    val message = bundle.getString(MESSAGE_KEY)
     if (factorSid != null && challengeSid != null) {
       showChallenge(challengeSid, factorSid, message)
     }
@@ -71,7 +70,7 @@ class FirebasePushService() : FirebaseMessagingService() {
   private fun showChallenge(
     challengeSid: String,
     factorSid: String,
-    message: String?
+    message: String?,
   ) {
     twilioVerifyAdapter.showChallenge(challengeSid, factorSid)
     message?.let {
@@ -82,29 +81,29 @@ class FirebasePushService() : FirebaseMessagingService() {
       i.putExtras(bundleOf(ARG_FACTOR_SID to factorSid, ARG_CHALLENGE_SID to challengeSid))
       val flags = PendingIntent.FLAG_ONE_SHOT
       val pendingIntent = PendingIntent.getActivity(this, 0, i, flags or PendingIntent.FLAG_IMMUTABLE)
-      val builder = NotificationCompat.Builder(
-        this,
-        channelId
-      )
-        .setContentIntent(pendingIntent)
-        .setSmallIcon(R.drawable.ic_challenge)
-        .setContentTitle(getString(R.string.new_challenge))
-        .setContentText(message)
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .setAutoCancel(true)
+      val builder =
+        NotificationCompat
+          .Builder(
+            this,
+            CHANNEL_ID,
+          ).setContentIntent(pendingIntent)
+          .setSmallIcon(R.drawable.ic_challenge)
+          .setContentTitle(getString(R.string.new_challenge))
+          .setContentText(message)
+          .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+          .setAutoCancel(true)
       with(NotificationManagerCompat.from(this)) {
         notify(challengeSid.hashCode(), builder.build())
       }
     }
   }
 
-  private fun getBundleFromMessage(remoteMessage: RemoteMessage?): Bundle {
-    return Bundle().apply {
+  private fun getBundleFromMessage(remoteMessage: RemoteMessage?): Bundle =
+    Bundle().apply {
       remoteMessage?.data?.entries?.let { entries ->
         for (entry in entries) {
           putString(entry.key, entry.value)
         }
       }
     }
-  }
 }

@@ -34,33 +34,35 @@ interface EncryptedStorage {
   @Throws(StorageException::class)
   fun <T : Any> put(
     key: String,
-    value: T
+    value: T,
   )
 
   @Throws(StorageException::class)
   fun <T : Any> get(
     key: String,
-    kClass: KClass<T>
+    kClass: KClass<T>,
   ): T
 
   @Throws(StorageException::class)
-  fun <T : Any> getAll(
-    kClass: KClass<T>
-  ): List<T>
+  fun <T : Any> getAll(kClass: KClass<T>): List<T>
 
   fun contains(key: String): Boolean
+
   fun remove(key: String)
+
   fun clear()
 }
 
 fun encryptedPreferences(
   storageAlias: String,
-  sharedPreferences: SharedPreferences
+  sharedPreferences: SharedPreferences,
 ): EncryptedStorage {
   val keyManager = keyManager()
-  val secretKeyProvider = SecretKeyCipher(
-    AESGCMNoPaddingCipherTemplate(storageAlias), keyManager
-  )
+  val secretKeyProvider =
+    SecretKeyCipher(
+      AESGCMNoPaddingCipherTemplate(storageAlias),
+      keyManager,
+    )
   if (!keyManager.contains(storageAlias) && sharedPreferences.all.isEmpty()) {
     secretKeyProvider.create()
   }
@@ -70,6 +72,7 @@ fun encryptedPreferences(
 internal fun generateKeyDigest(key: String): String {
   Logger.log(Level.Debug, "Generating key digest for $key")
   val messageDigest = MessageDigest.getInstance("SHA-256")
-  return Base64.encodeToString(messageDigest.digest(key.toByteArray()), Base64.DEFAULT)
+  return Base64
+    .encodeToString(messageDigest.digest(key.toByteArray()), Base64.DEFAULT)
     .also { Logger.log(Level.Debug, "Generated key digest for $key: $it") }
 }

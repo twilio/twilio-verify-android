@@ -8,5 +8,5 @@ import java.security.Key
 data class CipherMockOutput(
   var cipherInitialized: Boolean = false,
   var secretKey: Key? = null,
-  var encryptionTimes: MutableList<Long> = mutableListOf()
+  var encryptionTimes: MutableList<Long> = mutableListOf(),
 )

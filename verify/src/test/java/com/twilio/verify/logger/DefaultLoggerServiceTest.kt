@@ -26,7 +26,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class DefaultLoggerServiceTest {
-
   private val log: LogWrapper = mock()
 
   @Test
@@ -36,9 +35,10 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Info, message)
     verify(log).info(
       check { tag ->
-        assertEquals(DefaultLoggerService.tag, tag)
+        assertEquals(DefaultLoggerService.TAG, tag)
       },
-      eq(message), eq(null)
+      eq(message),
+      eq(null),
     )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
@@ -52,9 +52,10 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Error, message)
     verify(log).error(
       check { tag ->
-        assertEquals(DefaultLoggerService.tag, tag)
+        assertEquals(DefaultLoggerService.TAG, tag)
       },
-      eq(message), eq(null)
+      eq(message),
+      eq(null),
     )
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
@@ -68,9 +69,10 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Networking, message)
     verify(log).verbose(
       check { tag ->
-        assertEquals(DefaultLoggerService.tag, tag)
+        assertEquals(DefaultLoggerService.TAG, tag)
       },
-      eq(message), eq(null)
+      eq(message),
+      eq(null),
     )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).info(any(), any(), any())
@@ -84,9 +86,10 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Debug, message)
     verify(log).debug(
       check { tag ->
-        assertEquals(DefaultLoggerService.tag, tag)
+        assertEquals(DefaultLoggerService.TAG, tag)
       },
-      eq(message), eq(null)
+      eq(message),
+      eq(null),
     )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
@@ -100,9 +103,10 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Error, message)
     verify(log).error(
       check { tag ->
-        assertEquals(DefaultLoggerService.tag, tag)
+        assertEquals(DefaultLoggerService.TAG, tag)
       },
-      eq(message), eq(null)
+      eq(message),
+      eq(null),
     )
     verify(log, never()).info(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
@@ -149,9 +153,10 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Info, message)
     verify(log).info(
       check { tag ->
-        assertEquals(DefaultLoggerService.tag, tag)
+        assertEquals(DefaultLoggerService.TAG, tag)
       },
-      eq(message), eq(null)
+      eq(message),
+      eq(null),
     )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).verbose(any(), any(), any())
@@ -198,9 +203,10 @@ class DefaultLoggerServiceTest {
     loggerService.log(LogLevel.Networking, message)
     verify(log).verbose(
       check { tag ->
-        assertEquals(DefaultLoggerService.tag, tag)
+        assertEquals(DefaultLoggerService.TAG, tag)
       },
-      eq(message), eq(null)
+      eq(message),
+      eq(null),
     )
     verify(log, never()).error(any(), any(), any())
     verify(log, never()).info(any(), any(), any())

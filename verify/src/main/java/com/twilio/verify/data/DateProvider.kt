@@ -24,26 +24,24 @@ internal interface DateProvider {
   fun getCurrentTime(): Long
 
   @Throws(ParseException::class)
-  fun syncTime(
-    date: String
-  )
+  fun syncTime(date: String)
 }
 
-internal const val timeCorrectionKey = "timeCorrection"
+internal const val TIME_CORRECTION_KEY = "timeCorrection"
 
 internal class DateAdapter(
-  private val preferences: SharedPreferences
+  private val preferences: SharedPreferences,
 ) : DateProvider {
   override fun getCurrentTime(): Long {
-    val timeDifference = preferences.getLong(
-      timeCorrectionKey, 0
-    )
+    val timeDifference =
+      preferences.getLong(
+        TIME_CORRECTION_KEY,
+        0,
+      )
     return localTime() + timeDifference
   }
 
-  override fun syncTime(
-    date: String
-  ) {
+  override fun syncTime(date: String) {
     saveTime(fromRFC1123Date(date).time)
   }
 
@@ -52,8 +50,9 @@ internal class DateAdapter(
   private fun saveTime(time: Long) {
     val timeCorrection =
       MILLISECONDS.toSeconds(time) - localTime()
-    preferences.edit()
-      .putLong(timeCorrectionKey, timeCorrection)
+    preferences
+      .edit()
+      .putLong(TIME_CORRECTION_KEY, timeCorrection)
       .apply()
   }
 }

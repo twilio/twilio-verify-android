@@ -22,7 +22,9 @@ import androidx.lifecycle.ViewModel
 import com.twilio.verify.models.Factor
 import com.twilio.verify.sample.TwilioVerifyAdapter
 
-class FactorsViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : ViewModel() {
+class FactorsViewModel(
+  private val twilioVerifyAdapter: TwilioVerifyAdapter,
+) : ViewModel() {
   private val factors: MutableLiveData<Factors> = MutableLiveData()
 
   fun loadFactors() {
@@ -32,7 +34,7 @@ class FactorsViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : V
       },
       {
         factors.value = FactorsError(it)
-      }
+      },
     )
   }
 
@@ -45,16 +47,23 @@ class FactorsViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : V
       {
         factors.value = DeleteFactorError(it)
         loadFactors()
-      }
+      },
     )
   }
 
-  fun getFactors(): LiveData<Factors> {
-    return factors
-  }
+  fun getFactors(): LiveData<Factors> = factors
 }
 
 sealed class Factors
-class FactorList(val factors: List<Factor>) : Factors()
-class FactorsError(val exception: Exception) : Factors()
-class DeleteFactorError(val exception: Exception) : Factors()
+
+class FactorList(
+  val factors: List<Factor>,
+) : Factors()
+
+class FactorsError(
+  val exception: Exception,
+) : Factors()
+
+class DeleteFactorError(
+  val exception: Exception,
+) : Factors()

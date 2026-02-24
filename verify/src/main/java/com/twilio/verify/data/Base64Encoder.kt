@@ -20,7 +20,7 @@ import android.util.Base64
 
 internal fun encodeToBase64UTF8String(
   input: ByteArray,
-  flags: Int
+  flags: Int,
 ): String {
   val encoded = Base64.encode(input, flags)
   return String(encoded)

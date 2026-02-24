@@ -26,7 +26,9 @@ import com.twilio.verify.sample.TwilioVerifyAdapter
 
 private const val PAGE_SIZE = 20
 
-class ChallengesViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : ViewModel() {
+class ChallengesViewModel(
+  private val twilioVerifyAdapter: TwilioVerifyAdapter,
+) : ViewModel() {
   private val challenges: MutableLiveData<Challenges> = MutableLiveData()
 
   fun loadChallenges(factorSid: String) {
@@ -37,15 +39,19 @@ class ChallengesViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) 
       },
       {
         challenges.value = ChallengesError(it)
-      }
+      },
     )
   }
 
-  fun getChallenges(): LiveData<Challenges> {
-    return challenges
-  }
+  fun getChallenges(): LiveData<Challenges> = challenges
 }
 
 sealed class Challenges
-class ChallengeList(val challenges: List<Challenge>) : Challenges()
-class ChallengesError(val exception: Exception) : Challenges()
+
+class ChallengeList(
+  val challenges: List<Challenge>,
+) : Challenges()
+
+class ChallengesError(
+  val exception: Exception,
+) : Challenges()

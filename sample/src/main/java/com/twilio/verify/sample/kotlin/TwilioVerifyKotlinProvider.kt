@@ -23,15 +23,15 @@ import com.twilio.verify.logger.LogLevel
 object TwilioVerifyKotlinProvider {
   private lateinit var twilioVerifyAdapter: TwilioVerifyKotlinAdapter
 
-  fun getInstance(
-    applicationContext: Context
-  ): TwilioVerifyKotlinAdapter {
+  fun getInstance(applicationContext: Context): TwilioVerifyKotlinAdapter {
     if (!this::twilioVerifyAdapter.isInitialized) {
-      twilioVerifyAdapter = TwilioVerifyKotlinAdapter(
-        TwilioVerify.Builder(applicationContext)
-          .enableDefaultLoggingService(LogLevel.All)
-          .build()
-      )
+      twilioVerifyAdapter =
+        TwilioVerifyKotlinAdapter(
+          TwilioVerify
+            .Builder(applicationContext)
+            .enableDefaultLoggingService(LogLevel.All)
+            .build(),
+        )
     }
     return twilioVerifyAdapter
   }

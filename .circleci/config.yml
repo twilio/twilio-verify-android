@@ -63,7 +63,7 @@ references:
   lint_checker: &lint_checker
     run:
       name: Check android, kotlin style convention
-      command: bundle exec fastlane lint_checker
+      command: ./gradlew ktlintCheck
   danger_checker: &danger_checker
     run:
       name: Danger check

@@ -24,12 +24,12 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-internal const val dateFormatTimeZone = "yyyy-MM-dd'T'HH:mm:ssZ"
-internal val dateFormatterTimeZone = SimpleDateFormat(dateFormatTimeZone, Locale.US)
-private const val dateFormatUTC = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+internal const val DATE_FORMAT_TIME_ZONE = "yyyy-MM-dd'T'HH:mm:ssZ"
+internal val dateFormatterTimeZone = SimpleDateFormat(DATE_FORMAT_TIME_ZONE, Locale.US)
+private const val DATE_FORMAT_UTC = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 private const val RFC1123_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz"
 private val dateFormatterUTC =
-  SimpleDateFormat(dateFormatUTC, Locale.US).apply { timeZone = TimeZone.getTimeZone("UTC") }
+  SimpleDateFormat(DATE_FORMAT_UTC, Locale.US).apply { timeZone = TimeZone.getTimeZone("UTC") }
 
 internal fun fromRFC3339Date(date: String): Date {
   try {
@@ -42,7 +42,7 @@ internal fun fromRFC3339Date(date: String): Date {
     secondPart = (
       secondPart.substring(0, secondPart.indexOf(':')) +
         secondPart.substring(secondPart.indexOf(':') + 1)
-      )
+    )
     val dateString = firstPart + secondPart
     return dateFormatterTimeZone.parse(dateString)
   } catch (e: ParseException) {
@@ -54,9 +54,7 @@ internal fun fromRFC3339Date(date: String): Date {
   }
 }
 
-internal fun toRFC3339Date(date: Date): String {
-  return dateFormatterUTC.format(date)
-}
+internal fun toRFC3339Date(date: Date): String = dateFormatterUTC.format(date)
 
 internal fun fromRFC1123Date(date: String): Date {
   try {

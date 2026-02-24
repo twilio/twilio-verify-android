@@ -49,7 +49,6 @@ import org.koin.android.ext.android.inject
 const val NOTIFICATION_PERMISSION_CODE = 100
 
 class MainActivity : AppCompatActivity() {
-
   private lateinit var subscriberJob: Job
 
   val twilioVerifyAdapter: TwilioVerifyAdapter by inject()
@@ -74,15 +73,16 @@ class MainActivity : AppCompatActivity() {
 
   private fun addMarginsListenerForEdgeToEdge() {
     ViewCompat.setOnApplyWindowInsetsListener(binding.content) { v, insets ->
-      val innerPadding = insets.getInsets(
-        WindowInsetsCompat.Type.navigationBars()
-          or WindowInsetsCompat.Type.displayCutout()
-      )
+      val innerPadding =
+        insets.getInsets(
+          WindowInsetsCompat.Type.navigationBars()
+            or WindowInsetsCompat.Type.displayCutout(),
+        )
       v.setPadding(
         innerPadding.left,
         innerPadding.top,
         innerPadding.right,
-        innerPadding.bottom
+        innerPadding.bottom,
       )
       insets
     }
@@ -105,36 +105,39 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun subscribeToEvents() {
-    subscriberJob = lifecycleScope.launch {
-      VerifyEventBus.consumeEvent<NewChallenge> {
-        if (AppModel.silentlyApproveChallengesPerFactor[it.factorSid] == true) {
-          approveChallenge(it.factorSid, it.challengeSid)
-        } else {
-          showChallenge(it.factorSid, it.challengeSid)
+    subscriberJob =
+      lifecycleScope.launch {
+        VerifyEventBus.consumeEvent<NewChallenge> {
+          if (AppModel.silentlyApproveChallengesPerFactor[it.factorSid] == true) {
+            approveChallenge(it.factorSid, it.challengeSid)
+          } else {
+            showChallenge(it.factorSid, it.challengeSid)
+          }
         }
       }
-    }
   }
 
   private fun showChallenge(
     factorSid: String,
-    challengeSid: String
+    challengeSid: String,
   ) {
-    val bundle = bundleOf(
-      ARG_CHALLENGE_SID to challengeSid, ARG_FACTOR_SID to factorSid
-    )
+    val bundle =
+      bundleOf(
+        ARG_CHALLENGE_SID to challengeSid,
+        ARG_FACTOR_SID to factorSid,
+      )
     findNavController(R.id.nav_host_fragment).navigate(R.id.action_show_challenge, bundle)
   }
 
   private fun approveChallenge(
     factorSid: String,
-    challengeSid: String
+    challengeSid: String,
   ) {
     twilioVerifyAdapter.updateChallenge(
       UpdatePushChallengePayload(
         factorSid,
         challengeSid,
-        Approved
+        Approved,
       ),
       {
         with(NotificationManagerCompat.from(this)) {
@@ -144,7 +147,7 @@ class MainActivity : AppCompatActivity() {
       },
       {
         it.printStackTrace()
-      }
+      },
     )
   }
 
@@ -155,7 +158,7 @@ class MainActivity : AppCompatActivity() {
       ActivityCompat.requestPermissions(
         this,
         arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-        NOTIFICATION_PERMISSION_CODE
+        NOTIFICATION_PERMISSION_CODE,
       )
     }
   }
@@ -163,16 +166,17 @@ class MainActivity : AppCompatActivity() {
   override fun onRequestPermissionsResult(
     requestCode: Int,
     permissions: Array<out String>,
-    grantResults: IntArray
+    grantResults: IntArray,
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     if (requestCode == NOTIFICATION_PERMISSION_CODE) {
       if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-        Toast.makeText(
-          this,
-          "Permission denied, notifications won't show up",
-          Toast.LENGTH_LONG
-        ).show()
+        Toast
+          .makeText(
+            this,
+            "Permission denied, notifications won't show up",
+            Toast.LENGTH_LONG,
+          ).show()
       }
     }
   }

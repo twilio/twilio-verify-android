@@ -31,7 +31,7 @@ private val executorService: ExecutorService = Executors.newFixedThreadPool(10)
 internal fun <T> execute(
   success: (T) -> Unit,
   error: (TwilioVerifyException) -> Unit,
-  block: (onSuccess: SafeSuccessResult<T>, onError: SafeError<TwilioVerifyException>) -> Unit
+  block: (onSuccess: SafeSuccessResult<T>, onError: SafeError<TwilioVerifyException>) -> Unit,
 ) {
   executorService.execute(Task(block, success, error))
 }
@@ -39,18 +39,19 @@ internal fun <T> execute(
 internal fun execute(
   success: () -> Unit,
   error: (TwilioVerifyException) -> Unit,
-  block: (onSuccess: SafeSuccess, onError: SafeError<TwilioVerifyException>) -> Unit
+  block: (onSuccess: SafeSuccess, onError: SafeError<TwilioVerifyException>) -> Unit,
 ) {
   executorService.execute(
     Task<Unit, TwilioVerifyException>(
       { onSuccess, onError ->
         block(
           { onSuccess(Unit) },
-          onError
+          onError,
         )
       },
-      { success() }, error
-    )
+      { success() },
+      error,
+    ),
   )
 }
 
@@ -58,11 +59,13 @@ internal class Task<T, E : Exception>(
   private val block: (onSuccess: SafeSuccessResult<T>, onError: SafeError<E>) -> Unit,
   private val success: (T) -> Unit,
   private val error: (E) -> Unit,
-  private val handler: Handler? = Looper.myLooper()
-    ?.takeIf { it == Looper.getMainLooper() }
-    ?.let {
-      Handler(it)
-    }
+  private val handler: Handler? =
+    Looper
+      .myLooper()
+      ?.takeIf { it == Looper.getMainLooper() }
+      ?.let {
+        Handler(it)
+      },
 ) : Runnable {
   override fun run() {
     block(::safeSuccess, ::safeError)

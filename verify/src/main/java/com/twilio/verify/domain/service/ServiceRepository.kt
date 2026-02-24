@@ -24,14 +24,13 @@ import org.json.JSONObject
 
 internal class ServiceRepository(
   private val apiClient: ServiceAPIClient,
-  private val serviceMapper: ServiceMapper = ServiceMapper()
+  private val serviceMapper: ServiceMapper = ServiceMapper(),
 ) : ServiceProvider {
-
   override fun get(
     serviceSid: String,
     factor: Factor,
     success: (Service) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     fun toService(response: JSONObject) {
       try {

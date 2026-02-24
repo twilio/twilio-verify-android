@@ -44,19 +44,25 @@ import com.twilio.verify.threading.execute
 
 internal class FactorFacade(
   private val pushFactory: PushFactory,
-  private val factorProvider: FactorProvider
+  private val factorProvider: FactorProvider,
 ) {
   fun createFactor(
     factorPayload: FactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     execute(success, error) { onSuccess, onError ->
       when (factorPayload) {
         is PushFactorPayload -> {
           pushFactory.create(
-            factorPayload.accessToken, factorPayload.friendlyName, factorPayload.serviceSid,
-            factorPayload.identity, factorPayload.pushToken, factorPayload.metadata, onSuccess, onError
+            factorPayload.accessToken,
+            factorPayload.friendlyName,
+            factorPayload.serviceSid,
+            factorPayload.identity,
+            factorPayload.pushToken,
+            factorPayload.metadata,
+            onSuccess,
+            onError,
           )
         }
       }
@@ -66,20 +72,22 @@ internal class FactorFacade(
   fun verifyFactor(
     verifyFactorPayload: VerifyFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     execute(success, error) { onSuccess, onError ->
       try {
         if (verifyFactorPayload.sid.isBlank()) {
           throw TwilioVerifyException(
             EmptyFactorSidException.also { Logger.log(Level.Error, it.toString(), it) },
-            InputError
+            InputError,
           )
         }
         when (verifyFactorPayload) {
           is VerifyPushFactorPayload -> {
             pushFactory.verify(
-              verifyFactorPayload.sid, onSuccess, onError
+              verifyFactorPayload.sid,
+              onSuccess,
+              onError,
             )
           }
         }
@@ -92,20 +100,23 @@ internal class FactorFacade(
   fun updateFactor(
     updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     execute(success, error) { onSuccess, onError ->
       try {
         if (updateFactorPayload.sid.isBlank()) {
           throw TwilioVerifyException(
             EmptyFactorSidException.also { Logger.log(Level.Error, it.toString(), it) },
-            InputError
+            InputError,
           )
         }
         when (updateFactorPayload) {
           is UpdatePushFactorPayload -> {
             pushFactory.update(
-              updateFactorPayload.sid, updateFactorPayload.pushToken, onSuccess, onError
+              updateFactorPayload.sid,
+              updateFactorPayload.pushToken,
+              onSuccess,
+              onError,
             )
           }
         }
@@ -118,19 +129,20 @@ internal class FactorFacade(
   fun getFactor(
     factorSid: String,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     try {
       if (factorSid.isBlank()) {
         throw TwilioVerifyException(
           EmptyFactorSidException.also { Logger.log(Level.Error, it.toString(), it) },
-          InputError
+          InputError,
         )
       }
-      factorProvider.get(factorSid)
+      factorProvider
+        .get(factorSid)
         ?.let { success(it) } ?: throw TwilioVerifyException(
         StorageException("Factor not found: '$factorSid'").also { Logger.log(Level.Error, it.toString(), it) },
-        StorageError
+        StorageError,
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -140,14 +152,15 @@ internal class FactorFacade(
   fun getFactorByServiceSid(
     serviceSid: String,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     try {
-      factorProvider.getAll()
+      factorProvider
+        .getAll()
         .find { it.serviceSid == serviceSid }
         ?.let { success(it) } ?: throw TwilioVerifyException(
         StorageException("Factor not found").also { Logger.log(Level.Error, it.toString(), it) },
-        StorageError
+        StorageError,
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -156,7 +169,7 @@ internal class FactorFacade(
 
   fun getAllFactors(
     success: (List<Factor>) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     try {
       success(factorProvider.getAll())
@@ -168,14 +181,14 @@ internal class FactorFacade(
   fun deleteFactor(
     factorSid: String,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     execute(success, error) { onSuccess, onError ->
       try {
         if (factorSid.isBlank()) {
           throw TwilioVerifyException(
             EmptyFactorSidException.also { Logger.log(Level.Error, it.toString(), it) },
-            InputError
+            InputError,
           )
         }
         pushFactory.delete(factorSid, onSuccess, onError)
@@ -189,7 +202,7 @@ internal class FactorFacade(
     execute(success, {}) { onSuccess, _ ->
       try {
         pushFactory.deleteAllFactors(onSuccess)
-      } catch (e: Exception) {
+      } catch (_: Exception) {
         factorProvider.clearLocalStorage()
         onSuccess()
       }
@@ -202,49 +215,47 @@ internal class FactorFacade(
     private lateinit var keyStore: KeyStorage
     private lateinit var url: String
     private lateinit var authentication: Authentication
-    fun networkProvider(networkProvider: NetworkProvider) =
-      apply { this.networking = networkProvider }
 
-    fun context(context: Context) =
-      apply { this.appContext = context }
+    fun networkProvider(networkProvider: NetworkProvider) = apply { this.networking = networkProvider }
 
-    fun keyStorage(keyStorage: KeyStorage) =
-      apply { this.keyStore = keyStorage }
+    fun context(context: Context) = apply { this.appContext = context }
+
+    fun keyStorage(keyStorage: KeyStorage) = apply { this.keyStore = keyStorage }
 
     fun baseUrl(url: String) = apply { this.url = url }
 
-    fun setAuthentication(authentication: Authentication) =
-      apply { this.authentication = authentication }
+    fun setAuthentication(authentication: Authentication) = apply { this.authentication = authentication }
 
     @Throws(TwilioVerifyException::class)
     fun build(): FactorFacade {
       if (!this::appContext.isInitialized) {
         throw TwilioVerifyException(
-          IllegalArgumentException("Illegal value for context"), InitializationError
+          IllegalArgumentException("Illegal value for context"),
+          InitializationError,
         )
       }
       if (!this::networking.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for network provider"),
-          InitializationError
+          InitializationError,
         )
       }
       if (!this::keyStore.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for key storage"),
-          InitializationError
+          InitializationError,
         )
       }
       if (!this::url.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for base url"),
-          InitializationError
+          InitializationError,
         )
       }
       if (!this::authentication.isInitialized) {
         throw TwilioVerifyException(
           IllegalArgumentException("Illegal value for authentication"),
-          InitializationError
+          InitializationError,
         )
       }
       val storageName = "${appContext.packageName}.$VERIFY_SUFFIX"

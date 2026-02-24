@@ -9,7 +9,7 @@ import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import java.util.concurrent.TimeUnit
 
-internal const val keyPairGeneratorMockName =
+internal const val KEY_PAIR_GENERATOR_MOCK_NAME =
   "com.twilio.security.crypto.mocks.keystore.generator.KeyPairGeneratorMock"
 
 class KeyPairGeneratorMock : KeyPairGeneratorSpi() {
@@ -27,13 +27,13 @@ class KeyPairGeneratorMock : KeyPairGeneratorSpi() {
 
   override fun initialize(
     keysize: Int,
-    random: SecureRandom?
+    random: SecureRandom?,
   ) {
   }
 
   override fun initialize(
     params: AlgorithmParameterSpec?,
-    random: SecureRandom?
+    random: SecureRandom?,
   ) {
   }
 }

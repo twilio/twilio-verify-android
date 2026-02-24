@@ -18,14 +18,15 @@ package com.twilio.verify.data
 
 internal interface KeyStorage {
   fun create(alias: String): String
+
   fun sign(
     alias: String,
-    message: String
+    message: String,
   ): ByteArray
 
   fun signAndEncode(
     alias: String,
-    message: String
+    message: String,
   ): String
 
   fun delete(alias: String)

@@ -21,23 +21,25 @@ import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.data.DateProvider
 import com.twilio.verify.networking.NetworkException
 
-internal const val unauthorized = 401
-internal const val notFound = 404
-internal const val dateHeaderKey = "Date"
-internal const val retryTimes = 1
+internal const val UNAUTHORIZED = 401
+internal const val NOT_FOUND = 404
+internal const val DATE_HEADER_KEY = "Date"
+internal const val RETRY_TIMES = 1
 
-internal open class BaseAPIClient(private val dateProvider: DateProvider) {
-
+internal open class BaseAPIClient(
+  private val dateProvider: DateProvider,
+) {
   protected fun validateException(
     exception: NetworkException,
     retryBlock: (Int) -> Unit,
     retries: Int,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     if (retries > 0) {
       when (exception.failureResponse?.statusCode) {
-        unauthorized ->
-          exception.failureResponse.headers?.get(dateHeaderKey)
+        UNAUTHORIZED ->
+          exception.failureResponse.headers
+            ?.get(DATE_HEADER_KEY)
             ?.first()
             ?.let { date ->
               syncTime(date)
@@ -50,9 +52,7 @@ internal open class BaseAPIClient(private val dateProvider: DateProvider) {
     }
   }
 
-  private fun syncTime(
-    date: String
-  ) {
+  private fun syncTime(date: String) {
     dateProvider.syncTime(date)
   }
 }

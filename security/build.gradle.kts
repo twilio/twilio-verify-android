@@ -23,6 +23,7 @@ plugins {
   id(Config.Plugins.signing)
   jacoco
   id(Config.Plugins.kover)
+  id(Config.Plugins.ktlint)
 }
 //endregion
 
@@ -46,7 +47,7 @@ android {
       isMinifyEnabled = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
-        "proguard-rules.pro"
+        "proguard-rules.pro",
       )
     }
   }
@@ -80,7 +81,7 @@ tasks.withType<Test>().configureEach {
     "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
     "--add-opens=java.base/java.io=ALL-UNNAMED",
     "--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED",
-    "--add-opens=java.base/javax.crypto=ALL-UNNAMED"
+    "--add-opens=java.base/javax.crypto=ALL-UNNAMED",
   )
 }
 

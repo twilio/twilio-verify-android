@@ -9,11 +9,6 @@ import com.twilio.security.crypto.key.authentication.Authenticator
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import java.security.AlgorithmParameters
-import java.security.Provider
-import javax.crypto.Cipher
-import javax.crypto.SecretKey
-import kotlin.random.Random.Default.nextBytes
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -24,10 +19,14 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.security.AlgorithmParameters
+import java.security.Provider
+import javax.crypto.Cipher
+import javax.crypto.SecretKey
+import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class AESCipherTest {
-
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()
 
@@ -36,9 +35,10 @@ class AESCipherTest {
 
   private lateinit var aesCipher: AESCipher
   private var androidKeyStoreOperations: AndroidKeyStoreOperations = mockk()
-  private var providerMock: Provider = mockk(relaxed = true) {
-    every { name }.returns(providerName)
-  }
+  private var providerMock: Provider =
+    mockk(relaxed = true) {
+      every { name }.returns(providerName)
+    }
   private val key: SecretKey = mockk()
 
   @Before
@@ -50,19 +50,22 @@ class AESCipherTest {
   fun `Encrypt data using algorithm should return encrypted`() {
     val data = "test".toByteArray()
     val encrypted = "encrypted".toByteArray()
-    val algorithmParameters: AlgorithmParameters = mockk {
-      every { encoded } returns nextBytes(5)
-      every { algorithm } returns cipherAlgorithm
-      every { provider } returns providerMock
-    }
+    val algorithmParameters: AlgorithmParameters =
+      mockk {
+        every { encoded } returns nextBytes(5)
+        every { algorithm } returns cipherAlgorithm
+        every { provider } returns providerMock
+      }
 
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded, algorithmParameters.provider.name,
-        algorithmParameters.algorithm
-      ),
-      encrypted
-    )
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          algorithmParameters.provider.name,
+          algorithmParameters.algorithm,
+        ),
+        encrypted,
+      )
 
     every { androidKeyStoreOperations.encrypt(eq(data), eq(cipherAlgorithm), any()) } returns expectedEncryptedData
 
@@ -100,11 +103,12 @@ class AESCipherTest {
     every { androidKeyStoreOperations.encrypt(data, cipher) } returns expectedEncryptedData
 
     aesCipher.encrypt(
-      data, authenticator,
+      data,
+      authenticator,
       { encryptedData ->
         assertEquals(expectedEncryptedData, encryptedData)
       },
-      { fail("Should not reach this failure callback") }
+      { fail("Should not reach this failure callback") },
     )
   }
 
@@ -126,7 +130,7 @@ class AESCipherTest {
       data,
       authenticator,
       { fail("Should not reach success callback") },
-      { error -> assertEquals(expectedError, error) }
+      { error -> assertEquals(expectedError, error) },
     )
   }
 
@@ -142,7 +146,7 @@ class AESCipherTest {
       data,
       authenticator,
       { fail("Should not reach success callback") },
-      { error -> assertEquals(expectedError, error) }
+      { error -> assertEquals(expectedError, error) },
     )
   }
 
@@ -166,7 +170,7 @@ class AESCipherTest {
       data,
       authenticator,
       { fail("Should not reach success callback") },
-      { error -> assertEquals(expectedError, error) }
+      { error -> assertEquals(expectedError, error) },
     )
   }
 
@@ -194,7 +198,7 @@ class AESCipherTest {
       { decryptedData ->
         assertEquals(expectedData, decryptedData)
       },
-      { fail("Should not reach error callback") }
+      { fail("Should not reach error callback") },
     )
   }
 
@@ -218,7 +222,7 @@ class AESCipherTest {
       encryptedData,
       authenticator,
       { fail("Should not reach success callback") },
-      { error -> assertEquals(expectedError, error) }
+      { error -> assertEquals(expectedError, error) },
     )
   }
 
@@ -236,7 +240,7 @@ class AESCipherTest {
       encryptedData,
       authenticator,
       { fail("Should not reach success callback") },
-      { error -> assertEquals(expectedError, error) }
+      { error -> assertEquals(expectedError, error) },
     )
   }
 
@@ -244,20 +248,22 @@ class AESCipherTest {
   fun `Decrypt data using algorithm should return decrypted data`() {
     val data = "test"
     val encrypted = "encrypted"
-    val algorithmParameters: AlgorithmParameters = mockk {
-      every { encoded } returns nextBytes(5)
-      every { algorithm } returns cipherAlgorithm
-      every { provider } returns providerMock
-    }
+    val algorithmParameters: AlgorithmParameters =
+      mockk {
+        every { encoded } returns nextBytes(5)
+        every { algorithm } returns cipherAlgorithm
+        every { provider } returns providerMock
+      }
 
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded,
-        algorithmParameters.provider.name,
-        algorithmParameters.algorithm
-      ),
-      encrypted.toByteArray()
-    )
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          algorithmParameters.provider.name,
+          algorithmParameters.algorithm,
+        ),
+        encrypted.toByteArray(),
+      )
 
     every {
       androidKeyStoreOperations.decrypt(expectedEncryptedData, cipherAlgorithm, any())
@@ -271,20 +277,22 @@ class AESCipherTest {
   @Test
   fun `Error decrypting data should throw exception`() {
     val encrypted = "encrypted"
-    val algorithmParameters: AlgorithmParameters = mockk(relaxed = true) {
-      every { encoded } returns nextBytes(5)
-      every { algorithm } returns cipherAlgorithm
-      every { provider } returns providerMock
-    }
+    val algorithmParameters: AlgorithmParameters =
+      mockk(relaxed = true) {
+        every { encoded } returns nextBytes(5)
+        every { algorithm } returns cipherAlgorithm
+        every { provider } returns providerMock
+      }
 
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded,
-        algorithmParameters.provider.name,
-        algorithmParameters.algorithm
-      ),
-      encrypted.toByteArray()
-    )
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          algorithmParameters.provider.name,
+          algorithmParameters.algorithm,
+        ),
+        encrypted.toByteArray(),
+      )
 
     val error = mockk<RuntimeException>(relaxed = true)
 
@@ -318,7 +326,7 @@ class AESCipherTest {
       encryptedData,
       authenticator,
       { fail("Expected error, but got success") },
-      { error -> assertEquals(expectedError, error) }
+      { error -> assertEquals(expectedError, error) },
     )
   }
 }

@@ -24,31 +24,32 @@ import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.UpdatePushChallengePayload
 import com.twilio.verify.sample.TwilioVerifyAdapter
 
-class ChallengeViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : ViewModel() {
+class ChallengeViewModel(
+  private val twilioVerifyAdapter: TwilioVerifyAdapter,
+) : ViewModel() {
   private val challenge: MutableLiveData<ChallengeResult> = MutableLiveData()
 
   fun loadChallenge(
     sid: String,
-    factorSid: String
+    factorSid: String,
   ) {
     twilioVerifyAdapter.getChallenge(
-      sid, factorSid,
+      sid,
+      factorSid,
       {
         challenge.value = Challenge(it)
       },
       {
         challenge.value = ChallengeError(it)
-      }
+      },
     )
   }
 
-  fun getChallenge(): LiveData<ChallengeResult> {
-    return challenge
-  }
+  fun getChallenge(): LiveData<ChallengeResult> = challenge
 
   fun updateChallenge(
     challenge: Challenge,
-    status: ChallengeStatus
+    status: ChallengeStatus,
   ) {
     twilioVerifyAdapter.updateChallenge(
       UpdatePushChallengePayload(challenge.factorSid, challenge.sid, status),
@@ -57,11 +58,17 @@ class ChallengeViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) :
       },
       {
         this.challenge.value = ChallengeError(it)
-      }
+      },
     )
   }
 }
 
 sealed class ChallengeResult
-class Challenge(val challenge: Challenge) : ChallengeResult()
-class ChallengeError(val exception: Exception) : ChallengeResult()
+
+class Challenge(
+  val challenge: Challenge,
+) : ChallengeResult()
+
+class ChallengeError(
+  val exception: Exception,
+) : ChallengeResult()

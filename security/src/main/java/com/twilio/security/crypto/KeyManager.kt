@@ -35,12 +35,13 @@ interface KeyManager {
   fun contains(alias: String): Boolean
 }
 
-internal const val providerName = "AndroidKeyStore"
+internal const val PROVIDER_NAME = "AndroidKeyStore"
 
 fun keyManager(): KeyManager =
   AndroidKeyManager(
     AndroidKeyStore(
-      KeyStore.getInstance(providerName)
-        .apply { load(null) }
-    )
+      KeyStore
+        .getInstance(PROVIDER_NAME)
+        .apply { load(null) },
+    ),
   )

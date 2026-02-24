@@ -23,16 +23,12 @@ import javax.crypto.SecretKey
 lateinit var keyStoreMockInput: KeyStoreMockInput
 lateinit var keyStoreMockOutput: KeyStoreMockOutput
 
-internal const val keyStoreMockName = "com.twilio.security.crypto.mocks.keystore.KeyStoreMock"
+internal const val KEY_STORE_MOCK_NAME = "com.twilio.security.crypto.mocks.keystore.KeyStoreMock"
 
 class KeyStoreMock : KeyStoreSpi() {
-  override fun engineIsKeyEntry(alias: String?): Boolean {
-    throw NotImplementedError()
-  }
+  override fun engineIsKeyEntry(alias: String?): Boolean = throw NotImplementedError()
 
-  override fun engineIsCertificateEntry(alias: String?): Boolean {
-    throw NotImplementedError()
-  }
+  override fun engineIsCertificateEntry(alias: String?): Boolean = throw NotImplementedError()
 
   override fun engineGetCertificate(alias: String?): Certificate? {
     if (keyStoreMockInput.error != null) {
@@ -47,9 +43,7 @@ class KeyStoreMock : KeyStoreSpi() {
     return null
   }
 
-  override fun engineGetCreationDate(alias: String?): Date {
-    throw NotImplementedError()
-  }
+  override fun engineGetCreationDate(alias: String?): Date = throw NotImplementedError()
 
   override fun engineDeleteEntry(alias: String?) {
     if (keyStoreMockInput.error != null) {
@@ -62,62 +56,44 @@ class KeyStoreMock : KeyStoreSpi() {
     alias: String?,
     key: Key?,
     password: CharArray?,
-    chain: Array<out Certificate>?
-  ) {
-    throw NotImplementedError()
-  }
+    chain: Array<out Certificate>?,
+  ): Unit = throw NotImplementedError()
 
   override fun engineSetKeyEntry(
     alias: String?,
     key: ByteArray?,
-    chain: Array<out Certificate>?
-  ) {
-    throw NotImplementedError()
-  }
+    chain: Array<out Certificate>?,
+  ): Unit = throw NotImplementedError()
 
   override fun engineStore(
     stream: OutputStream?,
-    password: CharArray?
-  ) {
-    throw NotImplementedError()
-  }
+    password: CharArray?,
+  ): Unit = throw NotImplementedError()
 
-  override fun engineSize(): Int {
-    throw NotImplementedError()
-  }
+  override fun engineSize(): Int = throw NotImplementedError()
 
-  override fun engineAliases(): Enumeration<String> {
-    throw NotImplementedError()
-  }
+  override fun engineAliases(): Enumeration<String> = throw NotImplementedError()
 
-  override fun engineContainsAlias(alias: String?): Boolean {
-    return keyStoreMockInput.containsAlias
-  }
+  override fun engineContainsAlias(alias: String?): Boolean = keyStoreMockInput.containsAlias
 
   override fun engineLoad(
     stream: InputStream?,
-    password: CharArray?
+    password: CharArray?,
   ) {
   }
 
-  override fun engineGetCertificateChain(alias: String?): Array<Certificate> {
-    throw NotImplementedError()
-  }
+  override fun engineGetCertificateChain(alias: String?): Array<Certificate> = throw NotImplementedError()
 
   override fun engineSetCertificateEntry(
     alias: String?,
-    cert: Certificate?
-  ) {
-    throw NotImplementedError()
-  }
+    cert: Certificate?,
+  ): Unit = throw NotImplementedError()
 
-  override fun engineGetCertificateAlias(cert: Certificate?): String {
-    throw NotImplementedError()
-  }
+  override fun engineGetCertificateAlias(cert: Certificate?): String = throw NotImplementedError()
 
   override fun engineGetKey(
     alias: String?,
-    password: CharArray?
+    password: CharArray?,
   ): Key? {
     if (keyStoreMockInput.error != null) {
       throw keyStoreMockInput.error!!
@@ -134,19 +110,20 @@ class KeyStoreMock : KeyStoreSpi() {
 
   override fun engineGetEntry(
     alias: String?,
-    protParam: KeyStore.ProtectionParameter?
+    protParam: KeyStore.ProtectionParameter?,
   ): KeyStore.Entry? {
     if (keyStoreMockInput.error != null) {
       throw keyStoreMockInput.error!!
     }
     return when (keyStoreMockInput.key) {
       is SecretKey -> (keyStoreMockInput.key as? SecretKey)?.let { SecretKeyEntry(it) }
-      is KeyPair -> (keyStoreMockInput.key as? KeyPair)?.let {
-        val certificate: Certificate = mockk()
-        val publicKey = (keyStoreMockInput.key as? KeyPair)?.public
-        every { certificate.publicKey }.returns(publicKey)
-        PrivateKeyEntry(it.private, arrayOf(certificate))
-      }
+      is KeyPair ->
+        (keyStoreMockInput.key as? KeyPair)?.let {
+          val certificate: Certificate = mockk()
+          val publicKey = (keyStoreMockInput.key as? KeyPair)?.public
+          every { certificate.publicKey }.returns(publicKey)
+          PrivateKeyEntry(it.private, arrayOf(certificate))
+        }
       else -> null
     }
   }
@@ -158,19 +135,21 @@ fun addProvider(provider: Provider) {
 
 fun setProviderAsVerified(provider: Provider) {
   val jceSecurityClass = Class.forName("javax.crypto.JceSecurity")
-  val verifiedProviders = IdentityHashMap<Provider, Any>().apply {
-    put(provider, java.lang.Boolean.TRUE as Any)
-  }
+  val verifiedProviders =
+    IdentityHashMap<Provider, Any>().apply {
+      put(provider, java.lang.Boolean.TRUE as Any)
+    }
   setFinalStatic(
-    jceSecurityClass.getDeclaredField("verificationResults"), verifiedProviders
+    jceSecurityClass.getDeclaredField("verificationResults"),
+    verifiedProviders,
   )
 }
 
-@Throws(Exception::class) fun setFinalStatic(
+@Throws(Exception::class)
+fun setFinalStatic(
   field: Field,
-  newValue: Any?
+  newValue: Any?,
 ) {
-
   field.isAccessible = true
   val getDeclaredFields0 = Class::class.java.getDeclaredMethod("getDeclaredFields0", Boolean::class.javaPrimitiveType)
   getDeclaredFields0.isAccessible = true

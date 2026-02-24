@@ -33,12 +33,12 @@ import com.twilio.verify.models.VerifyFactorPayload
 internal class TwilioVerifyManager(
   private val factorFacade: FactorFacade,
   private val challengeFacade: ChallengeFacade,
-  private val serviceFacade: ServiceFacade
+  private val serviceFacade: ServiceFacade,
 ) : TwilioVerify {
   override fun createFactor(
     factorPayload: FactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     factorFacade.createFactor(factorPayload, success, error)
   }
@@ -46,7 +46,7 @@ internal class TwilioVerifyManager(
   override fun verifyFactor(
     verifyFactorPayload: VerifyFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     factorFacade.verifyFactor(verifyFactorPayload, success, error)
   }
@@ -54,14 +54,14 @@ internal class TwilioVerifyManager(
   override fun updateFactor(
     updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     factorFacade.updateFactor(updateFactorPayload, success, error)
   }
 
   override fun getAllFactors(
     success: (List<Factor>) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     factorFacade.getAllFactors(success, error)
   }
@@ -70,7 +70,7 @@ internal class TwilioVerifyManager(
     challengeSid: String,
     factorSid: String,
     success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     challengeFacade.getChallenge(challengeSid, factorSid, success, error)
   }
@@ -78,7 +78,7 @@ internal class TwilioVerifyManager(
   override fun getAllChallenges(
     challengeListPayload: ChallengeListPayload,
     success: (ChallengeList) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     challengeFacade.getAllChallenges(challengeListPayload, success, error)
   }
@@ -86,7 +86,7 @@ internal class TwilioVerifyManager(
   override fun updateChallenge(
     updateChallengePayload: UpdateChallengePayload,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     challengeFacade.updateChallenge(updateChallengePayload, success, error)
   }
@@ -94,7 +94,7 @@ internal class TwilioVerifyManager(
   override fun deleteFactor(
     factorSid: String,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     factorFacade.deleteFactor(factorSid, success, error)
   }

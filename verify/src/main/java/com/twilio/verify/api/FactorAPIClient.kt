@@ -64,29 +64,30 @@ internal class FactorAPIClient(
   private val context: Context,
   private val authentication: Authentication,
   private val baseUrl: String,
-  dateProvider: DateProvider = DateAdapter(
-    storagePreferences(context)
-  )
+  dateProvider: DateProvider =
+    DateAdapter(
+      storagePreferences(context),
+    ),
 ) : BaseAPIClient(dateProvider) {
-
   fun create(
     createFactorPayload: CreateFactorPayload,
     success: (response: JSONObject) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     try {
       val requestHelper =
         RequestHelper(
           context,
-          BasicAuthorization(AUTHENTICATION_USER, createFactorPayload.accessToken)
+          BasicAuthorization(AUTHENTICATION_USER, createFactorPayload.accessToken),
         )
-      val request = Request.Builder(
-        requestHelper,
-        createFactorURL(createFactorPayload)
-      )
-        .httpMethod(Post)
-        .body(createFactorBody(createFactorPayload))
-        .build()
+      val request =
+        Request
+          .Builder(
+            requestHelper,
+            createFactorURL(createFactorPayload),
+          ).httpMethod(Post)
+          .body(createFactorBody(createFactorPayload))
+          .build()
       networkProvider.execute(
         request,
         success = {
@@ -94,7 +95,7 @@ internal class FactorAPIClient(
         },
         error = { exception ->
           error(TwilioVerifyException(exception, NetworkError))
-        }
+        },
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -108,20 +109,22 @@ internal class FactorAPIClient(
     factor: Factor,
     authPayload: String,
     success: (response: JSONObject) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
-    fun verifyFactor(retries: Int = retryTimes) {
+    fun verifyFactor(retries: Int = RETRY_TIMES) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
           RequestHelper(
             context,
-            BasicAuthorization(AUTHENTICATION_USER, authToken)
+            BasicAuthorization(AUTHENTICATION_USER, authToken),
           )
-        val request = Request.Builder(requestHelper, verifyFactorURL(factor))
-          .httpMethod(Post)
-          .body(verifyFactorBody(authPayload))
-          .build()
+        val request =
+          Request
+            .Builder(requestHelper, verifyFactorURL(factor))
+            .httpMethod(Post)
+            .body(verifyFactorBody(authPayload))
+            .build()
         networkProvider.execute(
           request,
           {
@@ -129,7 +132,7 @@ internal class FactorAPIClient(
           },
           { exception ->
             validateException(exception, ::verifyFactor, retries, error)
-          }
+          },
         )
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -145,18 +148,19 @@ internal class FactorAPIClient(
     factor: Factor,
     updateFactorPayload: UpdateFactorPayload,
     success: (response: JSONObject) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
-    fun updateFactor(retries: Int = retryTimes) {
+    fun updateFactor(retries: Int = RETRY_TIMES) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
           RequestHelper(
             context,
-            BasicAuthorization(AUTHENTICATION_USER, authToken)
+            BasicAuthorization(AUTHENTICATION_USER, authToken),
           )
         val request =
-          Request.Builder(requestHelper, updateFactorURL(factor))
+          Request
+            .Builder(requestHelper, updateFactorURL(factor))
             .httpMethod(Post)
             .body(updateFactorBody(updateFactorPayload))
             .build()
@@ -167,7 +171,7 @@ internal class FactorAPIClient(
           },
           { exception ->
             validateException(exception, ::updateFactor, retries, error)
-          }
+          },
         )
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -182,19 +186,21 @@ internal class FactorAPIClient(
   fun delete(
     factor: Factor,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
-    fun deleteFactor(retries: Int = retryTimes) {
+    fun deleteFactor(retries: Int = RETRY_TIMES) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
           RequestHelper(
             context,
-            BasicAuthorization(AUTHENTICATION_USER, authToken)
+            BasicAuthorization(AUTHENTICATION_USER, authToken),
           )
-        val request = Request.Builder(requestHelper, deleteFactorURL(factor))
-          .httpMethod(Delete)
-          .build()
+        val request =
+          Request
+            .Builder(requestHelper, deleteFactorURL(factor))
+            .httpMethod(Delete)
+            .build()
         networkProvider.execute(
           request,
           {
@@ -202,8 +208,8 @@ internal class FactorAPIClient(
           },
           { exception ->
             when (exception.failureResponse?.statusCode) {
-              notFound -> success()
-              unauthorized ->
+              NOT_FOUND -> success()
+              UNAUTHORIZED ->
                 if (retries == 0) {
                   success()
                 } else {
@@ -211,7 +217,7 @@ internal class FactorAPIClient(
                 }
               else -> validateException(exception, ::deleteFactor, retries, error)
             }
-          }
+          },
         )
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -224,34 +230,35 @@ internal class FactorAPIClient(
   }
 
   private fun createFactorURL(createFactorPayload: CreateFactorPayload): String =
-    "$baseUrl$CREATE_FACTOR_URL".replace(SERVICE_SID_PATH, createFactorPayload.serviceSid, true)
+    "$baseUrl$CREATE_FACTOR_URL"
+      .replace(SERVICE_SID_PATH, createFactorPayload.serviceSid, true)
       .replace(IDENTITY_PATH, createFactorPayload.identity)
 
   private fun verifyFactorURL(factor: Factor): String =
-    "$baseUrl$VERIFY_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+    "$baseUrl$VERIFY_FACTOR_URL"
+      .replace(SERVICE_SID_PATH, factor.serviceSid, true)
       .replace(IDENTITY_PATH, factor.identity)
       .replace(FACTOR_SID_PATH, factor.sid)
 
   private fun deleteFactorURL(factor: Factor): String =
-    "$baseUrl$DELETE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+    "$baseUrl$DELETE_FACTOR_URL"
+      .replace(SERVICE_SID_PATH, factor.serviceSid, true)
       .replace(IDENTITY_PATH, factor.identity)
       .replace(FACTOR_SID_PATH, factor.sid)
 
-  private fun updateFactorURL(
-    factor: Factor
-  ): String =
-    "$baseUrl$UPDATE_FACTOR_URL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+  private fun updateFactorURL(factor: Factor): String =
+    "$baseUrl$UPDATE_FACTOR_URL"
+      .replace(SERVICE_SID_PATH, factor.serviceSid, true)
       .replace(IDENTITY_PATH, factor.identity)
       .replace(
-        FACTOR_SID_PATH, factor.sid
+        FACTOR_SID_PATH,
+        factor.sid,
       )
 
-  private fun createFactorBody(
-    createFactorPayload: CreateFactorPayload
-  ): Map<String, String?> =
+  private fun createFactorBody(createFactorPayload: CreateFactorPayload): Map<String, String?> =
     mutableMapOf(
       FRIENDLY_NAME_KEY to createFactorPayload.friendlyName,
-      FACTOR_TYPE_KEY to createFactorPayload.type.factorTypeName
+      FACTOR_TYPE_KEY to createFactorPayload.type.factorTypeName,
     ).apply {
       putAll(createFactorPayload.binding.map { "$BINDING_KEY.${it.key}" to it.value })
       putAll(createFactorPayload.config.map { "$CONFIG_KEY.${it.key}" to it.value })
@@ -260,16 +267,11 @@ internal class FactorAPIClient(
       }
     }
 
-  private fun verifyFactorBody(
-    authPayload: String
-  ): Map<String, String?> =
-    mapOf(AUTH_PAYLOAD_PARAM to authPayload)
+  private fun verifyFactorBody(authPayload: String): Map<String, String?> = mapOf(AUTH_PAYLOAD_PARAM to authPayload)
 
-  private fun updateFactorBody(
-    updateFactorPayload: UpdateFactorPayload
-  ): Map<String, String?> =
+  private fun updateFactorBody(updateFactorPayload: UpdateFactorPayload): Map<String, String?> =
     mutableMapOf(
-      FRIENDLY_NAME_KEY to updateFactorPayload.friendlyName
+      FRIENDLY_NAME_KEY to updateFactorPayload.friendlyName,
     ).apply {
       putAll(updateFactorPayload.config.map { "$CONFIG_KEY.${it.key}" to it.value })
     }

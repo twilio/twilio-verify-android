@@ -12,16 +12,16 @@ import com.twilio.verify.BuildConfig
 import com.twilio.verify.IdlingResource
 import com.twilio.verify.TwilioVerifyException.ErrorCode.NetworkError
 import com.twilio.verify.data.DateProvider
-import com.twilio.verify.domain.challenge.factorSidKey
+import com.twilio.verify.domain.challenge.FACTOR_SID_KEY
+import com.twilio.verify.domain.challenge.SID_KEY
+import com.twilio.verify.domain.challenge.SIGNATURE_FIELDS_HEADER_SEPARATOR
 import com.twilio.verify.domain.challenge.models.FactorChallenge
-import com.twilio.verify.domain.challenge.sidKey
-import com.twilio.verify.domain.challenge.signatureFieldsHeaderSeparator
 import com.twilio.verify.domain.factor.models.Config
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.ChallengeListOrder.Asc
 import com.twilio.verify.models.ChallengeStatus.Pending
+import com.twilio.verify.networking.AUTHORIZATION_HEADER
 import com.twilio.verify.networking.Authentication
-import com.twilio.verify.networking.AuthorizationHeader
 import com.twilio.verify.networking.FailureResponse
 import com.twilio.verify.networking.HttpMethod
 import com.twilio.verify.networking.MediaTypeHeader
@@ -30,9 +30,7 @@ import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.NetworkProvider
 import com.twilio.verify.networking.Request
 import com.twilio.verify.networking.Response
-import com.twilio.verify.networking.userAgent
-import java.net.URL
-import java.util.Date
+import com.twilio.verify.networking.USER_AGENT
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -41,6 +39,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.net.URL
+import java.util.Date
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -60,8 +60,13 @@ class ChallengeAPIClientTest {
     FactorChallenge("sid", mock(), null, "factorSid", Pending, Date(), Date(), Date()).apply {
       factor =
         PushFactor(
-          "sid", "friendlyName", "accountSid", "serviceSid", "identity", createdAt = Date(),
-          config = Config("credentialSid")
+          "sid",
+          "friendlyName",
+          "accountSid",
+          "serviceSid",
+          "identity",
+          createdAt = Date(),
+          config = Config("credentialSid"),
         )
     }
 
@@ -84,14 +89,15 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.update(
-      factorChallenge, "authPayload",
+      factorChallenge,
+      "authPayload",
       {
         idlingResource.operationFinished()
       },
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -100,17 +106,18 @@ class ChallengeAPIClientTest {
   fun `Update a challenge with out of sync time request should sync time and redo the request`() {
     val response = "{\"key\":\"value\"}"
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
-    val expectedException = NetworkException(
-      FailureResponse(
-        unauthorized,
-        null,
-        mapOf(dateHeaderKey to listOf(date))
+    val expectedException =
+      NetworkException(
+        FailureResponse(
+          UNAUTHORIZED,
+          null,
+          mapOf(DATE_HEADER_KEY to listOf(date)),
+        ),
       )
-    )
     argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
       .let { (success, error) ->
         whenever(
-          networkProvider.execute(any(), success.capture(), error.capture())
+          networkProvider.execute(any(), success.capture(), error.capture()),
         ).then {
           error.firstValue.invoke(expectedException)
         }.then {
@@ -120,14 +127,15 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.update(
-      factorChallenge, "authPayload",
+      factorChallenge,
+      "authPayload",
       {
         idlingResource.operationFinished()
       },
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
@@ -136,13 +144,14 @@ class ChallengeAPIClientTest {
   @Test
   fun `Update a challenge with out of sync time should retry only another time`() {
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
-    val expectedException = NetworkException(
-      FailureResponse(
-        unauthorized,
-        null,
-        mapOf(dateHeaderKey to listOf(date))
+    val expectedException =
+      NetworkException(
+        FailureResponse(
+          UNAUTHORIZED,
+          null,
+          mapOf(DATE_HEADER_KEY to listOf(date)),
+        ),
       )
-    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         lastValue.invoke(expectedException)
@@ -151,7 +160,8 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.update(
-      factorChallenge, "authPayload",
+      factorChallenge,
+      "authPayload",
       {
         fail()
         idlingResource.operationFinished()
@@ -159,11 +169,11 @@ class ChallengeAPIClientTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
-    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
+    verify(networkProvider, times(RETRY_TIMES + 1)).execute(any(), any(), any())
   }
 
   @Test
@@ -177,7 +187,8 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.update(
-      factorChallenge, "authPayload",
+      factorChallenge,
+      "authPayload",
       {
         fail()
         idlingResource.operationFinished()
@@ -185,7 +196,7 @@ class ChallengeAPIClientTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -196,7 +207,8 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.update(
-      factorChallenge, "authPayload",
+      factorChallenge,
+      "authPayload",
       {
         fail()
         idlingResource.operationFinished()
@@ -206,7 +218,7 @@ class ChallengeAPIClientTest {
         assertTrue(exception.cause?.cause is RuntimeException)
         assertEquals(NetworkError.message, exception.message)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -216,7 +228,8 @@ class ChallengeAPIClientTest {
     val challenge = FactorChallenge("sid", mock(), null, "factorSid", Pending, Date(), Date(), Date())
     idlingResource.startOperation()
     challengeAPIClient.update(
-      challenge, "authPayload",
+      challenge,
+      "authPayload",
       {
         fail()
         idlingResource.operationFinished()
@@ -226,7 +239,7 @@ class ChallengeAPIClientTest {
         assertTrue(exception.cause?.cause is IllegalArgumentException)
         assertEquals(NetworkError.message, exception.message)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -234,22 +247,26 @@ class ChallengeAPIClientTest {
   @Test
   fun `Update challenge request should match to the expected params`() {
     val expectedURL =
-      "$baseUrl$updateChallengeURL".replace(
-        SERVICE_SID_PATH, factorChallenge.factor!!.serviceSid, true
-      )
-        .replace(IDENTITY_PATH, factorChallenge.factor!!.identity)
-        .replace(challengeSidPath, factorChallenge.sid)
+      "$baseUrl$UPDATE_CHALLENGE_URL"
+        .replace(
+          SERVICE_SID_PATH,
+          factorChallenge.factor!!.serviceSid,
+          true,
+        ).replace(IDENTITY_PATH, factorChallenge.factor!!.identity)
+        .replace(CHALLENGE_SID_PATH, factorChallenge.sid)
 
     val authPayload = "authPayload"
-    val expectedBody = mapOf(
-      AUTH_PAYLOAD_PARAM to authPayload
-    )
+    val expectedBody =
+      mapOf(
+        AUTH_PAYLOAD_PARAM to authPayload,
+      )
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.update(factorChallenge, authPayload, {}, {})
-    val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any())
-    }
+    val requestCaptor =
+      argumentCaptor<Request>().apply {
+        verify(networkProvider).execute(capture(), any(), any())
+      }
 
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
@@ -257,8 +274,8 @@ class ChallengeAPIClientTest {
       assertEquals(expectedBody, body)
       assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
       assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.Json.type)
-      assertTrue(headers.containsKey(AuthorizationHeader))
-      assertTrue(headers.containsKey(userAgent))
+      assertTrue(headers.containsKey(AUTHORIZATION_HEADER))
+      assertTrue(headers.containsKey(USER_AGENT))
       idlingResource.operationFinished()
     }
     idlingResource.waitForIdle()
@@ -269,11 +286,12 @@ class ChallengeAPIClientTest {
     val expectedResponse = "{\"key\":\"value\"}"
     val expectedSignatureFieldsHeader =
       mapOf(
-        signatureFieldsHeader to listOf(
-          listOf(sidKey, factorSidKey).joinToString(
-            signatureFieldsHeaderSeparator
-          )
-        )
+        SIGNATURE_FIELDS_HEADER to
+          listOf(
+            listOf(SID_KEY, FACTOR_SID_KEY).joinToString(
+              SIGNATURE_FIELDS_HEADER_SEPARATOR,
+            ),
+          ),
       )
     argumentCaptor<(Response) -> Unit>().apply {
       whenever(networkProvider.execute(any(), capture(), any())).then {
@@ -283,20 +301,22 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.get(
-      "sid", factorChallenge.factor!!,
-      { response: JSONObject, signatureFieldsHeader: String? ->
+      "sid",
+      factorChallenge.factor!!,
+      { response: JSONObject, SIGNATURE_FIELDS_HEADER: String? ->
         assertEquals(expectedResponse, response.toString())
         assertEquals(
-          expectedSignatureFieldsHeader.values.first()
+          expectedSignatureFieldsHeader.values
+            .first()
             .first(),
-          signatureFieldsHeader
+          SIGNATURE_FIELDS_HEADER,
         )
         idlingResource.operationFinished()
       },
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -306,24 +326,26 @@ class ChallengeAPIClientTest {
     val expectedResponse = "{\"key\":\"value\"}"
     val expectedSignatureFieldsHeader =
       mapOf(
-        signatureFieldsHeader to listOf(
-          listOf(sidKey, factorSidKey).joinToString(
-            signatureFieldsHeaderSeparator
-          )
-        )
+        SIGNATURE_FIELDS_HEADER to
+          listOf(
+            listOf(SID_KEY, FACTOR_SID_KEY).joinToString(
+              SIGNATURE_FIELDS_HEADER_SEPARATOR,
+            ),
+          ),
       )
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
-    val expectedException = NetworkException(
-      FailureResponse(
-        unauthorized,
-        null,
-        mapOf(dateHeaderKey to listOf(date))
+    val expectedException =
+      NetworkException(
+        FailureResponse(
+          UNAUTHORIZED,
+          null,
+          mapOf(DATE_HEADER_KEY to listOf(date)),
+        ),
       )
-    )
     argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
       .let { (success, error) ->
         whenever(
-          networkProvider.execute(any(), success.capture(), error.capture())
+          networkProvider.execute(any(), success.capture(), error.capture()),
         ).then {
           error.firstValue.invoke(expectedException)
         }.then {
@@ -333,20 +355,22 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.get(
-      "sid", factorChallenge.factor!!,
-      { response: JSONObject, signatureFieldsHeader: String? ->
+      "sid",
+      factorChallenge.factor!!,
+      { response: JSONObject, SIGNATURE_FIELDS_HEADER: String? ->
         assertEquals(expectedResponse, response.toString())
         assertEquals(
-          expectedSignatureFieldsHeader.values.first()
+          expectedSignatureFieldsHeader.values
+            .first()
             .first(),
-          signatureFieldsHeader
+          SIGNATURE_FIELDS_HEADER,
         )
         idlingResource.operationFinished()
       },
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
@@ -355,13 +379,14 @@ class ChallengeAPIClientTest {
   @Test
   fun `Get a challenge with out of sync time should retry only another time`() {
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
-    val expectedException = NetworkException(
-      FailureResponse(
-        unauthorized,
-        null,
-        mapOf(dateHeaderKey to listOf(date))
+    val expectedException =
+      NetworkException(
+        FailureResponse(
+          UNAUTHORIZED,
+          null,
+          mapOf(DATE_HEADER_KEY to listOf(date)),
+        ),
       )
-    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         lastValue.invoke(expectedException)
@@ -370,7 +395,8 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.get(
-      "sid", factorChallenge.factor!!,
+      "sid",
+      factorChallenge.factor!!,
       { _, _ ->
         fail()
         idlingResource.operationFinished()
@@ -378,22 +404,23 @@ class ChallengeAPIClientTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
-    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
+    verify(networkProvider, times(RETRY_TIMES + 1)).execute(any(), any(), any())
   }
 
   @Test
   fun `Get a challenge with an error response should call error`() {
-    val expectedException = NetworkException(
-      FailureResponse(
-        500,
-        null,
-        null
+    val expectedException =
+      NetworkException(
+        FailureResponse(
+          500,
+          null,
+          null,
+        ),
       )
-    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
@@ -402,7 +429,8 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.get(
-      "sid", factorChallenge.factor!!,
+      "sid",
+      factorChallenge.factor!!,
       { _: JSONObject, _: String? ->
         fail()
         idlingResource.operationFinished()
@@ -410,7 +438,7 @@ class ChallengeAPIClientTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -420,7 +448,8 @@ class ChallengeAPIClientTest {
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
     challengeAPIClient.get(
-      "sid", factorChallenge.factor!!,
+      "sid",
+      factorChallenge.factor!!,
       { _: JSONObject, _: String? ->
         fail()
         idlingResource.operationFinished()
@@ -430,7 +459,7 @@ class ChallengeAPIClientTest {
         assertTrue(exception.cause?.cause is RuntimeException)
         assertEquals(NetworkError.message, exception.message)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -440,23 +469,25 @@ class ChallengeAPIClientTest {
     val challengeSid = "sid"
     val factor = factorChallenge.factor!!
     val expectedURL =
-      "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+      "$baseUrl$GET_CHALLENGE_URL"
+        .replace(SERVICE_SID_PATH, factor.serviceSid, true)
         .replace(IDENTITY_PATH, factor.identity)
-        .replace(challengeSidPath, challengeSid)
+        .replace(CHALLENGE_SID_PATH, challengeSid)
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.get(challengeSid, factor, { _: JSONObject, _: String? -> }, {})
-    val requestCaptor = argumentCaptor<Request>().apply {
-      verify(networkProvider).execute(capture(), any(), any())
-    }
+    val requestCaptor =
+      argumentCaptor<Request>().apply {
+        verify(networkProvider).execute(capture(), any(), any())
+      }
 
     requestCaptor.firstValue.apply {
       assertEquals(URL(expectedURL), url)
       assertEquals(HttpMethod.Get, httpMethod)
       assertTrue(headers[MediaTypeHeader.ContentType.type] == MediaTypeValue.UrlEncoded.type)
       assertTrue(headers[MediaTypeHeader.Accept.type] == MediaTypeValue.UrlEncoded.type)
-      assertTrue(headers.containsKey(AuthorizationHeader))
-      assertTrue(headers.containsKey(userAgent))
+      assertTrue(headers.containsKey(AUTHORIZATION_HEADER))
+      assertTrue(headers.containsKey(USER_AGENT))
       idlingResource.operationFinished()
     }
     idlingResource.waitForIdle()
@@ -473,7 +504,11 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, Asc, null,
+      factorChallenge.factor!!,
+      null,
+      0,
+      Asc,
+      null,
       { jsonObject ->
         assertEquals(response, jsonObject.toString())
         idlingResource.operationFinished()
@@ -481,7 +516,7 @@ class ChallengeAPIClientTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -490,17 +525,18 @@ class ChallengeAPIClientTest {
   fun `Get challenges with out of sync time request should sync time and redo the request`() {
     val response = "{\"key\":\"value\"}"
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
-    val expectedException = NetworkException(
-      FailureResponse(
-        unauthorized,
-        null,
-        mapOf(dateHeaderKey to listOf(date))
+    val expectedException =
+      NetworkException(
+        FailureResponse(
+          UNAUTHORIZED,
+          null,
+          mapOf(DATE_HEADER_KEY to listOf(date)),
+        ),
       )
-    )
     argumentCaptor<(Response) -> Unit, (NetworkException) -> Unit>()
       .let { (success, error) ->
         whenever(
-          networkProvider.execute(any(), success.capture(), error.capture())
+          networkProvider.execute(any(), success.capture(), error.capture()),
         ).then {
           error.firstValue.invoke(expectedException)
         }.then {
@@ -510,7 +546,11 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, Asc, null,
+      factorChallenge.factor!!,
+      null,
+      0,
+      Asc,
+      null,
       { jsonObject ->
         assertEquals(response, jsonObject.toString())
         idlingResource.operationFinished()
@@ -518,7 +558,7 @@ class ChallengeAPIClientTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
@@ -527,13 +567,14 @@ class ChallengeAPIClientTest {
   @Test
   fun `Get challenges with out of sync time should retry only another time`() {
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
-    val expectedException = NetworkException(
-      FailureResponse(
-        unauthorized,
-        null,
-        mapOf(dateHeaderKey to listOf(date))
+    val expectedException =
+      NetworkException(
+        FailureResponse(
+          UNAUTHORIZED,
+          null,
+          mapOf(DATE_HEADER_KEY to listOf(date)),
+        ),
       )
-    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         lastValue.invoke(expectedException)
@@ -542,7 +583,11 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, Asc, null,
+      factorChallenge.factor!!,
+      null,
+      0,
+      Asc,
+      null,
       {
         fail()
         idlingResource.operationFinished()
@@ -550,22 +595,23 @@ class ChallengeAPIClientTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
     verify(dateProvider).syncTime(date)
-    verify(networkProvider, times(retryTimes + 1)).execute(any(), any(), any())
+    verify(networkProvider, times(RETRY_TIMES + 1)).execute(any(), any(), any())
   }
 
   @Test
   fun `Get challenges with an error response should call error`() {
-    val expectedException = NetworkException(
-      FailureResponse(
-        500,
-        null,
-        null
+    val expectedException =
+      NetworkException(
+        FailureResponse(
+          500,
+          null,
+          null,
+        ),
       )
-    )
     argumentCaptor<(NetworkException) -> Unit>().apply {
       whenever(networkProvider.execute(any(), any(), capture())).then {
         firstValue.invoke(expectedException)
@@ -574,7 +620,11 @@ class ChallengeAPIClientTest {
     whenever(authentication.generateJWT(factorChallenge.factor!!)).thenReturn("authToken")
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, Asc, null,
+      factorChallenge.factor!!,
+      null,
+      0,
+      Asc,
+      null,
       {
         fail()
         idlingResource.operationFinished()
@@ -582,7 +632,7 @@ class ChallengeAPIClientTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -592,7 +642,11 @@ class ChallengeAPIClientTest {
     whenever(networkProvider.execute(any(), any(), any())).thenThrow(RuntimeException())
     idlingResource.startOperation()
     challengeAPIClient.getAll(
-      factorChallenge.factor!!, null, 0, Asc, null,
+      factorChallenge.factor!!,
+      null,
+      0,
+      Asc,
+      null,
       {
         fail()
         idlingResource.operationFinished()
@@ -602,7 +656,7 @@ class ChallengeAPIClientTest {
         assertTrue(exception.cause?.cause is RuntimeException)
         assertEquals(NetworkError.message, exception.message)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }

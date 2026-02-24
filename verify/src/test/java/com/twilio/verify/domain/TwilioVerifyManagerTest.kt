@@ -35,7 +35,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class TwilioVerifyManagerTest {
-
   private val factorFacade: FactorFacade = mock()
   private val challengeFacade: ChallengeFacade = mock()
   private val serviceFacade: ServiceFacade = mock()
@@ -63,7 +62,7 @@ class TwilioVerifyManagerTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -88,7 +87,7 @@ class TwilioVerifyManagerTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -112,7 +111,7 @@ class TwilioVerifyManagerTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -136,7 +135,7 @@ class TwilioVerifyManagerTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -160,7 +159,7 @@ class TwilioVerifyManagerTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -184,7 +183,7 @@ class TwilioVerifyManagerTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -206,7 +205,7 @@ class TwilioVerifyManagerTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -228,7 +227,7 @@ class TwilioVerifyManagerTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -245,7 +244,8 @@ class TwilioVerifyManagerTest {
     }
     idlingResource.startOperation()
     twilioVerifyManager.getChallenge(
-      sid, factorSid,
+      sid,
+      factorSid,
       { challenge ->
         assertEquals(expectedChallenge, challenge)
         idlingResource.operationFinished()
@@ -253,7 +253,7 @@ class TwilioVerifyManagerTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -270,7 +270,8 @@ class TwilioVerifyManagerTest {
     }
     idlingResource.startOperation()
     twilioVerifyManager.getChallenge(
-      sid, factorSid,
+      sid,
+      factorSid,
       {
         fail()
         idlingResource.operationFinished()
@@ -278,7 +279,7 @@ class TwilioVerifyManagerTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -303,7 +304,7 @@ class TwilioVerifyManagerTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -330,7 +331,7 @@ class TwilioVerifyManagerTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -354,7 +355,7 @@ class TwilioVerifyManagerTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -371,14 +372,14 @@ class TwilioVerifyManagerTest {
     idlingResource.startOperation()
     twilioVerifyManager.getAllChallenges(
       challengeListPayload,
-      { list ->
+      {
         fail()
         idlingResource.operationFinished()
       },
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -400,7 +401,7 @@ class TwilioVerifyManagerTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -424,7 +425,7 @@ class TwilioVerifyManagerTest {
       {
         assertEquals(expectedException, it.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }

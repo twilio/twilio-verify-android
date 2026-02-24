@@ -25,11 +25,10 @@ import java.net.HttpURLConnection
 import javax.net.ssl.HttpsURLConnection
 
 class NetworkAdapter : NetworkProvider {
-
   override fun execute(
     request: Request,
     success: (response: Response) -> Unit,
-    error: (NetworkException) -> Unit
+    error: (NetworkException) -> Unit,
   ) {
     var httpUrlConnection: HttpURLConnection? = null
     try {
@@ -44,9 +43,10 @@ class NetworkAdapter : NetworkProvider {
       request.getParams()?.takeIf { it.isNotEmpty() }?.apply {
         httpUrlConnection.doOutput = true
         val os: OutputStream = httpUrlConnection.outputStream
-        val writer = BufferedWriter(
-          OutputStreamWriter(os, "UTF-8")
-        )
+        val writer =
+          BufferedWriter(
+            OutputStreamWriter(os, "UTF-8"),
+          )
         writer.write(this)
         writer.flush()
         writer.close()
@@ -57,17 +57,23 @@ class NetworkAdapter : NetworkProvider {
       Logger.log(Level.Networking, "Response code: $statusCode")
       when {
         statusCode < 300 -> {
-          val response = httpUrlConnection.inputStream.bufferedReader()
-            .use { it.readText() }.also { Logger.log(Level.Networking, "Response body: $it") }
+          val response =
+            httpUrlConnection.inputStream
+              .bufferedReader()
+              .use { it.readText() }
+              .also { Logger.log(Level.Networking, "Response body: $it") }
           success(Response(body = response, headers = httpUrlConnection.headerFields))
         }
         else -> {
-          val errorBody = httpUrlConnection.errorStream.bufferedReader()
-            .use { it.readText() }.also { Logger.log(Level.Networking, "Error body: $it") }
+          val errorBody =
+            httpUrlConnection.errorStream
+              .bufferedReader()
+              .use { it.readText() }
+              .also { Logger.log(Level.Networking, "Error body: $it") }
           error(
             NetworkException(
-              FailureResponse(statusCode, errorBody, httpUrlConnection.headerFields)
-            )
+              FailureResponse(statusCode, errorBody, httpUrlConnection.headerFields),
+            ),
           )
         }
       }

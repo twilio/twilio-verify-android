@@ -8,7 +8,6 @@ import io.mockk.verify
 import org.junit.Test
 
 class LoggerTest {
-
   @Test
   fun `Call logger contract when logging`() {
     val level = Level.Debug

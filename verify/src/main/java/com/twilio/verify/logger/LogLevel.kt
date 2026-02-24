@@ -23,7 +23,9 @@ import com.twilio.security.logger.Level
  *
  * @property level
  */
-enum class LogLevel(internal val level: Level) {
+enum class LogLevel(
+  internal val level: Level,
+) {
   /**
    * Reports behaviors that shouldn't be happening
    *
@@ -52,5 +54,5 @@ enum class LogLevel(internal val level: Level) {
    * **Error**, **Info**, **Debug** and **Networking** are enabled
    *
    */
-  All(Level.All)
+  All(Level.All),
 }

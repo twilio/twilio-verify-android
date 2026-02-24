@@ -24,5 +24,5 @@ internal data class FactorService(
   override val createdDate: Date,
   override val updatedDate: Date,
   override val friendlyName: String,
-  override val accountSid: String
+  override val accountSid: String,
 ) : Service

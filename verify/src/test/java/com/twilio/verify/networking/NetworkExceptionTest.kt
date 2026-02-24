@@ -12,17 +12,17 @@ import org.robolectric.RobolectricTestRunner
  */
 @RunWith(RobolectricTestRunner::class)
 class NetworkExceptionTest {
-
   @Test
   fun `Error body conversion to API error`() {
     val code = "60315"
     val message = "Reached max limit of 20 push Factors associated per Entity"
     val moreInfo = "https://www.twilio.com/docs/errors/60315"
-    val apiErrorJson = JSONObject().apply {
-      put(CODE_KEY, code)
-      put(MESSAGE_KEY, message)
-      put(MORE_INFO_KEY, moreInfo)
-    }
+    val apiErrorJson =
+      JSONObject().apply {
+        put(CODE_KEY, code)
+        put(MESSAGE_KEY, message)
+        put(MORE_INFO_KEY, moreInfo)
+      }
     val failureResponse = FailureResponse(400, apiErrorJson.toString(), null)
     val apiError = failureResponse.apiError
     assertEquals(code, apiError?.code)
@@ -34,10 +34,11 @@ class NetworkExceptionTest {
   fun `Error body conversion to API error without more info`() {
     val code = "60315"
     val message = "Reached max limit of 20 push Factors associated per Entity"
-    val apiErrorJson = JSONObject().apply {
-      put(CODE_KEY, code)
-      put(MESSAGE_KEY, message)
-    }
+    val apiErrorJson =
+      JSONObject().apply {
+        put(CODE_KEY, code)
+        put(MESSAGE_KEY, message)
+      }
     val failureResponse = FailureResponse(400, apiErrorJson.toString(), null)
     val apiError = failureResponse.apiError
     assertEquals(code, apiError?.code)
@@ -49,11 +50,12 @@ class NetworkExceptionTest {
   fun `Error body conversion to API error with empty more info`() {
     val code = "60315"
     val message = "Reached max limit of 20 push Factors associated per Entity"
-    val apiErrorJson = JSONObject().apply {
-      put(CODE_KEY, code)
-      put(MESSAGE_KEY, message)
-      put(MORE_INFO_KEY, "")
-    }
+    val apiErrorJson =
+      JSONObject().apply {
+        put(CODE_KEY, code)
+        put(MESSAGE_KEY, message)
+        put(MORE_INFO_KEY, "")
+      }
     val failureResponse = FailureResponse(400, apiErrorJson.toString(), null)
     val apiError = failureResponse.apiError
     assertEquals(code, apiError?.code)
@@ -64,9 +66,10 @@ class NetworkExceptionTest {
   @Test
   fun `Error when converting error body to API error without code`() {
     val message = "Reached max limit of 20 push Factors associated per Entity"
-    val apiErrorJson = JSONObject().apply {
-      put(MESSAGE_KEY, message)
-    }
+    val apiErrorJson =
+      JSONObject().apply {
+        put(MESSAGE_KEY, message)
+      }
     val failureResponse = FailureResponse(400, apiErrorJson.toString(), null)
     val apiError = failureResponse.apiError
     assertNull(apiError)

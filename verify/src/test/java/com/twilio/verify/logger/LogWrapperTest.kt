@@ -17,17 +17,16 @@
 package com.twilio.verify.logger
 
 import android.util.Log
-import java.io.IOException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLog
+import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
 class LogWrapperTest {
-
   @Test
   fun `Log error with tag and message`() {
     val tag = "tag"

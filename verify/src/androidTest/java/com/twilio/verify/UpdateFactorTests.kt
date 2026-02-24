@@ -14,7 +14,6 @@ import org.junit.Test
  */
 
 class UpdateFactorTests : BaseFactorTest() {
-
   @Test
   fun testUpdatePushFactorWithValidAPIResponseShouldReturnFactor() {
     val updatePushFactorPayload = UpdatePushFactorPayload(factor!!.sid, "pushToken")
@@ -29,7 +28,7 @@ class UpdateFactorTests : BaseFactorTest() {
       { e ->
         fail(e.message)
         idlingResource.decrement()
-      }
+      },
     )
     idlingResource.waitForResource()
   }
@@ -37,10 +36,11 @@ class UpdateFactorTests : BaseFactorTest() {
   @Test
   fun testUpdatePushFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
     val updatePushFactorPayload = UpdatePushFactorPayload(factor!!.sid, "pushToken")
-    val expectedException = TwilioVerifyException(
-      NetworkException(null, null, null),
-      NetworkError
-    )
+    val expectedException =
+      TwilioVerifyException(
+        NetworkException(null, null, null),
+        NetworkError,
+      )
     enqueueMockResponse(400, APIResponses.updateFactorValidResponse())
     idlingResource.increment()
     twilioVerify.updateFactor(
@@ -52,7 +52,7 @@ class UpdateFactorTests : BaseFactorTest() {
       { exception ->
         assertEquals(expectedException.message, exception.message)
         idlingResource.decrement()
-      }
+      },
     )
     idlingResource.waitForResource()
   }
@@ -60,10 +60,11 @@ class UpdateFactorTests : BaseFactorTest() {
   @Test
   fun testUpdatePushFactorWithInvalidAPIResponseBodyShouldThrowMapperError() {
     val updatePushFactorPayload = UpdatePushFactorPayload(factor!!.sid, "pushToken")
-    val expectedException = TwilioVerifyException(
-      IllegalArgumentException(null, null),
-      MapperError
-    )
+    val expectedException =
+      TwilioVerifyException(
+        IllegalArgumentException(null, null),
+        MapperError,
+      )
     enqueueMockResponse(200, APIResponses.updateFactorInvalidResponse())
     idlingResource.increment()
     twilioVerify.updateFactor(
@@ -75,7 +76,7 @@ class UpdateFactorTests : BaseFactorTest() {
       { exception ->
         assertEquals(expectedException.message, exception.message)
         idlingResource.decrement()
-      }
+      },
     )
     idlingResource.waitForResource()
   }

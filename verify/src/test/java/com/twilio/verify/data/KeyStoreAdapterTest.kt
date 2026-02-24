@@ -14,7 +14,6 @@ import com.twilio.security.crypto.key.signer.Signer
 import com.twilio.verify.ErrorCodeMatcher
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
-import kotlin.random.Random.Default.nextBytes
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -23,11 +22,11 @@ import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class KeyStoreAdapterTest {
-
   private val keyManager: KeyManager = mock()
   private val keyStoreAdapter = KeyStoreAdapter(keyManager)
 

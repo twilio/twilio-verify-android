@@ -19,19 +19,20 @@ package com.twilio.verify.networking
 import android.util.Base64
 import com.twilio.verify.data.encodeToBase64UTF8String
 
-internal const val AuthorizationHeader = "Authorization"
-internal const val BasicAuth = "Basic"
+internal const val AUTHORIZATION_HEADER = "Authorization"
+internal const val BASIC_AUTH = "Basic"
 
 internal data class BasicAuthorization constructor(
   private val username: String,
-  private val password: String
+  private val password: String,
 ) {
   val header: Pair<String, String>
     get() {
-      val encodedAuthorization = encodeToBase64UTF8String(
-        "${this.username}:${this.password}".toByteArray(Charsets.UTF_8),
-        Base64.NO_WRAP
-      )
-      return AuthorizationHeader to "$BasicAuth $encodedAuthorization"
+      val encodedAuthorization =
+        encodeToBase64UTF8String(
+          "${this.username}:${this.password}".toByteArray(Charsets.UTF_8),
+          Base64.NO_WRAP,
+        )
+      return AUTHORIZATION_HEADER to "$BASIC_AUTH $encodedAuthorization"
     }
 }

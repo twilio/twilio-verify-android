@@ -40,24 +40,24 @@ import org.json.JSONObject
 
 internal class PushChallengeProcessor(
   private val challengeProvider: ChallengeProvider,
-  private val jwtGenerator: JwtGenerator
+  private val jwtGenerator: JwtGenerator,
 ) {
-
   fun get(
     sid: String,
     factor: PushFactor,
     success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     Logger.log(Level.Info, "Getting challenge $sid with factor ${factor.sid}")
     challengeProvider.get(
-      sid, factor,
+      sid,
+      factor,
       { challenge ->
         success(challenge)
       },
       { exception ->
         error(exception)
-      }
+      },
     )
   }
 
@@ -66,64 +66,77 @@ internal class PushChallengeProcessor(
     factor: PushFactor,
     status: ChallengeStatus,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     fun updateChallenge(challenge: Challenge) {
       try {
-        val factorChallenge = challenge as? FactorChallenge ?: throw TwilioVerifyException(
-          InvalidChallengeException.also { Logger.log(Level.Error, it.toString(), it) },
-          InputError
-        )
-        if (challenge.factor == null || challenge.factor !is PushFactor ||
+        val factorChallenge =
+          challenge as? FactorChallenge ?: throw TwilioVerifyException(
+            InvalidChallengeException.also { Logger.log(Level.Error, it.toString(), it) },
+            InputError,
+          )
+        if (challenge.factor == null ||
+          challenge.factor !is PushFactor ||
           challenge.factor?.sid != factor.sid
         ) {
           throw TwilioVerifyException(
-            WrongFactorException.also { Logger.log(Level.Error, it.toString(), it) }, InputError
+            WrongFactorException.also { Logger.log(Level.Error, it.toString(), it) },
+            InputError,
           )
         }
         if (challenge.status == Expired) {
           throw TwilioVerifyException(
             ExpiredChallengeException.also { Logger.log(Level.Error, it.toString(), it) },
-            InputError
+            InputError,
           )
         }
         if (challenge.status != Pending) {
           throw TwilioVerifyException(
             AlreadyUpdatedChallengeException.also { Logger.log(Level.Error, it.toString(), it) },
-            InputError
+            InputError,
           )
         }
-        val keyPairAlias = factor.keyPairAlias?.takeIf { it.isNotBlank() }
-          ?: throw TwilioVerifyException(
-            IllegalStateException("Key pair not set").also { Logger.log(Level.Error, it.toString(), it) }, KeyStorageError
-          )
-        val signatureFields = factorChallenge.signatureFields?.takeIf { it.isNotEmpty() }
-          ?: throw TwilioVerifyException(
-            SignatureFieldsException.also { Logger.log(Level.Error, it.toString(), it) }, InputError
-          )
+        val keyPairAlias =
+          factor.keyPairAlias?.takeIf { it.isNotBlank() }
+            ?: throw TwilioVerifyException(
+              IllegalStateException("Key pair not set").also { Logger.log(Level.Error, it.toString(), it) },
+              KeyStorageError,
+            )
+        val signatureFields =
+          factorChallenge.signatureFields?.takeIf { it.isNotEmpty() }
+            ?: throw TwilioVerifyException(
+              SignatureFieldsException.also { Logger.log(Level.Error, it.toString(), it) },
+              InputError,
+            )
         val response =
           factorChallenge.response?.takeIf { it.length() > 0 } ?: throw TwilioVerifyException(
-            SignatureFieldsException.also { Logger.log(Level.Error, it.toString(), it) }, InputError
+            SignatureFieldsException.also { Logger.log(Level.Error, it.toString(), it) },
+            InputError,
           )
         val authPayload =
           generateSignature(
-            signatureFields, response, status, getSignerTemplate(keyPairAlias, true)
+            signatureFields,
+            response,
+            status,
+            getSignerTemplate(keyPairAlias, true),
           )
         Logger.log(Level.Debug, "Update challenge with auth payload $authPayload")
         challengeProvider.update(
-          challenge, authPayload,
+          challenge,
+          authPayload,
           { updatedChallenge ->
-            updatedChallenge.takeIf { updatedChallenge.status == status }
+            updatedChallenge
+              .takeIf { updatedChallenge.status == status }
               ?.run {
                 success()
               } ?: error(
               TwilioVerifyException(
                 NotUpdatedChallengeException.also { Logger.log(Level.Error, it.toString(), it) },
-                InputError
-              )
+                InputError,
+              ),
             )
           },
-          error
+          error,
         )
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -137,15 +150,16 @@ internal class PushChallengeProcessor(
     signatureFields: List<String>,
     response: JSONObject,
     status: ChallengeStatus,
-    signerTemplate: SignerTemplate
+    signerTemplate: SignerTemplate,
   ): String {
     try {
-      val payload = JSONObject().apply {
-        for (key in signatureFields) {
-          put(key, response[key])
+      val payload =
+        JSONObject().apply {
+          for (key in signatureFields) {
+            put(key, response[key])
+          }
+          put(STATUS_KEY, status.value)
         }
-        put(statusKey, status.value)
-      }
       Logger.log(Level.Debug, "Update challenge with payload $payload")
       return jwtGenerator.generateJWT(signerTemplate, JSONObject(), payload)
     } catch (e: Exception) {

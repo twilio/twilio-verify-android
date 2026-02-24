@@ -37,17 +37,17 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class FirebasePushServiceTest {
-
   private lateinit var firebasePushService: FirebasePushService
   private val twilioVerifyAdapter: TwilioVerifyAdapter = mock()
 
   @Before
   fun setup() {
-    val appModule = module {
-      single {
-        twilioVerifyAdapter
+    val appModule =
+      module {
+        single {
+          twilioVerifyAdapter
+        }
       }
-    }
     startKoin {
       androidLogger()
       androidContext(ApplicationProvider.getApplicationContext())
@@ -66,10 +66,11 @@ class FirebasePushServiceTest {
     val challengeSid = "challengeSid"
     val factorSid = "factorSid"
     val pushData =
-      mapOf(typeKey to challengeType, factorSidKey to factorSid, challengeSidKey to challengeSid)
-    val remoteMessage: RemoteMessage = mock() {
-      on { data } doReturn pushData
-    }
+      mapOf(TYPE_KEY to CHALLENGE_TYPE, FACTOR_SID_KEY to factorSid, CHALLENGE_SID_KEY to challengeSid)
+    val remoteMessage: RemoteMessage =
+      mock {
+        on { data } doReturn pushData
+      }
     firebasePushService.onMessageReceived(remoteMessage)
     verify(twilioVerifyAdapter).showChallenge(challengeSid, factorSid)
   }
@@ -77,10 +78,11 @@ class FirebasePushServiceTest {
   @Test
   fun `New message received with challenge type without challenge sid, factor sid should not call getChallenge`() {
     val pushData =
-      mapOf(typeKey to challengeType)
-    val remoteMessage: RemoteMessage = mock() {
-      on { data } doReturn pushData
-    }
+      mapOf(TYPE_KEY to CHALLENGE_TYPE)
+    val remoteMessage: RemoteMessage =
+      mock {
+        on { data } doReturn pushData
+      }
     firebasePushService.onMessageReceived(remoteMessage)
     verify(twilioVerifyAdapter, never()).showChallenge(any(), any())
   }
@@ -88,10 +90,11 @@ class FirebasePushServiceTest {
   @Test
   fun `New message received without challenge type should not call getChallenge`() {
     val pushData =
-      mapOf(typeKey to "otherType", factorSidKey to "factorSid", challengeSidKey to "challengeSid")
-    val remoteMessage: RemoteMessage = mock() {
-      on { data } doReturn pushData
-    }
+      mapOf(TYPE_KEY to "otherType", FACTOR_SID_KEY to "factorSid", CHALLENGE_SID_KEY to "challengeSid")
+    val remoteMessage: RemoteMessage =
+      mock {
+        on { data } doReturn pushData
+      }
     firebasePushService.onMessageReceived(remoteMessage)
     verify(twilioVerifyAdapter, never()).showChallenge(any(), any())
   }

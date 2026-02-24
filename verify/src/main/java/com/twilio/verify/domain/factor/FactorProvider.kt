@@ -25,31 +25,35 @@ internal interface FactorProvider {
   fun create(
     createFactorPayload: CreateFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun verify(
     factor: Factor,
     payload: String,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun update(
     updateFactorPayload: UpdateFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun delete(
     factor: Factor,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun get(sid: String): Factor?
+
   fun getAll(): List<Factor>
+
   fun save(factor: Factor): Factor?
+
   fun delete(factor: Factor)
+
   fun clearLocalStorage()
 }

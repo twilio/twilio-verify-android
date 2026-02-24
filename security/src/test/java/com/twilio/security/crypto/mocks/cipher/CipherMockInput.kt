@@ -10,5 +10,5 @@ data class CipherMockInput(
   var decrypted: String = "",
   var error: RuntimeException? = null,
   var algorithmParameters: AlgorithmParameters? = null,
-  var delay: Int? = null
+  var delay: Int? = null,
 )

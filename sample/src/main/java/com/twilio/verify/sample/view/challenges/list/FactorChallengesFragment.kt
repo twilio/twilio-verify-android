@@ -48,8 +48,7 @@ class FactorChallengesFragment : Fragment() {
   private lateinit var viewManager: LinearLayoutManager
   private val factorViewModel: FactorViewModel by activityViewModel()
   private val challengesViewModel: ChallengesViewModel by activityViewModel()
-  private var _binding: FragmentFactorChallengesBinding? = null
-  private val binding get() = _binding!!
+  private lateinit var binding: FragmentFactorChallengesBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -61,21 +60,17 @@ class FactorChallengesFragment : Fragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? {
-    _binding = FragmentFactorChallengesBinding.inflate(inflater, container, false)
+    binding = FragmentFactorChallengesBinding.inflate(inflater, container, false)
     return binding.root
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     viewManager = LinearLayoutManager(view?.context)
-    factorViewModel.getFactor()
+    factorViewModel
+      .getFactor()
       .observe(
         viewLifecycleOwner,
         Observer {
@@ -83,9 +78,10 @@ class FactorChallengesFragment : Fragment() {
             is Factor -> showFactor(it.factor)
             is FactorError -> it.exception.showError(binding.content)
           }
-        }
+        },
       )
-    challengesViewModel.getChallenges()
+    challengesViewModel
+      .getChallenges()
       .observe(
         viewLifecycleOwner,
         Observer {
@@ -93,12 +89,13 @@ class FactorChallengesFragment : Fragment() {
             is ChallengeList -> showChallenges(it.challenges)
             is ChallengesError -> it.exception.showError(binding.content)
           }
-        }
+        },
       )
-    val dividerItemDecoration = DividerItemDecoration(
-      binding.challenges.context,
-      viewManager.orientation
-    )
+    val dividerItemDecoration =
+      DividerItemDecoration(
+        binding.challenges.context,
+        viewManager.orientation,
+      )
     binding.challenges.addItemDecoration(dividerItemDecoration)
     factorViewModel.loadFactor(sid)
     challengesViewModel.loadChallenges(sid)
@@ -125,13 +122,15 @@ class FactorChallengesFragment : Fragment() {
   }
 
   private fun showChallenges(challenges: List<Challenge>) {
-    viewAdapter = ChallengesAdapter(challenges) {
-      val bundle = bundleOf(
-        ARG_FACTOR_SID to it.factorSid,
-        ARG_CHALLENGE_SID to it.sid
-      )
-      findNavController().navigate(R.id.action_show_challenge, bundle)
-    }
+    viewAdapter =
+      ChallengesAdapter(challenges) {
+        val bundle =
+          bundleOf(
+            ARG_FACTOR_SID to it.factorSid,
+            ARG_CHALLENGE_SID to it.sid,
+          )
+        findNavController().navigate(R.id.action_show_challenge, bundle)
+      }
     binding.challenges.apply {
       setHasFixedSize(true)
       layoutManager = viewManager

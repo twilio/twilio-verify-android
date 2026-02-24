@@ -25,21 +25,21 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-private const val preferencesName = "testPreferences"
+private const val PREFERENCES_NAME = "testPreferences"
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class StorageTest {
-
   private val context: Context = ApplicationProvider.getApplicationContext()
   private val sharedPreferences =
-    context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+    context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
   private val encryptedStorage: EncryptedStorage = mock()
   private lateinit var storage: Storage
 
   @Before
   fun setup() {
-    sharedPreferences.edit()
+    sharedPreferences
+      .edit()
       .putInt(CURRENT_VERSION, VERSION)
       .apply()
     storage = Storage(sharedPreferences, encryptedStorage, emptyList())
@@ -47,7 +47,7 @@ class StorageTest {
 
   @After
   fun tearDown() {
-    context.deleteSharedPreferences(preferencesName)
+    context.deleteSharedPreferences(PREFERENCES_NAME)
   }
 
   @Test
@@ -114,14 +114,16 @@ class StorageTest {
 
   @Test
   fun `Migrations executed`() {
-    val migrationV0ToV1: Migration = mock {
-      on(it.startVersion).thenReturn(0)
-      on(it.endVersion).thenReturn(1)
-    }
-    val migrationV1ToV2: Migration = mock {
-      on(it.startVersion).thenReturn(1)
-      on(it.endVersion).thenReturn(2)
-    }
+    val migrationV0ToV1: Migration =
+      mock {
+        on(it.startVersion).thenReturn(0)
+        on(it.endVersion).thenReturn(1)
+      }
+    val migrationV1ToV2: Migration =
+      mock {
+        on(it.startVersion).thenReturn(1)
+        on(it.endVersion).thenReturn(2)
+      }
     val migrations = listOf(migrationV0ToV1, migrationV1ToV2)
     migration(0, 2, migrations)
     inOrder(migrationV0ToV1, migrationV1ToV2) {
@@ -132,14 +134,16 @@ class StorageTest {
 
   @Test
   fun `Migration executed`() {
-    val migrationV0ToV1: Migration = mock {
-      on(it.startVersion).thenReturn(0)
-      on(it.endVersion).thenReturn(1)
-    }
-    val migrationV1ToV2: Migration = mock {
-      on(it.startVersion).thenReturn(1)
-      on(it.endVersion).thenReturn(2)
-    }
+    val migrationV0ToV1: Migration =
+      mock {
+        on(it.startVersion).thenReturn(0)
+        on(it.endVersion).thenReturn(1)
+      }
+    val migrationV1ToV2: Migration =
+      mock {
+        on(it.startVersion).thenReturn(1)
+        on(it.endVersion).thenReturn(2)
+      }
     val migrations = listOf(migrationV0ToV1, migrationV1ToV2)
     migration(1, 2, migrations)
     verify(migrationV0ToV1, never()).migrate(any())
@@ -148,14 +152,16 @@ class StorageTest {
 
   @Test
   fun `No migration needed`() {
-    val migrationV0ToV1: Migration = mock {
-      on(it.startVersion).thenReturn(0)
-      on(it.endVersion).thenReturn(1)
-    }
-    val migrationV1ToV2: Migration = mock {
-      on(it.startVersion).thenReturn(1)
-      on(it.endVersion).thenReturn(2)
-    }
+    val migrationV0ToV1: Migration =
+      mock {
+        on(it.startVersion).thenReturn(0)
+        on(it.endVersion).thenReturn(1)
+      }
+    val migrationV1ToV2: Migration =
+      mock {
+        on(it.startVersion).thenReturn(1)
+        on(it.endVersion).thenReturn(2)
+      }
     val migrations = listOf(migrationV0ToV1, migrationV1ToV2)
     migration(2, 2, migrations)
     verify(migrationV0ToV1, never()).migrate(any())
@@ -169,11 +175,12 @@ class StorageTest {
     val value2 = "value345"
     whenever(encryptedStorage.getAll(String::class)).thenReturn(listOf(value1))
     whenever(encryptedStorage.get(key, String::class)).thenReturn(value1)
-    val migrationV1ToV2: Migration = mock {
-      on(it.startVersion).thenReturn(1)
-      on(it.endVersion).thenReturn(2)
-      on(it.migrate(listOf(value1))).thenReturn(listOf(Entry(key, value2)))
-    }
+    val migrationV1ToV2: Migration =
+      mock {
+        on(it.startVersion).thenReturn(1)
+        on(it.endVersion).thenReturn(2)
+        on(it.migrate(listOf(value1))).thenReturn(listOf(Entry(key, value2)))
+      }
     val migrations = listOf(migrationV1ToV2)
     migration(1, 2, migrations)
     verify(encryptedStorage).put(key, value2)
@@ -188,9 +195,10 @@ class StorageTest {
   private fun migration(
     startVersion: Int,
     endVersion: Int,
-    migrations: List<Migration>
+    migrations: List<Migration>,
   ) {
-    sharedPreferences.edit()
+    sharedPreferences
+      .edit()
       .putInt(CURRENT_VERSION, startVersion)
       .apply()
     storage = Storage(sharedPreferences, encryptedStorage, migrations)

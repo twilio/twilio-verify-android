@@ -32,7 +32,7 @@ internal class PushFactor(
   override var status: FactorStatus = Unverified,
   override val createdAt: Date,
   val config: Config,
-  override val metadata: Map<String, String>? = null
+  override val metadata: Map<String, String>? = null,
 ) : Factor {
   override val type: FactorType = PUSH
 
@@ -41,10 +41,12 @@ internal class PushFactor(
 
 internal data class Config(
   internal val credentialSid: String,
-  internal val notificationPlatform: NotificationPlatform = NotificationPlatform.FCM
+  internal val notificationPlatform: NotificationPlatform = NotificationPlatform.FCM,
 )
 
-internal enum class NotificationPlatform(val value: String) {
+internal enum class NotificationPlatform(
+  val value: String,
+) {
   FCM("fcm"),
-  None("none")
+  None("none"),
 }

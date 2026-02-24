@@ -34,15 +34,16 @@ private const val AUTHENTICATION_TOKEN_CODE = 60407
  */
 class TwilioVerifyException(
   cause: Throwable,
-  errorCode: ErrorCode
+  errorCode: ErrorCode,
 ) : Exception(errorCode.message, cause) {
-
   /**
    * Error codes
    *
    * @property message error description.
    */
-  enum class ErrorCode(val message: String) {
+  enum class ErrorCode(
+    val message: String,
+  ) {
     /**
      * An error occurred while calling the API.
      */
@@ -82,7 +83,7 @@ class TwilioVerifyException(
      * An error occurred while generating a token.
      *
      */
-    AuthenticationTokenError("{$AUTHENTICATION_TOKEN_CODE} Exception while generating token")
+    AuthenticationTokenError("{$AUTHENTICATION_TOKEN_CODE} Exception while generating token"),
   }
 }
 
@@ -91,16 +92,28 @@ class TwilioVerifyException(
  *
  * @param message associated message of the exception.
  */
-sealed class InputException(override val message: String) : Exception(message)
+sealed class InputException(
+  override val message: String,
+) : Exception(message)
+
 object ExpiredChallengeException : InputException("Expired challenge can not be updated")
+
 object AlreadyUpdatedChallengeException : InputException("Responded challenge can not be updated")
+
 object NotUpdatedChallengeException : InputException("Challenge was not updated")
+
 object InvalidChallengeException : InputException("Invalid challenge for received factor")
+
 object EmptyChallengeSidException : InputException("Empty challenge sid")
-data class InvalidUpdateChallengePayloadException(private val factorType: FactorType) :
-  InputException("Invalid update challenge payload for factor $factorType")
+
+data class InvalidUpdateChallengePayloadException(
+  private val factorType: FactorType,
+) : InputException("Invalid update challenge payload for factor $factorType")
 
 object EmptyFactorSidException : InputException("Empty factor sid")
+
 object WrongFactorException : InputException("Wrong factor for challenge")
+
 object InvalidFactorException : InputException("Invalid factor")
+
 object SignatureFieldsException : InputException("Signature fields or response not set")

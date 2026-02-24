@@ -53,7 +53,6 @@ import retrofit2.Response
 
 @RunWith(RobolectricTestRunner::class)
 class TwilioVerifyKotlinAdapterTest {
-
   private lateinit var twilioVerifyAdapter: TwilioVerifyAdapter
   private val twilioVerify: TwilioVerify = mock()
   private val sampleBackendAPIClient: SampleBackendAPIClient = mock()
@@ -70,17 +69,19 @@ class TwilioVerifyKotlinAdapterTest {
   fun `Create factor with invalid access token should return exception`() {
     val expectedException: RuntimeException = mock()
     val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
-    val mockCall: Call<AccessTokenResponse> = mock {
-      argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
-        on { enqueue(capture()) }.thenThrow(expectedException)
+    val mockCall: Call<AccessTokenResponse> =
+      mock {
+        argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
+          on { enqueue(capture()) }.thenThrow(expectedException)
+        }
       }
-    }
     whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
-      mockCall
+      mockCall,
     )
     idlingResource.startOperation()
     twilioVerifyAdapter.createFactor(
-      createFactorData, sampleBackendAPIClient,
+      createFactorData,
+      sampleBackendAPIClient,
       {
         fail()
         idlingResource.operationFinished()
@@ -88,7 +89,7 @@ class TwilioVerifyKotlinAdapterTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -97,20 +98,21 @@ class TwilioVerifyKotlinAdapterTest {
   fun `Create factor with an error should return exception`() {
     val expectedException: TwilioVerifyException = mock()
     val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
-    val mockCall: Call<AccessTokenResponse> = mock { mockCall ->
-      argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
-        on { enqueue(capture()) }.then {
-          firstValue.onResponse(
-            mockCall,
-            Response.success(
-              AccessTokenResponse("accessToken", "serviceSid", "identity", PUSH.factorTypeName)
+    val mockCall: Call<AccessTokenResponse> =
+      mock { mockCall ->
+        argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
+          on { enqueue(capture()) }.then {
+            firstValue.onResponse(
+              mockCall,
+              Response.success(
+                AccessTokenResponse("accessToken", "serviceSid", "identity", PUSH.factorTypeName),
+              ),
             )
-          )
+          }
         }
       }
-    }
     whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
-      mockCall
+      mockCall,
     )
     argumentCaptor<(Exception) -> Unit>().apply {
       whenever(twilioVerify.createFactor(any(), any(), capture())).then {
@@ -119,7 +121,8 @@ class TwilioVerifyKotlinAdapterTest {
     }
     idlingResource.startOperation()
     twilioVerifyAdapter.createFactor(
-      createFactorData, sampleBackendAPIClient,
+      createFactorData,
+      sampleBackendAPIClient,
       {
         fail()
         idlingResource.operationFinished()
@@ -127,41 +130,44 @@ class TwilioVerifyKotlinAdapterTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
 
   @Test
   fun `Create factor with valid access token and Push type should return factor verified`() {
-    val expectedFactor: Factor = mock() {
-      on { type } doReturn PUSH
-      on { sid } doReturn "factorSid"
-    }
+    val expectedFactor: Factor =
+      mock {
+        on { type } doReturn PUSH
+        on { sid } doReturn "factorSid"
+      }
     val createFactorData = CreateFactorData("identity", "factorName", "pushToken", "url")
-    val mockCall: Call<AccessTokenResponse> = mock { mockCall ->
-      argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
-        on { enqueue(capture()) }.then {
-          firstValue.onResponse(
-            mockCall,
-            Response.success(
-              AccessTokenResponse("accessToken", "serviceSid", "identity", PUSH.factorTypeName)
+    val mockCall: Call<AccessTokenResponse> =
+      mock { mockCall ->
+        argumentCaptor<(Callback<AccessTokenResponse>)>().apply {
+          on { enqueue(capture()) }.then {
+            firstValue.onResponse(
+              mockCall,
+              Response.success(
+                AccessTokenResponse("accessToken", "serviceSid", "identity", PUSH.factorTypeName),
+              ),
             )
-          )
+          }
         }
       }
-    }
     whenever(sampleBackendAPIClient.accessTokens(eq(createFactorData.identity), any())).thenReturn(
-      mockCall
+      mockCall,
     )
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(twilioVerify.createFactor(any(), capture(), any())).then {
         firstValue.invoke(expectedFactor)
       }
     }
-    val expectedVerifiedFactor: Factor = mock() {
-      on { status } doReturn Verified
-    }
+    val expectedVerifiedFactor: Factor =
+      mock {
+        on { status } doReturn Verified
+      }
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
         firstValue.invoke(expectedVerifiedFactor)
@@ -169,7 +175,8 @@ class TwilioVerifyKotlinAdapterTest {
     }
     idlingResource.startOperation()
     twilioVerifyAdapter.createFactor(
-      createFactorData, sampleBackendAPIClient,
+      createFactorData,
+      sampleBackendAPIClient,
       { factor ->
         assertEquals(expectedVerifiedFactor, factor)
         assertEquals(expectedVerifiedFactor.status, Verified)
@@ -178,16 +185,17 @@ class TwilioVerifyKotlinAdapterTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
 
   @Test
   fun `Verify factor with success response should return factor`() {
-    val expectedFactor: Factor = mock() {
-      on { sid } doReturn "factorSid"
-    }
+    val expectedFactor: Factor =
+      mock {
+        on { sid } doReturn "factorSid"
+      }
     val verifyFactorPayload = VerifyPushFactorPayload(expectedFactor.sid)
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(twilioVerify.verifyFactor(any(), capture(), any())).then {
@@ -204,7 +212,7 @@ class TwilioVerifyKotlinAdapterTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -229,7 +237,7 @@ class TwilioVerifyKotlinAdapterTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -243,7 +251,7 @@ class TwilioVerifyKotlinAdapterTest {
       check { challengeEvent ->
         assertTrue(challengeEvent is NewChallenge)
         assertEquals(challengeSid, (challengeEvent as NewChallenge).challengeSid)
-      }
+      },
     )
   }
 
@@ -259,7 +267,8 @@ class TwilioVerifyKotlinAdapterTest {
     }
     idlingResource.startOperation()
     twilioVerifyAdapter.getChallenge(
-      challengeSid, factorSid,
+      challengeSid,
+      factorSid,
       { challenge ->
         assertEquals(expectedChallenge, challenge)
         idlingResource.operationFinished()
@@ -267,7 +276,7 @@ class TwilioVerifyKotlinAdapterTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -284,7 +293,8 @@ class TwilioVerifyKotlinAdapterTest {
     }
     idlingResource.startOperation()
     twilioVerifyAdapter.getChallenge(
-      challengeSid, factorSid,
+      challengeSid,
+      factorSid,
       {
         fail()
         idlingResource.operationFinished()
@@ -292,7 +302,7 @@ class TwilioVerifyKotlinAdapterTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -315,7 +325,7 @@ class TwilioVerifyKotlinAdapterTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -340,7 +350,7 @@ class TwilioVerifyKotlinAdapterTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }

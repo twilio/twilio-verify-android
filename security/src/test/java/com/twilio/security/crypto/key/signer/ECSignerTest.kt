@@ -7,9 +7,6 @@ import com.twilio.security.crypto.AndroidKeyStoreOperations
 import com.twilio.security.crypto.KeyException
 import io.mockk.every
 import io.mockk.mockk
-import java.security.KeyPair
-import java.security.PrivateKey
-import java.security.PublicKey
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -19,10 +16,12 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.security.KeyPair
+import java.security.PrivateKey
+import java.security.PublicKey
 
 @RunWith(RobolectricTestRunner::class)
 class ECSignerTest {
-
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()
 
@@ -59,13 +58,13 @@ class ECSignerTest {
     val data = "test".toByteArray()
     val error: RuntimeException = mockk(relaxed = true)
     every { androidKeyStoreOperations.sign(eq(data), eq(signatureAlgorithm), any()) }.throws(
-      error
+      error,
     )
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        RuntimeException::class.java
-      )
+        RuntimeException::class.java,
+      ),
     )
     ecSigner.sign(data)
   }
@@ -76,12 +75,13 @@ class ECSignerTest {
     every { ecSigner.keyPair.public }.returns(publicKey)
     val expectedPublicKey = "publicKey"
     every { ecSigner.keyPair.public.encoded }.returns(
-      expectedPublicKey.toByteArray()
+      expectedPublicKey.toByteArray(),
     )
 
     assertTrue(
-      ecSigner.getPublic()
-        .contentEquals(expectedPublicKey.toByteArray())
+      ecSigner
+        .getPublic()
+        .contentEquals(expectedPublicKey.toByteArray()),
     )
   }
 
@@ -119,8 +119,8 @@ class ECSignerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        RuntimeException::class.java
-      )
+        RuntimeException::class.java,
+      ),
     )
     ecSigner.verify(data, signature)
   }

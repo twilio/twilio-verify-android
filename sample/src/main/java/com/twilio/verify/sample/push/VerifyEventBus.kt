@@ -27,25 +27,24 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 object VerifyEventBus {
-
   val events = MutableSharedFlow<VerifyEvent>()
 
-  fun send(
-    event: VerifyEvent
-  ) {
+  fun send(event: VerifyEvent) {
     send(event, Dispatchers.Main)
   }
 
-  suspend inline fun <reified T : VerifyEvent> consumeEvent(
-    crossinline consume: (T) -> Unit
-  ) = events.asSharedFlow().filter { event -> event is T }.map { it as T }
-    .collectLatest { consume(it) }
+  suspend inline fun <reified T : VerifyEvent> consumeEvent(crossinline consume: (T) -> Unit) =
+    events
+      .asSharedFlow()
+      .filter { event -> event is T }
+      .map { it as T }
+      .collectLatest { consume(it) }
 
   private suspend fun invokeEvent(event: VerifyEvent) = events.emit(event)
 
   private fun send(
     event: VerifyEvent,
-    context: CoroutineDispatcher = Dispatchers.Main
+    context: CoroutineDispatcher = Dispatchers.Main,
   ) {
     CoroutineScope(context).launch {
       invokeEvent(event)
@@ -54,7 +53,8 @@ object VerifyEventBus {
 }
 
 sealed class VerifyEvent
+
 class NewChallenge(
   val challengeSid: String,
-  val factorSid: String
+  val factorSid: String,
 ) : VerifyEvent()

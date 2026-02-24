@@ -26,9 +26,7 @@ import com.twilio.verify.InputException
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.sample.R
 
-fun Throwable.showError(
-  content: View
-) {
+fun Throwable.showError(content: View) {
   printStackTrace()
   var message = message.toString()
   (cause as? InputException)?.let {
@@ -41,26 +39,25 @@ fun Throwable.showError(
   snackbar.show()
 }
 
-fun ChallengeDetails.string(context: Context?): String {
-  return takeIf { it.date != null || it.fields.isNotEmpty() }?.let {
+fun ChallengeDetails.string(context: Context?): String =
+  takeIf { it.date != null || it.fields.isNotEmpty() }?.let {
     "Details:\n${
-    fields.joinToString(
-      "\n"
-    ) {
-      "  ${it.label} = ${it.value}"
-    }
+      fields.joinToString(
+        "\n",
+      ) {
+        "  ${it.label} = ${it.value}"
+      }
     }${
-    (
-      date?.let {
-        "\n  Date = ${
-        DateUtils.formatDateTime(
-          context,
-          it.time,
-          FORMAT_SHOW_DATE or FORMAT_SHOW_TIME
-        )
-        }"
-      } ?: ""
+      (
+        date?.let {
+          "\n  Date = ${
+            DateUtils.formatDateTime(
+              context,
+              it.time,
+              FORMAT_SHOW_DATE or FORMAT_SHOW_TIME,
+            )
+          }"
+        } ?: ""
       )
     }\n"
   } ?: ""
-}

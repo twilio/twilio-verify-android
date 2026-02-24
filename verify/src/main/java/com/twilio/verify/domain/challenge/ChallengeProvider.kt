@@ -28,14 +28,14 @@ internal interface ChallengeProvider {
     sid: String,
     factor: Factor,
     success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun update(
     challenge: Challenge,
     authPayload: String,
     success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun getAll(
@@ -45,6 +45,6 @@ internal interface ChallengeProvider {
     order: ChallengeListOrder,
     pageToken: String?,
     success: (ChallengeList) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 }

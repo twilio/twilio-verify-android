@@ -7,28 +7,39 @@ import android.security.keystore.KeyProperties
 import com.twilio.security.crypto.key.cipher.AlgorithmParametersSpec
 import com.twilio.security.crypto.key.cipher.EncryptedData
 import com.twilio.security.crypto.key.template.ECP256SignerTemplate
+import com.twilio.security.crypto.mocks.cipher.ALGORITHM_PARAMETERS_MOCK_NAME
+import com.twilio.security.crypto.mocks.cipher.CIPHER_MOCK_NAME
 import com.twilio.security.crypto.mocks.cipher.CipherMockInput
 import com.twilio.security.crypto.mocks.cipher.CipherMockOutput
-import com.twilio.security.crypto.mocks.cipher.algorithmParametersMockName
 import com.twilio.security.crypto.mocks.cipher.cipherMockInput
-import com.twilio.security.crypto.mocks.cipher.cipherMockName
 import com.twilio.security.crypto.mocks.cipher.cipherMockOutput
+import com.twilio.security.crypto.mocks.keystore.KEY_STORE_MOCK_NAME
 import com.twilio.security.crypto.mocks.keystore.KeyStoreMockInput
 import com.twilio.security.crypto.mocks.keystore.KeyStoreMockOutput
 import com.twilio.security.crypto.mocks.keystore.addProvider
-import com.twilio.security.crypto.mocks.keystore.generator.keyGeneratorMockName
-import com.twilio.security.crypto.mocks.keystore.generator.keyPairGeneratorMockName
+import com.twilio.security.crypto.mocks.keystore.generator.KEY_GENERATOR_MOCK_NAME
+import com.twilio.security.crypto.mocks.keystore.generator.KEY_PAIR_GENERATOR_MOCK_NAME
 import com.twilio.security.crypto.mocks.keystore.keyStoreMockInput
-import com.twilio.security.crypto.mocks.keystore.keyStoreMockName
 import com.twilio.security.crypto.mocks.keystore.keyStoreMockOutput
 import com.twilio.security.crypto.mocks.keystore.setProviderAsVerified
+import com.twilio.security.crypto.mocks.signature.SIGNATURE_MOCK_NAME
 import com.twilio.security.crypto.mocks.signature.SignatureMockInput
 import com.twilio.security.crypto.mocks.signature.SignatureMockOutput
 import com.twilio.security.crypto.mocks.signature.signatureMockInput
-import com.twilio.security.crypto.mocks.signature.signatureMockName
 import com.twilio.security.crypto.mocks.signature.signatureMockOutput
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.ExpectedException
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.security.AlgorithmParameters
 import java.security.Key
 import java.security.KeyPair
@@ -43,21 +54,9 @@ import java.util.concurrent.TimeUnit
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import kotlin.random.Random.Default.nextBytes
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.ExpectedException
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class AndroidKeyStoreTest {
-
   private lateinit var key: Key
   private lateinit var publicKey: PublicKey
   private lateinit var privateKey: PrivateKey
@@ -73,18 +72,21 @@ class AndroidKeyStoreTest {
 
   @Before
   fun setup() {
-    provider = object : Provider(
-      providerName, 1.0, "Fake KeyStore which is used for Robolectric tests"
-    ) {
-      init {
-        put("KeyStore.$providerName", keyStoreMockName)
-        put("KeyPairGenerator.${KeyProperties.KEY_ALGORITHM_EC}", keyPairGeneratorMockName)
-        put("KeyGenerator.${KeyProperties.KEY_ALGORITHM_AES}", keyGeneratorMockName)
-        put("Signature.$signatureAlgorithm", signatureMockName)
-        put("Cipher.$cipherAlgorithm", cipherMockName)
-        put("AlgorithmParameters.$cipherAlgorithm", algorithmParametersMockName)
+    provider =
+      object : Provider(
+        providerName,
+        1.0,
+        "Fake KeyStore which is used for Robolectric tests",
+      ) {
+        init {
+          put("KeyStore.$providerName", KEY_STORE_MOCK_NAME)
+          put("KeyPairGenerator.${KeyProperties.KEY_ALGORITHM_EC}", KEY_PAIR_GENERATOR_MOCK_NAME)
+          put("KeyGenerator.${KeyProperties.KEY_ALGORITHM_AES}", KEY_GENERATOR_MOCK_NAME)
+          put("Signature.$signatureAlgorithm", SIGNATURE_MOCK_NAME)
+          put("Cipher.$cipherAlgorithm", CIPHER_MOCK_NAME)
+          put("AlgorithmParameters.$cipherAlgorithm", ALGORITHM_PARAMETERS_MOCK_NAME)
+        }
       }
-    }
     setProviderAsVerified(provider)
     addProvider(provider)
     keyStoreMockOutput = KeyStoreMockOutput()
@@ -94,8 +96,9 @@ class AndroidKeyStoreTest {
     cipherMockOutput = CipherMockOutput()
     androidKeyStore =
       AndroidKeyStore(
-        KeyStore.getInstance(providerName)
-          .apply { load(null) }
+        KeyStore
+          .getInstance(providerName)
+          .apply { load(null) },
       )
     val keyPair: KeyPair = mockk()
     privateKey = mockk()
@@ -122,15 +125,19 @@ class AndroidKeyStoreTest {
     every { publicKey.encoded }.returns(encoded)
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = false, key = expectedKeyPair, newKey = expectedKeyPair
+        containsAlias = false,
+        key = expectedKeyPair,
+        newKey = expectedKeyPair,
       )
     val keyPair = androidKeyStore.createKeyPair(algorithm, mockk())
     assertTrue(keyStoreMockOutput.generatedKeyPair)
     assertEquals(
-      (keyStoreMockInput.key as? KeyPair)?.public, keyPair!!.public
+      (keyStoreMockInput.key as? KeyPair)?.public,
+      keyPair!!.public,
     )
     assertEquals(
-      (keyStoreMockInput.key as? KeyPair)?.private, keyPair.private
+      (keyStoreMockInput.key as? KeyPair)?.private,
+      keyPair.private,
     )
   }
 
@@ -144,15 +151,18 @@ class AndroidKeyStoreTest {
     every { expectedKeyPair.private }.returns(privateKey)
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = true, key = expectedKeyPair
+        containsAlias = true,
+        key = expectedKeyPair,
       )
     val keyPair = androidKeyStore.getKeyPair(alias)
     assertFalse(keyStoreMockOutput.generatedKeyPair)
     assertEquals(
-      (keyStoreMockInput.key as? KeyPair)!!.public, keyPair!!.public
+      (keyStoreMockInput.key as? KeyPair)!!.public,
+      keyPair!!.public,
     )
     assertEquals(
-      (keyStoreMockInput.key as? KeyPair)!!.private, keyPair.private
+      (keyStoreMockInput.key as? KeyPair)!!.private,
+      keyPair.private,
     )
   }
 
@@ -161,7 +171,8 @@ class AndroidKeyStoreTest {
     val alias = "test"
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = true, key = null
+        containsAlias = true,
+        key = null,
       )
     assertTrue(androidKeyStore.contains(alias))
     assertNull(androidKeyStore.getKeyPair(alias))
@@ -175,7 +186,9 @@ class AndroidKeyStoreTest {
     every { template.alias }.returns(alias)
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = true, key = null, error = error
+        containsAlias = true,
+        key = null,
+        error = error,
       )
     exceptionRule.expect(RuntimeException::class.java)
     androidKeyStore.getKeyPair(alias)
@@ -187,7 +200,9 @@ class AndroidKeyStoreTest {
     val expectedKey: SecretKey = mockk()
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = false, key = expectedKey, newKey = expectedKey
+        containsAlias = false,
+        key = expectedKey,
+        newKey = expectedKey,
       )
     val key = androidKeyStore.createKey(algorithm, mockk())
     assertTrue(keyStoreMockOutput.generatedKeyPair)
@@ -199,7 +214,8 @@ class AndroidKeyStoreTest {
     val alias = "test"
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = true, key = mockk<SecretKey>()
+        containsAlias = true,
+        key = mockk<SecretKey>(),
       )
     val key = androidKeyStore.getSecretKey(alias)
     assertFalse(keyStoreMockOutput.generatedKeyPair)
@@ -211,7 +227,9 @@ class AndroidKeyStoreTest {
     val alias = "test"
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = true, key = mockk<SecretKey>(), returnKey = false
+        containsAlias = true,
+        key = mockk<SecretKey>(),
+        returnKey = false,
       )
     val key = androidKeyStore.getSecretKey(alias)
     assertFalse(keyStoreMockOutput.generatedKeyPair)
@@ -223,7 +241,9 @@ class AndroidKeyStoreTest {
     val alias = "test"
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = true, key = mockk<Key>(), returnKey = false
+        containsAlias = true,
+        key = mockk<Key>(),
+        returnKey = false,
       )
     exceptionRule.expect(IllegalStateException::class.java)
     androidKeyStore.getSecretKey(alias)
@@ -244,7 +264,10 @@ class AndroidKeyStoreTest {
     every { publicKey.encoded }.returns(encoded)
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = false, key = expectedKeyPair, newKey = expectedKeyPair, delay = delay
+        containsAlias = false,
+        key = expectedKeyPair,
+        newKey = expectedKeyPair,
+        delay = delay,
       )
     for (i in 0..numThreads) {
       executor.submit {
@@ -256,7 +279,7 @@ class AndroidKeyStoreTest {
     for (i in 0 until numThreads - 1) {
       assertTrue(
         keyStoreMockOutput.keyPairGenerationTimes[i + 1] - keyStoreMockOutput.keyPairGenerationTimes[i] >=
-          TimeUnit.SECONDS.toMillis(delay.toLong())
+          TimeUnit.SECONDS.toMillis(delay.toLong()),
       )
     }
   }
@@ -266,7 +289,8 @@ class AndroidKeyStoreTest {
     val alias = "test"
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = true, key = mockk<KeyPair>()
+        containsAlias = true,
+        key = mockk<KeyPair>(),
       )
     androidKeyStore.deleteEntry(alias)
     assertEquals(alias, keyStoreMockOutput.deletedAlias)
@@ -278,8 +302,9 @@ class AndroidKeyStoreTest {
     val error: RuntimeException = mockk()
     keyStoreMockInput =
       KeyStoreMockInput(
-        containsAlias = true, key = mockk<KeyPair>(),
-        error = error
+        containsAlias = true,
+        key = mockk<KeyPair>(),
+        error = error,
       )
     exceptionRule.expect(RuntimeException::class.java)
     androidKeyStore.deleteEntry(alias)
@@ -295,8 +320,9 @@ class AndroidKeyStoreTest {
     assertTrue(signatureMockOutput.initialized)
     assertTrue(data.contentEquals(signatureMockOutput.updatedData!!))
     assertTrue(
-      expectedSignature.toByteArray()
-        .contentEquals(signature)
+      expectedSignature
+        .toByteArray()
+        .contentEquals(signature),
     )
   }
 
@@ -319,7 +345,7 @@ class AndroidKeyStoreTest {
     for (i in 0 until numThreads - 1) {
       assertTrue(
         signatureMockOutput.signatureTimes[i + 1] - signatureMockOutput.signatureTimes[i] >=
-          TimeUnit.SECONDS.toMillis(delay.toLong())
+          TimeUnit.SECONDS.toMillis(delay.toLong()),
       )
     }
   }
@@ -360,21 +386,25 @@ class AndroidKeyStoreTest {
   fun `Encrypt data using algorithm should return encrypted`() {
     val data = "test".toByteArray()
     val encrypted = "encrypted"
-    val provider: Provider = mockk {
-      every { name }.returns(providerName)
-    }
-    val algorithmParameters: AlgorithmParameters = mockk {
-      every { encoded }.returns(nextBytes(5))
-      every { algorithm }.returns(cipherAlgorithm)
-      every { getProvider() }.returns(provider)
-    }
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded, algorithmParameters.provider.name,
-        algorithmParameters.algorithm
-      ),
-      encrypted.toByteArray()
-    )
+    val provider: Provider =
+      mockk {
+        every { name }.returns(providerName)
+      }
+    val algorithmParameters: AlgorithmParameters =
+      mockk {
+        every { encoded }.returns(nextBytes(5))
+        every { algorithm }.returns(cipherAlgorithm)
+        every { getProvider() }.returns(provider)
+      }
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          algorithmParameters.provider.name,
+          algorithmParameters.algorithm,
+        ),
+        encrypted.toByteArray(),
+      )
     cipherMockInput.encrypted = encrypted
     cipherMockInput.algorithmParameters = algorithmParameters
     val encryptedData = androidKeyStore.encrypt(data, cipherAlgorithm, key)
@@ -387,25 +417,30 @@ class AndroidKeyStoreTest {
   fun `Encrypt data using cipher object should return encrypted`() {
     val data = "test".toByteArray()
     val encrypted = "encrypted"
-    val provider: Provider = mockk(relaxed = true) {
-      every { name }.returns(providerName)
-    }
-    val algorithmParameters: AlgorithmParameters = mockk(relaxed = true) {
-      every { encoded }.returns(nextBytes(5))
-      every { algorithm }.returns(cipherAlgorithm)
-      every { getProvider() }.returns(provider)
-    }
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded, algorithmParameters.provider.name,
-        algorithmParameters.algorithm
-      ),
-      encrypted.toByteArray()
-    )
-    val cipherObject: Cipher = mockk(relaxed = true) {
-      every { parameters }.returns(algorithmParameters)
-      every { doFinal(data) }.returns(encrypted.toByteArray())
-    }
+    val provider: Provider =
+      mockk(relaxed = true) {
+        every { name }.returns(providerName)
+      }
+    val algorithmParameters: AlgorithmParameters =
+      mockk(relaxed = true) {
+        every { encoded }.returns(nextBytes(5))
+        every { algorithm }.returns(cipherAlgorithm)
+        every { getProvider() }.returns(provider)
+      }
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          algorithmParameters.provider.name,
+          algorithmParameters.algorithm,
+        ),
+        encrypted.toByteArray(),
+      )
+    val cipherObject: Cipher =
+      mockk(relaxed = true) {
+        every { parameters }.returns(algorithmParameters)
+        every { doFinal(data) }.returns(encrypted.toByteArray())
+      }
     val encryptedData = androidKeyStore.encrypt(data, cipherObject)
     assertEquals(expectedEncryptedData, encryptedData)
   }
@@ -414,14 +449,16 @@ class AndroidKeyStoreTest {
   fun `Synchronized encryption`() {
     val data = "test".toByteArray()
     val encrypted = "encrypted"
-    val provider: Provider = mockk {
-      every { name }.returns(providerName)
-    }
-    val algorithmParameters: AlgorithmParameters = mockk {
-      every { encoded }.returns(nextBytes(5))
-      every { algorithm }.returns(cipherAlgorithm)
-      every { getProvider() }.returns(provider)
-    }
+    val provider: Provider =
+      mockk {
+        every { name }.returns(providerName)
+      }
+    val algorithmParameters: AlgorithmParameters =
+      mockk {
+        every { encoded }.returns(nextBytes(5))
+        every { algorithm }.returns(cipherAlgorithm)
+        every { getProvider() }.returns(provider)
+      }
     val delay = 2
     val numThreads = 3
     val executor: ExecutorService = Executors.newFixedThreadPool(numThreads)
@@ -438,7 +475,7 @@ class AndroidKeyStoreTest {
     for (i in 0 until numThreads - 1) {
       assertTrue(
         cipherMockOutput.encryptionTimes[i + 1] - cipherMockOutput.encryptionTimes[i] >=
-          TimeUnit.SECONDS.toMillis(delay.toLong())
+          TimeUnit.SECONDS.toMillis(delay.toLong()),
       )
     }
   }
@@ -456,29 +493,34 @@ class AndroidKeyStoreTest {
   fun `Decrypt data using algorithm should return decrypted`() {
     val data = "test"
     val encrypted = "encrypted"
-    val provider: Provider = mockk {
-      every { name }.returns(providerName)
-    }
-    val algorithmParameters: AlgorithmParameters = mockk {
-      every { encoded }.returns(nextBytes(5))
-      every { algorithm }.returns(cipherAlgorithm)
-      every { getProvider() }.returns(provider)
-    }
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded, algorithmParameters.provider.name,
-        algorithmParameters.algorithm
-      ),
-      encrypted.toByteArray()
-    )
+    val provider: Provider =
+      mockk {
+        every { name }.returns(providerName)
+      }
+    val algorithmParameters: AlgorithmParameters =
+      mockk {
+        every { encoded }.returns(nextBytes(5))
+        every { algorithm }.returns(cipherAlgorithm)
+        every { getProvider() }.returns(provider)
+      }
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          algorithmParameters.provider.name,
+          algorithmParameters.algorithm,
+        ),
+        encrypted.toByteArray(),
+      )
     cipherMockInput.decrypted = data
     cipherMockInput.algorithmParameters = algorithmParameters
     val decrypted = androidKeyStore.decrypt(expectedEncryptedData, cipherAlgorithm, key)
     assertEquals(key, cipherMockOutput.secretKey)
     assertTrue(cipherMockOutput.cipherInitialized)
     assertTrue(
-      data.toByteArray()
-        .contentEquals(decrypted)
+      data
+        .toByteArray()
+        .contentEquals(decrypted),
     )
   }
 
@@ -486,30 +528,36 @@ class AndroidKeyStoreTest {
   fun `Decrypt data using cipher object should return decrypted`() {
     val data = "test"
     val encrypted = "encrypted"
-    val provider: Provider = mockk(relaxed = true) {
-      every { name }.returns(providerName)
-    }
-    val algorithmParameters: AlgorithmParameters = mockk(relaxed = true) {
-      every { encoded }.returns(nextBytes(5))
-      every { algorithm }.returns(cipherAlgorithm)
-      every { getProvider() }.returns(provider)
-    }
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded, algorithmParameters.provider.name,
-        algorithmParameters.algorithm
-      ),
-      encrypted.toByteArray()
-    )
-    val cipherObject: Cipher = mockk(relaxed = true) {
-      every { doFinal(encrypted.toByteArray()) }.returns(data.toByteArray())
-    }
+    val provider: Provider =
+      mockk(relaxed = true) {
+        every { name }.returns(providerName)
+      }
+    val algorithmParameters: AlgorithmParameters =
+      mockk(relaxed = true) {
+        every { encoded }.returns(nextBytes(5))
+        every { algorithm }.returns(cipherAlgorithm)
+        every { getProvider() }.returns(provider)
+      }
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          algorithmParameters.provider.name,
+          algorithmParameters.algorithm,
+        ),
+        encrypted.toByteArray(),
+      )
+    val cipherObject: Cipher =
+      mockk(relaxed = true) {
+        every { doFinal(encrypted.toByteArray()) }.returns(data.toByteArray())
+      }
     cipherMockInput.decrypted = data
     cipherMockInput.algorithmParameters = algorithmParameters
     val decrypted = androidKeyStore.decrypt(expectedEncryptedData, cipherObject)
     assertTrue(
-      data.toByteArray()
-        .contentEquals(decrypted)
+      data
+        .toByteArray()
+        .contentEquals(decrypted),
     )
   }
 
@@ -517,50 +565,59 @@ class AndroidKeyStoreTest {
   fun `Decrypt data using algorithm and invalid provider should return encrypted`() {
     val data = "test"
     val encrypted = "encrypted"
-    val provider: Provider = mockk {
-      every { name }.returns(providerName)
-    }
-    val algorithmParameters: AlgorithmParameters = mockk {
-      every { encoded }.returns(nextBytes(5))
-      every { algorithm }.returns(cipherAlgorithm)
-      every { getProvider() }.returns(provider)
-    }
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded, "",
-        algorithmParameters.algorithm
-      ),
-      encrypted.toByteArray()
-    )
+    val provider: Provider =
+      mockk {
+        every { name }.returns(providerName)
+      }
+    val algorithmParameters: AlgorithmParameters =
+      mockk {
+        every { encoded }.returns(nextBytes(5))
+        every { algorithm }.returns(cipherAlgorithm)
+        every { getProvider() }.returns(provider)
+      }
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          "",
+          algorithmParameters.algorithm,
+        ),
+        encrypted.toByteArray(),
+      )
     cipherMockInput.decrypted = data
     cipherMockInput.algorithmParameters = algorithmParameters
     val decrypted = androidKeyStore.decrypt(expectedEncryptedData, cipherAlgorithm, key)
     assertEquals(key, cipherMockOutput.secretKey)
     assertTrue(cipherMockOutput.cipherInitialized)
     assertTrue(
-      data.toByteArray()
-        .contentEquals(decrypted)
+      data
+        .toByteArray()
+        .contentEquals(decrypted),
     )
   }
 
   @Test
   fun `Error decrypting data should throw exception`() {
     val encrypted = "encrypted"
-    val provider: Provider = mockk {
-      every { name }.returns(providerName)
-    }
-    val algorithmParameters: AlgorithmParameters = mockk {
-      every { encoded }.returns(nextBytes(5))
-      every { algorithm }.returns(cipherAlgorithm)
-      every { getProvider() }.returns(provider)
-    }
-    val expectedEncryptedData = EncryptedData(
-      AlgorithmParametersSpec(
-        algorithmParameters.encoded, algorithmParameters.provider.name,
-        algorithmParameters.algorithm
-      ),
-      encrypted.toByteArray()
-    )
+    val provider: Provider =
+      mockk {
+        every { name }.returns(providerName)
+      }
+    val algorithmParameters: AlgorithmParameters =
+      mockk {
+        every { encoded }.returns(nextBytes(5))
+        every { algorithm }.returns(cipherAlgorithm)
+        every { getProvider() }.returns(provider)
+      }
+    val expectedEncryptedData =
+      EncryptedData(
+        AlgorithmParametersSpec(
+          algorithmParameters.encoded,
+          algorithmParameters.provider.name,
+          algorithmParameters.algorithm,
+        ),
+        encrypted.toByteArray(),
+      )
     val error: RuntimeException = mockk()
     cipherMockInput.error = error
     exceptionRule.expect(RuntimeException::class.java)

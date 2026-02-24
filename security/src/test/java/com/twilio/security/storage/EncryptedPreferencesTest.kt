@@ -10,7 +10,6 @@ import com.twilio.security.storage.key.EncryptionSecretKey
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlin.reflect.KClass
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -20,10 +19,10 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.reflect.KClass
 
 @RunWith(RobolectricTestRunner::class)
 class EncryptedPreferencesTest {
-
   @get:Rule
   val exceptionRule: ExpectedException = ExpectedException.none()
 
@@ -53,7 +52,8 @@ class EncryptedPreferencesTest {
 
     verify {
       editor.putString(
-        generateKeyDigest(key), Base64.encodeToString(value.toByteArray(), Base64.DEFAULT)
+        generateKeyDigest(key),
+        Base64.encodeToString(value.toByteArray(), Base64.DEFAULT),
       )
       editor.commit()
     }
@@ -73,8 +73,8 @@ class EncryptedPreferencesTest {
     exceptionRule.expect(StorageException::class.java)
     exceptionRule.expectCause(
       instanceOf<Throwable>(
-        RuntimeException::class.java
-      )
+        RuntimeException::class.java,
+      ),
     )
     encryptedPreferences.put(key, value)
   }
@@ -121,8 +121,8 @@ class EncryptedPreferencesTest {
     exceptionRule.expect(StorageException::class.java)
     exceptionRule.expectCause(
       instanceOf<Throwable>(
-        IllegalArgumentException::class.java
-      )
+        IllegalArgumentException::class.java,
+      ),
     )
     encryptedPreferences.get(key, String::class)
   }
@@ -139,8 +139,8 @@ class EncryptedPreferencesTest {
     exceptionRule.expect(StorageException::class.java)
     exceptionRule.expectCause(
       instanceOf<Throwable>(
-        IllegalArgumentException::class.java
-      )
+        IllegalArgumentException::class.java,
+      ),
     )
     encryptedPreferences.get(key, Int::class)
   }
@@ -159,11 +159,12 @@ class EncryptedPreferencesTest {
     val originalValue3 = "value3"
     val rawValue3 = getSerializedValue(originalValue3, String::class)
 
-    val entries = mapOf(
-      key1 to Base64.encodeToString(rawValue1, Base64.DEFAULT),
-      key2 to Base64.encodeToString(rawValue2, Base64.DEFAULT),
-      key3 to Base64.encodeToString(rawValue3, Base64.DEFAULT)
-    )
+    val entries =
+      mapOf(
+        key1 to Base64.encodeToString(rawValue1, Base64.DEFAULT),
+        key2 to Base64.encodeToString(rawValue2, Base64.DEFAULT),
+        key3 to Base64.encodeToString(rawValue3, Base64.DEFAULT),
+      )
 
     every { preferences.all } returns entries.toMutableMap()
     entries.forEach { (key, value) ->
@@ -221,17 +222,19 @@ class EncryptedPreferencesTest {
 
   private fun <T : Any> getSerializedValue(
     originalValue: Any,
-    kClass: KClass<T>
+    kClass: KClass<T>,
   ): ByteArray {
     val value = if (kClass.isAssignableFrom(originalValue::class)) originalValue as? T else null
     every {
       serializer.fromByteArray(
-        originalValue.toString()
+        originalValue
+          .toString()
           .toByteArray(),
-        kClass
+        kClass,
       )
     }.returns(value)
-    return originalValue.toString()
+    return originalValue
+      .toString()
       .toByteArray()
   }
 }

@@ -21,5 +21,5 @@ enum class Level {
   Info,
   Networking,
   Debug,
-  All
+  All,
 }

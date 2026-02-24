@@ -26,41 +26,42 @@ import com.twilio.security.logger.Logger
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.TwilioVerifyException.ErrorCode.KeyStorageError
 
-internal const val provider = "AndroidKeyStore"
+internal const val PROVIDER = "AndroidKeyStore"
 
-internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
-  KeyStorage {
-  override fun create(alias: String): String {
-    return try {
+internal class KeyStoreAdapter(
+  private val manager: KeyManager = keyManager(),
+) : KeyStorage {
+  override fun create(alias: String): String =
+    try {
       encodeToBase64UTF8String(
-        manager.signer(getSignerTemplate(alias, false))
+        manager
+          .signer(getSignerTemplate(alias, false))
           .getPublic(),
-        NO_WRAP
+        NO_WRAP,
       )
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
-  }
 
   override fun sign(
     alias: String,
-    message: String
-  ): ByteArray {
-    return try {
-      manager.signer(getSignerTemplate(alias))
+    message: String,
+  ): ByteArray =
+    try {
+      manager
+        .signer(getSignerTemplate(alias))
         .sign(message.toByteArray())
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
-  }
 
   override fun signAndEncode(
     alias: String,
-    message: String
-  ): String {
-    return try {
+    message: String,
+  ): String =
+    try {
       encodeToBase64UTF8String(sign(alias, message), NO_WRAP)
     } catch (e: TwilioVerifyException) {
       throw e
@@ -68,7 +69,6 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
       Logger.log(Level.Error, e.toString(), e)
       throw TwilioVerifyException(e, KeyStorageError)
     }
-  }
 
   override fun delete(alias: String) {
     try {
@@ -82,5 +82,5 @@ internal class KeyStoreAdapter(private val manager: KeyManager = keyManager()) :
 
 internal fun getSignerTemplate(
   alias: String,
-  shouldExist: Boolean = true
+  shouldExist: Boolean = true,
 ): SignerTemplate = ECP256SignerTemplate(alias, shouldExist = shouldExist, authenticationRequired = false)

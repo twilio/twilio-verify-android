@@ -9,7 +9,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class LoggerServiceTest {
-
   @Test
   fun `Setting log level returns correct level`() {
     val logLevel = LogLevel.Info
@@ -27,12 +26,13 @@ class LoggerServiceTest {
   }
 }
 
-class TestLoggerService(override val logLevel: LogLevel) : LoggerService {
-
+class TestLoggerService(
+  override val logLevel: LogLevel,
+) : LoggerService {
   override fun log(
     logLevel: LogLevel,
     message: String,
-    throwable: Throwable?
+    throwable: Throwable?,
   ) {
   }
 }

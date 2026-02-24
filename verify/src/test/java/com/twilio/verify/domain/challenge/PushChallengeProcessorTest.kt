@@ -40,7 +40,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class PushChallengeProcessorTest {
-
   private val challengeProvider: ChallengeProvider = mock()
   private val jwtGenerator: JwtGenerator = mock()
   private val pushChallengeProcessor = PushChallengeProcessor(challengeProvider, jwtGenerator)
@@ -58,7 +57,8 @@ class PushChallengeProcessorTest {
       }
     }
     pushChallengeProcessor.get(
-      sid, factor,
+      sid,
+      factor,
       { challenge ->
         assertEquals(expectedChallenge, challenge)
         idlingResource.operationFinished()
@@ -66,7 +66,7 @@ class PushChallengeProcessorTest {
       { exception ->
         fail(exception.message)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -83,7 +83,8 @@ class PushChallengeProcessorTest {
       }
     }
     pushChallengeProcessor.get(
-      sid, factor,
+      sid,
+      factor,
       {
         fail()
         idlingResource.operationFinished()
@@ -91,7 +92,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -101,17 +102,27 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
-      response.keys()
-        .asSequence()
-        .toList(),
-      response
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        null,
+        factorSid,
+        Pending,
+        mock(),
+        mock(),
+        mock(),
+        response
+          .keys()
+          .asSequence()
+          .toList(),
+        response,
+      ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
     val verifyJwt = "verifyJwt"
@@ -127,8 +138,8 @@ class PushChallengeProcessorTest {
           eq(challenge),
           eq(verifyJwt),
           capture(),
-          any()
-        )
+          any(),
+        ),
       ).then {
         firstValue.invoke(updatedChallenge)
       }
@@ -138,14 +149,16 @@ class PushChallengeProcessorTest {
     whenever(updatedChallenge.status).thenReturn(status)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, status,
+      sid,
+      factor,
+      status,
       {
         idlingResource.operationFinished()
       },
       { exception ->
         fail(exception.message)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -161,18 +174,28 @@ class PushChallengeProcessorTest {
     val newStatus = Denied
     val status = Pending
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-      put(hiddenDetailsKey, hiddenDetails)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), hiddenDetails, factorSid, status, mock(), mock(), mock(),
-      response.keys()
-        .asSequence()
-        .toList(),
-      response
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+        put(HIDDEN_DETAILS_KEY, hiddenDetails)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        hiddenDetails,
+        factorSid,
+        status,
+        mock(),
+        mock(),
+        mock(),
+        response
+          .keys()
+          .asSequence()
+          .toList(),
+        response,
+      ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
     val verifyJwt = "verifyJwt"
@@ -191,8 +214,8 @@ class PushChallengeProcessorTest {
           eq(challenge),
           eq(verifyJwt),
           capture(),
-          any()
-        )
+          any(),
+        ),
       ).then {
         firstValue.invoke(updatedChallenge)
       }
@@ -202,20 +225,23 @@ class PushChallengeProcessorTest {
     whenever(updatedChallenge.status).thenReturn(newStatus)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, newStatus,
+      sid,
+      factor,
+      newStatus,
       {
         verify(jwtGenerator).generateJWT(
           check {
             assertEquals(alias, it.alias)
           },
-          any(), any()
+          any(),
+          any(),
         )
         idlingResource.operationFinished()
       },
       { exception ->
         fail(exception.message)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -234,7 +260,9 @@ class PushChallengeProcessorTest {
     }
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -242,7 +270,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is InvalidChallengeException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -261,7 +289,9 @@ class PushChallengeProcessorTest {
     }
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, pushFactor, Approved,
+      sid,
+      pushFactor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -269,7 +299,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is WrongFactorException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -288,7 +318,9 @@ class PushChallengeProcessorTest {
     }
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -296,7 +328,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is ExpiredChallengeException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -316,7 +348,9 @@ class PushChallengeProcessorTest {
     whenever(factor.keyPairAlias).thenReturn("")
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -324,7 +358,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is AlreadyUpdatedChallengeException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -344,7 +378,9 @@ class PushChallengeProcessorTest {
     whenever(factor.keyPairAlias).thenReturn(null)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -352,7 +388,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is IllegalStateException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -372,7 +408,9 @@ class PushChallengeProcessorTest {
     whenever(factor.keyPairAlias).thenReturn("")
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -380,7 +418,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is IllegalStateException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -390,13 +428,23 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(), response = response
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        null,
+        factorSid,
+        Pending,
+        mock(),
+        mock(),
+        mock(),
+        response = response,
+      ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
@@ -406,7 +454,9 @@ class PushChallengeProcessorTest {
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -414,7 +464,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is SignatureFieldsException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -424,13 +474,24 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(), emptyList(), response
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        null,
+        factorSid,
+        Pending,
+        mock(),
+        mock(),
+        mock(),
+        emptyList(),
+        response,
+      ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
@@ -440,7 +501,9 @@ class PushChallengeProcessorTest {
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -448,7 +511,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is SignatureFieldsException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -458,16 +521,26 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
-      response.keys()
-        .asSequence()
-        .toList()
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        null,
+        factorSid,
+        Pending,
+        mock(),
+        mock(),
+        mock(),
+        response
+          .keys()
+          .asSequence()
+          .toList(),
+      ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
@@ -477,7 +550,9 @@ class PushChallengeProcessorTest {
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -485,7 +560,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is SignatureFieldsException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -495,17 +570,27 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
-      response.keys()
-        .asSequence()
-        .toList(),
-      JSONObject()
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        null,
+        factorSid,
+        Pending,
+        mock(),
+        mock(),
+        mock(),
+        response
+          .keys()
+          .asSequence()
+          .toList(),
+        JSONObject(),
+      ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
@@ -515,7 +600,9 @@ class PushChallengeProcessorTest {
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -523,7 +610,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is SignatureFieldsException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -533,17 +620,27 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
-      response.keys()
-        .asSequence()
-        .toList() + "test",
-      response
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        null,
+        factorSid,
+        Pending,
+        mock(),
+        mock(),
+        mock(),
+        response
+          .keys()
+          .asSequence()
+          .toList() + "test",
+        response,
+      ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
@@ -553,7 +650,9 @@ class PushChallengeProcessorTest {
     whenever(factor.keyPairAlias).thenReturn(alias)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -561,7 +660,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is JSONException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -571,17 +670,27 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
-      response.keys()
-        .asSequence()
-        .toList(),
-      response
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        null,
+        factorSid,
+        Pending,
+        mock(),
+        mock(),
+        mock(),
+        response
+          .keys()
+          .asSequence()
+          .toList(),
+        response,
+      ).apply { this.factor = factor }
     val alias = "alias"
     argumentCaptor<(Challenge) -> Unit>().apply {
       whenever(challengeProvider.get(eq(sid), eq(factor), capture(), any())).then {
@@ -590,11 +699,13 @@ class PushChallengeProcessorTest {
     }
     whenever(factor.keyPairAlias).thenReturn(alias)
     whenever(jwtGenerator.generateJWT(any(), any(), any())).thenThrow(
-      IllegalArgumentException("Invalid signature")
+      IllegalArgumentException("Invalid signature"),
     )
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, Approved,
+      sid,
+      factor,
+      Approved,
       {
         fail()
         idlingResource.operationFinished()
@@ -602,7 +713,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is IllegalArgumentException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -612,17 +723,27 @@ class PushChallengeProcessorTest {
     val sid = "sid123"
     val factorSid = "sid123"
     val factor: PushFactor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-    }
-    val challenge: FactorChallenge = FactorChallenge(
-      sid, mock(), null, factorSid, Pending, mock(), mock(), mock(),
-      response.keys()
-        .asSequence()
-        .toList(),
-      response
-    ).apply { this.factor = factor }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+      }
+    val challenge: FactorChallenge =
+      FactorChallenge(
+        sid,
+        mock(),
+        null,
+        factorSid,
+        Pending,
+        mock(),
+        mock(),
+        mock(),
+        response
+          .keys()
+          .asSequence()
+          .toList(),
+        response,
+      ).apply { this.factor = factor }
     val updatedChallenge: FactorChallenge = mock()
     val alias = "alias"
     val verifyJwt = "verifyJwt"
@@ -639,8 +760,8 @@ class PushChallengeProcessorTest {
           eq(challenge),
           eq(verifyJwt),
           capture(),
-          any()
-        )
+          any(),
+        ),
       ).then {
         firstValue.invoke(updatedChallenge)
       }
@@ -649,7 +770,9 @@ class PushChallengeProcessorTest {
     whenever(jwtGenerator.generateJWT(any(), any(), any())).thenReturn(verifyJwt)
     idlingResource.startOperation()
     pushChallengeProcessor.update(
-      sid, factor, status,
+      sid,
+      factor,
+      status,
       {
         fail()
         idlingResource.operationFinished()
@@ -657,7 +780,7 @@ class PushChallengeProcessorTest {
       { exception ->
         assertTrue(exception.cause is NotUpdatedChallengeException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }

@@ -16,4 +16,6 @@
 
 package com.twilio.verify.data
 
-internal class StorageException(message: String) : Exception(message)
+internal class StorageException(
+  message: String,
+) : Exception(message)

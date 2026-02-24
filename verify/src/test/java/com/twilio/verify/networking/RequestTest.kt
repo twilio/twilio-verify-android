@@ -4,18 +4,17 @@ package com.twilio.verify.networking
  * Copyright (c) 2020, Twilio Inc.
  */
 import androidx.test.core.app.ApplicationProvider
-import java.net.MalformedURLException
-import java.net.URL
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.net.MalformedURLException
+import java.net.URL
 
 @RunWith(RobolectricTestRunner::class)
 class RequestTest {
-
   @Test
   fun `Request should match the params that were send to the RequestBuilder, without custom headers`() {
     val httpMethod = HttpMethod.Post
@@ -25,7 +24,8 @@ class RequestTest {
     val requestHelper =
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val request =
-      Request.Builder(requestHelper, url)
+      Request
+        .Builder(requestHelper, url)
         .httpMethod(httpMethod)
         .tag(tag)
         .build()
@@ -48,7 +48,8 @@ class RequestTest {
     val requestHelper =
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val request =
-      Request.Builder(requestHelper, url)
+      Request
+        .Builder(requestHelper, url)
         .httpMethod(httpMethod)
         .headers(headers)
         .tag(tag)
@@ -74,16 +75,16 @@ class RequestTest {
     val value2 = "Authy"
     val expectedParams = "$key1=$value1&$key2=$value2"
     val request =
-      Request.Builder(requestHelper, url)
+      Request
+        .Builder(requestHelper, url)
         .httpMethod(httpMethod)
         .tag(tag)
         .body(mapOf(key1 to value1, key2 to value2))
         .headers(
           mapOf(
-            MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type
-          ).toMutableMap()
-        )
-        .build()
+            MediaTypeHeader.ContentType.type to MediaTypeValue.UrlEncoded.type,
+          ).toMutableMap(),
+        ).build()
     assertEquals(expectedParams, request.getParams())
   }
 
@@ -99,19 +100,20 @@ class RequestTest {
     val value1 = "Value"
     val key2 = "Twilio"
     val value2 = "Authy"
-    val expectedParams = JSONObject().apply {
-      put(key1, value1)
-      put(key2, value2)
-    }
+    val expectedParams =
+      JSONObject().apply {
+        put(key1, value1)
+        put(key2, value2)
+      }
     val request =
-      Request.Builder(requestHelper, url)
+      Request
+        .Builder(requestHelper, url)
         .httpMethod(httpMethod)
         .tag(tag)
         .body(mapOf(key1 to value1, key2 to value2))
         .headers(
-          mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap()
-        )
-        .build()
+          mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap(),
+        ).build()
 
     assertEquals(expectedParams.toString(), request.getParams())
   }
@@ -126,13 +128,13 @@ class RequestTest {
       RequestHelper(ApplicationProvider.getApplicationContext(), authorization)
     val expectedParams = ""
     val request =
-      Request.Builder(requestHelper, url)
+      Request
+        .Builder(requestHelper, url)
         .httpMethod(httpMethod)
         .tag(tag)
         .headers(
-          mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap()
-        )
-        .build()
+          mapOf(MediaTypeHeader.ContentType.type to MediaTypeValue.Json.type).toMutableMap(),
+        ).build()
 
     assertEquals(expectedParams, request.getParams())
   }
@@ -149,7 +151,8 @@ class RequestTest {
     val value1 = "Value"
     val key2 = "Twilio"
     val value2 = "Authy"
-    Request.Builder(requestHelper, url)
+    Request
+      .Builder(requestHelper, url)
       .httpMethod(httpMethod)
       .tag(tag)
       .body(mapOf(key1 to value1, key2 to value2))
@@ -172,7 +175,8 @@ class RequestTest {
     val value2 = "Authy"
     val expectedURl = "$url?$key1=$value1&$key2=$value2"
     val request =
-      Request.Builder(requestHelper, url)
+      Request
+        .Builder(requestHelper, url)
         .httpMethod(httpMethod)
         .tag(tag)
         .query(mapOf(key1 to value1, key2 to value2))

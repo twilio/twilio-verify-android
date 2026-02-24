@@ -25,29 +25,33 @@ import com.twilio.verify.data.encodeToBase64UTF8String
 import com.twilio.verify.domain.factor.DEFAULT_ALG
 import org.json.JSONObject
 
-internal const val typeKey = "typ"
-internal const val jwtType = "JWT"
+internal const val TYPE_KEY = "typ"
+internal const val JWT_TYPE = "JWT"
 internal const val ALGORITHM_KEY = "alg"
 internal const val FLAGS = URL_SAFE or NO_PADDING or NO_WRAP
 
-internal class JwtGenerator(private val jwtSigner: JwtSigner) {
+internal class JwtGenerator(
+  private val jwtSigner: JwtSigner,
+) {
   fun generateJWT(
     signerTemplate: SignerTemplate,
     header: JSONObject,
-    payload: JSONObject
+    payload: JSONObject,
   ): String {
-    header.put(typeKey, jwtType)
+    header.put(TYPE_KEY, JWT_TYPE)
     when (signerTemplate) {
       is ECP256SignerTemplate -> header.put(ALGORITHM_KEY, DEFAULT_ALG)
     }
     val message = "${encodeToBase64UTF8String(
-      header.toString()
+      header
+        .toString()
         .toByteArray(),
-      FLAGS
+      FLAGS,
     )}.${encodeToBase64UTF8String(
-      payload.toString()
+      payload
+        .toString()
         .toByteArray(),
-      FLAGS
+      FLAGS,
     )}"
     val signature = jwtSigner.sign(signerTemplate, message)
     return "$message.${encodeToBase64UTF8String(signature, FLAGS)}"

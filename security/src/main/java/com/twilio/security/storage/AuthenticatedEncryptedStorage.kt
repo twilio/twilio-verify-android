@@ -32,7 +32,7 @@ interface AuthenticatedEncryptedStorage {
     value: T,
     authenticator: BiometricAuthenticator,
     success: () -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   )
 
   @Throws(StorageException::class)
@@ -41,18 +41,19 @@ interface AuthenticatedEncryptedStorage {
     kClass: KClass<T>,
     authenticator: BiometricAuthenticator,
     success: (T) -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   )
 
   fun contains(key: String): Boolean
+
   fun remove(key: String)
+
   fun clear()
+
   fun recreate()
 }
 
 fun authenticatedEncryptedPreferences(
   storageAlias: String,
-  sharedPreferences: SharedPreferences
-): AuthenticatedEncryptedStorage {
-  return AuthenticatedEncryptedPreferences(sharedPreferences, storageAlias, keyManager(), DefaultSerializer())
-}
+  sharedPreferences: SharedPreferences,
+): AuthenticatedEncryptedStorage = AuthenticatedEncryptedPreferences(sharedPreferences, storageAlias, keyManager(), DefaultSerializer())

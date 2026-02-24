@@ -25,42 +25,53 @@ import com.twilio.verify.sample.model.AppModel
 import com.twilio.verify.sample.model.CreateFactorData
 import com.twilio.verify.sample.networking.backendAPIClient
 
-class FactorViewModel(private val twilioVerifyAdapter: TwilioVerifyAdapter) : ViewModel() {
+class FactorViewModel(
+  private val twilioVerifyAdapter: TwilioVerifyAdapter,
+) : ViewModel() {
   private val factor: MutableLiveData<FactorResult> = MutableLiveData()
 
   fun loadFactor(sid: String) {
     twilioVerifyAdapter.getFactors(
       { factors ->
-        factor.value = factors.firstOrNull { it.sid == sid }
+        factor.value = factors
+          .firstOrNull { it.sid == sid }
           ?.let { Factor(it) } ?: FactorError(IllegalArgumentException("Factor not found"))
       },
       {
         factor.value = FactorError(it)
-      }
+      },
     )
   }
 
-  fun getFactor(): LiveData<FactorResult> {
-    return factor
-  }
+  fun getFactor(): LiveData<FactorResult> = factor
 
   fun createFactor(createFactorData: CreateFactorData) {
     twilioVerifyAdapter.createFactor(
-      createFactorData, backendAPIClient(createFactorData.accessTokenUrl),
+      createFactorData,
+      backendAPIClient(createFactorData.accessTokenUrl),
       {
         factor.value = Factor(it)
       },
       {
         factor.value = FactorError(it)
-      }
+      },
     )
   }
 
-  fun changeSilentApproveChallenges(sid: String, approveSilently: Boolean) {
+  fun changeSilentApproveChallenges(
+    sid: String,
+    approveSilently: Boolean,
+  ) {
     AppModel.silentlyApproveChallengesPerFactor[sid] = approveSilently
   }
 }
 
 sealed class FactorResult
-class Factor(val factor: Factor) : FactorResult()
-class FactorError(val exception: Throwable) : FactorResult()
+
+class Factor(
+  val factor: Factor,
+) : FactorResult()
+
+class FactorError(
+  val exception: Throwable,
+) : FactorResult()

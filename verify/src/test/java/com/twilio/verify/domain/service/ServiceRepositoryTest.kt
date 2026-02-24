@@ -7,10 +7,10 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.TwilioVerifyException
 import com.twilio.verify.api.ServiceAPIClient
-import com.twilio.verify.domain.challenge.createdDateKey
-import com.twilio.verify.domain.challenge.sidKey
-import com.twilio.verify.domain.challenge.updatedDateKey
-import com.twilio.verify.domain.factor.accountSidKey
+import com.twilio.verify.domain.challenge.CREATED_DATE_KEY
+import com.twilio.verify.domain.challenge.SID_KEY
+import com.twilio.verify.domain.challenge.UPDATED_DATE_KEY
+import com.twilio.verify.domain.factor.ACCOUNT_SID_KEY
 import com.twilio.verify.domain.service.models.FactorService
 import com.twilio.verify.models.Factor
 import org.json.JSONObject
@@ -27,7 +27,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class ServiceRepositoryTest {
-
   private val apiClient: ServiceAPIClient = mock()
   private val serviceMapper: ServiceMapper = mock()
   private val serviceRepository = ServiceRepository(apiClient, serviceMapper)
@@ -37,12 +36,13 @@ class ServiceRepositoryTest {
     val serviceSid = "sid123"
     val service: FactorService = mock()
     val factor: Factor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, serviceSid)
-      put(accountSidKey, "accountSid")
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-    }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, serviceSid)
+        put(ACCOUNT_SID_KEY, "accountSid")
+        put(CREATED_DATE_KEY, "2020-02-19T16:39:57-08:00")
+        put(UPDATED_DATE_KEY, "2020-02-21T18:39:57-08:00")
+      }
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.get(eq(serviceSid), any(), capture(), any())).then {
         firstValue.invoke(response)
@@ -50,13 +50,14 @@ class ServiceRepositoryTest {
     }
     whenever(serviceMapper.fromApi(response)).thenReturn(service)
     serviceRepository.get(
-      serviceSid, factor,
+      serviceSid,
+      factor,
       {
         assertEquals(service, it)
       },
       {
         fail()
-      }
+      },
     )
   }
 
@@ -71,10 +72,12 @@ class ServiceRepositoryTest {
       }
     }
     serviceRepository.get(
-      serviceSid, factor, { fail() },
+      serviceSid,
+      factor,
+      { fail() },
       { exception ->
         assertEquals(expectedException, exception)
-      }
+      },
     )
   }
 
@@ -82,12 +85,13 @@ class ServiceRepositoryTest {
   fun `Error from mapper getting a service should call error`() {
     val serviceSid = "sid123"
     val factor: Factor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, serviceSid)
-      put(accountSidKey, "accountSid")
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-    }
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, serviceSid)
+        put(ACCOUNT_SID_KEY, "accountSid")
+        put(CREATED_DATE_KEY, "2020-02-19T16:39:57-08:00")
+        put(UPDATED_DATE_KEY, "2020-02-21T18:39:57-08:00")
+      }
     val expectedException: TwilioVerifyException = mock()
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(apiClient.get(eq(serviceSid), any(), capture(), any())).then {
@@ -96,10 +100,12 @@ class ServiceRepositoryTest {
     }
     whenever(serviceMapper.fromApi(response)).thenThrow(expectedException)
     serviceRepository.get(
-      serviceSid, factor, { fail() },
+      serviceSid,
+      factor,
+      { fail() },
       { exception ->
         assertEquals(expectedException, exception)
-      }
+      },
     )
   }
 }

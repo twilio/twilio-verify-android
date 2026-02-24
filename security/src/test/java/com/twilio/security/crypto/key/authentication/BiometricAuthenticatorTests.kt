@@ -22,14 +22,14 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import java.security.Signature
-import javax.crypto.Cipher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import java.security.Signature
+import javax.crypto.Cipher
 
 @RunWith(RobolectricTestRunner::class)
 class BiometricAuthenticatorTests {
@@ -125,10 +125,11 @@ class BiometricAuthenticatorTests {
       .returns(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
     val signature: Signature = mockk()
     authenticator.startAuthentication(
-      signature, { fail() },
+      signature,
+      { fail() },
       {
         verify(exactly = 0) { biometricPromptHelper.createBiometricPrompt(any(), any()) }
-      }
+      },
     )
   }
 
@@ -141,9 +142,10 @@ class BiometricAuthenticatorTests {
 
     val authenticationCallback = slot<BiometricPrompt.AuthenticationCallback>()
     every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) }.returns(biometricPrompt)
-    val authenticationResult: BiometricPrompt.AuthenticationResult = mockk {
-      every { cryptoObject }.returns(BiometricPrompt.CryptoObject(signature))
-    }
+    val authenticationResult: BiometricPrompt.AuthenticationResult =
+      mockk {
+        every { cryptoObject }.returns(BiometricPrompt.CryptoObject(signature))
+      }
     every { biometricPrompt.authenticate(any(), any()) } answers {
       authenticationCallback.captured.onAuthenticationSucceeded(authenticationResult)
     }
@@ -154,7 +156,7 @@ class BiometricAuthenticatorTests {
       },
       {
         fail()
-      }
+      },
     )
   }
 
@@ -178,7 +180,7 @@ class BiometricAuthenticatorTests {
       { fail("Expected failure callback") },
       { exception ->
         assertEquals(exception.message, BiometricException(BiometricError.AuthenticationFailed).message)
-      }
+      },
     )
   }
 
@@ -202,7 +204,7 @@ class BiometricAuthenticatorTests {
       { fail("Expected failure callback") },
       { exception ->
         assertEquals(exception.message, BiometricException(BiometricError.HardwareUnavailable).message)
-      }
+      },
     )
   }
 
@@ -226,7 +228,7 @@ class BiometricAuthenticatorTests {
       { fail("Expected failure callback") },
       { exception ->
         assertEquals(exception.message, BiometricException(BiometricError.UnableToProcess).message)
-      }
+      },
     )
   }
 
@@ -250,7 +252,7 @@ class BiometricAuthenticatorTests {
       { fail("Expected failure callback") },
       { exception ->
         assertEquals(exception.message, BiometricException(BiometricError.Timeout).message)
-      }
+      },
     )
   }
 
@@ -274,7 +276,7 @@ class BiometricAuthenticatorTests {
       { fail("Expected failure callback") },
       { exception ->
         assertEquals(exception.message, BiometricException(BiometricError.DeviceStorage).message)
-      }
+      },
     )
   }
 
@@ -293,10 +295,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.OperationCanceled).message)
-      }
+      },
     )
   }
 
@@ -315,10 +318,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Lockout).message)
-      }
+      },
     )
   }
 
@@ -337,10 +341,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Vendor).message)
-      }
+      },
     )
   }
 
@@ -359,10 +364,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.LockoutPermanent).message)
-      }
+      },
     )
   }
 
@@ -381,10 +387,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UserCanceled).message)
-      }
+      },
     )
   }
 
@@ -403,10 +410,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoBiometricEnrolled).message)
-      }
+      },
     )
   }
 
@@ -425,10 +433,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoHardware).message)
-      }
+      },
     )
   }
 
@@ -447,10 +456,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UserCanceled).message)
-      }
+      },
     )
   }
 
@@ -469,10 +479,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoDeviceCredential).message)
-      }
+      },
     )
   }
 
@@ -491,10 +502,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      signature, { fail("Expected error callback to be invoked") },
+      signature,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.SecureUpdateRequired).message)
-      }
+      },
     )
   }
 
@@ -508,9 +520,10 @@ class BiometricAuthenticatorTests {
 
     every { biometricPromptHelper.createBiometricPrompt(eq(fragmentActivity), capture(authenticationCallback)) } returns biometricPrompt
 
-    val authenticationResult: BiometricPrompt.AuthenticationResult = mockk {
-      every { cryptoObject } returns BiometricPrompt.CryptoObject(cipher)
-    }
+    val authenticationResult: BiometricPrompt.AuthenticationResult =
+      mockk {
+        every { cryptoObject } returns BiometricPrompt.CryptoObject(cipher)
+      }
 
     every { biometricPrompt.authenticate(any(), any()) } answers {
       authenticationCallback.captured.onAuthenticationSucceeded(authenticationResult)
@@ -523,7 +536,7 @@ class BiometricAuthenticatorTests {
       },
       {
         fail("Expected success callback to be invoked")
-      }
+      },
     )
   }
 
@@ -535,10 +548,11 @@ class BiometricAuthenticatorTests {
     val cipher: Cipher = mockk()
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         verify(exactly = 0) { biometricPromptHelper.createBiometricPrompt(any(), any()) }
-      }
+      },
     )
   }
 
@@ -556,10 +570,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.AuthenticationFailed).message)
-      }
+      },
     )
   }
 
@@ -577,10 +592,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.HardwareUnavailable).message)
-      }
+      },
     )
   }
 
@@ -598,10 +614,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UnableToProcess).message)
-      }
+      },
     )
   }
 
@@ -619,10 +636,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Timeout).message)
-      }
+      },
     )
   }
 
@@ -640,10 +658,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.DeviceStorage).message)
-      }
+      },
     )
   }
 
@@ -661,10 +680,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.OperationCanceled).message)
-      }
+      },
     )
   }
 
@@ -682,10 +702,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Lockout).message)
-      }
+      },
     )
   }
 
@@ -703,10 +724,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.Vendor).message)
-      }
+      },
     )
   }
 
@@ -724,10 +746,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.LockoutPermanent).message)
-      }
+      },
     )
   }
 
@@ -745,10 +768,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UserCanceled).message)
-      }
+      },
     )
   }
 
@@ -766,10 +790,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoBiometricEnrolled).message)
-      }
+      },
     )
   }
 
@@ -787,10 +812,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoHardware).message)
-      }
+      },
     )
   }
 
@@ -808,10 +834,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.UserCanceled).message)
-      }
+      },
     )
   }
 
@@ -829,10 +856,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.NoDeviceCredential).message)
-      }
+      },
     )
   }
 
@@ -850,10 +878,11 @@ class BiometricAuthenticatorTests {
     }
 
     authenticator.startAuthentication(
-      cipher, { fail("Expected error callback to be invoked") },
+      cipher,
+      { fail("Expected error callback to be invoked") },
       {
         assertEquals(it.message, BiometricException(BiometricError.SecureUpdateRequired).message)
-      }
+      },
     )
   }
 }

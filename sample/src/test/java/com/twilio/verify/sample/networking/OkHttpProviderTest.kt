@@ -24,8 +24,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.NetworkException
 import com.twilio.verify.networking.Request
-import java.io.IOException
-import java.net.URL
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Headers
@@ -39,6 +37,8 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.IOException
+import java.net.URL
 
 @RunWith(RobolectricTestRunner::class)
 class OkHttpProviderTest {
@@ -48,16 +48,18 @@ class OkHttpProviderTest {
   @Test
   fun `Execute request with success response should call success`() {
     val mockUrl = URL("https://twilio.com")
-    val request: Request = mock {
-      on { url } doReturn mockUrl
-      on { httpMethod } doReturn Post
-    }
+    val request: Request =
+      mock {
+        on { url } doReturn mockUrl
+        on { httpMethod } doReturn Post
+      }
     val call: Call = mock()
     whenever(okHttpClient.newCall(any())).thenReturn(call)
     val bodyJson = JSONObject()
-    val responseBody: ResponseBody = mock {
-      on { string() } doReturn bodyJson.toString()
-    }
+    val responseBody: ResponseBody =
+      mock {
+        on { string() } doReturn bodyJson.toString()
+      }
     val expectedHeaders = mapOf("header" to listOf("value"))
     val headersBuilder = Headers.Builder()
     expectedHeaders.forEach { header ->
@@ -66,21 +68,23 @@ class OkHttpProviderTest {
       }
     }
 
-    val httpUrl = mock<HttpUrl> {
-      on { toUrl() } doReturn mockUrl
-    }
-    val response = Response.Builder()
-      .body(responseBody)
-      .headers(headersBuilder.build())
-      .message("message")
-      .code(200)
-      .protocol(mock())
-      .request(
-        mock {
-          on { url } doReturn httpUrl
-        }
-      )
-      .build()
+    val httpUrl =
+      mock<HttpUrl> {
+        on { toUrl() } doReturn mockUrl
+      }
+    val response =
+      Response
+        .Builder()
+        .body(responseBody)
+        .headers(headersBuilder.build())
+        .message("message")
+        .code(200)
+        .protocol(mock())
+        .request(
+          mock {
+            on { url } doReturn httpUrl
+          },
+        ).build()
     argumentCaptor<(Callback)>().apply {
       whenever(call.enqueue(capture())).then {
         lastValue.onResponse(call, response)
@@ -94,38 +98,42 @@ class OkHttpProviderTest {
       },
       error = {
         fail()
-      }
+      },
     )
   }
 
   @Test
   fun `Execute request with success response but with invalid response code should call error`() {
     val mockUrl = URL("https://twilio.com")
-    val request: Request = mock {
-      on { url } doReturn mockUrl
-      on { httpMethod } doReturn Post
-    }
+    val request: Request =
+      mock {
+        on { url } doReturn mockUrl
+        on { httpMethod } doReturn Post
+      }
     val call: Call = mock()
     whenever(okHttpClient.newCall(any())).thenReturn(call)
     val bodyJson = JSONObject()
-    val responseBody: ResponseBody = mock() {
-      on { string() } doReturn bodyJson.toString()
-    }
+    val responseBody: ResponseBody =
+      mock {
+        on { string() } doReturn bodyJson.toString()
+      }
 
-    val httpUrl = mock<HttpUrl> {
-      on { toUrl() } doReturn mockUrl
-    }
-    val response = Response.Builder()
-      .body(responseBody)
-      .message("message")
-      .code(400)
-      .protocol(mock())
-      .request(
-        mock {
-          on { url } doReturn httpUrl
-        }
-      )
-      .build()
+    val httpUrl =
+      mock<HttpUrl> {
+        on { toUrl() } doReturn mockUrl
+      }
+    val response =
+      Response
+        .Builder()
+        .body(responseBody)
+        .message("message")
+        .code(400)
+        .protocol(mock())
+        .request(
+          mock {
+            on { url } doReturn httpUrl
+          },
+        ).build()
     argumentCaptor<(Callback)>().apply {
       whenever(call.enqueue(capture())).then {
         lastValue.onResponse(call, response)
@@ -138,16 +146,17 @@ class OkHttpProviderTest {
       },
       error = {
         assertEquals(NetworkException::class, it::class)
-      }
+      },
     )
   }
 
   @Test
   fun `Execute request with failure response should call error`() {
-    val request: Request = mock() {
-      on { url } doReturn URL("https://twilio.com")
-      on { httpMethod } doReturn Post
-    }
+    val request: Request =
+      mock {
+        on { url } doReturn URL("https://twilio.com")
+        on { httpMethod } doReturn Post
+      }
     val call: Call = mock()
     whenever(okHttpClient.newCall(any())).thenReturn(call)
     val expectedException: IOException = mock()
@@ -163,7 +172,7 @@ class OkHttpProviderTest {
       },
       error = {
         assertEquals(expectedException, it.cause)
-      }
+      },
     )
   }
 }

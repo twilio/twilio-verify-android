@@ -12,11 +12,6 @@ import com.twilio.security.crypto.key.template.ECP256SignerTemplate
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.security.KeyPair
-import java.security.PrivateKey
-import java.security.PublicKey
-import javax.crypto.SecretKey
-import kotlin.random.Random.Default.nextBytes
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -26,10 +21,14 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.security.KeyPair
+import java.security.PrivateKey
+import java.security.PublicKey
+import javax.crypto.SecretKey
+import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class AndroidKeyManagerTest {
-
   private lateinit var androidKeyManager: KeyManager
   private val androidKeyStore: AndroidKeyStore = mockk(relaxed = true)
 
@@ -110,8 +109,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        IllegalArgumentException::class.java
-      )
+        IllegalArgumentException::class.java,
+      ),
     )
     androidKeyManager.signer(template)
   }
@@ -145,8 +144,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        IllegalArgumentException::class.java
-      )
+        IllegalArgumentException::class.java,
+      ),
     )
     androidKeyManager.signer(template)
   }
@@ -161,8 +160,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        IllegalArgumentException::class.java
-      )
+        IllegalArgumentException::class.java,
+      ),
     )
     androidKeyManager.signer(template)
   }
@@ -177,8 +176,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        IllegalStateException::class.java
-      )
+        IllegalStateException::class.java,
+      ),
     )
     androidKeyManager.signer(template)
   }
@@ -194,8 +193,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        RuntimeException::class.java
-      )
+        RuntimeException::class.java,
+      ),
     )
     androidKeyManager.signer(template)
   }
@@ -254,8 +253,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        IllegalArgumentException::class.java
-      )
+        IllegalArgumentException::class.java,
+      ),
     )
     androidKeyManager.cipher(template)
   }
@@ -271,8 +270,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        IllegalArgumentException::class.java
-      )
+        IllegalArgumentException::class.java,
+      ),
     )
     androidKeyManager.cipher(template)
   }
@@ -287,8 +286,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        IllegalStateException::class.java
-      )
+        IllegalStateException::class.java,
+      ),
     )
     androidKeyManager.cipher(template)
   }
@@ -318,8 +317,8 @@ class AndroidKeyManagerTest {
     exceptionRule.expect(KeyException::class.java)
     exceptionRule.expectCause(
       Matchers.instanceOf<Throwable>(
-        RuntimeException::class.java
-      )
+        RuntimeException::class.java,
+      ),
     )
     androidKeyManager.delete(alias)
   }

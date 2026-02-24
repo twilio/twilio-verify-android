@@ -38,17 +38,17 @@ import com.twilio.verify.networking.RequestHelper
 import com.twilio.verify.storagePreferences
 import org.json.JSONObject
 
-internal const val challengeSidPath = "{ChallengeSid}"
-internal const val statusParameter = "Status"
-internal const val pageSizeParameter = "PageSize"
-internal const val pageTokenParameter = "PageToken"
-internal const val orderParameter = "Order"
-internal const val signatureFieldsHeader = "Twilio-Verify-Signature-Fields"
-internal const val updateChallengeURL =
-  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges/$challengeSidPath"
-internal const val getChallengeURL =
-  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges/$challengeSidPath"
-internal const val getChallengesURL =
+internal const val CHALLENGE_SID_PATH = "{ChallengeSid}"
+internal const val STATUS_PARAMETER = "Status"
+internal const val PAGE_SIZE_PARAMETER = "PageSize"
+internal const val PAGE_TOKEN_PARAMETER = "PageToken"
+internal const val ORDER_PARAMETER = "Order"
+internal const val SIGNATURE_FIELDS_HEADER = "Twilio-Verify-Signature-Fields"
+internal const val UPDATE_CHALLENGE_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges/$CHALLENGE_SID_PATH"
+internal const val GET_CHALLENGE_URL =
+  "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges/$CHALLENGE_SID_PATH"
+internal const val GET_CHALLENGES_URL =
   "Services/$SERVICE_SID_PATH/Entities/$IDENTITY_PATH/Challenges"
 
 internal const val FACTOR_SID_KEY = "FactorSid"
@@ -58,34 +58,37 @@ internal class ChallengeAPIClient(
   private val context: Context,
   private val authentication: Authentication,
   private val baseUrl: String,
-  dateProvider: DateProvider = DateAdapter(
-    storagePreferences(context)
-  )
+  dateProvider: DateProvider =
+    DateAdapter(
+      storagePreferences(context),
+    ),
 ) : BaseAPIClient(dateProvider) {
-
   fun update(
     challenge: FactorChallenge,
     authPayload: String,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
-    fun updateChallenge(retries: Int = retryTimes) {
+    fun updateChallenge(retries: Int = RETRY_TIMES) {
       try {
-        val factor = challenge.factor ?: throw IllegalArgumentException(
-          "Factor is null"
-        )
+        val factor =
+          challenge.factor ?: throw IllegalArgumentException(
+            "Factor is null",
+          )
         val authToken = authentication.generateJWT(factor)
-        val requestHelper = RequestHelper(
-          context,
-          BasicAuthorization(AUTHENTICATION_USER, authToken)
-        )
-        val request = Request.Builder(
-          requestHelper,
-          updateChallengeURL(challenge)
-        )
-          .httpMethod(Post)
-          .body(updateChallengeBody(authPayload))
-          .build()
+        val requestHelper =
+          RequestHelper(
+            context,
+            BasicAuthorization(AUTHENTICATION_USER, authToken),
+          )
+        val request =
+          Request
+            .Builder(
+              requestHelper,
+              updateChallengeURL(challenge),
+            ).httpMethod(Post)
+            .body(updateChallengeBody(authPayload))
+            .build()
         networkProvider.execute(
           request,
           {
@@ -93,7 +96,7 @@ internal class ChallengeAPIClient(
           },
           { exception ->
             validateException(exception, ::updateChallenge, retries, error)
-          }
+          },
         )
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -108,31 +111,32 @@ internal class ChallengeAPIClient(
   fun get(
     sid: String,
     factor: Factor,
-    success: (response: JSONObject, signatureFieldsHeader: String?) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    success: (response: JSONObject, SIGNATURE_FIELDS_HEADER: String?) -> Unit,
+    error: (TwilioVerifyException) -> Unit,
   ) {
-    fun getChallenge(retries: Int = retryTimes) {
+    fun getChallenge(retries: Int = RETRY_TIMES) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
           RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
-        val request = Request.Builder(
-          requestHelper,
-          getChallengeURL(sid, factor)
-        )
-          .httpMethod(Get)
-          .build()
+        val request =
+          Request
+            .Builder(
+              requestHelper,
+              getChallengeURL(sid, factor),
+            ).httpMethod(Get)
+            .build()
         networkProvider.execute(
           request,
           {
             success(
               JSONObject(it.body),
-              it.headers[signatureFieldsHeader]?.first()
+              it.headers[SIGNATURE_FIELDS_HEADER]?.first(),
             )
           },
           { exception ->
             validateException(exception, ::getChallenge, retries, error)
-          }
+          },
         )
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -151,31 +155,33 @@ internal class ChallengeAPIClient(
     order: ChallengeListOrder,
     pageToken: String?,
     success: (response: JSONObject) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
-    fun getAllChallenges(retries: Int = retryTimes) {
+    fun getAllChallenges(retries: Int = RETRY_TIMES) {
       try {
         val authToken = authentication.generateJWT(factor)
         val requestHelper =
           RequestHelper(context, BasicAuthorization(AUTHENTICATION_USER, authToken))
-        val queryParameters = mutableMapOf<String, Any>(
-          pageSizeParameter to pageSize,
-          FACTOR_SID_KEY to factor.sid,
-          orderParameter to order.name.lowercase()
-        )
+        val queryParameters =
+          mutableMapOf<String, Any>(
+            PAGE_SIZE_PARAMETER to pageSize,
+            FACTOR_SID_KEY to factor.sid,
+            ORDER_PARAMETER to order.name.lowercase(),
+          )
         status?.let {
-          queryParameters.put(statusParameter, it)
+          queryParameters.put(STATUS_PARAMETER, it)
         }
         pageToken?.let {
-          queryParameters.put(pageTokenParameter, it)
+          queryParameters.put(PAGE_TOKEN_PARAMETER, it)
         }
-        val request = Request.Builder(
-          requestHelper,
-          getChallengesURL(factor)
-        )
-          .httpMethod(Get)
-          .query(queryParameters)
-          .build()
+        val request =
+          Request
+            .Builder(
+              requestHelper,
+              getChallengesURL(factor),
+            ).httpMethod(Get)
+            .query(queryParameters)
+            .build()
         networkProvider.execute(
           request,
           {
@@ -183,7 +189,7 @@ internal class ChallengeAPIClient(
           },
           { exception ->
             validateException(exception, ::getAllChallenges, retries, error)
-          }
+          },
         )
       } catch (e: TwilioVerifyException) {
         error(e)
@@ -197,29 +203,29 @@ internal class ChallengeAPIClient(
 
   private fun updateChallengeURL(challenge: FactorChallenge) =
     challenge.factor?.let { factor ->
-      "$baseUrl$updateChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+      "$baseUrl$UPDATE_CHALLENGE_URL"
+        .replace(SERVICE_SID_PATH, factor.serviceSid, true)
         .replace(IDENTITY_PATH, factor.identity)
-        .replace(challengeSidPath, challenge.sid)
+        .replace(CHALLENGE_SID_PATH, challenge.sid)
     } ?: run {
       throw IllegalArgumentException("ServiceSid or Identity is null or empty")
     }
 
-  private fun updateChallengeBody(
-    authPayload: String
-  ): Map<String, String?> =
+  private fun updateChallengeBody(authPayload: String): Map<String, String?> =
     mapOf(
-      AUTH_PAYLOAD_PARAM to authPayload
+      AUTH_PAYLOAD_PARAM to authPayload,
     )
 
   private fun getChallengeURL(
     challengeSid: String,
-    factor: Factor
-  ) = "$baseUrl$getChallengeURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
+    factor: Factor,
+  ) = "$baseUrl$GET_CHALLENGE_URL"
+    .replace(SERVICE_SID_PATH, factor.serviceSid, true)
     .replace(IDENTITY_PATH, factor.identity)
-    .replace(challengeSidPath, challengeSid)
+    .replace(CHALLENGE_SID_PATH, challengeSid)
 
-  private fun getChallengesURL(
-    factor: Factor
-  ) = "$baseUrl$getChallengesURL".replace(SERVICE_SID_PATH, factor.serviceSid, true)
-    .replace(IDENTITY_PATH, factor.identity)
+  private fun getChallengesURL(factor: Factor) =
+    "$baseUrl$GET_CHALLENGES_URL"
+      .replace(SERVICE_SID_PATH, factor.serviceSid, true)
+      .replace(IDENTITY_PATH, factor.identity)
 }

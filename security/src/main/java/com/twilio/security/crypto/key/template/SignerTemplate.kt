@@ -29,14 +29,14 @@ sealed class SignerTemplate : Template {
 data class ECP256SignerTemplate(
   override val alias: String,
   override val shouldExist: Boolean = false,
-  override val authenticationRequired: Boolean = false
+  override val authenticationRequired: Boolean = false,
 ) : SignerTemplate() {
   override val algorithm = KeyProperties.KEY_ALGORITHM_EC
   override val keyGenParameterSpec: KeyGenParameterSpec =
-    Builder(alias, KeyProperties.PURPOSE_SIGN).setAlgorithmParameterSpec(
-      ECGenParameterSpec("secp256r1")
-    )
-      .setDigests(KeyProperties.DIGEST_SHA256)
+    Builder(alias, KeyProperties.PURPOSE_SIGN)
+      .setAlgorithmParameterSpec(
+        ECGenParameterSpec("secp256r1"),
+      ).setDigests(KeyProperties.DIGEST_SHA256)
       .setUserAuthenticationRequired(authenticationRequired)
       .build()
   override val signatureAlgorithm = "SHA256withECDSA"

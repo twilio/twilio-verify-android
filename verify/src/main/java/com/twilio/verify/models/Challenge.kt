@@ -66,7 +66,9 @@ interface Challenge {
 /**
  * Describes the approval status of a **Challenge**
  */
-enum class ChallengeStatus(val value: String) {
+enum class ChallengeStatus(
+  val value: String,
+) {
   /**
    * The Challenge is waiting to be approved or denied by the user
    */
@@ -85,7 +87,7 @@ enum class ChallengeStatus(val value: String) {
   /**
    * The Challenge expired and can't no longer be approved or denied by the user
    */
-  Expired("expired")
+  Expired("expired"),
 }
 
 /**
@@ -103,7 +105,7 @@ data class ChallengeDetails(
   /**
    * Date attached by the customer only received if the service has `includeDate` turned on
    */
-  val date: Date?
+  val date: Date?,
 )
 
 /**
@@ -117,5 +119,5 @@ data class Detail(
   /**
    * Detail's description
    */
-  val value: String
+  val value: String,
 )

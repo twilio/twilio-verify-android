@@ -29,23 +29,21 @@ import com.twilio.verify.sample.view.factors.list.FactorsAdapter.FactorViewHolde
 
 class FactorsAdapter(
   private val factors: List<Factor>,
-  private val onFactorClick: (Factor) -> Unit
-) :
-  Adapter<FactorViewHolder>() {
-
+  private val onFactorClick: (Factor) -> Unit,
+) : Adapter<FactorViewHolder>() {
   override fun onCreateViewHolder(
     parent: ViewGroup,
-    viewType: Int
+    viewType: Int,
   ): FactorViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     return FactorViewHolder(
-      inflater.inflate(layout.view_factor, parent, false)
+      inflater.inflate(layout.view_factor, parent, false),
     )
   }
 
   override fun onBindViewHolder(
     holder: FactorViewHolder,
-    position: Int
+    position: Int,
   ) {
     val factor = factors[position]
     holder.bind(factor, onFactorClick)
@@ -55,30 +53,36 @@ class FactorsAdapter(
 
   fun getItemSid(position: Int): String = factors[position].sid
 
-  class FactorViewHolder(view: View) : ViewHolder(view) {
+  class FactorViewHolder(
+    view: View,
+  ) : ViewHolder(view) {
     private var factorSid: TextView? = null
     private var factorIdentity: TextView? = null
     private var factorName: TextView? = null
     private var factorStatus: TextView? = null
 
     init {
-      factorSid = itemView.findViewById(
-        id.factorSidText
-      )
-      factorIdentity = itemView.findViewById(
-        id.identityText
-      )
-      factorName = itemView.findViewById(
-        id.factorNameText
-      )
-      factorStatus = itemView.findViewById(
-        id.factorStatusText
-      )
+      factorSid =
+        itemView.findViewById(
+          id.factorSidText,
+        )
+      factorIdentity =
+        itemView.findViewById(
+          id.identityText,
+        )
+      factorName =
+        itemView.findViewById(
+          id.factorNameText,
+        )
+      factorStatus =
+        itemView.findViewById(
+          id.factorStatusText,
+        )
     }
 
     fun bind(
       factor: Factor,
-      onFactorClick: (Factor) -> Unit
+      onFactorClick: (Factor) -> Unit,
     ) {
       factorSid?.text = factor.sid
       factorName?.text = factor.friendlyName

@@ -31,48 +31,48 @@ interface TwilioVerifyAdapter {
     createFactorData: CreateFactorData,
     sampleBackendAPIClient: SampleBackendAPIClient,
     success: (Factor) -> Unit,
-    error: (Throwable) -> Unit
+    error: (Throwable) -> Unit,
   )
 
   fun verifyFactor(
     verifyFactorPayload: VerifyFactorPayload,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun showChallenge(
     challengeSid: String,
-    factorSid: String
+    factorSid: String,
   )
 
   fun updateChallenge(
     updateChallengePayload: UpdateChallengePayload,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun getChallenge(
     challengeSid: String,
     factorSid: String,
     success: (Challenge) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun getFactors(
     success: (List<Factor>) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun deleteFactor(
     factorSid: String,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun getAllChallenges(
     challengeListPayload: ChallengeListPayload,
     success: (ChallengeList) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   )
 
   fun updatePushToken(token: String)

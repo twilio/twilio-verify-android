@@ -28,37 +28,47 @@ import java.security.InvalidKeyException
 
 class BiometricSecretKey(
   private val template: CipherTemplate,
-  private val keyManager: KeyManager
+  private val keyManager: KeyManager,
 ) : AuthenticatedSecretKey {
-
   override fun create() {
     keyManager.cipher(template.templateForCreation())
   }
 
-  override fun encrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit) {
+  override fun encrypt(
+    data: ByteArray,
+    authenticator: BiometricAuthenticator,
+    success: (ByteArray) -> Unit,
+    error: (Exception) -> Unit,
+  ) {
     keyManager.cipher(template).encrypt(
-      data, authenticator,
+      data,
+      authenticator,
       {
         success(toByteArray(it))
       },
       { exception ->
         error(mapException(exception))
-      }
+      },
     )
   }
 
-  override fun decrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit) {
+  override fun decrypt(
+    data: ByteArray,
+    authenticator: BiometricAuthenticator,
+    success: (ByteArray) -> Unit,
+    error: (Exception) -> Unit,
+  ) {
     val encryptedData = fromByteArray(data)
     keyManager.cipher(template).decrypt(encryptedData, authenticator, success, { exception -> error(mapException(exception)) })
   }
 
-  private fun mapException(exception: Exception): Exception {
-    return when (exception) {
+  private fun mapException(exception: Exception): Exception =
+    when (exception) {
       is KeyPermanentlyInvalidatedException,
-      is InvalidKeyException -> BiometricException(BiometricError.KeyInvalidated)
+      is InvalidKeyException,
+      -> BiometricException(BiometricError.KeyInvalidated)
       else -> exception
     }
-  }
 
   override fun delete() {
     keyManager.delete(template.alias)

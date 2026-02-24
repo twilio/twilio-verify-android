@@ -25,9 +25,8 @@ internal const val VERSION = 2
 internal class Storage(
   private val sharedPreferences: SharedPreferences,
   private val encryptedStorage: EncryptedStorage,
-  private val migrations: List<Migration>
+  private val migrations: List<Migration>,
 ) : StorageProvider {
-
   override val version: Int = VERSION
 
   init {
@@ -36,23 +35,26 @@ internal class Storage(
 
   override fun save(
     key: String,
-    value: String
+    value: String,
   ) {
     encryptedStorage.put(key, value)
   }
 
-  override fun get(key: String): String? = try {
-    encryptedStorage.get(key, String::class)
-  } catch (e: Exception) {
-    null
-  }
+  override fun get(key: String): String? =
+    try {
+      encryptedStorage.get(key, String::class)
+    } catch (e: Exception) {
+      null
+    }
 
-  override fun getAll(): List<String> = try {
-    encryptedStorage.getAll(String::class)
-      .takeIf { it.isNotEmpty() }
-  } catch (e: Exception) {
-    null
-  } ?: emptyList()
+  override fun getAll(): List<String> =
+    try {
+      encryptedStorage
+        .getAll(String::class)
+        .takeIf { it.isNotEmpty() }
+    } catch (e: Exception) {
+      null
+    } ?: emptyList()
 
   override fun remove(key: String) {
     encryptedStorage.remove(key)
@@ -88,7 +90,8 @@ internal class Storage(
   }
 
   private fun updateVersion(version: Int) {
-    sharedPreferences.edit()
+    sharedPreferences
+      .edit()
       .putInt(CURRENT_VERSION, version)
       .apply()
   }

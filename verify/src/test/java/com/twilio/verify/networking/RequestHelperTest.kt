@@ -15,7 +15,6 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class RequestHelperTest {
-
   @Test
   fun `CommonHeaders with Post http method should contain 4 pairs`() {
     val authorization = BasicAuthorization("accountSid", "authToken")
@@ -24,8 +23,8 @@ class RequestHelperTest {
     assertEquals(4, commonHeaders.size)
     assertEquals(MediaTypeValue.Json.type, commonHeaders[MediaTypeHeader.Accept.type])
     assertEquals(MediaTypeValue.UrlEncoded.type, commonHeaders[MediaTypeHeader.ContentType.type])
-    assertTrue(commonHeaders.containsKey(userAgent))
-    assertTrue(commonHeaders.containsKey(AuthorizationHeader))
+    assertTrue(commonHeaders.containsKey(USER_AGENT))
+    assertTrue(commonHeaders.containsKey(AUTHORIZATION_HEADER))
   }
 
   @Test
@@ -36,8 +35,8 @@ class RequestHelperTest {
     assertEquals(4, commonHeaders.size)
     assertEquals(MediaTypeValue.UrlEncoded.type, commonHeaders[MediaTypeHeader.Accept.type])
     assertEquals(MediaTypeValue.UrlEncoded.type, commonHeaders[MediaTypeHeader.ContentType.type])
-    assertTrue(commonHeaders.containsKey(userAgent))
-    assertTrue(commonHeaders.containsKey(AuthorizationHeader))
+    assertTrue(commonHeaders.containsKey(USER_AGENT))
+    assertTrue(commonHeaders.containsKey(AUTHORIZATION_HEADER))
   }
 
   @Test
@@ -48,7 +47,7 @@ class RequestHelperTest {
     assertEquals(4, commonHeaders.size)
     assertEquals(MediaTypeValue.Json.type, commonHeaders[MediaTypeHeader.Accept.type])
     assertEquals(MediaTypeValue.UrlEncoded.type, commonHeaders[MediaTypeHeader.ContentType.type])
-    assertTrue(commonHeaders.containsKey(userAgent))
-    assertTrue(commonHeaders.containsKey(AuthorizationHeader))
+    assertTrue(commonHeaders.containsKey(USER_AGENT))
+    assertTrue(commonHeaders.containsKey(AUTHORIZATION_HEADER))
   }
 }

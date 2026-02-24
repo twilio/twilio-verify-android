@@ -18,7 +18,7 @@ package com.twilio.security.crypto
 
 class KeyException constructor(
   message: String?,
-  exception: Exception?
+  exception: Exception?,
 ) : Exception(message, exception) {
   constructor(exception: Exception) : this(exception.message, exception)
 }

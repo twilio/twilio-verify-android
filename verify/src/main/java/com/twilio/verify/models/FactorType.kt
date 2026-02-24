@@ -19,9 +19,11 @@ package com.twilio.verify.models
 /**
  * Describes the types a factor can have
  */
-enum class FactorType(val factorTypeName: String) {
+enum class FactorType(
+  val factorTypeName: String,
+) {
   /**
    * Push type
    */
-  PUSH("push")
+  PUSH("push"),
 }

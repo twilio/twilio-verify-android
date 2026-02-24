@@ -14,16 +14,15 @@ import com.twilio.security.crypto.key.template.CipherTemplate
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlin.random.Random.Default.nextBytes
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class SecretKeyCipherTest {
-
   private val keyManager: KeyManager = mockk(relaxed = true)
   private val template: CipherTemplate = mockk(relaxed = true)
   private lateinit var secretKeyCipher: SecretKeyCipher

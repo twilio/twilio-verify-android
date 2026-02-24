@@ -27,16 +27,19 @@ import java.security.Signature
 import javax.crypto.Cipher
 
 interface BiometricAuthenticator : Authenticator {
-
   @Throws(BiometricException::class)
   fun checkAvailability()
 }
 
-class BiometricException(message: String) : Exception(message) {
+class BiometricException(
+  message: String,
+) : Exception(message) {
   constructor(biometricError: BiometricError) : this(biometricError.message)
 }
 
-enum class BiometricError(val message: String) {
+enum class BiometricError(
+  val message: String,
+) {
   DependencyVersionMissMatch("Biometric version is not supported."),
   Unsupported("The specified options are incompatible with the current Android version."),
   HardwareUnavailable("The hardware is unavailable. Try again later."),
@@ -44,30 +47,30 @@ enum class BiometricError(val message: String) {
   NoHardware("There is no suitable hardware (e.g. no biometric sensor or no keyguard)"),
   SecureUpdateRequired(
     "A security vulnerability has been discovered with one or more hardware sensors. " +
-      "The affected sensor(s) are unavailable until a security update has addressed the issue."
+      "The affected sensor(s) are unavailable until a security update has addressed the issue.",
   ),
   UnableToProcess("The sensor was unable to process the current image."),
   Timeout("The current operation has been running too long and has timed out."),
   DeviceStorage("The operation can't be completed because there is not enough device storage remaining."),
   OperationCanceled(
     "The operation was canceled because the biometric sensor is unavailable. " +
-      "This may happen when the user is switched, the device is locked, or another pending operation prevents it."
+      "This may happen when the user is switched, the device is locked, or another pending operation prevents it.",
   ),
   Lockout(
     "The operation was canceled because the API is locked out due to too many attempts. " +
-      "This occurs after 5 failed attempts, and lasts for 30 seconds."
+      "This occurs after 5 failed attempts, and lasts for 30 seconds.",
   ),
   Vendor("The operation failed due to a vendor-specific error."),
   LockoutPermanent(
     "The operation was canceled because {@link #ERROR_LOCKOUT} occurred too many times. " +
       "Biometric authentication is disabled until the user unlocks with their device credential " +
-      "(i.e. PIN, pattern, or password)."
+      "(i.e. PIN, pattern, or password).",
   ),
   NoDeviceCredential("The device does not have pin, pattern, or password set up."),
   UserCanceled("The user canceled the operation or pressed the negative button."),
   AuthenticationFailed("Authentication failed."),
   InvalidResult("Invalid result."),
-  KeyInvalidated("Key permanently invalidated.")
+  KeyInvalidated("Key permanently invalidated."),
 }
 
 class BiometricAuthenticatorContext(
@@ -76,39 +79,47 @@ class BiometricAuthenticatorContext(
   private val fragmentActivity: FragmentActivity,
   private val negativeOption: String,
   private val biometricPromptHelper: BiometricPromptHelper = BiometricPromptHelper(),
-  private val biometricManager: BiometricManager = BiometricManager.from(fragmentActivity.applicationContext)
+  private val biometricManager: BiometricManager = BiometricManager.from(fragmentActivity.applicationContext),
 ) : BiometricAuthenticator {
-
   @Throws(BiometricException::class)
   override fun checkAvailability() {
     try {
-      val error = when (biometricManager.canAuthenticate(Authenticators.BIOMETRIC_STRONG)) {
-        BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> BiometricException(BiometricError.Unsupported)
-        BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> BiometricException(BiometricError.HardwareUnavailable)
-        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> BiometricException(BiometricError.NoBiometricEnrolled)
-        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> BiometricException(BiometricError.NoHardware)
-        BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED -> BiometricException(BiometricError.SecureUpdateRequired)
-        else -> null
-      }
+      val error =
+        when (biometricManager.canAuthenticate(Authenticators.BIOMETRIC_STRONG)) {
+          BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> BiometricException(BiometricError.Unsupported)
+          BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> BiometricException(BiometricError.HardwareUnavailable)
+          BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> BiometricException(BiometricError.NoBiometricEnrolled)
+          BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> BiometricException(BiometricError.NoHardware)
+          BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED -> BiometricException(BiometricError.SecureUpdateRequired)
+          else -> null
+        }
       error?.let {
         Logger.log(Level.Error, it.message.toString(), it)
         throw it
       }
-    } catch (e: NoSuchMethodError) {
+    } catch (_: NoSuchMethodError) {
       val exception = BiometricException(BiometricError.DependencyVersionMissMatch)
       Logger.log(Level.Error, exception.toString(), exception)
       throw exception
     }
   }
 
-  override fun startAuthentication(signatureObject: Signature, success: (Signature) -> Unit, error: (Exception) -> Unit) {
+  override fun startAuthentication(
+    signatureObject: Signature,
+    success: (Signature) -> Unit,
+    error: (Exception) -> Unit,
+  ) {
     Logger.log(Level.Debug, "Starting signature biometric authentication")
     val signatureCryptoObject = BiometricPrompt.CryptoObject(signatureObject)
     val authenticationCallback = callBackForSignature(success, error)
     startAuthentication(signatureCryptoObject, authenticationCallback, error)
   }
 
-  override fun startAuthentication(cipherObject: Cipher, success: (Cipher) -> Unit, error: (Exception) -> Unit) {
+  override fun startAuthentication(
+    cipherObject: Cipher,
+    success: (Cipher) -> Unit,
+    error: (Exception) -> Unit,
+  ) {
     Logger.log(Level.Debug, "Starting cipher biometric authentication")
     val cipherCryptoObject = BiometricPrompt.CryptoObject(cipherObject)
     val authenticationCallback = callBackForCipher(success, error)
@@ -118,14 +129,14 @@ class BiometricAuthenticatorContext(
   private fun startAuthentication(
     cryptoObject: BiometricPrompt.CryptoObject,
     authenticationCallback: BiometricPrompt.AuthenticationCallback,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   ) {
     try {
       checkAvailability()
       Logger.log(Level.Info, "Starting biometric authentication")
       val biometricPrompt = biometricPromptHelper.createBiometricPrompt(fragmentActivity, authenticationCallback)
       biometricPrompt.authenticate(createPromptInfo(), cryptoObject)
-    } catch (e: NoSuchMethodError) {
+    } catch (_: NoSuchMethodError) {
       val exception = BiometricException(BiometricError.DependencyVersionMissMatch)
       Logger.log(Level.Error, exception.toString(), exception)
       error(exception)
@@ -135,49 +146,61 @@ class BiometricAuthenticatorContext(
     }
   }
 
-  private fun createPromptInfo(): BiometricPrompt.PromptInfo {
-    return BiometricPrompt.PromptInfo.Builder()
+  private fun createPromptInfo(): BiometricPrompt.PromptInfo =
+    BiometricPrompt.PromptInfo
+      .Builder()
       .setTitle(title)
       .setSubtitle(subtitle)
       .setConfirmationRequired(true)
       .setNegativeButtonText(negativeOption)
       .build()
-  }
 
-  private fun callBackForSignature(success: (Signature) -> Unit, error: (Exception) -> Unit): BiometricPrompt.AuthenticationCallback {
-    return object : AuthenticationCallback(AuthenticationType.Signature, error) {
+  private fun callBackForSignature(
+    success: (Signature) -> Unit,
+    error: (Exception) -> Unit,
+  ): BiometricPrompt.AuthenticationCallback =
+    object : AuthenticationCallback(AuthenticationType.Signature, error) {
       override fun onSignatureAuthenticationSucceeded(signature: Signature) {
         Logger.log(Level.Info, "Signature authentication succeeded")
         success(signature)
       }
     }
-  }
 
-  private fun callBackForCipher(success: (Cipher) -> Unit, error: (Exception) -> Unit): BiometricPrompt.AuthenticationCallback {
-    return object : AuthenticationCallback(AuthenticationType.Cipher, error) {
+  private fun callBackForCipher(
+    success: (Cipher) -> Unit,
+    error: (Exception) -> Unit,
+  ): BiometricPrompt.AuthenticationCallback =
+    object : AuthenticationCallback(AuthenticationType.Cipher, error) {
       override fun onCipherAuthenticationSucceeded(cipher: Cipher) {
         Logger.log(Level.Info, "Cipher authentication succeeded")
         success(cipher)
       }
     }
-  }
 }
 
 class BiometricPromptHelper {
-  fun createBiometricPrompt(fragmentActivity: FragmentActivity, callback: BiometricPrompt.AuthenticationCallback): BiometricPrompt {
+  fun createBiometricPrompt(
+    fragmentActivity: FragmentActivity,
+    callback: BiometricPrompt.AuthenticationCallback,
+  ): BiometricPrompt {
     val executor = ContextCompat.getMainExecutor(fragmentActivity)
     return BiometricPrompt(fragmentActivity, executor, callback)
   }
 }
 
-abstract class AuthenticationCallback(private val authenticationType: AuthenticationType, private val error: (Exception) -> Unit) :
-  BiometricPrompt.AuthenticationCallback() {
-
+abstract class AuthenticationCallback(
+  private val authenticationType: AuthenticationType,
+  private val error: (Exception) -> Unit,
+) : BiometricPrompt.AuthenticationCallback() {
   enum class AuthenticationType {
-    Signature, Cipher
+    Signature,
+    Cipher,
   }
 
-  override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+  override fun onAuthenticationError(
+    errorCode: Int,
+    errString: CharSequence,
+  ) {
     super.onAuthenticationError(errorCode, errString)
     sendError(errorMapper(errorCode, errString))
   }
@@ -209,10 +232,14 @@ abstract class AuthenticationCallback(private val authenticationType: Authentica
   }
 
   open fun onSignatureAuthenticationSucceeded(signature: Signature) {}
+
   open fun onCipherAuthenticationSucceeded(cipher: Cipher) {}
 
-  private fun errorMapper(errorCode: Int, errString: CharSequence): BiometricException {
-    return when (errorCode) {
+  private fun errorMapper(
+    errorCode: Int,
+    errString: CharSequence,
+  ): BiometricException =
+    when (errorCode) {
       BiometricPrompt.ERROR_HW_UNAVAILABLE -> BiometricException(BiometricError.HardwareUnavailable)
       BiometricPrompt.ERROR_UNABLE_TO_PROCESS -> BiometricException(BiometricError.UnableToProcess)
       BiometricPrompt.ERROR_TIMEOUT -> BiometricException(BiometricError.Timeout)
@@ -229,5 +256,4 @@ abstract class AuthenticationCallback(private val authenticationType: Authentica
       BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED -> BiometricException(BiometricError.SecureUpdateRequired)
       else -> BiometricException(errString.toString())
     }
-  }
 }

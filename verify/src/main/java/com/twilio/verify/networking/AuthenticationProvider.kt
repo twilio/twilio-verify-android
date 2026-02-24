@@ -25,25 +25,22 @@ import com.twilio.verify.data.getSignerTemplate
 import com.twilio.verify.data.jwt.JwtGenerator
 import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
-import java.util.concurrent.TimeUnit
 import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 
-internal const val ctyKey = "cty"
-internal const val kidKey = "kid"
-internal const val jwtValidFor = 10L
-internal const val subKey = "sub"
-internal const val expKey = "exp"
-internal const val iatKey = "nbf"
-internal const val contentType = "twilio-pba;v=1"
+internal const val CTY_KEY = "cty"
+internal const val KID_KEY = "kid"
+internal const val JWT_VALID_FOR = 10L
+internal const val SUB_KEY = "sub"
+internal const val EXP_KEY = "exp"
+internal const val IAT_KEY = "nbf"
+internal const val CONTENT_TYPE = "twilio-pba;v=1"
 
 internal class AuthenticationProvider(
   private val jwtGenerator: JwtGenerator,
-  private val dateProvider: DateProvider
+  private val dateProvider: DateProvider,
 ) : Authentication {
-
-  override fun generateJWT(
-    factor: Factor
-  ): String {
+  override fun generateJWT(factor: Factor): String {
     try {
       return when (factor) {
         is PushFactor -> generateJwt(factor)
@@ -62,20 +59,22 @@ internal class AuthenticationProvider(
     return jwtGenerator.generateJWT(getSignerTemplate(alias, true), header, payload)
   }
 
-  private fun generateHeader(factor: PushFactor) = JSONObject().apply {
-    put(ctyKey, contentType)
-    put(kidKey, factor.config.credentialSid)
-  }
+  private fun generateHeader(factor: PushFactor) =
+    JSONObject().apply {
+      put(CTY_KEY, CONTENT_TYPE)
+      put(KID_KEY, factor.config.credentialSid)
+    }
 
   private fun generatePayload(factor: PushFactor) =
     JSONObject().apply {
-      put(subKey, factor.accountSid)
+      put(SUB_KEY, factor.accountSid)
       put(
-        expKey,
-        dateProvider.getCurrentTime() + TimeUnit.MINUTES.toSeconds(
-          jwtValidFor
-        )
+        EXP_KEY,
+        dateProvider.getCurrentTime() +
+          TimeUnit.MINUTES.toSeconds(
+            JWT_VALID_FOR,
+          ),
       )
-      put(iatKey, dateProvider.getCurrentTime())
+      put(IAT_KEY, dateProvider.getCurrentTime())
     }
 }

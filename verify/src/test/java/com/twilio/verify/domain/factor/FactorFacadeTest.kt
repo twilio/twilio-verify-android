@@ -34,7 +34,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class FactorFacadeTest {
-
   private val pushFactory: PushFactory = mock()
   private val factorProvider: FactorProvider = mock()
   private val factorFacade = FactorFacade(pushFactory, factorProvider)
@@ -48,9 +47,15 @@ class FactorFacadeTest {
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(
         pushFactory.create(
-          eq(factorPayload.accessToken), eq(factorPayload.friendlyName), eq(factorPayload.serviceSid),
-          eq(factorPayload.identity), eq(factorPayload.pushToken), anyOrNull(), capture(), any()
-        )
+          eq(factorPayload.accessToken),
+          eq(factorPayload.friendlyName),
+          eq(factorPayload.serviceSid),
+          eq(factorPayload.identity),
+          eq(factorPayload.pushToken),
+          anyOrNull(),
+          capture(),
+          any(),
+        ),
       ).then {
         firstValue.invoke(expectedFactor)
       }
@@ -65,7 +70,7 @@ class FactorFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -78,9 +83,15 @@ class FactorFacadeTest {
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
         pushFactory.create(
-          eq(factorPayload.accessToken), eq(factorPayload.friendlyName), eq(factorPayload.serviceSid),
-          eq(factorPayload.identity), eq(factorPayload.pushToken), anyOrNull(), any(), capture()
-        )
+          eq(factorPayload.accessToken),
+          eq(factorPayload.friendlyName),
+          eq(factorPayload.serviceSid),
+          eq(factorPayload.identity),
+          eq(factorPayload.pushToken),
+          anyOrNull(),
+          any(),
+          capture(),
+        ),
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
@@ -95,7 +106,7 @@ class FactorFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -108,8 +119,10 @@ class FactorFacadeTest {
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(
         pushFactory.verify(
-          eq(sid), capture(), any()
-        )
+          eq(sid),
+          capture(),
+          any(),
+        ),
       ).then {
         firstValue.invoke(expectedFactor)
       }
@@ -124,7 +137,7 @@ class FactorFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -137,8 +150,10 @@ class FactorFacadeTest {
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
         pushFactory.verify(
-          eq(sid), any(), capture()
-        )
+          eq(sid),
+          any(),
+          capture(),
+        ),
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
@@ -153,7 +168,7 @@ class FactorFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -173,8 +188,11 @@ class FactorFacadeTest {
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(
         pushFactory.update(
-          eq(sid), eq(pushToken), capture(), any()
-        )
+          eq(sid),
+          eq(pushToken),
+          capture(),
+          any(),
+        ),
       ).then {
         firstValue.invoke(expectedFactor)
       }
@@ -189,7 +207,7 @@ class FactorFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -203,8 +221,11 @@ class FactorFacadeTest {
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
         pushFactory.update(
-          eq(sid), eq(pushToken), any(), capture()
-        )
+          eq(sid),
+          eq(pushToken),
+          any(),
+          capture(),
+        ),
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
@@ -219,7 +240,7 @@ class FactorFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -228,10 +249,11 @@ class FactorFacadeTest {
   fun `Update a factor with blank factor sid should call error`() {
     val updateFactorPayload = UpdatePushFactorPayload("   ", "pushToken")
     factorFacade.updateFactor(
-      updateFactorPayload, { fail() },
+      updateFactorPayload,
+      { fail() },
       { exception ->
         assertTrue(exception.cause is EmptyFactorSidException)
-      }
+      },
     )
   }
 
@@ -250,7 +272,7 @@ class FactorFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -270,7 +292,7 @@ class FactorFacadeTest {
         assertTrue(exception.cause is StorageException)
         assertEquals(StorageError.message, exception.localizedMessage)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -292,7 +314,7 @@ class FactorFacadeTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -300,19 +322,21 @@ class FactorFacadeTest {
   @Test
   fun `Get a factor with blank factor sid should call error`() {
     factorFacade.getFactor(
-      "", { fail() },
+      "",
+      { fail() },
       { exception ->
         assertTrue(exception.cause is InputException)
-      }
+      },
     )
   }
 
   @Test
   fun `Get a factor by service sid with factor already stored should return expected factor`() {
     val factorServiceSid = "sid"
-    val expectedFactor: Factor = mock() {
-      on { serviceSid } doReturn factorServiceSid
-    }
+    val expectedFactor: Factor =
+      mock {
+        on { serviceSid } doReturn factorServiceSid
+      }
     whenever(factorProvider.getAll()).thenReturn(listOf(expectedFactor))
     idlingResource.startOperation()
     factorFacade.getFactorByServiceSid(
@@ -324,7 +348,7 @@ class FactorFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -344,7 +368,7 @@ class FactorFacadeTest {
         assertTrue(exception.cause is StorageException)
         assertEquals(StorageError.message, exception.localizedMessage)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -365,7 +389,7 @@ class FactorFacadeTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -383,7 +407,7 @@ class FactorFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -403,7 +427,7 @@ class FactorFacadeTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -414,8 +438,10 @@ class FactorFacadeTest {
     argumentCaptor<() -> Unit>().apply {
       whenever(
         pushFactory.delete(
-          eq(factorSid), capture(), any()
-        )
+          eq(factorSid),
+          capture(),
+          any(),
+        ),
       ).then {
         firstValue.invoke()
       }
@@ -429,7 +455,7 @@ class FactorFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -441,8 +467,10 @@ class FactorFacadeTest {
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
         pushFactory.delete(
-          eq(factorSid), any(), capture()
-        )
+          eq(factorSid),
+          any(),
+          capture(),
+        ),
       ).then {
         firstValue.invoke(expectedException)
       }
@@ -457,7 +485,7 @@ class FactorFacadeTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -465,10 +493,11 @@ class FactorFacadeTest {
   @Test
   fun `Delete a factor with blank factor sid should call error`() {
     factorFacade.deleteFactor(
-      "", { fail() },
+      "",
+      { fail() },
       { exception ->
         assertTrue(exception.cause is IllegalArgumentException)
-      }
+      },
     )
   }
 

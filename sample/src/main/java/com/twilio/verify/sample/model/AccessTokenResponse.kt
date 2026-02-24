@@ -24,10 +24,12 @@ data class AccessTokenResponse(
   val token: String,
   val serviceSid: String,
   val identity: String,
-  val factorType: String
+  val factorType: String,
 )
 
-fun AccessTokenResponse.getFactorType(): FactorType = FactorType.values()
-  .associateBy(FactorType::factorTypeName)[factorType] ?: throw IllegalArgumentException(
-  "Invalid response"
-)
+fun AccessTokenResponse.getFactorType(): FactorType =
+  FactorType
+    .values()
+    .associateBy(FactorType::factorTypeName)[factorType] ?: throw IllegalArgumentException(
+    "Invalid response",
+  )

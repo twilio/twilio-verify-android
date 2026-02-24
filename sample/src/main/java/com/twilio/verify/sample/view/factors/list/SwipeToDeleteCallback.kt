@@ -29,14 +29,15 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 class SwipeToDeleteCallback(
   private val delete: (Int) -> Unit,
   private val icon: Drawable,
-  private val background: ColorDrawable = ColorDrawable(Color.RED)
+  private val background: ColorDrawable = ColorDrawable(Color.RED),
 ) : SimpleCallback(
-  0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-) {
+    0,
+    ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
+  ) {
   override fun onMove(
     recyclerView: RecyclerView,
     viewHolder: ViewHolder,
-    target: ViewHolder
+    target: ViewHolder,
   ): Boolean {
     // used for up and down movements
     return false
@@ -44,7 +45,7 @@ class SwipeToDeleteCallback(
 
   override fun onSwiped(
     viewHolder: ViewHolder,
-    direction: Int
+    direction: Int,
   ) {
     val position = viewHolder.adapterPosition
     delete(position)
@@ -57,7 +58,7 @@ class SwipeToDeleteCallback(
     dX: Float,
     dY: Float,
     actionState: Int,
-    isCurrentlyActive: Boolean
+    isCurrentlyActive: Boolean,
   ) {
     super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
     val itemView: View = viewHolder.itemView
@@ -71,8 +72,10 @@ class SwipeToDeleteCallback(
         val iconRight: Int = itemView.left + iconMargin
         icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
         background.setBounds(
-          itemView.left, itemView.top,
-          itemView.left + dX.toInt() + backgroundCornerOffset, itemView.bottom
+          itemView.left,
+          itemView.top,
+          itemView.left + dX.toInt() + backgroundCornerOffset,
+          itemView.bottom,
         )
       }
       dX < 0 -> { // Swiping to the left
@@ -81,7 +84,9 @@ class SwipeToDeleteCallback(
         icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
         background.setBounds(
           itemView.right + dX.toInt() - backgroundCornerOffset,
-          itemView.top, itemView.right, itemView.bottom
+          itemView.top,
+          itemView.right,
+          itemView.bottom,
         )
       }
       else -> { // view is unSwiped

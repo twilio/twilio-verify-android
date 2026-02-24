@@ -23,11 +23,12 @@ import kotlin.math.max
 
 private const val ES256_SIGNATURE_LENGTH = 64
 
-internal class JwtSigner(private val keyStorage: KeyStorage) {
-
+internal class JwtSigner(
+  private val keyStorage: KeyStorage,
+) {
   fun sign(
     signerTemplate: SignerTemplate,
-    content: String
+    content: String,
   ): ByteArray {
     val signature = keyStorage.sign(signerTemplate.alias, content)
     return when (signerTemplate) {
@@ -38,22 +39,23 @@ internal class JwtSigner(private val keyStorage: KeyStorage) {
 
   private fun transcodeECSignatureToConcat(
     derSignature: ByteArray,
-    outputLength: Int
+    outputLength: Int,
   ): ByteArray {
     if (derSignature.size < 8 || derSignature[0] != 48.toByte()) {
       throw IllegalArgumentException("Invalid ECDSA signature format")
     }
-    val offset: Int = when {
-      derSignature[1] > 0 -> {
-        2
+    val offset: Int =
+      when {
+        derSignature[1] > 0 -> {
+          2
+        }
+        derSignature[1] == 0x81.toByte() -> {
+          3
+        }
+        else -> {
+          throw IllegalArgumentException("Invalid ECDSA signature format")
+        }
       }
-      derSignature[1] == 0x81.toByte() -> {
-        3
-      }
-      else -> {
-        throw IllegalArgumentException("Invalid ECDSA signature format")
-      }
-    }
     val rLength = derSignature[offset + 1]
     var i = rLength.toInt()
     while (i > 0 && derSignature[offset + 2 + rLength - i] == 0.toByte()) {
@@ -66,9 +68,11 @@ internal class JwtSigner(private val keyStorage: KeyStorage) {
     }
     var rawLen = max(i, j)
     rawLen = max(rawLen, outputLength / 2)
-    if (derSignature[offset - 1].toInt()
-      .and(0xff) != (derSignature.size - offset) ||
-      derSignature[offset - 1].toInt()
+    if (derSignature[offset - 1]
+        .toInt()
+        .and(0xff) != (derSignature.size - offset) ||
+      derSignature[offset - 1]
+        .toInt()
         .and(0xff) != (2 + rLength + 2 + sLength) ||
       derSignature[offset] != 2.toByte() ||
       derSignature[offset + 2 + rLength] != 2.toByte()
@@ -77,10 +81,18 @@ internal class JwtSigner(private val keyStorage: KeyStorage) {
     }
     val concatSignature = ByteArray(2 * rawLen)
     System.arraycopy(
-      derSignature, offset + 2 + rLength - i, concatSignature, rawLen - i, i
+      derSignature,
+      offset + 2 + rLength - i,
+      concatSignature,
+      rawLen - i,
+      i,
     )
     System.arraycopy(
-      derSignature, offset + 2 + rLength + 2 + sLength - j, concatSignature, 2 * rawLen - j, j
+      derSignature,
+      offset + 2 + rLength + 2 + sLength - j,
+      concatSignature,
+      2 * rawLen - j,
+      j,
     )
     return concatSignature
   }

@@ -35,18 +35,19 @@ import com.twilio.verify.sample.push.VerifyEventBus
 
 class TwilioVerifyKotlinAdapter(
   private val twilioVerify: TwilioVerify,
-  private val verifyEventBus: VerifyEventBus = VerifyEventBus
-) : TwilioVerify by twilioVerify, TwilioVerifyAdapter {
-
+  private val verifyEventBus: VerifyEventBus = VerifyEventBus,
+) : TwilioVerify by twilioVerify,
+  TwilioVerifyAdapter {
   override fun createFactor(
     createFactorData: CreateFactorData,
     sampleBackendAPIClient: SampleBackendAPIClient,
     success: (Factor) -> Unit,
-    error: (Throwable) -> Unit
+    error: (Throwable) -> Unit,
   ) {
     try {
       sampleBackendAPIClient.getAccessTokenResponse(
-        createFactorData.identity, createFactorData.accessTokenUrl,
+        createFactorData.identity,
+        createFactorData.accessTokenUrl,
         { accessTokenResponse ->
           val factorPayload = getFactorPayload(createFactorData, accessTokenResponse)
           twilioVerify.createFactor(
@@ -54,10 +55,10 @@ class TwilioVerifyKotlinAdapter(
             { factor ->
               verifyFactor(factor, success, error)
             },
-            error
+            error,
           )
         },
-        error
+        error,
       )
     } catch (e: TwilioVerifyException) {
       error(e)
@@ -69,20 +70,21 @@ class TwilioVerifyKotlinAdapter(
   private fun verifyFactor(
     factor: Factor,
     success: (Factor) -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   ) {
     when (factor.type) {
-      PUSH -> twilioVerify.verifyFactor(
-        VerifyPushFactorPayload(factor.sid),
-        success,
-        error
-      )
+      PUSH ->
+        twilioVerify.verifyFactor(
+          VerifyPushFactorPayload(factor.sid),
+          success,
+          error,
+        )
     }
   }
 
   override fun getFactors(
     success: (List<Factor>) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     twilioVerify.getAllFactors(success, error)
   }
@@ -94,36 +96,40 @@ class TwilioVerifyKotlinAdapter(
           updateFactor(factor, token)
         }
       },
-      ::handleError
+      ::handleError,
     )
   }
 
   private fun updateFactor(
     factor: Factor,
-    token: String
+    token: String,
   ) {
     twilioVerify.updateFactor(UpdatePushFactorPayload(factor.sid, token), {}, ::handleError)
   }
 
   override fun showChallenge(
     challengeSid: String,
-    factorSid: String
+    factorSid: String,
   ) {
     verifyEventBus.send(NewChallenge(challengeSid, factorSid))
   }
 
   private fun getFactorPayload(
     createFactorData: CreateFactorData,
-    accessTokenResponse: AccessTokenResponse
-  ): FactorPayload {
-    return when (accessTokenResponse.getFactorType()) {
-      PUSH -> PushFactorPayload(
-        createFactorData.factorName, accessTokenResponse.serviceSid,
-        accessTokenResponse.identity, createFactorData.pushToken, accessTokenResponse.token, createFactorData.metadata
-      )
+    accessTokenResponse: AccessTokenResponse,
+  ): FactorPayload =
+    when (accessTokenResponse.getFactorType()) {
+      PUSH ->
+        PushFactorPayload(
+          createFactorData.factorName,
+          accessTokenResponse.serviceSid,
+          accessTokenResponse.identity,
+          createFactorData.pushToken,
+          accessTokenResponse.token,
+          createFactorData.metadata,
+        )
       else -> throw IllegalStateException("Unexpected value: " + accessTokenResponse.factorType)
     }
-  }
 
   private fun handleError(exception: TwilioVerifyException) {
     exception.printStackTrace()

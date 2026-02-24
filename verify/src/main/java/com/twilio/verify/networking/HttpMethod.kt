@@ -16,9 +16,11 @@
 
 package com.twilio.verify.networking
 
-enum class HttpMethod(val method: String) {
+enum class HttpMethod(
+  val method: String,
+) {
   Get("GET"),
   Post("POST"),
   Delete("DELETE"),
-  Put("PUT")
+  Put("PUT"),
 }

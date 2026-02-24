@@ -25,7 +25,6 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class AuthenticatedEncryptedPreferencesTest {
-
   private val preferences: SharedPreferences = mockk(relaxed = true)
   private val storageAlias: String = "alias"
   private val keyManager: KeyManager = mockk(relaxed = true)
@@ -45,7 +44,7 @@ class AuthenticatedEncryptedPreferencesTest {
   fun testPut_withValue_shouldSaveEncryptedValue() {
     val key = "key"
     val value = "value"
-    val editor = mockk<SharedPreferences.Editor>(relaxed = true)
+    val editor = mockk<Editor>(relaxed = true)
 
     every { preferences.edit() } returns editor
     every { serializer.toByteArray(value) } returns value.toByteArray()
@@ -59,8 +58,11 @@ class AuthenticatedEncryptedPreferencesTest {
     every { editor.commit() } returns true
 
     encryptedPreferences.put(
-      key, value, authenticator, {},
-      { fail("Encryption should not fail") }
+      key,
+      value,
+      authenticator,
+      {},
+      { fail("Encryption should not fail") },
     )
 
     verify { editor.putString(generateKeyDigest(key), Base64.encodeToString(value.toByteArray(), Base64.DEFAULT)) }
@@ -71,7 +73,7 @@ class AuthenticatedEncryptedPreferencesTest {
   fun testPut_withError_shouldCallError() {
     val key = "key"
     val value = "value"
-    val editor = mockk<SharedPreferences.Editor>()
+    val editor = mockk<Editor>()
     val exception = mockk<RuntimeException>(relaxed = true)
 
     every { preferences.edit() } returns editor
@@ -83,12 +85,14 @@ class AuthenticatedEncryptedPreferencesTest {
     }
 
     encryptedPreferences.put(
-      key, value, authenticator,
+      key,
+      value,
+      authenticator,
       { fail("Encryption should not succeed") },
       { error ->
         assertTrue(error is StorageException)
         assertEquals(exception, error.cause)
-      }
+      },
     )
   }
 
@@ -96,7 +100,7 @@ class AuthenticatedEncryptedPreferencesTest {
   fun testPut_withBiometricError_shouldCallError() {
     val key = "key"
     val value = "value"
-    val editor = mockk<SharedPreferences.Editor>()
+    val editor = mockk<Editor>()
     val exception = BiometricException(NoBiometricEnrolled)
 
     every { preferences.edit() } returns editor
@@ -108,13 +112,15 @@ class AuthenticatedEncryptedPreferencesTest {
     }
 
     encryptedPreferences.put(
-      key, value, authenticator,
+      key,
+      value,
+      authenticator,
       { fail("Encryption should not succeed") },
       { error ->
         assertTrue(error is StorageException)
         assertEquals(exception, error.cause)
         assertEquals(NoBiometricEnrolled.message, exception.message)
-      }
+      },
     )
   }
 
@@ -122,7 +128,7 @@ class AuthenticatedEncryptedPreferencesTest {
   fun testPut_notSavingInPreferences_shouldCallError() {
     val key = "key"
     val value = "value"
-    val editor = mockk<SharedPreferences.Editor>()
+    val editor = mockk<Editor>()
 
     every { preferences.edit() } returns editor
     every { serializer.toByteArray(value) } returns value.toByteArray()
@@ -136,12 +142,14 @@ class AuthenticatedEncryptedPreferencesTest {
     every { editor.commit() } returns false
 
     encryptedPreferences.put(
-      key, value, authenticator,
+      key,
+      value,
+      authenticator,
       { fail("Encryption should not succeed") },
       { error ->
         assertTrue(error is StorageException)
         assertTrue(error.cause is IllegalStateException)
-      }
+      },
     )
   }
 
@@ -200,7 +208,7 @@ class AuthenticatedEncryptedPreferencesTest {
       },
       {
         fail()
-      }
+      },
     )
   }
 
@@ -211,11 +219,14 @@ class AuthenticatedEncryptedPreferencesTest {
     every { preferences.getString(key, null) } returns null
 
     encryptedPreferences.get(
-      key, String::class, authenticator, { fail() },
+      key,
+      String::class,
+      authenticator,
+      { fail() },
       {
         assertTrue(it is StorageException)
         assertTrue(it.cause is IllegalArgumentException)
-      }
+      },
     )
   }
 
@@ -234,11 +245,14 @@ class AuthenticatedEncryptedPreferencesTest {
     every { serializer.fromByteArray(rawValue, Int::class) } returns null
 
     encryptedPreferences.get(
-      key, Int::class, authenticator, { fail() },
+      key,
+      Int::class,
+      authenticator,
+      { fail() },
       {
         assertTrue(it is StorageException)
         assertTrue(it.cause is IllegalArgumentException)
-      }
+      },
     )
   }
 
@@ -259,12 +273,13 @@ class AuthenticatedEncryptedPreferencesTest {
     encryptedPreferences.get(
       key,
       String::class,
-      authenticator, { fail() },
+      authenticator,
+      { fail() },
       {
         assertTrue(it is StorageException)
         assertEquals(exception, it.cause)
         assertEquals(NoBiometricEnrolled.message, exception.message)
-      }
+      },
     )
   }
 
@@ -320,7 +335,7 @@ class AuthenticatedEncryptedPreferencesTest {
   @Test
   fun testRemove_withKey_shouldCallEditor() {
     val key = "key"
-    val editor: SharedPreferences.Editor = mockk(relaxed = true)
+    val editor: Editor = mockk(relaxed = true)
 
     every { preferences.edit() } returns editor
     every { editor.remove(any()) } returns editor
@@ -333,7 +348,7 @@ class AuthenticatedEncryptedPreferencesTest {
 
   @Test
   fun testClear_shouldCallEditor() {
-    val editor: SharedPreferences.Editor = mockk(relaxed = true)
+    val editor: Editor = mockk(relaxed = true)
 
     every { preferences.edit() } returns editor
     every { editor.clear() } returns editor
@@ -346,7 +361,7 @@ class AuthenticatedEncryptedPreferencesTest {
 
   @Test
   fun testRecreate_shouldClearPreferences_shouldDeleteKey_shouldCreateANewKey() {
-    val editor: SharedPreferences.Editor = mockk(relaxed = true)
+    val editor: Editor = mockk(relaxed = true)
 
     every { preferences.edit() } returns editor
     every { editor.clear() } returns editor

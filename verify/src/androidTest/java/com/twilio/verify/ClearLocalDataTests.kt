@@ -9,7 +9,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ClearLocalDataTests : BaseFactorTest() {
-
   @Test
   fun testClearLocalDataWithFactorShouldDeleteAndCallThen() {
     assertTrue(keyStore.containsAlias(factor!!.keyPairAlias))
@@ -26,13 +25,14 @@ class ClearLocalDataTests : BaseFactorTest() {
 
   @Test
   fun testClearLocalDataWithFactorsShouldDeleteAndCallThen() {
-    val factors = mutableListOf<PushFactor>().apply {
-      repeat(2) {
-        createFactor(sid = "factorSid$it") { factor ->
-          add(factor as PushFactor)
+    val factors =
+      mutableListOf<PushFactor>().apply {
+        repeat(2) {
+          createFactor(sid = "factorSid$it") { factor ->
+            add(factor as PushFactor)
+          }
         }
       }
-    }
     factors.forEach { factor ->
       assertTrue(keyStore.containsAlias(factor.keyPairAlias))
       assertTrue(encryptedSharedPreferences.contains(getFactorKey(factor)))

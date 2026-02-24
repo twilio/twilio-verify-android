@@ -24,25 +24,27 @@ interface NetworkProvider {
   fun execute(
     request: Request,
     success: (response: Response) -> Unit,
-    error: (NetworkException) -> Unit
+    error: (NetworkException) -> Unit,
   )
 }
 
 class NetworkException constructor(
   message: String?,
   cause: Throwable?,
-  val failureResponse: FailureResponse?
+  val failureResponse: FailureResponse?,
 ) : Exception(message, cause) {
   constructor(
-    failureResponse: FailureResponse?
+    failureResponse: FailureResponse?,
   ) : this(
     "Network exception with status code ${failureResponse?.statusCode} and body: ${failureResponse?.errorBody}",
     null,
-    failureResponse
+    failureResponse,
   )
 
   constructor(cause: Throwable) : this(
-    cause.message, cause, null
+    cause.message,
+    cause,
+    null,
   )
 }
 
@@ -53,7 +55,7 @@ internal const val MORE_INFO_KEY = "more_info"
 class FailureResponse(
   val statusCode: Int,
   val errorBody: String?,
-  val headers: Map<String, List<String>>?
+  val headers: Map<String, List<String>>?,
 ) {
   val apiError: APIError? by lazy {
     return@lazy errorBody?.let { errorBody ->
@@ -62,12 +64,12 @@ class FailureResponse(
         return@let APIError(
           json.getString(CODE_KEY),
           json.getString(MESSAGE_KEY),
-          json.optString(MORE_INFO_KEY).takeUnless { it.isBlank() || it == JSONObject.NULL }
+          json.optString(MORE_INFO_KEY).takeUnless { it.isBlank() || it == JSONObject.NULL },
         )
       } catch (e: Exception) {
         Logger.log(
           Level.Networking,
-          "Unable to convert error body to Verify API error, details: $e"
+          "Unable to convert error body to Verify API error, details: $e",
         )
         return@let null
       }
@@ -78,5 +80,5 @@ class FailureResponse(
 data class APIError(
   val code: String,
   val message: String,
-  val moreInfo: String?
+  val moreInfo: String?,
 )

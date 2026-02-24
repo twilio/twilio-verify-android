@@ -16,12 +16,16 @@
 
 package com.twilio.verify.networking
 
-internal enum class MediaTypeValue(val type: String) {
+internal enum class MediaTypeValue(
+  val type: String,
+) {
   UrlEncoded("application/x-www-form-urlencoded"),
-  Json("application/json")
+  Json("application/json"),
 }
 
-enum class MediaTypeHeader(val type: String) {
+enum class MediaTypeHeader(
+  val type: String,
+) {
   ContentType("Content-Type"),
-  Accept("Accept")
+  Accept("Accept"),
 }

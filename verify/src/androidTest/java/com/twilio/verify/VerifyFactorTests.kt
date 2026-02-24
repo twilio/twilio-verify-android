@@ -14,7 +14,6 @@ import org.junit.Test
  * Copyright (c) 2020, Twilio Inc.
  */
 class VerifyFactorTests : BaseFactorTest() {
-
   @Test
   fun testVerifyFactorWithValidAPIResponseShouldReturnFactor() {
     val verifyPayload = VerifyPushFactorPayload(factor!!.sid)
@@ -29,7 +28,7 @@ class VerifyFactorTests : BaseFactorTest() {
       { e ->
         fail(e.message)
         idlingResource.decrement()
-      }
+      },
     )
     idlingResource.waitForResource()
   }
@@ -37,10 +36,11 @@ class VerifyFactorTests : BaseFactorTest() {
   @Test
   fun testVerifyFactorWithInvalidAPIResponseCodeShouldThrowNetworkError() {
     val verifyFactorPayload = VerifyPushFactorPayload(factor!!.sid)
-    val expectedException = TwilioVerifyException(
-      NetworkException(null, null, null),
-      NetworkError
-    )
+    val expectedException =
+      TwilioVerifyException(
+        NetworkException(null, null, null),
+        NetworkError,
+      )
     enqueueMockResponse(400, APIResponses.verifyValidFactorResponse())
     idlingResource.increment()
     twilioVerify.verifyFactor(
@@ -52,7 +52,7 @@ class VerifyFactorTests : BaseFactorTest() {
       { exception ->
         assertEquals(expectedException.message, exception.message)
         idlingResource.decrement()
-      }
+      },
     )
     idlingResource.waitForResource()
   }
@@ -60,10 +60,11 @@ class VerifyFactorTests : BaseFactorTest() {
   @Test
   fun testVerifyFactorWithInvalidAPIResponseBodyShouldThrowMapperError() {
     val verifyFactorPayload = VerifyPushFactorPayload(factor!!.sid)
-    val expectedException = TwilioVerifyException(
-      IllegalArgumentException(null, null),
-      MapperError
-    )
+    val expectedException =
+      TwilioVerifyException(
+        IllegalArgumentException(null, null),
+        MapperError,
+      )
     enqueueMockResponse(200, APIResponses.verifyInvalidFactorResponse())
     idlingResource.increment()
     twilioVerify.verifyFactor(
@@ -75,7 +76,7 @@ class VerifyFactorTests : BaseFactorTest() {
       { exception ->
         assertEquals(expectedException.message, exception.message)
         idlingResource.decrement()
-      }
+      },
     )
     idlingResource.waitForResource()
   }
@@ -97,7 +98,7 @@ class VerifyFactorTests : BaseFactorTest() {
           e.printStackTrace()
           fail(e.message)
           idlingResource.decrement()
-        }
+        },
       )
     }
     idlingResource.waitForResource()

@@ -20,8 +20,8 @@ import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeDetails
 import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.Factor
-import java.util.Date
 import org.json.JSONObject
+import java.util.Date
 
 internal class FactorChallenge(
   override val sid: String,
@@ -34,7 +34,7 @@ internal class FactorChallenge(
   override val expirationDate: Date,
   // Original values to generate signature
   internal val signatureFields: List<String>? = null,
-  internal val response: JSONObject? = null
+  internal val response: JSONObject? = null,
 ) : Challenge {
   internal var factor: Factor? = null
 }

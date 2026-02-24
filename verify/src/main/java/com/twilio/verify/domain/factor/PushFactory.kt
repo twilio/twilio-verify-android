@@ -44,7 +44,7 @@ internal const val DEFAULT_ALG = "ES256"
 internal class PushFactory(
   private val factorProvider: FactorProvider,
   private val keyStorage: KeyStorage,
-  private val context: Context
+  private val context: Context,
 ) {
   fun create(
     accessToken: String,
@@ -54,7 +54,7 @@ internal class PushFactory(
     pushToken: String?,
     metadata: Map<String, String>?,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     try {
       Logger.log(Level.Info, "Creating push factor $friendlyName")
@@ -62,25 +62,35 @@ internal class PushFactory(
       val publicKey = keyStorage.create(alias)
       val binding = binding(publicKey)
       val config = config(pushToken)
-      val createFactorPayload = CreateFactorPayload(
-        friendlyName, PUSH, serviceSid,
-        identity, config, binding, accessToken, metadata
-      )
+      val createFactorPayload =
+        CreateFactorPayload(
+          friendlyName,
+          PUSH,
+          serviceSid,
+          identity,
+          config,
+          binding,
+          accessToken,
+          metadata,
+        )
       Logger.log(Level.Debug, "Create push factor for $createFactorPayload")
 
       fun onFactorCreated(factor: Factor) {
-        (factor as? PushFactor?)?.apply {
-          keyPairAlias = alias
-        }
-          ?.let { pushFactor ->
-            pushFactor.takeUnless { it.keyPairAlias.isNullOrEmpty() }
-              ?.apply { factorProvider.save(pushFactor) }?.let { success(it) } ?: run {
+        (factor as? PushFactor?)
+          ?.apply {
+            keyPairAlias = alias
+          }?.let { pushFactor ->
+            pushFactor
+              .takeUnless { it.keyPairAlias.isNullOrEmpty() }
+              ?.apply { factorProvider.save(pushFactor) }
+              ?.let { success(it) } ?: run {
               Logger.log(Level.Debug, "Delete key pair $alias")
               keyStorage.delete(alias)
               error(
                 TwilioVerifyException(
-                  IllegalStateException("Key pair not set").also { Logger.log(Level.Error, it.toString(), it) }, KeyStorageError
-                )
+                  IllegalStateException("Key pair not set").also { Logger.log(Level.Error, it.toString(), it) },
+                  KeyStorageError,
+                ),
               )
             }
           }
@@ -98,7 +108,7 @@ internal class PushFactory(
   fun verify(
     sid: String,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     fun verifyFactor(pushFactor: PushFactor) {
       pushFactor.keyPairAlias?.let { keyPairAlias ->
@@ -125,13 +135,18 @@ internal class PushFactory(
     sid: String,
     pushToken: String?,
     success: (Factor) -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     fun updateFactor(pushFactor: PushFactor) {
-      val updateFactorPayload = UpdateFactorPayload(
-        pushFactor.friendlyName, PUSH, pushFactor.serviceSid, pushFactor.identity,
-        config(pushToken), pushFactor.sid
-      )
+      val updateFactorPayload =
+        UpdateFactorPayload(
+          pushFactor.friendlyName,
+          PUSH,
+          pushFactor.serviceSid,
+          pushFactor.identity,
+          config(pushToken),
+          pushFactor.sid,
+        )
       Logger.log(Level.Debug, "Update push factor with payload $updateFactorPayload")
       factorProvider.update(updateFactorPayload, success, error)
     }
@@ -149,7 +164,7 @@ internal class PushFactory(
   fun delete(
     sid: String,
     success: () -> Unit,
-    error: (TwilioVerifyException) -> Unit
+    error: (TwilioVerifyException) -> Unit,
   ) {
     fun deleteFactor(pushFactor: PushFactor) {
       factorProvider.delete(
@@ -158,7 +173,7 @@ internal class PushFactory(
           pushFactor.keyPairAlias?.let { keyStorage.delete(it) }
           success()
         },
-        error
+        error,
       )
     }
     try {
@@ -173,10 +188,13 @@ internal class PushFactory(
   }
 
   fun deleteAllFactors(then: () -> Unit) {
-    factorProvider.getAll().mapNotNull { it as? PushFactor }.forEach { factor ->
-      factorProvider.delete(factor)
-      factor.keyPairAlias?.let { keyStorage.delete(it) }
-    }.also { then() }
+    factorProvider
+      .getAll()
+      .mapNotNull { it as? PushFactor }
+      .forEach { factor ->
+        factorProvider.delete(factor)
+        factor.keyPairAlias?.let { keyStorage.delete(it) }
+      }.also { then() }
   }
 
   private fun generateKeyPairAlias(): String {
@@ -187,21 +205,18 @@ internal class PushFactory(
       .joinToString("")
   }
 
-  private fun binding(
-    publicKey: String
-  ): Map<String, String> = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
+  private fun binding(publicKey: String): Map<String, String> = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
 
-  private fun config(
-    pushToken: String?
-  ): Map<String, String> = mutableMapOf(
-    SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-    APP_ID_KEY to context.applicationInfo.packageName
-  ).apply {
-    if (pushToken.isNullOrBlank()) {
-      put(NOTIFICATION_PLATFORM_KEY, NONE_PUSH_TYPE)
-    } else {
-      put(NOTIFICATION_PLATFORM_KEY, FCM_PUSH_TYPE)
-      put(NOTIFICATION_TOKEN_KEY, pushToken)
+  private fun config(pushToken: String?): Map<String, String> =
+    mutableMapOf(
+      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+      APP_ID_KEY to context.applicationInfo.packageName,
+    ).apply {
+      if (pushToken.isNullOrBlank()) {
+        put(NOTIFICATION_PLATFORM_KEY, NONE_PUSH_TYPE)
+      } else {
+        put(NOTIFICATION_PLATFORM_KEY, FCM_PUSH_TYPE)
+        put(NOTIFICATION_TOKEN_KEY, pushToken)
+      }
     }
-  }
 }

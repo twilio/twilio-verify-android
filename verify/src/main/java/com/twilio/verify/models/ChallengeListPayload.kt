@@ -41,10 +41,10 @@ class ChallengeListPayload(
   /**
    * Token used to retrieve the next page in the pagination arrangement
    */
-  val pageToken: String? = null
+  val pageToken: String? = null,
 )
 
 enum class ChallengeListOrder {
   Asc,
-  Desc
+  Desc,
 }

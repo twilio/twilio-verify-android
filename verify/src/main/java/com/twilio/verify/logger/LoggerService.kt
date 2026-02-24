@@ -33,5 +33,9 @@ interface LoggerService {
    * @param message
    * @param throwable
    */
-  fun log(logLevel: LogLevel, message: String, throwable: Throwable? = null)
+  fun log(
+    logLevel: LogLevel,
+    message: String,
+    throwable: Throwable? = null,
+  )
 }

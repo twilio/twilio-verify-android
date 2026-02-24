@@ -6,12 +6,12 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import java.text.ParseException
-import java.util.concurrent.TimeUnit.MILLISECONDS
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.text.ParseException
+import java.util.concurrent.TimeUnit.MILLISECONDS
 
 /*
  * Copyright (c) 2020, Twilio Inc.
@@ -19,7 +19,6 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class DateProviderTest {
-
   private val preferences: SharedPreferences = mock()
   private val dateProvider: DateProvider = DateAdapter(preferences)
 
@@ -31,10 +30,10 @@ class DateProviderTest {
   @Test
   fun testGetCurrentTime_withTimeCorrectionStored_shouldReturnLocalTimePlusTimeCorrection() {
     val timeCorrection = 1000L
-    whenever(preferences.getLong(timeCorrectionKey, 0)).thenReturn(timeCorrection)
+    whenever(preferences.getLong(TIME_CORRECTION_KEY, 0)).thenReturn(timeCorrection)
     assertEquals(
       MILLISECONDS.toSeconds(System.currentTimeMillis()) + timeCorrection,
-      dateProvider.getCurrentTime()
+      dateProvider.getCurrentTime(),
     )
   }
 
@@ -44,19 +43,20 @@ class DateProviderTest {
     val date = "Tue, 21 Jul 2020 17:07:32 GMT"
     whenever(preferences.edit()).thenReturn(editor)
     whenever(
-      preferences.edit()
-        .putLong(any(), any())
+      preferences
+        .edit()
+        .putLong(any(), any()),
     ).thenReturn(editor)
     dateProvider.syncTime(date)
     verify(
-      preferences.edit()
+      preferences.edit(),
+    ).putLong(
+      TIME_CORRECTION_KEY,
+      MILLISECONDS.toSeconds(fromRFC1123Date(date).time) -
+        MILLISECONDS.toSeconds(
+          System.currentTimeMillis(),
+        ),
     )
-      .putLong(
-        timeCorrectionKey,
-        MILLISECONDS.toSeconds(fromRFC1123Date(date).time) - MILLISECONDS.toSeconds(
-          System.currentTimeMillis()
-        )
-      )
   }
 
   @Test(expected = ParseException::class)

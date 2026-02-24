@@ -37,8 +37,18 @@ interface EncryptionSecretKey : SecretKeyProvider {
 
 interface AuthenticatedSecretKey : SecretKeyProvider {
   @Throws(Exception::class)
-  fun encrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit)
+  fun encrypt(
+    data: ByteArray,
+    authenticator: BiometricAuthenticator,
+    success: (ByteArray) -> Unit,
+    error: (Exception) -> Unit,
+  )
 
   @Throws(Exception::class)
-  fun decrypt(data: ByteArray, authenticator: BiometricAuthenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit)
+  fun decrypt(
+    data: ByteArray,
+    authenticator: BiometricAuthenticator,
+    success: (ByteArray) -> Unit,
+    error: (Exception) -> Unit,
+  )
 }

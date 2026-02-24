@@ -41,25 +41,18 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class CreateFactorFragment : Fragment() {
-
   private lateinit var token: String
   private val factorViewModel: FactorViewModel by activityViewModel()
-  private var _binding: FragmentCreateFactorBinding? = null
-  private val binding get() = _binding!!
+  private lateinit var binding: FragmentCreateFactorBinding
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? {
-    _binding = FragmentCreateFactorBinding.inflate(inflater, container, false)
+    binding = FragmentCreateFactorBinding.inflate(inflater, container, false)
     val view = binding.root
     return view
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -68,7 +61,8 @@ class CreateFactorFragment : Fragment() {
       startCreateFactor()
     }
     getPushToken()
-    factorViewModel.getFactor()
+    factorViewModel
+      .getFactor()
       .observe(
         viewLifecycleOwner,
         Observer {
@@ -77,7 +71,7 @@ class CreateFactorFragment : Fragment() {
             is com.twilio.verify.sample.viewmodel.Factor -> onSuccess(it.factor)
             is FactorError -> showError(it.exception)
           }
-        }
+        },
       )
   }
 
@@ -91,7 +85,7 @@ class CreateFactorFragment : Fragment() {
         task.result?.let {
           token = it
         }
-      }
+      },
     )
   }
 
@@ -100,17 +94,22 @@ class CreateFactorFragment : Fragment() {
     when {
       binding.includePushTokenCheck.isChecked && !this::token.isInitialized ->
         IllegalArgumentException("Invalid push token").showError(binding.content)
-      binding.identityInput.text.toString()
-        .isEmpty() -> IllegalArgumentException("Invalid identity").showError(
-        binding.content
-      )
-      binding.accessTokenUrlInput.text.toString()
-        .isEmpty() || binding.accessTokenUrlInput.text.toString()
-        .toHttpUrlOrNull() == null ->
+      binding.identityInput.text
+        .toString()
+        .isEmpty() ->
+        IllegalArgumentException("Invalid identity").showError(
+          binding.content,
+        )
+      binding.accessTokenUrlInput.text
+        .toString()
+        .isEmpty() ||
+        binding.accessTokenUrlInput.text
+          .toString()
+          .toHttpUrlOrNull() == null ->
         IllegalArgumentException(
-          "Invalid access token url"
+          "Invalid access token url",
         ).showError(
-          binding.content
+          binding.content,
         )
       else -> {
         createFactor(binding.identityInput.text.toString(), binding.accessTokenUrlInput.text.toString())
@@ -120,7 +119,7 @@ class CreateFactorFragment : Fragment() {
 
   private fun createFactor(
     identity: String,
-    accessTokenUrl: String
+    accessTokenUrl: String,
   ) {
     binding.createFactorButton.isEnabled = false
     val pushToken = if (binding.includePushTokenCheck.isChecked) token else null
@@ -131,7 +130,8 @@ class CreateFactorFragment : Fragment() {
   }
 
   private fun onSuccess(factor: Factor) {
-    Snackbar.make(binding.content, "Factor ${factor.sid} created", Snackbar.LENGTH_LONG)
+    Snackbar
+      .make(binding.content, "Factor ${factor.sid} created", Snackbar.LENGTH_LONG)
       .show()
     findNavController().navigate(R.id.action_show_new_factor)
   }
@@ -150,11 +150,12 @@ class CreateFactorFragment : Fragment() {
 
   private fun handleNetworkException(exception: TwilioVerifyException) {
     (exception.cause as? NetworkException)?.failureResponse?.apiError?.let {
-      val snackbar = Snackbar.make(
-        binding.content,
-        "Code: ${it.code} - ${it.message}",
-        Snackbar.LENGTH_INDEFINITE
-      )
+      val snackbar =
+        Snackbar.make(
+          binding.content,
+          "Code: ${it.code} - ${it.message}",
+          Snackbar.LENGTH_INDEFINITE,
+        )
       snackbar.setAction(R.string.dismiss) {
         snackbar.dismiss()
       }

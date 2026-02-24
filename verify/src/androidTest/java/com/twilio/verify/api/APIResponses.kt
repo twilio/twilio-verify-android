@@ -28,6 +28,10 @@ object APIResponses {
 
   private fun getJson(path: String): String =
     String(
-      ApplicationProvider.getApplicationContext<Context>().assets.open(path).readBytes()
+      ApplicationProvider
+        .getApplicationContext<Context>()
+        .assets
+        .open(path)
+        .readBytes(),
     )
 }

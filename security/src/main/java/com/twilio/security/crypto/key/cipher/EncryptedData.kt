@@ -22,7 +22,7 @@ import org.json.JSONObject
 
 data class EncryptedData(
   val algorithmParameters: AlgorithmParametersSpec,
-  val encrypted: ByteArray
+  val encrypted: ByteArray,
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -46,7 +46,7 @@ data class EncryptedData(
 data class AlgorithmParametersSpec(
   val encoded: ByteArray,
   val provider: String,
-  val algorithm: String
+  val algorithm: String,
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -69,46 +69,46 @@ data class AlgorithmParametersSpec(
   }
 }
 
-private const val encryptedKey = "encrypted"
-private const val algorithmParametersKey = "algorithmParameters"
-private const val encodedKey = "encoded"
-private const val providerKey = "provider"
-private const val algorithmKey = "algorithm"
+private const val ENCRYPTED_KEY = "encrypted"
+private const val ALGORITHM_PARAMETERS_KEY = "algorithmParameters"
+private const val ENCODED_KEY = "encoded"
+private const val PROVIDER_KEY = "provider"
+private const val ALGORITHM_KEY = "algorithm"
 
 internal fun fromByteArray(data: ByteArray): EncryptedData {
   val jsonObject = JSONObject(String(data))
   return EncryptedData(
-    fromByteArray(jsonObject.getJSONObject(algorithmParametersKey)),
+    fromByteArray(jsonObject.getJSONObject(ALGORITHM_PARAMETERS_KEY)),
     Base64.decode(
       jsonObject.getString(
-        encryptedKey
+        ENCRYPTED_KEY,
       ),
-      DEFAULT
-    )
-  )
-}
-
-private fun fromByteArray(jsonObject: JSONObject): AlgorithmParametersSpec {
-  return AlgorithmParametersSpec(
-    Base64.decode(jsonObject.getString(encodedKey), DEFAULT),
-    jsonObject.getString(
-      providerKey
+      DEFAULT,
     ),
-    jsonObject.getString(algorithmKey)
   )
 }
 
-internal fun toByteArray(encryptedData: EncryptedData): ByteArray = JSONObject()
-  .apply {
-    put(encryptedKey, Base64.encodeToString(encryptedData.encrypted, DEFAULT))
-    put(algorithmParametersKey, toByteArray(encryptedData.algorithmParameters))
-  }
-  .toString()
-  .toByteArray()
+private fun fromByteArray(jsonObject: JSONObject): AlgorithmParametersSpec =
+  AlgorithmParametersSpec(
+    Base64.decode(jsonObject.getString(ENCODED_KEY), DEFAULT),
+    jsonObject.getString(
+      PROVIDER_KEY,
+    ),
+    jsonObject.getString(ALGORITHM_KEY),
+  )
 
-private fun toByteArray(algorithmParametersSpec: AlgorithmParametersSpec): JSONObject = JSONObject()
-  .apply {
-    put(encodedKey, Base64.encodeToString(algorithmParametersSpec.encoded, DEFAULT))
-    put(providerKey, algorithmParametersSpec.provider)
-    put(algorithmKey, algorithmParametersSpec.algorithm)
-  }
+internal fun toByteArray(encryptedData: EncryptedData): ByteArray =
+  JSONObject()
+    .apply {
+      put(ENCRYPTED_KEY, Base64.encodeToString(encryptedData.encrypted, DEFAULT))
+      put(ALGORITHM_PARAMETERS_KEY, toByteArray(encryptedData.algorithmParameters))
+    }.toString()
+    .toByteArray()
+
+private fun toByteArray(algorithmParametersSpec: AlgorithmParametersSpec): JSONObject =
+  JSONObject()
+    .apply {
+      put(ENCODED_KEY, Base64.encodeToString(algorithmParametersSpec.encoded, DEFAULT))
+      put(PROVIDER_KEY, algorithmParametersSpec.provider)
+      put(ALGORITHM_KEY, algorithmParametersSpec.algorithm)
+    }

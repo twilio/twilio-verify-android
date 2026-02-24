@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 internal object LoggerImplementation : LoggerContract {
-
   val services: MutableList<LoggerService> = mutableListOf()
   var executorService: ExecutorService = Executors.newFixedThreadPool(3)
 
@@ -17,7 +16,11 @@ internal object LoggerImplementation : LoggerContract {
     services.add(logService)
   }
 
-  override fun log(level: Level, message: String, throwable: Throwable?) {
+  override fun log(
+    level: Level,
+    message: String,
+    throwable: Throwable?,
+  ) {
     executorService.execute {
       LogLevel.values().firstOrNull { it.level == level }?.let { logLevel ->
         services.filter { it.logLevel == LogLevel.All || it.logLevel == logLevel }.forEach { service ->

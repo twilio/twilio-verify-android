@@ -28,6 +28,7 @@ plugins {
   jacoco
   id(Config.Plugins.apkscale)
   id(Config.Plugins.kover)
+  id(Config.Plugins.ktlint)
 }
 //endregion
 
@@ -59,7 +60,7 @@ android {
       isMinifyEnabled = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
-        "proguard-rules.pro"
+        "proguard-rules.pro",
       )
     }
   }
@@ -67,11 +68,6 @@ android {
     unitTests.isIncludeAndroidResources = true
     unitTests.isReturnDefaultValues = true
     targetSdk = Config.Versions.targetSDKVersion
-  }
-  lint {
-    lintConfig = rootProject.file(".lint/config.xml")
-    xmlReport = true
-    checkAllWarnings = true
   }
 }
 //endregion
@@ -90,7 +86,7 @@ tasks.dokkaHtml {
     ant.withGroovyBuilder {
       "copy"(
         "file" to "index.html",
-        "todir" to "../docs/$verifyVersionName"
+        "todir" to "../docs/$verifyVersionName",
       )
     }
   }
@@ -104,14 +100,18 @@ val pomArtifactId: String by project
 val dokkaHtmlJar by tasks.registering(Jar::class) {
   dependsOn(tasks.dokkaHtml)
   from(
-    tasks.dokkaHtml.get()
+    tasks.dokkaHtml.get(),
   )
   archiveClassifier.set("html-doc")
 }
 
 val sourcesJar by tasks.registering(Jar::class) {
   archiveClassifier.set("sources")
-  from(android.sourceSets.getByName("main").java.srcDirs)
+  from(
+    android.sourceSets
+      .getByName("main")
+      .java.srcDirs,
+  )
 }
 
 publishing {
@@ -136,7 +136,7 @@ publishing {
           "Twilio Verify Push SDK helps you verify users by adding a low-friction, secure, " +
             "cost-effective, \"push verification\" factor into your own mobile application. This fully" +
             " managed API service allows you to seamlessly verify users in-app via a secure channel," +
-            " without the risks, hassles or costs of One-Time Passcodes (OTPs)."
+            " without the risks, hassles or costs of One-Time Passcodes (OTPs).",
         )
         url.set("https://github.com/twilio/twilio-verify-android")
         licenses {
@@ -205,17 +205,17 @@ kotlin {
 dependencies {
   debugImplementation(project(":${Modules.security}"))
   releaseImplementation("com.twilio:twilio-security-android:0.2.0")
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.10")
-  androidTestImplementation("androidx.test.ext:junit:1.2.1")
-  androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-  androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.3.1")
-  androidTestImplementation("com.squareup.okhttp3:okhttp-tls:4.3.1")
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0")
+  androidTestImplementation("androidx.test.ext:junit:1.3.0")
+  androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+  androidTestImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
+  androidTestImplementation("com.squareup.okhttp3:okhttp-tls:5.3.2")
   androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
   testImplementation("junit:junit:4.13.2")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-  testImplementation("org.robolectric:robolectric:4.14.1")
-  testImplementation("androidx.test:core:1.6.1")
-  testImplementation("org.hamcrest:hamcrest-library:2.2")
-  testImplementation("org.mockito:mockito-inline:3.11.2")
-  testImplementation("io.mockk:mockk:1.13.16")
+  testImplementation("org.robolectric:robolectric:4.16.1")
+  testImplementation("androidx.test:core:1.7.0")
+  testImplementation("org.hamcrest:hamcrest-library:3.0")
+  testImplementation("org.mockito:mockito-inline:5.2.0")
+  testImplementation("io.mockk:mockk:1.14.9")
 }

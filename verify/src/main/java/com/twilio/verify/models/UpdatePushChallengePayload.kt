@@ -31,5 +31,5 @@ class UpdatePushChallengePayload(
   /**
    * New status of the challenge
    */
-  val status: ChallengeStatus
+  val status: ChallengeStatus,
 ) : UpdateChallengePayload

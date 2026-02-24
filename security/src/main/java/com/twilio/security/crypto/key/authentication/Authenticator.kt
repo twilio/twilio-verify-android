@@ -20,6 +20,15 @@ import java.security.Signature
 import javax.crypto.Cipher
 
 interface Authenticator {
-  fun startAuthentication(signatureObject: Signature, success: (Signature) -> Unit, error: (Exception) -> Unit)
-  fun startAuthentication(cipherObject: Cipher, success: (Cipher) -> Unit, error: (Exception) -> Unit)
+  fun startAuthentication(
+    signatureObject: Signature,
+    success: (Signature) -> Unit,
+    error: (Exception) -> Unit,
+  )
+
+  fun startAuthentication(
+    cipherObject: Cipher,
+    success: (Cipher) -> Unit,
+    error: (Exception) -> Unit,
+  )
 }

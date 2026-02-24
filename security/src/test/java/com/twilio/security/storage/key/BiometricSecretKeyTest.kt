@@ -18,17 +18,16 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import java.security.InvalidKeyException
-import kotlin.random.Random.Default.nextBytes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.security.InvalidKeyException
+import kotlin.random.Random.Default.nextBytes
 
 @RunWith(RobolectricTestRunner::class)
 class BiometricSecretKeyTest {
-
   private val keyManager: KeyManager = mockk(relaxed = true)
   private val template: CipherTemplate = mockk(relaxed = true)
   private val biometricSecretKey: BiometricSecretKey = BiometricSecretKey(template, keyManager)
@@ -58,12 +57,13 @@ class BiometricSecretKeyTest {
     }
 
     biometricSecretKey.encrypt(
-      data, authenticator,
+      data,
+      authenticator,
       {
         val encryptedData = fromByteArray(it)
         assertEquals(expectedEncryptedData, encryptedData)
       },
-      { fail("Encryption should not fail") }
+      { fail("Encryption should not fail") },
     )
 
     verify { cipher.encrypt(eq(data), eq(authenticator), any(), any()) }
@@ -85,11 +85,12 @@ class BiometricSecretKeyTest {
     }
 
     biometricSecretKey.encrypt(
-      data, authenticator,
+      data,
+      authenticator,
       { fail("Encryption should not succeed") },
       {
         assertEquals(exception, it)
-      }
+      },
     )
 
     verify { cipher.encrypt(eq(data), eq(authenticator), any(), any()) }
@@ -108,10 +109,12 @@ class BiometricSecretKeyTest {
     }
 
     biometricSecretKey.encrypt(
-      data, authenticator, { fail() },
+      data,
+      authenticator,
+      { fail() },
       {
         assertEquals(BiometricError.KeyInvalidated.message, it.message)
-      }
+      },
     )
   }
 
@@ -128,10 +131,12 @@ class BiometricSecretKeyTest {
     }
 
     biometricSecretKey.encrypt(
-      data, authenticator, { fail() },
+      data,
+      authenticator,
+      { fail() },
       {
         assertEquals(BiometricError.KeyInvalidated.message, it.message)
-      }
+      },
     )
   }
 
@@ -150,11 +155,12 @@ class BiometricSecretKeyTest {
     }
 
     biometricSecretKey.decrypt(
-      serializedEncryptedData, authenticator,
+      serializedEncryptedData,
+      authenticator,
       {
         assertEquals(expectedData, it)
       },
-      { fail() }
+      { fail() },
     )
   }
 
@@ -174,10 +180,12 @@ class BiometricSecretKeyTest {
     }
 
     biometricSecretKey.decrypt(
-      serializedEncryptedData, authenticator, { fail() },
+      serializedEncryptedData,
+      authenticator,
+      { fail() },
       {
         assertEquals(exception, it)
-      }
+      },
     )
   }
 
@@ -197,10 +205,12 @@ class BiometricSecretKeyTest {
     }
 
     biometricSecretKey.decrypt(
-      serializedEncryptedData, authenticator, { fail() },
+      serializedEncryptedData,
+      authenticator,
+      { fail() },
       {
         assertEquals(BiometricError.KeyInvalidated.message, it.message)
-      }
+      },
     )
   }
 
@@ -220,10 +230,12 @@ class BiometricSecretKeyTest {
     }
 
     biometricSecretKey.decrypt(
-      serializedEncryptedData, authenticator, { fail() },
+      serializedEncryptedData,
+      authenticator,
+      { fail() },
       {
         assertEquals(BiometricError.KeyInvalidated.message, it.message)
-      }
+      },
     )
   }
 

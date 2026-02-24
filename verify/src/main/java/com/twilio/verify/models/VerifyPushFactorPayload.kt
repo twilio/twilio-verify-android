@@ -23,5 +23,5 @@ class VerifyPushFactorPayload(
   /**
    * Factor sid
    */
-  override val sid: String
+  override val sid: String,
 ) : VerifyFactorPayload

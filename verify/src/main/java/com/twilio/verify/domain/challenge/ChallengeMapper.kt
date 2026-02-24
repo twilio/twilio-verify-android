@@ -28,60 +28,66 @@ import com.twilio.verify.models.ChallengeStatus
 import com.twilio.verify.models.ChallengeStatus.Expired
 import com.twilio.verify.models.ChallengeStatus.Pending
 import com.twilio.verify.models.Detail
-import java.text.ParseException
 import org.json.JSONException
 import org.json.JSONObject
+import java.text.ParseException
 
-internal const val sidKey = "sid"
-internal const val messageKey = "message"
-internal const val detailsKey = "details"
-internal const val fieldsKey = "fields"
-internal const val dateKey = "date"
-internal const val labelKey = "label"
-internal const val valueKey = "value"
-internal const val hiddenDetailsKey = "hidden_details"
-internal const val factorSidKey = "factor_sid"
-internal const val statusKey = "status"
-internal const val createdDateKey = "date_created"
-internal const val updatedDateKey = "date_updated"
-internal const val expirationDateKey = "expiration_date"
-internal const val signatureFieldsHeaderSeparator = ","
+internal const val SID_KEY = "sid"
+internal const val MESSAGE_KEY = "message"
+internal const val DETAILS_KEY = "details"
+internal const val FIELDS_KEY = "fields"
+internal const val DATE_KEY = "date"
+internal const val LABEL_KEY = "label"
+internal const val VALUE_KEY = "value"
+internal const val HIDDEN_DETAILS_KEY = "hidden_details"
+internal const val FACTOR_SID_KEY = "factor_sid"
+internal const val STATUS_KEY = "status"
+internal const val CREATED_DATE_KEY = "date_created"
+internal const val UPDATED_DATE_KEY = "date_updated"
+internal const val EXPIRATION_DATE_KEY = "expiration_date"
+internal const val SIGNATURE_FIELDS_HEADER_SEPARATOR = ","
 
 internal class ChallengeMapper {
   @Throws(TwilioVerifyException::class)
   fun fromApi(
     jsonObject: JSONObject,
-    signatureFieldsHeader: String? = null
+    SIGNATURE_FIELDS_HEADER: String? = null,
   ): Challenge {
     try {
-      val details = jsonObject.getJSONObject(detailsKey)
-      val createdDate = jsonObject.getString(createdDateKey)
-      val updatedDate = jsonObject.getString(updatedDateKey)
-      val status = ChallengeStatus.values()
-        .find { it.value == jsonObject.getString(statusKey) }
-        ?: Expired
-      val signatureFields = if (status == Pending && signatureFieldsHeader != null) {
-        signatureFieldsHeader.split(signatureFieldsHeaderSeparator)
-      } else {
-        null
-      }
-      val response = if (status == Pending && signatureFields != null) {
-        jsonObject
-      } else {
-        null
-      }
+      val details = jsonObject.getJSONObject(DETAILS_KEY)
+      val createdDate = jsonObject.getString(CREATED_DATE_KEY)
+      val updatedDate = jsonObject.getString(UPDATED_DATE_KEY)
+      val status =
+        ChallengeStatus
+          .values()
+          .find { it.value == jsonObject.getString(STATUS_KEY) }
+          ?: Expired
+      val signatureFields =
+        if (status == Pending && SIGNATURE_FIELDS_HEADER != null) {
+          SIGNATURE_FIELDS_HEADER.split(SIGNATURE_FIELDS_HEADER_SEPARATOR)
+        } else {
+          null
+        }
+      val response =
+        if (status == Pending && signatureFields != null) {
+          jsonObject
+        } else {
+          null
+        }
       return FactorChallenge(
-        sid = jsonObject.getString(sidKey), response = response,
+        sid = jsonObject.getString(SID_KEY),
+        response = response,
         signatureFields = signatureFields,
-        factorSid = jsonObject.getString(factorSidKey),
-        expirationDate = fromRFC3339Date(jsonObject.getString(expirationDateKey)),
+        factorSid = jsonObject.getString(FACTOR_SID_KEY),
+        expirationDate = fromRFC3339Date(jsonObject.getString(EXPIRATION_DATE_KEY)),
         createdAt = fromRFC3339Date(createdDate),
         updatedAt = fromRFC3339Date(updatedDate),
         challengeDetails = toChallengeDetails(details),
-        hiddenDetails = jsonObject.optJSONObject(hiddenDetailsKey)?.let {
-          it.keys().asSequence().associateWith { key -> it.getString(key) }
-        },
-        status = status
+        hiddenDetails =
+          jsonObject.optJSONObject(HIDDEN_DETAILS_KEY)?.let {
+            it.keys().asSequence().associateWith { key -> it.getString(key) }
+          },
+        status = status,
       )
     } catch (e: JSONException) {
       Logger.log(Level.Error, e.toString(), e)
@@ -92,26 +98,31 @@ internal class ChallengeMapper {
     }
   }
 
-  private fun toChallengeDetails(details: JSONObject): ChallengeDetails = run {
-    val message = details.getString(messageKey)
-    val fields = details.optJSONArray(fieldsKey)
-      ?.takeIf { it.length() > 0 }
-      ?.let {
-        val fields = mutableListOf<Detail>()
-        for (i in 0 until it.length()) {
-          val jsonObject = it.getJSONObject(i)
-          fields.add(
-            Detail(
-              jsonObject.getString(labelKey),
-              jsonObject.getString(valueKey)
-            )
-          )
-        }
-        fields
-      } ?: listOf<Detail>()
-    val date = details.optString(dateKey)
-      .takeIf { it.isNotEmpty() }
-      ?.let { fromRFC3339Date(it) }
-    return ChallengeDetails(message, fields, date)
-  }
+  private fun toChallengeDetails(details: JSONObject): ChallengeDetails =
+    run {
+      val message = details.getString(MESSAGE_KEY)
+      val fields =
+        details
+          .optJSONArray(FIELDS_KEY)
+          ?.takeIf { it.length() > 0 }
+          ?.let {
+            val fields = mutableListOf<Detail>()
+            for (i in 0 until it.length()) {
+              val jsonObject = it.getJSONObject(i)
+              fields.add(
+                Detail(
+                  jsonObject.getString(LABEL_KEY),
+                  jsonObject.getString(VALUE_KEY),
+                ),
+              )
+            }
+            fields
+          } ?: listOf<Detail>()
+      val date =
+        details
+          .optString(DATE_KEY)
+          .takeIf { it.isNotEmpty() }
+          ?.let { fromRFC3339Date(it) }
+      return ChallengeDetails(message, fields, date)
+    }
 }

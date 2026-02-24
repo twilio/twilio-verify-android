@@ -1,24 +1,23 @@
 package com.twilio.verify.networking
 
 import com.nhaarman.mockitokotlin2.mock
-import java.io.ByteArrayInputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.`when`
+import java.io.ByteArrayInputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 /*
  * Copyright (c) 2020, Twilio Inc.
  */
 class NetworkAdapterTest {
-
   private lateinit var networkAdapter: NetworkAdapter
   lateinit var request: Request
 
@@ -53,7 +52,7 @@ class NetworkAdapterTest {
       },
       error = {
         fail()
-      }
+      },
     )
   }
 
@@ -69,10 +68,11 @@ class NetworkAdapterTest {
     val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
     `when`(urlConnection.errorStream).thenReturn(errorStream)
     networkAdapter.execute(
-      request, { fail() },
+      request,
+      { fail() },
       error = { exception ->
         assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
-      }
+      },
     )
   }
 
@@ -88,10 +88,11 @@ class NetworkAdapterTest {
     val errorStream: InputStream = ByteArrayInputStream(expectedResponse.toByteArray())
     `when`(urlConnection.errorStream).thenReturn(errorStream)
     networkAdapter.execute(
-      request, { fail() },
+      request,
+      { fail() },
       error = { exception ->
         assertTrue(exception.message?.contains(urlConnection.responseCode.toString()) == true)
-      }
+      },
     )
   }
 
@@ -103,10 +104,11 @@ class NetworkAdapterTest {
     val expectedException: IOException = mock()
     `when`(url.openConnection()).thenThrow(expectedException)
     networkAdapter.execute(
-      request, { fail() },
+      request,
+      { fail() },
       error = { exception ->
         assertEquals(expectedException, exception.cause)
-      }
+      },
     )
   }
 }

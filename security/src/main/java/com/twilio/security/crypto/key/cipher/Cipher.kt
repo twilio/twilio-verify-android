@@ -26,6 +26,17 @@ interface Cipher {
   @Throws(KeyException::class)
   fun decrypt(data: EncryptedData): ByteArray
 
-  fun encrypt(data: ByteArray, authenticator: Authenticator, success: (EncryptedData) -> Unit, error: (Exception) -> Unit)
-  fun decrypt(data: EncryptedData, authenticator: Authenticator, success: (ByteArray) -> Unit, error: (Exception) -> Unit)
+  fun encrypt(
+    data: ByteArray,
+    authenticator: Authenticator,
+    success: (EncryptedData) -> Unit,
+    error: (Exception) -> Unit,
+  )
+
+  fun decrypt(
+    data: EncryptedData,
+    authenticator: Authenticator,
+    success: (ByteArray) -> Unit,
+    error: (Exception) -> Unit,
+  )
 }

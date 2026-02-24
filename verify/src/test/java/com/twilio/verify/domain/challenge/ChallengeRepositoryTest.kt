@@ -36,7 +36,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class ChallengeRepositoryTest {
-
   private val apiClient: ChallengeAPIClient = mock()
   private val challengeMapper: ChallengeMapper = mock()
   private val challengeListMapper: ChallengeListMapper = mock()
@@ -49,36 +48,40 @@ class ChallengeRepositoryTest {
     val factorSid = "factorSid123"
     val factor: Factor = mock()
     val challenge: FactorChallenge = mock()
-    val expectedResponse = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
-    }
-    val expectedSignatureFieldsHeader = expectedResponse.keys()
-      .asSequence()
-      .toList()
-      .joinToString(
-        signatureFieldsHeaderSeparator
-      )
-    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
+    val expectedResponse =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+        put(CREATED_DATE_KEY, "2020-02-19T16:39:57-08:00")
+        put(UPDATED_DATE_KEY, "2020-02-21T18:39:57-08:00")
+        put(STATUS_KEY, Pending.value)
+      }
+    val expectedSignatureFieldsHeader =
+      expectedResponse
+        .keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+          SIGNATURE_FIELDS_HEADER_SEPARATOR,
+        )
+    argumentCaptor<(response: JSONObject, SIGNATURE_FIELDS_HEADER: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(expectedResponse, expectedSignatureFieldsHeader)
       }
     }
     whenever(challengeMapper.fromApi(expectedResponse, expectedSignatureFieldsHeader)).thenReturn(
-      challenge
+      challenge,
     )
     whenever(factor.sid).thenReturn(factorSid)
     whenever(challenge.factorSid).thenReturn(factorSid)
     challengeRepository.get(
-      sid, factor,
+      sid,
+      factor,
       {
         assertEquals(challenge, it)
         verify(challenge).factor = factor
       },
-      { fail() }
+      { fail() },
     )
   }
 
@@ -93,10 +96,12 @@ class ChallengeRepositoryTest {
       }
     }
     challengeRepository.get(
-      sid, factor, { fail() },
+      sid,
+      factor,
+      { fail() },
       { exception ->
         assertEquals(expectedException, exception)
-      }
+      },
     )
   }
 
@@ -104,33 +109,38 @@ class ChallengeRepositoryTest {
   fun `Error from mapper getting a challenge should call error`() {
     val sid = "sid123"
     val factor: Factor = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, "factorSid123")
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
-    }
-    val expectedSignatureFieldsHeader = response.keys()
-      .asSequence()
-      .toList()
-      .joinToString(
-        signatureFieldsHeaderSeparator
-      )
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, "factorSid123")
+        put(CREATED_DATE_KEY, "2020-02-19T16:39:57-08:00")
+        put(UPDATED_DATE_KEY, "2020-02-21T18:39:57-08:00")
+        put(STATUS_KEY, Pending.value)
+      }
+    val expectedSignatureFieldsHeader =
+      response
+        .keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+          SIGNATURE_FIELDS_HEADER_SEPARATOR,
+        )
     val expectedException: TwilioVerifyException = mock()
-    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
+    argumentCaptor<(response: JSONObject, SIGNATURE_FIELDS_HEADER: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(response, expectedSignatureFieldsHeader)
       }
     }
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenThrow(
-      expectedException
+      expectedException,
     )
     challengeRepository.get(
-      sid, factor, { fail() },
+      sid,
+      factor,
+      { fail() },
       { exception ->
         assertEquals(expectedException, exception)
-      }
+      },
     )
   }
 
@@ -140,20 +150,23 @@ class ChallengeRepositoryTest {
     val factorSid = "factorSid123"
     val factor: Factor = mock()
     val challenge: Challenge = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
-    }
-    val expectedSignatureFieldsHeader = response.keys()
-      .asSequence()
-      .toList()
-      .joinToString(
-        signatureFieldsHeaderSeparator
-      )
-    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+        put(CREATED_DATE_KEY, "2020-02-19T16:39:57-08:00")
+        put(UPDATED_DATE_KEY, "2020-02-21T18:39:57-08:00")
+        put(STATUS_KEY, Pending.value)
+      }
+    val expectedSignatureFieldsHeader =
+      response
+        .keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+          SIGNATURE_FIELDS_HEADER_SEPARATOR,
+        )
+    argumentCaptor<(response: JSONObject, SIGNATURE_FIELDS_HEADER: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(response, expectedSignatureFieldsHeader)
       }
@@ -162,10 +175,12 @@ class ChallengeRepositoryTest {
     whenever(challenge.factorSid).thenReturn(factorSid)
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(challenge)
     challengeRepository.get(
-      sid, factor, { fail() },
+      sid,
+      factor,
+      { fail() },
       { exception ->
         assertTrue(exception.cause is InputException)
-      }
+      },
     )
   }
 
@@ -175,20 +190,23 @@ class ChallengeRepositoryTest {
     val factorSid = "factorSid123"
     val factor: Factor = mock()
     val challenge: Challenge = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
-    }
-    val expectedSignatureFieldsHeader = response.keys()
-      .asSequence()
-      .toList()
-      .joinToString(
-        signatureFieldsHeaderSeparator
-      )
-    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+        put(CREATED_DATE_KEY, "2020-02-19T16:39:57-08:00")
+        put(UPDATED_DATE_KEY, "2020-02-21T18:39:57-08:00")
+        put(STATUS_KEY, Pending.value)
+      }
+    val expectedSignatureFieldsHeader =
+      response
+        .keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+          SIGNATURE_FIELDS_HEADER_SEPARATOR,
+        )
+    argumentCaptor<(response: JSONObject, SIGNATURE_FIELDS_HEADER: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(response, expectedSignatureFieldsHeader)
       }
@@ -197,10 +215,12 @@ class ChallengeRepositoryTest {
     whenever(challenge.factorSid).thenReturn(factorSid)
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(challenge)
     challengeRepository.get(
-      sid, factor, { fail() },
+      sid,
+      factor,
+      { fail() },
       { exception ->
         assertTrue(exception.cause is InputException)
-      }
+      },
     )
   }
 
@@ -212,25 +232,28 @@ class ChallengeRepositoryTest {
     val factor: Factor = mock()
     val challenge: FactorChallenge = mock()
     val updatedChallenge: FactorChallenge = mock()
-    val response = JSONObject().apply {
-      put(sidKey, sid)
-      put(factorSidKey, factorSid)
-      put(createdDateKey, "2020-02-19T16:39:57-08:00")
-      put(updatedDateKey, "2020-02-21T18:39:57-08:00")
-      put(statusKey, Pending.value)
-    }
-    val expectedSignatureFieldsHeader = response.keys()
-      .asSequence()
-      .toList()
-      .joinToString(
-        signatureFieldsHeaderSeparator
-      )
+    val response =
+      JSONObject().apply {
+        put(SID_KEY, sid)
+        put(FACTOR_SID_KEY, factorSid)
+        put(CREATED_DATE_KEY, "2020-02-19T16:39:57-08:00")
+        put(UPDATED_DATE_KEY, "2020-02-21T18:39:57-08:00")
+        put(STATUS_KEY, Pending.value)
+      }
+    val expectedSignatureFieldsHeader =
+      response
+        .keys()
+        .asSequence()
+        .toList()
+        .joinToString(
+          SIGNATURE_FIELDS_HEADER_SEPARATOR,
+        )
     argumentCaptor<() -> Unit>().apply {
       whenever(apiClient.update(eq(challenge), any(), capture(), any())).then {
         firstValue.invoke()
       }
     }
-    argumentCaptor<(response: JSONObject, signatureFieldsHeader: String?) -> Unit>().apply {
+    argumentCaptor<(response: JSONObject, SIGNATURE_FIELDS_HEADER: String?) -> Unit>().apply {
       whenever(apiClient.get(eq(sid), eq(factor), capture(), any())).then {
         firstValue.invoke(response, expectedSignatureFieldsHeader)
       }
@@ -241,15 +264,16 @@ class ChallengeRepositoryTest {
     whenever(challenge.status).thenReturn(Pending)
     whenever(challenge.sid).thenReturn(sid)
     whenever(challengeMapper.fromApi(response, expectedSignatureFieldsHeader)).thenReturn(
-      updatedChallenge
+      updatedChallenge,
     )
     challengeRepository.update(
-      challenge, payload,
+      challenge,
+      payload,
       {
         assertEquals(updatedChallenge, it)
         verify(updatedChallenge).factor = factor
       },
-      { fail() }
+      { fail() },
     )
   }
 
@@ -264,8 +288,10 @@ class ChallengeRepositoryTest {
       }
     }
     challengeRepository.update(
-      challenge, payload, { fail() },
-      { exception -> assertTrue(exception.cause is InputException) }
+      challenge,
+      payload,
+      { fail() },
+      { exception -> assertTrue(exception.cause is InputException) },
     )
   }
 
@@ -280,8 +306,10 @@ class ChallengeRepositoryTest {
       }
     }
     challengeRepository.update(
-      challenge, payload, { fail() },
-      { exception -> assertTrue(exception.cause is ExpiredChallengeException) }
+      challenge,
+      payload,
+      { fail() },
+      { exception -> assertTrue(exception.cause is ExpiredChallengeException) },
     )
   }
 
@@ -296,8 +324,10 @@ class ChallengeRepositoryTest {
       }
     }
     challengeRepository.update(
-      challenge, payload, { fail() },
-      { exception -> assertTrue(exception.cause is AlreadyUpdatedChallengeException) }
+      challenge,
+      payload,
+      { fail() },
+      { exception -> assertTrue(exception.cause is AlreadyUpdatedChallengeException) },
     )
   }
 
@@ -311,19 +341,29 @@ class ChallengeRepositoryTest {
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(
         apiClient.getAll(
-          eq(factor), eq(status.value), eq(pageSize), eq(Desc), anyOrNull(), capture(), any()
-        )
+          eq(factor),
+          eq(status.value),
+          eq(pageSize),
+          eq(Desc),
+          anyOrNull(),
+          capture(),
+          any(),
+        ),
       ).then {
         firstValue.invoke(response)
       }
     }
     whenever(challengeListMapper.fromApi(response)).thenReturn(challengeList)
     challengeRepository.getAll(
-      factor, status, pageSize, Desc, null,
+      factor,
+      status,
+      pageSize,
+      Desc,
+      null,
       {
         assertEquals(challengeList, it)
       },
-      { fail() }
+      { fail() },
     )
   }
 
@@ -337,19 +377,29 @@ class ChallengeRepositoryTest {
     argumentCaptor<(JSONObject) -> Unit>().apply {
       whenever(
         apiClient.getAll(
-          eq(factor), eq(status.value), eq(pageSize), eq(Asc), anyOrNull(), capture(), any()
-        )
+          eq(factor),
+          eq(status.value),
+          eq(pageSize),
+          eq(Asc),
+          anyOrNull(),
+          capture(),
+          any(),
+        ),
       ).then {
         firstValue.invoke(response)
       }
     }
     whenever(challengeListMapper.fromApi(response)).thenThrow(expectedException)
     challengeRepository.getAll(
-      factor, status, pageSize, Asc, null,
+      factor,
+      status,
+      pageSize,
+      Asc,
+      null,
       {
         fail()
       },
-      { assertEquals(expectedException, it) }
+      { assertEquals(expectedException, it) },
     )
   }
 }

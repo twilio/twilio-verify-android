@@ -27,38 +27,44 @@ import com.twilio.verify.networking.HttpMethod.Post
 import com.twilio.verify.networking.MediaTypeValue.Json
 import com.twilio.verify.networking.MediaTypeValue.UrlEncoded
 
-private const val platform = "Android"
-private const val sdkName = "VerifySDK"
-internal const val userAgent = "User-Agent"
+private const val PLATFORM = "Android"
+private const val SDK_NAME = "VerifySDK"
+internal const val USER_AGENT = "User-Agent"
 
 class RequestHelper internal constructor(
   context: Context,
-  authorization: BasicAuthorization
+  authorization: BasicAuthorization,
 ) {
-
-  private val userAgentHeader = Pair(userAgent, generateUserAgent(context))
+  private val userAgentHeader = Pair(USER_AGENT, generateUserAgent(context))
   private val authorizationHeader = authorization.header
 
   private fun generateUserAgent(context: Context): String {
     val userAgentBuilder = StringBuilder()
     val separator = "; "
     val appName = context.applicationInfo.loadLabel(context.packageManager)
-    val appVersionName = context.packageManager.getPackageInfo(context.packageName, 0)
-      .versionName
-    val appVersionCode = if (VERSION.SDK_INT >= VERSION_CODES.P) {
-      context.packageManager.getPackageInfo(context.packageName, 0)
-        .longVersionCode.toInt()
-    } else {
-      context.packageManager.getPackageInfo(context.packageName, 0)
-        .versionCode
-    }
-    val osVersion = "$platform ${VERSION.RELEASE} (${VERSION.SDK_INT})"
+    val appVersionName =
+      context.packageManager
+        .getPackageInfo(context.packageName, 0)
+        .versionName
+    val appVersionCode =
+      if (VERSION.SDK_INT >= VERSION_CODES.P) {
+        context.packageManager
+          .getPackageInfo(context.packageName, 0)
+          .longVersionCode
+          .toInt()
+      } else {
+        context.packageManager
+          .getPackageInfo(context.packageName, 0)
+          .versionCode
+      }
+    val osVersion = "$PLATFORM ${VERSION.RELEASE} (${VERSION.SDK_INT})"
     val sdkVersionName = BuildConfig.VERSION_NAME
     val sdkVersionCode = BuildConfig.VERSION_CODE
     val device = Build.MODEL
-    userAgentBuilder.append(appName)
+    userAgentBuilder
+      .append(appName)
       .append(separator)
-      .append(platform)
+      .append(PLATFORM)
       .append(separator)
       .append(appVersionName)
       .append(separator)
@@ -68,7 +74,7 @@ class RequestHelper internal constructor(
       .append(separator)
       .append(device)
       .append(separator)
-      .append(sdkName)
+      .append(SDK_NAME)
       .append(separator)
       .append(sdkVersionName)
       .append(separator)
@@ -78,24 +84,27 @@ class RequestHelper internal constructor(
 
   fun commonHeaders(httpMethod: HttpMethod?): Map<String, String> {
     var commonHeaders = mapOf(userAgentHeader, authorizationHeader)
-    commonHeaders = when (httpMethod) {
-      Post, Delete -> commonHeaders.plus(
-        mediaTypeHeaders(acceptTypeValue = Json, contentTypeValue = UrlEncoded)
-      )
-      Get -> commonHeaders.plus(
-        mediaTypeHeaders(acceptTypeValue = UrlEncoded, contentTypeValue = UrlEncoded)
-      )
-      else -> commonHeaders
-    }
+    commonHeaders =
+      when (httpMethod) {
+        Post, Delete ->
+          commonHeaders.plus(
+            mediaTypeHeaders(acceptTypeValue = Json, contentTypeValue = UrlEncoded),
+          )
+        Get ->
+          commonHeaders.plus(
+            mediaTypeHeaders(acceptTypeValue = UrlEncoded, contentTypeValue = UrlEncoded),
+          )
+        else -> commonHeaders
+      }
     return commonHeaders
   }
 
   private fun mediaTypeHeaders(
     acceptTypeValue: MediaTypeValue,
-    contentTypeValue: MediaTypeValue
+    contentTypeValue: MediaTypeValue,
   ): Map<String, String> =
     mapOf(
       MediaTypeHeader.Accept.type to acceptTypeValue.type,
-      MediaTypeHeader.ContentType.type to contentTypeValue.type
+      MediaTypeHeader.ContentType.type to contentTypeValue.type,
     )
 }

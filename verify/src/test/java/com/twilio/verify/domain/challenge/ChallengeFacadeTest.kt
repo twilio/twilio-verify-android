@@ -36,7 +36,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class ChallengeFacadeTest {
-
   private val pushChallengeProcessor: PushChallengeProcessor = mock()
   private val factorFacade: FactorFacade = mock()
   private val repository: ChallengeRepository = mock()
@@ -61,7 +60,8 @@ class ChallengeFacadeTest {
     }
     idlingResource.startOperation()
     challengeFacade.getChallenge(
-      sid, factorSid,
+      sid,
+      factorSid,
       { challenge ->
         assertEquals(expectedChallenge, challenge)
         idlingResource.operationFinished()
@@ -69,7 +69,7 @@ class ChallengeFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -92,7 +92,8 @@ class ChallengeFacadeTest {
     }
     idlingResource.startOperation()
     challengeFacade.getChallenge(
-      sid, factorSid,
+      sid,
+      factorSid,
       {
         fail()
         idlingResource.operationFinished()
@@ -100,7 +101,7 @@ class ChallengeFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -108,10 +109,12 @@ class ChallengeFacadeTest {
   @Test
   fun `Get a challenge with blank challenge sid should call error`() {
     challengeFacade.getChallenge(
-      "", "factorSid", { fail() },
+      "",
+      "factorSid",
+      { fail() },
       { exception ->
         assertTrue(exception.cause is EmptyChallengeSidException)
-      }
+      },
     )
   }
 
@@ -127,7 +130,8 @@ class ChallengeFacadeTest {
     }
     idlingResource.startOperation()
     challengeFacade.getChallenge(
-      sid, factorSid,
+      sid,
+      factorSid,
       {
         fail()
         idlingResource.operationFinished()
@@ -135,7 +139,7 @@ class ChallengeFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -155,8 +159,12 @@ class ChallengeFacadeTest {
     argumentCaptor<() -> Unit>().apply {
       whenever(
         pushChallengeProcessor.update(
-          eq(challengeSid), eq(expectedFactor), eq(status), capture(), any()
-        )
+          eq(challengeSid),
+          eq(expectedFactor),
+          eq(status),
+          capture(),
+          any(),
+        ),
       ).then {
         firstValue.invoke()
       }
@@ -170,7 +178,7 @@ class ChallengeFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -191,8 +199,12 @@ class ChallengeFacadeTest {
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
         pushChallengeProcessor.update(
-          eq(challengeSid), eq(expectedFactor), eq(status), any(), capture()
-        )
+          eq(challengeSid),
+          eq(expectedFactor),
+          eq(status),
+          any(),
+          capture(),
+        ),
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
@@ -207,7 +219,7 @@ class ChallengeFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -226,10 +238,11 @@ class ChallengeFacadeTest {
     }
 
     challengeFacade.updateChallenge(
-      updateChallengePayload, { fail() },
+      updateChallengePayload,
+      { fail() },
       { exception ->
         assertTrue(exception.cause is EmptyChallengeSidException)
-      }
+      },
     )
   }
 
@@ -255,7 +268,7 @@ class ChallengeFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -282,7 +295,7 @@ class ChallengeFacadeTest {
       { exception ->
         assertTrue(exception.cause is InputException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -301,7 +314,7 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(ChallengeList) -> Unit>().apply {
       whenever(
-        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(Desc), eq(null), capture(), any())
+        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(Desc), eq(null), capture(), any()),
       ).then {
         firstValue.invoke(expectedChallengeList)
       }
@@ -316,7 +329,7 @@ class ChallengeFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -335,7 +348,7 @@ class ChallengeFacadeTest {
     }
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
-        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(Asc), eq(null), any(), capture())
+        repository.getAll(eq(expectedFactor), eq(null), eq(pageSize), eq(Asc), eq(null), any(), capture()),
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
@@ -350,7 +363,7 @@ class ChallengeFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -376,7 +389,7 @@ class ChallengeFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }

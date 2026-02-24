@@ -8,20 +8,18 @@ import java.security.PublicKey
 import java.security.SignatureSpi
 import java.util.concurrent.TimeUnit.SECONDS
 
-internal const val signatureMockName = "com.twilio.security.crypto.mocks.signature.SignatureMock"
+internal const val SIGNATURE_MOCK_NAME = "com.twilio.security.crypto.mocks.signature.SignatureMock"
 
 lateinit var signatureMockInput: SignatureMockInput
 lateinit var signatureMockOutput: SignatureMockOutput
 
 class SignatureMock : SignatureSpi() {
-  override fun engineUpdate(b: Byte) {
-    throw NotImplementedError()
-  }
+  override fun engineUpdate(b: Byte): Unit = throw NotImplementedError()
 
   override fun engineUpdate(
     b: ByteArray?,
     off: Int,
-    len: Int
+    len: Int,
   ) {
     signatureMockOutput.updatedData = b
   }
@@ -46,9 +44,7 @@ class SignatureMock : SignatureSpi() {
     return signatureMockInput.signature.toByteArray()
   }
 
-  override fun engineGetParameter(param: String?): Any {
-    throw NotImplementedError()
-  }
+  override fun engineGetParameter(param: String?): Any = throw NotImplementedError()
 
   override fun engineInitVerify(publicKey: PublicKey?) {
     signatureMockOutput.initialized = true
@@ -62,8 +58,6 @@ class SignatureMock : SignatureSpi() {
 
   override fun engineSetParameter(
     param: String?,
-    value: Any?
-  ) {
-    throw NotImplementedError()
-  }
+    value: Any?,
+  ): Unit = throw NotImplementedError()
 }

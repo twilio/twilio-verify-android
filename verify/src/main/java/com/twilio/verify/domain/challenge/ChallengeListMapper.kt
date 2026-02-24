@@ -25,53 +25,59 @@ import com.twilio.verify.domain.challenge.models.ChallengeListMetadata
 import com.twilio.verify.domain.challenge.models.FactorChallengeList
 import com.twilio.verify.models.Challenge
 import com.twilio.verify.models.ChallengeList
-import java.text.ParseException
 import org.json.JSONException
 import org.json.JSONObject
+import java.text.ParseException
 
-internal const val challengesKey = "challenges"
-internal const val metaKey = "meta"
-internal const val pageKey = "page"
-internal const val pageSizeKey = "page_size"
-internal const val previousPageKey = "previous_page_url"
-internal const val nextPageKey = "next_page_url"
-internal const val pageTokenKey = "PageToken"
+internal const val CHALLENGES_KEY = "challenges"
+internal const val META_KEY = "meta"
+internal const val PAGE_KEY = "page"
+internal const val PAGE_SIZE_KEY = "page_size"
+internal const val PREVIOUS_PAGE_KEY = "previous_page_url"
+internal const val NEXT_PAGE_KEY = "next_page_url"
+internal const val PAGE_TOKEN_KEY = "PageToken"
 
 internal class ChallengeListMapper(
-  private val challengeMapper: ChallengeMapper = ChallengeMapper()
+  private val challengeMapper: ChallengeMapper = ChallengeMapper(),
 ) {
-
   @Throws(TwilioVerifyException::class)
   fun fromApi(jsonObject: JSONObject): ChallengeList {
     try {
-      val jsonChallenges = jsonObject.getJSONArray(challengesKey)
+      val jsonChallenges = jsonObject.getJSONArray(CHALLENGES_KEY)
       val challenges = ArrayList<Challenge>()
       for (i in 0 until jsonChallenges.length()) {
         challenges.add(challengeMapper.fromApi(jsonChallenges.getJSONObject(i)))
       }
-      val meta = jsonObject.getJSONObject(metaKey)
+      val meta = jsonObject.getJSONObject(META_KEY)
       val metadata =
         ChallengeListMetadata(
           // page from API starts in zero
-          page = meta.getInt(pageKey),
-          pageSize = meta.getInt(pageSizeKey),
-          previousPageToken = meta.optString(previousPageKey)
-            ?.let {
-              Uri.parse(it)
-                .getQueryParameter(
-                  pageTokenKey
-                )
-            },
-          nextPageToken = meta.optString(nextPageKey)
-            ?.let {
-              Uri.parse(it)
-                .getQueryParameter(
-                  pageTokenKey
-                )
-            }
+          page = meta.getInt(PAGE_KEY),
+          pageSize = meta.getInt(PAGE_SIZE_KEY),
+          previousPageToken =
+            meta
+              .optString(PREVIOUS_PAGE_KEY)
+              ?.let {
+                Uri
+                  .parse(it)
+                  .getQueryParameter(
+                    PAGE_TOKEN_KEY,
+                  )
+              },
+          nextPageToken =
+            meta
+              .optString(NEXT_PAGE_KEY)
+              ?.let {
+                Uri
+                  .parse(it)
+                  .getQueryParameter(
+                    PAGE_TOKEN_KEY,
+                  )
+              },
         )
       return FactorChallengeList(
-        challenges, metadata
+        challenges,
+        metadata,
       )
     } catch (e: JSONException) {
       Logger.log(Level.Error, e.toString(), e)

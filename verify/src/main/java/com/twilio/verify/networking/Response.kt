@@ -18,5 +18,5 @@ package com.twilio.verify.networking
 
 class Response(
   val body: String,
-  val headers: Map<String, List<String>>
+  val headers: Map<String, List<String>>,
 )

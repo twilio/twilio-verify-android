@@ -25,7 +25,6 @@ import com.twilio.verify.domain.factor.models.PushFactor
 import com.twilio.verify.models.Factor
 import com.twilio.verify.models.FactorStatus
 import com.twilio.verify.models.FactorType.PUSH
-import java.util.Date
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -34,10 +33,10 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 class PushFactoryTest {
-
   private val factorProvider: FactorProvider = mock()
   private val keyStorage: KeyStorage = mock()
   private val context: Context = ApplicationProvider.getApplicationContext()
@@ -52,12 +51,13 @@ class PushFactoryTest {
     val pushToken = "pushToken123"
     val identity = "factor identity"
     val publicKey = "publicKey123"
-    val expectedConfig = mapOf(
-      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-      APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
-      NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
-      NOTIFICATION_TOKEN_KEY to pushToken
-    )
+    val expectedConfig =
+      mapOf(
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to FCM_PUSH_TYPE,
+        NOTIFICATION_TOKEN_KEY to pushToken,
+      )
     val expectedBinding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
     var alias: String? = null
     argumentCaptor<String>().apply {
@@ -68,8 +68,13 @@ class PushFactoryTest {
     }
     val pushFactor =
       PushFactor(
-        "1", friendlyName, "1", serviceSid, identity, createdAt = Date(),
-        config = Config("credentialSid")
+        "1",
+        friendlyName,
+        "1",
+        serviceSid,
+        identity,
+        createdAt = Date(),
+        config = Config("credentialSid"),
       )
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.create(any(), capture(), any())).then {
@@ -78,7 +83,12 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, pushToken, null,
+      accessToken,
+      friendlyName,
+      serviceSid,
+      identity,
+      pushToken,
+      null,
       {
         verify(factorProvider).create(
           check { pushFactor ->
@@ -88,21 +98,22 @@ class PushFactoryTest {
             assertEquals(identity, pushFactor.identity)
             assertEquals(friendlyName, pushFactor.friendlyName)
           },
-          any(), any()
+          any(),
+          any(),
         )
         verify(factorProvider).save(
           check {
             val factor = it as? PushFactor
             assertNotNull(factor)
             assertEquals(alias, factor?.keyPairAlias)
-          }
+          },
         )
         idlingResource.operationFinished()
       },
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -114,11 +125,12 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val identity = "factor identity"
     val publicKey = "publicKey123"
-    val expectedConfig = mapOf(
-      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-      APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
-      NOTIFICATION_PLATFORM_KEY to NONE_PUSH_TYPE
-    )
+    val expectedConfig =
+      mapOf(
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to NONE_PUSH_TYPE,
+      )
     val expectedBinding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
     var alias: String? = null
     argumentCaptor<String>().apply {
@@ -129,8 +141,13 @@ class PushFactoryTest {
     }
     val pushFactor =
       PushFactor(
-        "1", friendlyName, "1", serviceSid, identity, createdAt = Date(),
-        config = Config("credentialSid")
+        "1",
+        friendlyName,
+        "1",
+        serviceSid,
+        identity,
+        createdAt = Date(),
+        config = Config("credentialSid"),
       )
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.create(any(), capture(), any())).then {
@@ -139,7 +156,12 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, null, null,
+      accessToken,
+      friendlyName,
+      serviceSid,
+      identity,
+      null,
+      null,
       {
         verify(factorProvider).create(
           check { pushFactor ->
@@ -149,21 +171,22 @@ class PushFactoryTest {
             assertEquals(identity, pushFactor.identity)
             assertEquals(friendlyName, pushFactor.friendlyName)
           },
-          any(), any()
+          any(),
+          any(),
         )
         verify(factorProvider).save(
           check {
             val factor = it as? PushFactor
             assertNotNull(factor)
             assertEquals(alias, factor?.keyPairAlias)
-          }
+          },
         )
         idlingResource.operationFinished()
       },
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -175,11 +198,12 @@ class PushFactoryTest {
     val friendlyName = "factor name"
     val identity = "factor identity"
     val publicKey = "publicKey123"
-    val expectedConfig = mapOf(
-      SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
-      APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
-      NOTIFICATION_PLATFORM_KEY to NONE_PUSH_TYPE
-    )
+    val expectedConfig =
+      mapOf(
+        SDK_VERSION_KEY to BuildConfig.VERSION_NAME,
+        APP_ID_KEY to "${context.applicationInfo.loadLabel(context.packageManager)}",
+        NOTIFICATION_PLATFORM_KEY to NONE_PUSH_TYPE,
+      )
     val expectedBinding = mapOf(PUBLIC_KEY_KEY to publicKey, ALG_KEY to DEFAULT_ALG)
     var alias: String? = null
     argumentCaptor<String>().apply {
@@ -190,8 +214,13 @@ class PushFactoryTest {
     }
     val pushFactor =
       PushFactor(
-        "1", friendlyName, "1", serviceSid, identity, createdAt = Date(),
-        config = Config("credentialSid")
+        "1",
+        friendlyName,
+        "1",
+        serviceSid,
+        identity,
+        createdAt = Date(),
+        config = Config("credentialSid"),
       )
     argumentCaptor<(Factor) -> Unit>().apply {
       whenever(factorProvider.create(any(), capture(), any())).then {
@@ -200,7 +229,12 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, "", null,
+      accessToken,
+      friendlyName,
+      serviceSid,
+      identity,
+      "",
+      null,
       {
         verify(factorProvider).create(
           check { pushFactor ->
@@ -210,21 +244,22 @@ class PushFactoryTest {
             assertEquals(identity, pushFactor.identity)
             assertEquals(friendlyName, pushFactor.friendlyName)
           },
-          any(), any()
+          any(),
+          any(),
         )
         verify(factorProvider).save(
           check {
             val factor = it as? PushFactor
             assertNotNull(factor)
             assertEquals(alias, factor?.keyPairAlias)
-          }
+          },
         )
         idlingResource.operationFinished()
       },
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -241,7 +276,12 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, pushToken, serviceSid, identity, null,
+      accessToken,
+      friendlyName,
+      pushToken,
+      serviceSid,
+      identity,
+      null,
       {
         fail()
         idlingResource.operationFinished()
@@ -250,7 +290,7 @@ class PushFactoryTest {
         assertTrue(exception.cause is IllegalStateException)
         assertEquals(KeyStorageError.message, exception.message)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -278,7 +318,12 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, pushToken, null,
+      accessToken,
+      friendlyName,
+      serviceSid,
+      identity,
+      pushToken,
+      null,
       {
         fail()
         idlingResource.operationFinished()
@@ -287,7 +332,7 @@ class PushFactoryTest {
         assertEquals(expectedException, exception)
         verify(keyStorage).delete(alias)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -316,7 +361,12 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.create(
-      accessToken, friendlyName, serviceSid, identity, pushToken, null,
+      accessToken,
+      friendlyName,
+      serviceSid,
+      identity,
+      pushToken,
+      null,
       {
         fail()
         idlingResource.operationFinished()
@@ -325,7 +375,7 @@ class PushFactoryTest {
         assertTrue(exception.cause is IllegalStateException)
         verify(keyStorage).delete(alias)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -350,7 +400,7 @@ class PushFactoryTest {
         identity,
         status,
         Date(),
-        Config("credentialSid")
+        Config("credentialSid"),
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -378,7 +428,7 @@ class PushFactoryTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -397,7 +447,7 @@ class PushFactoryTest {
       { exception ->
         assertTrue(exception.cause is StorageException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -422,7 +472,7 @@ class PushFactoryTest {
         identity,
         status,
         Date(),
-        Config("credentialSid")
+        Config(credentialSid),
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -443,7 +493,7 @@ class PushFactoryTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -460,7 +510,14 @@ class PushFactoryTest {
     val keyPairAlias = null
     val factor =
       PushFactor(
-        sid, friendlyName, accountSid, serviceSid, identity, status, Date(), Config(credentialSid)
+        sid,
+        friendlyName,
+        accountSid,
+        serviceSid,
+        identity,
+        status,
+        Date(),
+        Config(credentialSid),
       )
     factor.keyPairAlias = keyPairAlias
     whenever(factorProvider.get(sid)).thenReturn(factor)
@@ -474,7 +531,7 @@ class PushFactoryTest {
       { exception ->
         assertTrue(exception.cause is IllegalStateException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -498,7 +555,7 @@ class PushFactoryTest {
         identity,
         status,
         Date(),
-        Config("credentialSid")
+        Config("credentialSid"),
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -508,7 +565,8 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.update(
-      sid, pushToken,
+      sid,
+      pushToken,
       {
         verify(factorProvider).update(
           check { updateFactorPayload ->
@@ -519,7 +577,8 @@ class PushFactoryTest {
             assertEquals(PUSH, updateFactorPayload.type)
             assertEquals(pushToken, updateFactorPayload.config[NOTIFICATION_TOKEN_KEY])
           },
-          any(), any()
+          any(),
+          any(),
         )
         assertEquals(serviceSid, it.serviceSid)
         assertEquals(friendlyName, it.friendlyName)
@@ -534,7 +593,7 @@ class PushFactoryTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -557,7 +616,7 @@ class PushFactoryTest {
         identity,
         status,
         Date(),
-        Config("credentialSid")
+        Config("credentialSid"),
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -567,7 +626,8 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.update(
-      sid, null,
+      sid,
+      null,
       {
         verify(factorProvider).update(
           check { updateFactorPayload ->
@@ -579,7 +639,8 @@ class PushFactoryTest {
             assertEquals(NONE_PUSH_TYPE, updateFactorPayload.config[NOTIFICATION_PLATFORM_KEY])
             assertFalse(updateFactorPayload.config.containsKey(NOTIFICATION_TOKEN_KEY))
           },
-          any(), any()
+          any(),
+          any(),
         )
         assertEquals(serviceSid, it.serviceSid)
         assertEquals(friendlyName, it.friendlyName)
@@ -594,7 +655,7 @@ class PushFactoryTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -617,7 +678,7 @@ class PushFactoryTest {
         identity,
         status,
         Date(),
-        Config("credentialSid")
+        Config("credentialSid"),
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     argumentCaptor<(Factor) -> Unit>().apply {
@@ -627,7 +688,8 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.update(
-      sid, "",
+      sid,
+      "",
       {
         verify(factorProvider).update(
           check { updateFactorPayload ->
@@ -639,7 +701,8 @@ class PushFactoryTest {
             assertEquals(NONE_PUSH_TYPE, updateFactorPayload.config[NOTIFICATION_PLATFORM_KEY])
             assertFalse(updateFactorPayload.config.containsKey(NOTIFICATION_TOKEN_KEY))
           },
-          any(), any()
+          any(),
+          any(),
         )
         assertEquals(serviceSid, it.serviceSid)
         assertEquals(friendlyName, it.friendlyName)
@@ -654,7 +717,7 @@ class PushFactoryTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -665,7 +728,8 @@ class PushFactoryTest {
     whenever(factorProvider.get(sid)).thenReturn(null)
     idlingResource.startOperation()
     pushFactory.update(
-      sid, "pushToken",
+      sid,
+      "pushToken",
       {
         fail()
         idlingResource.operationFinished()
@@ -674,7 +738,7 @@ class PushFactoryTest {
         verify(factorProvider, never()).update(any(), any(), any())
         assertTrue(exception.cause is StorageException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -696,7 +760,7 @@ class PushFactoryTest {
         identity,
         status,
         Date(),
-        Config("credentialSid")
+        Config("credentialSid"),
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
@@ -707,7 +771,8 @@ class PushFactoryTest {
     }
     idlingResource.startOperation()
     pushFactory.update(
-      sid, "pushToken",
+      sid,
+      "pushToken",
       {
         fail()
         idlingResource.operationFinished()
@@ -715,7 +780,7 @@ class PushFactoryTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -739,7 +804,7 @@ class PushFactoryTest {
         identity,
         status,
         Date(),
-        Config(credentialSid)
+        Config(credentialSid),
       ).apply {
         keyPairAlias = alias
       }
@@ -762,14 +827,15 @@ class PushFactoryTest {
             assertEquals(identity, factor.identity)
             assertEquals(PUSH, factor.type)
           },
-          any(), any()
+          any(),
+          any(),
         )
         idlingResource.operationFinished()
       },
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -789,7 +855,7 @@ class PushFactoryTest {
         verify(factorProvider, never()).update(any(), any(), any())
         assertTrue(exception.cause is StorageException)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -805,7 +871,14 @@ class PushFactoryTest {
     val credentialSid = "credentialSid"
     val factor =
       PushFactor(
-        sid, friendlyName, accountSid, serviceSid, identity, status, Date(), Config(credentialSid)
+        sid,
+        friendlyName,
+        accountSid,
+        serviceSid,
+        identity,
+        status,
+        Date(),
+        Config(credentialSid),
       )
     whenever(factorProvider.get(sid)).thenReturn(factor)
     val expectedException: TwilioVerifyException = mock()
@@ -824,33 +897,35 @@ class PushFactoryTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
 
   @Test
   fun `Delete all factors should delete push factors and call then`() {
-    val factor1 = PushFactor(
-      "sid1",
-      "friendlyName",
-      "accountSid",
-      "serviceSid",
-      "identity",
-      FactorStatus.Verified,
-      Date(),
-      Config("credentialSid")
-    ).apply { keyPairAlias = "alias1" }
-    val factor2 = PushFactor(
-      "sid2",
-      "friendlyName",
-      "accountSid",
-      "serviceSid",
-      "identity",
-      FactorStatus.Verified,
-      Date(),
-      Config("credentialSid")
-    ).apply { keyPairAlias = "alias2" }
+    val factor1 =
+      PushFactor(
+        "sid1",
+        "friendlyName",
+        "accountSid",
+        "serviceSid",
+        "identity",
+        FactorStatus.Verified,
+        Date(),
+        Config("credentialSid"),
+      ).apply { keyPairAlias = "alias1" }
+    val factor2 =
+      PushFactor(
+        "sid2",
+        "friendlyName",
+        "accountSid",
+        "serviceSid",
+        "identity",
+        FactorStatus.Verified,
+        Date(),
+        Config("credentialSid"),
+      ).apply { keyPairAlias = "alias2" }
     whenever(factorProvider.getAll()).thenReturn(listOf(factor1, factor2))
     idlingResource.startOperation()
     pushFactory.deleteAllFactors {
@@ -878,16 +953,17 @@ class PushFactoryTest {
 
   @Test
   fun `Delete all factors with factor with no alias should delete push factors and call then`() {
-    val factor = PushFactor(
-      "sid1",
-      "friendlyName",
-      "accountSid",
-      "serviceSid",
-      "identity",
-      FactorStatus.Verified,
-      Date(),
-      Config("credentialSid")
-    )
+    val factor =
+      PushFactor(
+        "sid1",
+        "friendlyName",
+        "accountSid",
+        "serviceSid",
+        "identity",
+        FactorStatus.Verified,
+        Date(),
+        Config("credentialSid"),
+      )
     whenever(factorProvider.getAll()).thenReturn(listOf(factor))
     idlingResource.startOperation()
     pushFactory.deleteAllFactors {

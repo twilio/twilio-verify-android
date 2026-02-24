@@ -31,9 +31,8 @@ class AuthenticatedEncryptedPreferences(
   private val preferences: SharedPreferences,
   private val storageAlias: String,
   override val keyManager: KeyManager,
-  override val serializer: Serializer
+  override val serializer: Serializer,
 ) : AuthenticatedEncryptedStorage {
-
   internal var biometricSecretKey: BiometricSecretKey? = null
 
   @Throws(StorageException::class)
@@ -43,19 +42,22 @@ class AuthenticatedEncryptedPreferences(
     value: T,
     authenticator: BiometricAuthenticator,
     success: () -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   ) {
     try {
       Logger.log(Level.Info, "Saving $key")
       val rawValue = toByteArray(value)
       getKey().encrypt(
-        rawValue, authenticator,
+        rawValue,
+        authenticator,
         { encrypted ->
           val keyToSave = generateKeyDigest(key)
           Logger.log(Level.Debug, "Saving $keyToSave")
-          val result = preferences.edit()
-            .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
-            .commit()
+          val result =
+            preferences
+              .edit()
+              .putString(keyToSave, Base64.encodeToString(encrypted, DEFAULT))
+              .commit()
           if (!result) {
             throw IllegalStateException("Error saving value")
           }
@@ -65,7 +67,7 @@ class AuthenticatedEncryptedPreferences(
         {
           Logger.log(Level.Error, it.toString(), it)
           error(StorageException(it))
-        }
+        },
       )
     } catch (e: Exception) {
       Logger.log(Level.Error, e.toString(), e)
@@ -79,40 +81,43 @@ class AuthenticatedEncryptedPreferences(
     kClass: KClass<T>,
     authenticator: BiometricAuthenticator,
     success: (T) -> Unit,
-    error: (Exception) -> Unit
-  ) {
-    return try {
-      Logger.log(Level.Info, "Getting $key")
-      getValue(
-        generateKeyDigest(key), kClass, authenticator,
-        {
-          it?.let(success) ?: throw IllegalArgumentException(
-            "Illegal decrypted data"
-          )
-        },
-        {
-          Logger.log(Level.Error, it.toString(), it)
-          error(StorageException(it))
-        }
-      ).also { Logger.log(Level.Debug, "Return value $it for $key") }
-    } catch (e: Exception) {
-      Logger.log(Level.Error, e.toString(), e)
-      error(StorageException(e))
-    }
+    error: (Exception) -> Unit,
+  ) = try {
+    Logger.log(Level.Info, "Getting $key")
+    getValue(
+      generateKeyDigest(key),
+      kClass,
+      authenticator,
+      {
+        it?.let(success) ?: throw IllegalArgumentException(
+          "Illegal decrypted data",
+        )
+      },
+      {
+        Logger.log(Level.Error, it.toString(), it)
+        error(StorageException(it))
+      },
+    ).also { Logger.log(Level.Debug, "Return value $it for $key") }
+  } catch (e: Exception) {
+    Logger.log(Level.Error, e.toString(), e)
+    error(StorageException(e))
   }
 
-  override fun contains(key: String): Boolean = preferences.contains(generateKeyDigest(key))
-    .also {
-      Logger.log(
-        Level.Debug,
-        "Encrypted preferences ${if (it) "has a value" else "does not have a value"} for $it key $key"
-      )
-    }
+  override fun contains(key: String): Boolean =
+    preferences
+      .contains(generateKeyDigest(key))
+      .also {
+        Logger.log(
+          Level.Debug,
+          "Encrypted preferences ${if (it) "has a value" else "does not have a value"} for $it key $key",
+        )
+      }
 
   @Synchronized
   override fun remove(key: String) {
     Logger.log(Level.Info, "Removing $key")
-    preferences.edit()
+    preferences
+      .edit()
       .remove(generateKeyDigest(key))
       .apply()
   }
@@ -120,7 +125,8 @@ class AuthenticatedEncryptedPreferences(
   @Synchronized
   override fun clear() {
     Logger.log(Level.Info, "Clearing storage")
-    preferences.edit()
+    preferences
+      .edit()
       .clear()
       .apply()
   }
@@ -137,40 +143,41 @@ class AuthenticatedEncryptedPreferences(
     kClass: KClass<T>,
     authenticator: BiometricAuthenticator,
     success: (T?) -> Unit,
-    error: (Exception) -> Unit
+    error: (Exception) -> Unit,
   ) {
     Logger.log(Level.Debug, "Getting value for $key")
     val value = preferences.getString(key, null) ?: throw IllegalArgumentException("key not found")
     getKey().decrypt(
-      Base64.decode(value, DEFAULT), authenticator,
+      Base64.decode(value, DEFAULT),
+      authenticator,
       { decryptedValue ->
         success(
           fromByteArray(decryptedValue, kClass).also {
             Logger.log(
               Level.Debug,
-              "Return value $it for key $key"
+              "Return value $it for key $key",
             )
-          }
+          },
         )
       },
-      error
+      error,
     )
   }
 
-  private fun <T : Any> toByteArray(
-    value: T
-  ): ByteArray = serializer.toByteArray(value)
+  private fun <T : Any> toByteArray(value: T): ByteArray = serializer.toByteArray(value)
 
   private fun <T : Any> fromByteArray(
     data: ByteArray,
-    kClass: KClass<T>
+    kClass: KClass<T>,
   ): T? = serializer.fromByteArray(data, kClass)
 
   private fun getKey(): BiometricSecretKey {
     if (biometricSecretKey == null) {
-      biometricSecretKey = BiometricSecretKey(
-        AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true), keyManager
-      )
+      biometricSecretKey =
+        BiometricSecretKey(
+          AESGCMNoPaddingCipherTemplate(storageAlias, authenticationRequired = true),
+          keyManager,
+        )
     }
     createIfNeeded()
     return biometricSecretKey as BiometricSecretKey

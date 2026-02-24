@@ -22,7 +22,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class LoggerImplementationTest {
-
   @Before
   fun setup() {
     LoggerImplementation.services.clear()
@@ -39,12 +38,14 @@ class LoggerImplementationTest {
   @Test
   fun `Log info level should call logger services for info`() {
     val message = "Message"
-    val logService1: LoggerService = mock {
-      on { logLevel }.doReturn(LogLevel.Info)
-    }
-    val logService2: LoggerService = mock {
-      on { logLevel }.doReturn(LogLevel.Debug)
-    }
+    val logService1: LoggerService =
+      mock {
+        on { logLevel }.doReturn(LogLevel.Info)
+      }
+    val logService2: LoggerService =
+      mock {
+        on { logLevel }.doReturn(LogLevel.Debug)
+      }
     LoggerImplementation.addService(logService1)
     LoggerImplementation.addService(logService2)
     LoggerImplementation.log(Level.Info, message)
@@ -55,12 +56,14 @@ class LoggerImplementationTest {
   @Test
   fun `Log info level should call logger services for info and all`() {
     val message = "Message"
-    val logService1: LoggerService = mock {
-      on { logLevel }.doReturn(LogLevel.Info)
-    }
-    val logService2: LoggerService = mock {
-      on { logLevel }.doReturn(LogLevel.All)
-    }
+    val logService1: LoggerService =
+      mock {
+        on { logLevel }.doReturn(LogLevel.Info)
+      }
+    val logService2: LoggerService =
+      mock {
+        on { logLevel }.doReturn(LogLevel.All)
+      }
     LoggerImplementation.addService(logService1)
     LoggerImplementation.addService(logService2)
     LoggerImplementation.log(Level.Info, message)

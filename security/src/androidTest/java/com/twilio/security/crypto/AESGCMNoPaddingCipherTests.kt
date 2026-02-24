@@ -9,13 +9,6 @@ import com.twilio.security.crypto.key.cipher.AlgorithmParametersSpec
 import com.twilio.security.crypto.key.cipher.EncryptedData
 import com.twilio.security.crypto.key.template.AESGCMNoPaddingCipherTemplate
 import com.twilio.security.crypto.key.template.CipherTemplate
-import java.security.AlgorithmParameters
-import java.security.KeyStore
-import java.security.Signature
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -25,18 +18,28 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+import java.security.AlgorithmParameters
+import java.security.KeyStore
+import java.security.Signature
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
 class AESGCMNoPaddingCipherTests {
-
-  private val keyStore = KeyStore.getInstance(providerName)
-    .apply { load(null) }
+  private val keyStore =
+    KeyStore
+      .getInstance(PROVIDER_NAME)
+      .apply { load(null) }
   private val androidKeyManager = keyManager()
   private lateinit var alias: String
 
   @Before
   fun setup() {
-    alias = System.currentTimeMillis()
-      .toString()
+    alias =
+      System
+        .currentTimeMillis()
+        .toString()
     if (keyStore.containsAlias(alias)) {
       keyStore.deleteEntry(alias)
     }
@@ -85,16 +88,20 @@ class AESGCMNoPaddingCipherTests {
     val data = "message".toByteArray()
     val template = AESGCMNoPaddingCipherTemplate(alias).templateForCreation()
     val key = createKey(template)
-    val encryptedData = Cipher.getInstance(template.cipherAlgorithm)
-      .run {
-        init(Cipher.ENCRYPT_MODE, key)
-        EncryptedData(
-          AlgorithmParametersSpec(
-            parameters.encoded, parameters.provider.name, parameters.algorithm
-          ),
-          doFinal(data)
-        )
-      }
+    val encryptedData =
+      Cipher
+        .getInstance(template.cipherAlgorithm)
+        .run {
+          init(Cipher.ENCRYPT_MODE, key)
+          EncryptedData(
+            AlgorithmParametersSpec(
+              parameters.encoded,
+              parameters.provider.name,
+              parameters.algorithm,
+            ),
+            doFinal(data),
+          )
+        }
     val cipher = androidKeyManager.cipher(template)
     val decrypted = cipher.decrypt(encryptedData)
     assertTrue(data.contentEquals(decrypted))
@@ -108,22 +115,22 @@ class AESGCMNoPaddingCipherTests {
     val encryptedData1 = cipher.encrypt(data)
     val encryptedData2 = cipher.encrypt(data)
     assertNotEquals(encryptedData1, encryptedData2)
-    val algorithmParametersSpec1 = AlgorithmParameters.getInstance(
-      encryptedData1.algorithmParameters.algorithm,
-      encryptedData1.algorithmParameters.provider
-    )
-      .apply {
-        init(encryptedData1.algorithmParameters.encoded)
-      }
-      .getParameterSpec(GCMParameterSpec::class.java) as GCMParameterSpec
-    val algorithmParametersSpec2 = AlgorithmParameters.getInstance(
-      encryptedData2.algorithmParameters.algorithm,
-      encryptedData2.algorithmParameters.provider
-    )
-      .apply {
-        init(encryptedData2.algorithmParameters.encoded)
-      }
-      .getParameterSpec(GCMParameterSpec::class.java) as GCMParameterSpec
+    val algorithmParametersSpec1 =
+      AlgorithmParameters
+        .getInstance(
+          encryptedData1.algorithmParameters.algorithm,
+          encryptedData1.algorithmParameters.provider,
+        ).apply {
+          init(encryptedData1.algorithmParameters.encoded)
+        }.getParameterSpec(GCMParameterSpec::class.java) as GCMParameterSpec
+    val algorithmParametersSpec2 =
+      AlgorithmParameters
+        .getInstance(
+          encryptedData2.algorithmParameters.algorithm,
+          encryptedData2.algorithmParameters.provider,
+        ).apply {
+          init(encryptedData2.algorithmParameters.encoded)
+        }.getParameterSpec(GCMParameterSpec::class.java) as GCMParameterSpec
     assertFalse(algorithmParametersSpec1.iv!!.contentEquals(algorithmParametersSpec2.iv))
     assertEquals(algorithmParametersSpec1.tLen, algorithmParametersSpec2.tLen)
   }
@@ -157,12 +164,13 @@ class AESGCMNoPaddingCipherTests {
     val template = AESGCMNoPaddingCipherTemplate(alias).templateForCreation()
     val cipher = androidKeyManager.cipher(template)
     cipher.encrypt(
-      data, authenticator,
+      data,
+      authenticator,
       { encryptedData ->
         val decrypted = cipher.decrypt(encryptedData)
         assertTrue(data.contentEquals(decrypted))
       },
-      { fail() }
+      { fail() },
     )
   }
 
@@ -174,10 +182,12 @@ class AESGCMNoPaddingCipherTests {
     val template = AESGCMNoPaddingCipherTemplate(alias).templateForCreation()
     val cipher = androidKeyManager.cipher(template)
     cipher.encrypt(
-      data, authenticator, { fail() },
+      data,
+      authenticator,
+      { fail() },
       { error ->
         assertEquals(expectedError, error)
-      }
+      },
     )
   }
 
@@ -187,24 +197,29 @@ class AESGCMNoPaddingCipherTests {
     val authenticator = TestAuthenticator()
     val template = AESGCMNoPaddingCipherTemplate(alias).templateForCreation()
     val key = createKey(template)
-    val encryptedData = Cipher.getInstance(template.cipherAlgorithm)
-      .run {
-        init(Cipher.ENCRYPT_MODE, key)
-        EncryptedData(
-          AlgorithmParametersSpec(
-            parameters.encoded, parameters.provider.name, parameters.algorithm
-          ),
-          doFinal(data)
-        )
-      }
+    val encryptedData =
+      Cipher
+        .getInstance(template.cipherAlgorithm)
+        .run {
+          init(Cipher.ENCRYPT_MODE, key)
+          EncryptedData(
+            AlgorithmParametersSpec(
+              parameters.encoded,
+              parameters.provider.name,
+              parameters.algorithm,
+            ),
+            doFinal(data),
+          )
+        }
     val cipher = androidKeyManager.cipher(template)
     assertNotNull((cipher as? AESCipher)?.key)
     cipher.decrypt(
-      encryptedData, authenticator,
+      encryptedData,
+      authenticator,
       { decryptedData ->
         assertTrue(data.contentEquals(decryptedData))
       },
-      { fail() }
+      { fail() },
     )
   }
 
@@ -215,42 +230,59 @@ class AESGCMNoPaddingCipherTests {
     val authenticator = TestAuthenticator(expectedError)
     val template = AESGCMNoPaddingCipherTemplate(alias).templateForCreation()
     val key = createKey(template)
-    val encryptedData = Cipher.getInstance(template.cipherAlgorithm)
-      .run {
-        init(Cipher.ENCRYPT_MODE, key)
-        EncryptedData(
-          AlgorithmParametersSpec(
-            parameters.encoded, parameters.provider.name, parameters.algorithm
-          ),
-          doFinal(data)
-        )
-      }
+    val encryptedData =
+      Cipher
+        .getInstance(template.cipherAlgorithm)
+        .run {
+          init(Cipher.ENCRYPT_MODE, key)
+          EncryptedData(
+            AlgorithmParametersSpec(
+              parameters.encoded,
+              parameters.provider.name,
+              parameters.algorithm,
+            ),
+            doFinal(data),
+          )
+        }
     val cipher = androidKeyManager.cipher(template)
     assertNotNull((cipher as? AESCipher)?.key)
     cipher.decrypt(
-      encryptedData, authenticator, { fail() },
+      encryptedData,
+      authenticator,
+      { fail() },
       { error ->
         assertEquals(expectedError, error)
-      }
+      },
     )
   }
 
   private fun createKey(template: CipherTemplate): SecretKey {
-    val keyGenerator = KeyGenerator.getInstance(
-      template.algorithm, providerName
-    )
+    val keyGenerator =
+      KeyGenerator.getInstance(
+        template.algorithm,
+        PROVIDER_NAME,
+      )
     keyGenerator.init(template.keyGenParameterSpec)
     return keyGenerator.generateKey()
   }
 }
 
-class TestAuthenticator(private val exception: Exception? = null) : Authenticator {
-
-  override fun startAuthentication(signatureObject: Signature, success: (Signature) -> Unit, error: (Exception) -> Unit) {
+class TestAuthenticator(
+  private val exception: Exception? = null,
+) : Authenticator {
+  override fun startAuthentication(
+    signatureObject: Signature,
+    success: (Signature) -> Unit,
+    error: (Exception) -> Unit,
+  ) {
     exception?.let { error(exception) } ?: success(signatureObject)
   }
 
-  override fun startAuthentication(cipherObject: Cipher, success: (Cipher) -> Unit, error: (Exception) -> Unit) {
+  override fun startAuthentication(
+    cipherObject: Cipher,
+    success: (Cipher) -> Unit,
+    error: (Exception) -> Unit,
+  ) {
     exception?.let { error(exception) } ?: success(cipherObject)
   }
 }

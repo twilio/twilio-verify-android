@@ -25,7 +25,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class ServiceFacadeTest {
-
   private val serviceProvider: ServiceProvider = mock()
   private val factorFacade: FactorFacade = mock()
   private val serviceFacade = ServiceFacade(serviceProvider, factorFacade)
@@ -39,8 +38,11 @@ class ServiceFacadeTest {
     argumentCaptor<(Service) -> Unit>().apply {
       whenever(
         serviceProvider.get(
-          eq(serviceSid), any(), capture(), any()
-        )
+          eq(serviceSid),
+          any(),
+          capture(),
+          any(),
+        ),
       ).then {
         firstValue.invoke(expectedService)
       }
@@ -60,7 +62,7 @@ class ServiceFacadeTest {
       {
         fail()
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -84,7 +86,7 @@ class ServiceFacadeTest {
       { exception ->
         assertEquals(expectedException, exception)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }
@@ -97,8 +99,11 @@ class ServiceFacadeTest {
     argumentCaptor<(TwilioVerifyException) -> Unit>().apply {
       whenever(
         serviceProvider.get(
-          eq(serviceSid), any(), any(), capture()
-        )
+          eq(serviceSid),
+          any(),
+          any(),
+          capture(),
+        ),
       ).then {
         firstValue.invoke(TwilioVerifyException(expectedException, InputError))
       }
@@ -118,7 +123,7 @@ class ServiceFacadeTest {
       { exception ->
         assertEquals(expectedException, exception.cause)
         idlingResource.operationFinished()
-      }
+      },
     )
     idlingResource.waitForIdle()
   }

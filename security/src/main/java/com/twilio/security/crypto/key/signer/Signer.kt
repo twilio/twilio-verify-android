@@ -23,7 +23,10 @@ interface Signer {
   fun sign(data: ByteArray): ByteArray
 
   @Throws(KeyException::class)
-  fun verify(data: ByteArray, signature: ByteArray): Boolean
+  fun verify(
+    data: ByteArray,
+    signature: ByteArray,
+  ): Boolean
 
   @Throws(KeyException::class)
   fun getPublic(): ByteArray

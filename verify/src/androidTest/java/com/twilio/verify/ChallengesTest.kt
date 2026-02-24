@@ -12,7 +12,6 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 class ChallengesTest : BaseFactorTest() {
-
   @Test
   fun testGetAllChallengesWithValidDataShouldCallSuccess() {
     val response = JSONObject(APIResponses.getAllChallengesResponse())
@@ -32,7 +31,7 @@ class ChallengesTest : BaseFactorTest() {
       { e ->
         fail(e.message)
         idlingResource.decrement()
-      }
+      },
     )
     idlingResource.waitForResource()
   }
