@@ -43,3 +43,8 @@ android_lint.skip_gradle_task = true
 android_lint.filtering = true
 android_lint.severity = "Error"
 android_lint.lint(inline_mode: true)
+
+# Ktlint
+ktlint.skip_lint = true
+ktlint.report_files_pattern = '**/build/reports/ktlint/**.json'
+ktlint.lint
