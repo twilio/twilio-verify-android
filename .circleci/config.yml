@@ -69,13 +69,9 @@ references:
       name: Danger check
       command: bundle exec fastlane danger_check
   danger_check: &danger_check
-    parameters:
-      danger_params:
-        type: string
-    steps:
-      - run:
-          name: Danger check
-          command: bundle exec danger <<parameters.danger_params>> --verbose --remove-previous-comments
+    run:
+      name: Danger check
+      command: bundle exec danger --danger_id=Linter --dangerfile=Dangerfile --verbose --remove-previous-comments
 
   #Release
   release: &release
@@ -256,8 +252,7 @@ jobs:
       - *restore_gradle_cache
       - *decrypt_google_services
       - *lint_checker
-      - *danger_check:
-          danger_params: --danger_id=Linter --dangerfile=Dangerfile
+      - *danger_check
       - *save_gradle_cache
       - store_artifacts:
           path: "verify/build/reports"
