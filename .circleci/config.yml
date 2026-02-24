@@ -68,7 +68,7 @@ references:
     run:
       name: Danger check
       command: bundle exec fastlane danger_check
-  danger-check: &danger-check
+  danger_check: &danger_check
     parameters:
       danger_params:
         type: string
