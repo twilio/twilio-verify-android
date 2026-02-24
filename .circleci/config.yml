@@ -256,7 +256,7 @@ jobs:
       - *restore_gradle_cache
       - *decrypt_google_services
       - *lint_checker
-      - danger_check:
+      - *danger_check:
           danger_params: --danger_id=Linter --dangerfile=Dangerfile
       - *save_gradle_cache
       - store_artifacts:
