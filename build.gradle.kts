@@ -16,8 +16,11 @@
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
+  id(Config.Plugins.androidApplication) version Config.Versions.androidGradlePlugin apply false
+  id(Config.Plugins.androidLibrary) version Config.Versions.androidGradlePlugin apply false
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
+  id(Config.Plugins.firebasePerformance) version Config.Versions.firebasePerformancePlugin apply false
 }
 
 buildscript {
@@ -27,10 +30,8 @@ buildscript {
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
   }
   dependencies {
-    classpath(Config.Dependencies.androidTools)
     classpath(kotlin(Config.Dependencies.kotlin, Config.Versions.kotlin))
     classpath(Config.Dependencies.googleServices)
-    classpath(Config.Dependencies.firebasePerformance)
     classpath(Config.Dependencies.jacoco)
     classpath(Config.Dependencies.apkscale)
     // NOTE: Do not place your application dependencies here; they belong

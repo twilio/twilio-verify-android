@@ -42,7 +42,10 @@ android {
 
   defaultConfig {
     minSdk = Config.Versions.minSDKVersion
-    targetSdk = Config.Versions.targetSDKVersion
+    targetSdkVersion(Config.Versions.targetSDKVersion)
+    testOptions {
+      targetSdk = Config.Versions.targetSDKVersion
+    }
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
@@ -53,7 +56,7 @@ android {
   }
 
   buildTypes {
-    getByName("release") {
+    release {
       isMinifyEnabled = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
