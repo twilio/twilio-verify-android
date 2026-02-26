@@ -37,6 +37,7 @@ object Config {
     const val signing = "signing"
     const val ktlint = "plugins.ktlint"
     const val gitHooks = "plugins.git-hooks"
+    const val kover = "org.jetbrains.kotlinx.kover"
   }
 
   object Versions {
@@ -51,6 +52,7 @@ object Config {
     const val jacoco = "0.8.12"
     const val apkscale = "0.1.9"
     const val nexusPublisher = "2.0.0"
+    const val kover = "0.9.7"
   }
 
   object Groups {

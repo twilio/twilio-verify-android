@@ -21,6 +21,7 @@ plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
   id(Config.Plugins.firebasePerformance) version Config.Versions.firebasePerformancePlugin apply false
+  id(Config.Plugins.kover).apply(true) version Config.Versions.kover
 }
 
 buildscript {
