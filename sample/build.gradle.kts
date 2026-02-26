@@ -19,7 +19,6 @@ plugins {
   id(Config.Plugins.androidApplication)
   id(Config.Plugins.googleServices)
   id(Config.Plugins.kotlinAndroid)
-  id(Config.Plugins.firebasePerformance)
   jacoco
 }
 repositories {
@@ -49,7 +48,7 @@ android {
     }
   }
   buildTypes {
-    getByName("release") {
+    release {
       isMinifyEnabled = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -57,7 +56,7 @@ android {
       )
       signingConfig = signingConfigs.getByName("release")
     }
-    getByName("debug") {
+    debug {
       signingConfig = signingConfigs.getByName("release")
     }
   }
@@ -91,10 +90,10 @@ dependencies {
   implementation("androidx.appcompat:appcompat:1.7.0")
   implementation("androidx.core:core-ktx:1.15.0")
   implementation("androidx.constraintlayout:constraintlayout:2.2.0")
-  implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
-  implementation("com.google.firebase:firebase-messaging-ktx")
-  implementation("com.google.firebase:firebase-analytics-ktx")
-  implementation("com.google.firebase:firebase-perf-ktx")
+  implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
+  implementation("com.google.firebase:firebase-messaging")
+  implementation("com.google.firebase:firebase-analytics")
+  implementation("com.google.firebase:firebase-perf")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
   implementation("com.squareup.okhttp3:okhttp:4.12.0")
