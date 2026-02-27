@@ -43,9 +43,8 @@ platform :android do
 
   desc "Check android, kotlin style convention"
   lane :lint_checker do
-    # todo: run lint in verify an security modules
     gradle(
-      tasks: ["ktlint"]
+      tasks: ["ktlint", ":verify:lint", ":security:lint"]
     )
   end
 
