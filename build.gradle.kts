@@ -21,6 +21,7 @@ plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
   id(Config.Plugins.firebasePerformance) version Config.Versions.firebasePerformancePlugin apply false
+  id(Config.Plugins.ktlint) version Config.Versions.ktlint
 }
 
 buildscript {
@@ -44,8 +45,13 @@ allprojects {
     mavenCentral()
     google()
   }
-  plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
+
+  tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
+    reportsOutputDirectory.set(
+      project.layout.buildDirectory.dir("$buildDir/reports/ktlint"),
+    )
+  }
 }
 
 nexusPublishing {
@@ -132,8 +138,8 @@ task("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class) {
   )
 }
 
-fun mavenPublishCredentials(): Map<String, String> {
-  return MavenPublish.credentials(
+fun mavenPublishCredentials(): Map<String, String> =
+  MavenPublish.credentials(
     project,
     MavenPublish.signingKeyIdEnv,
     MavenPublish.signingPasswordEnv,
@@ -142,7 +148,6 @@ fun mavenPublishCredentials(): Map<String, String> {
     MavenPublish.sonatypePasswordEnv,
     MavenPublish.sonatypeStagingProfileIdEnv
   )
-}
 
 tasks.register("clean", Delete::class) {
   delete(rootProject.layout.buildDirectory)
