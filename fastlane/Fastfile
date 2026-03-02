@@ -31,7 +31,6 @@ platform :android do
   lane :unit_tests do
     gradle(
       tasks: [
-        "jacocoTestReport", ":verify:jacocoCoverageVerification",
         ":verify:koverXmlReportDebug", ":verify:koverVerify",
         ":sample:koverXmlReportDebug", ":sample:koverVerify",
         ":security:koverXmlReportDebug", ":security:koverVerify"
