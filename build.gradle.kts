@@ -20,7 +20,6 @@ plugins {
   id(Config.Plugins.androidLibrary) version Config.Versions.androidGradlePlugin apply false
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
-  id(Config.Plugins.firebasePerformance) version Config.Versions.firebasePerformancePlugin apply false
   id(Config.Plugins.ktlint) version Config.Versions.ktlint
   id(Config.Plugins.kover) version Config.Versions.kover apply false
 }
