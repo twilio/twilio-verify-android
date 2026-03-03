@@ -19,6 +19,7 @@ plugins {
   id(Config.Plugins.androidApplication)
   id(Config.Plugins.googleServices)
   id(Config.Plugins.kotlinAndroid)
+  id(Config.Plugins.firebasePerformance) version Config.Versions.firebasePerformancePlugin
   jacoco
 }
 repositories {
