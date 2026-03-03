@@ -6,7 +6,6 @@ gem "danger", ">= 9.4.3"
 gem "danger-checkstyle_formatter", ">= 0.0.3"
 gem "danger-ktlint", ">= 0.0.9"
 gem "danger-shroud", ">= 0.0.7"
-gem "danger-ktlint", ">= 0.0.9"
 
 plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
 eval_gemfile(plugins_path) if File.exist?(plugins_path)
