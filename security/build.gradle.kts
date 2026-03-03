@@ -34,7 +34,6 @@ android {
   compileSdk = Config.Versions.compileSDKVersion
   defaultConfig {
     minSdk = Config.Versions.minSDKVersion
-    targetSdk = Config.Versions.targetSDKVersion
     version = securityVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

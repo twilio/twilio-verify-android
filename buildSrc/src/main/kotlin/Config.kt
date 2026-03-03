@@ -19,10 +19,7 @@ import org.gradle.api.Project
 object Config {
   object Dependencies {
     const val kotlin = "gradle-plugin"
-    const val androidTools = "com.android.tools.build:gradle:${Versions.gradle}"
     const val googleServices = "com.google.gms:google-services:${Versions.googleServices}"
-    const val firebasePerformance =
-      "com.google.firebase:perf-plugin:${Versions.firebasePerformance}"
     const val jacoco = "org.jacoco:org.jacoco.core:${Versions.jacoco}"
     const val apkscale = "com.twilio:apkscale:${Versions.apkscale}"
   }
@@ -44,15 +41,15 @@ object Config {
 
   object Versions {
     const val kotlin = "2.1.10"
-    const val gradle = "8.2.0"
+    const val androidGradlePlugin = "8.7.3"
     const val googleServices = "4.4.1"
-    const val firebasePerformance = "1.4.2"
+    const val firebasePerformancePlugin = "2.0.2"
     const val compileSDKVersion = 35
     const val minSDKVersion = 23
     const val targetSDKVersion = 35
     const val dokka = "2.0.0"
     const val jacoco = "0.8.12"
-    const val apkscale = "0.1.7"
+    const val apkscale = "0.1.9"
     const val nexusPublisher = "2.0.0"
   }
 
