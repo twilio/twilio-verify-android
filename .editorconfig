@@ -16,6 +16,11 @@ trim_trailing_whitespace = true
 max_line_length = 150
 end_of_line = lf
 
+[*.{kt,kts}]
+ktlint_standard_trailing-comma-on-call-site = disabled
+ktlint_standard_trailing-comma-on-declaration-site = disabled
+ktlint_standard_multiline-expression-wrapping = disabled
+
 [*.xml]
 indent_size = 2
 indent_style = space

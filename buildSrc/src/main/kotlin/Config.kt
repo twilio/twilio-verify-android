@@ -35,7 +35,7 @@ object Config {
     const val nexusPublisher = "io.github.gradle-nexus.publish-plugin"
     const val maven_publish = "maven-publish"
     const val signing = "signing"
-    const val ktlint = "plugins.ktlint"
+    const val ktlint = "org.jlleitschuh.gradle.ktlint"
     const val gitHooks = "plugins.git-hooks"
   }
 
@@ -51,6 +51,7 @@ object Config {
     const val jacoco = "0.8.12"
     const val apkscale = "0.1.9"
     const val nexusPublisher = "2.0.0"
+    const val ktlint = "14.0.1"
   }
 
   object Groups {
