@@ -22,7 +22,7 @@ plugins {
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
   id(Config.Plugins.firebasePerformance) version Config.Versions.firebasePerformancePlugin apply false
   id(Config.Plugins.ktlint) version Config.Versions.ktlint
-  id(Config.Plugins.kover).apply(true) version Config.Versions.kover
+  id(Config.Plugins.kover) version Config.Versions.kover apply false
 }
 
 buildscript {
