@@ -21,7 +21,7 @@ plugins {
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
   id(Config.Plugins.ktlint) version Config.Versions.ktlint
-  id(Config.Plugins.kover) version Config.Versions.kover apply false
+  id(Config.Plugins.kover) version Config.Versions.kover
 }
 
 buildscript {
