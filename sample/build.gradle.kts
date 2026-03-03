@@ -20,7 +20,6 @@ plugins {
   id(Config.Plugins.googleServices)
   id(Config.Plugins.kotlinAndroid)
   jacoco
-  id(Config.Plugins.kover)
 }
 repositories {
   mavenLocal()

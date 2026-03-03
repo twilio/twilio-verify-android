@@ -32,8 +32,8 @@ platform :android do
     gradle(
       tasks: [
         ":verify:koverXmlReportDebug", ":verify:koverVerify",
-        ":sample:koverXmlReportDebug", ":sample:koverVerify",
-        ":security:koverXmlReportDebug", ":security:koverVerify"
+        ":security:koverXmlReportDebug", ":security:koverVerify",
+        ":sample:testDebugUnitTest"
       ]
     )
   end
