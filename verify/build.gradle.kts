@@ -25,6 +25,7 @@ plugins {
   id(Config.Plugins.signing)
   jacoco
   id(Config.Plugins.apkscale)
+  id(Config.Plugins.kover)
 }
 //endregion
 
@@ -42,10 +43,7 @@ android {
 
   defaultConfig {
     minSdk = Config.Versions.minSDKVersion
-    targetSdkVersion(Config.Versions.targetSDKVersion)
-    testOptions {
-      targetSdk = Config.Versions.targetSDKVersion
-    }
+    targetSdk = Config.Versions.targetSDKVersion
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")

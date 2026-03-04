@@ -22,6 +22,7 @@ plugins {
   id(Config.Plugins.maven_publish)
   id(Config.Plugins.signing)
   jacoco
+  id(Config.Plugins.kover)
 }
 //endregion
 
