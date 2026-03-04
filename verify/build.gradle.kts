@@ -25,6 +25,7 @@ plugins {
   id(Config.Plugins.signing)
   jacoco
   id(Config.Plugins.apkscale)
+  id(Config.Plugins.kover)
 }
 //endregion
 
