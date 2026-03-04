@@ -30,7 +30,11 @@ platform :android do
   desc "Runs all the tests with coverage"
   lane :unit_tests do
     gradle(
-      tasks: ["jacocoTestReport", ":verify:jacocoCoverageVerification"]
+      tasks: [
+        ":verify:koverXmlReportDebug", ":verify:koverVerify",
+        ":security:koverXmlReportDebug", ":security:koverVerify",
+        ":sample:testDebugUnitTest"
+      ]
     )
   end
 
