@@ -30,7 +30,11 @@ platform :android do
   desc "Runs all the tests with coverage"
   lane :unit_tests do
     gradle(
-      tasks: ["jacocoTestReport", ":verify:jacocoCoverageVerification"]
+      tasks: [
+        ":verify:koverXmlReportDebug", ":verify:koverVerify",
+        ":security:koverXmlReportDebug", ":security:koverVerify",
+        ":sample:testDebugUnitTest"
+      ]
     )
   end
 
@@ -44,7 +48,7 @@ platform :android do
   desc "Check android, kotlin style convention"
   lane :lint_checker do
     gradle(
-      tasks: ["ktlint", ":verify:lint", ":security:lint"]
+      tasks: ["ktlintCheck"]
     )
   end
 

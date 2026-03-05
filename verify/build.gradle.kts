@@ -25,6 +25,7 @@ plugins {
   id(Config.Plugins.signing)
   jacoco
   id(Config.Plugins.apkscale)
+  id(Config.Plugins.kover)
 }
 //endregion
 
@@ -53,7 +54,7 @@ android {
   }
 
   buildTypes {
-    getByName("release") {
+    release {
       isMinifyEnabled = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),

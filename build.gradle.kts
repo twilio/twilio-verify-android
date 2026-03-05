@@ -16,8 +16,12 @@
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
+  id(Config.Plugins.androidApplication) version Config.Versions.androidGradlePlugin apply false
+  id(Config.Plugins.androidLibrary) version Config.Versions.androidGradlePlugin apply false
   id(Config.Plugins.dokka) version Config.Versions.dokka
   id(Config.Plugins.nexusPublisher) version (Config.Versions.nexusPublisher)
+  id(Config.Plugins.ktlint) version Config.Versions.ktlint
+  id(Config.Plugins.kover) version Config.Versions.kover
 }
 
 buildscript {
@@ -27,10 +31,8 @@ buildscript {
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
   }
   dependencies {
-    classpath(Config.Dependencies.androidTools)
     classpath(kotlin(Config.Dependencies.kotlin, Config.Versions.kotlin))
     classpath(Config.Dependencies.googleServices)
-    classpath(Config.Dependencies.firebasePerformance)
     classpath(Config.Dependencies.jacoco)
     classpath(Config.Dependencies.apkscale)
     // NOTE: Do not place your application dependencies here; they belong
@@ -43,8 +45,13 @@ allprojects {
     mavenCentral()
     google()
   }
-  plugins.apply(Config.Plugins.ktlint)
   plugins.apply(Config.Plugins.gitHooks)
+
+  tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
+    reportsOutputDirectory.set(
+      project.layout.buildDirectory.dir("$buildDir/reports/ktlint"),
+    )
+  }
 }
 
 nexusPublishing {
@@ -131,8 +138,8 @@ task("mavenLocalTwilioVerifyReleaseUpload", GradleBuild::class) {
   )
 }
 
-fun mavenPublishCredentials(): Map<String, String> {
-  return MavenPublish.credentials(
+fun mavenPublishCredentials(): Map<String, String> =
+  MavenPublish.credentials(
     project,
     MavenPublish.signingKeyIdEnv,
     MavenPublish.signingPasswordEnv,
@@ -141,7 +148,6 @@ fun mavenPublishCredentials(): Map<String, String> {
     MavenPublish.sonatypePasswordEnv,
     MavenPublish.sonatypeStagingProfileIdEnv
   )
-}
 
 tasks.register("clean", Delete::class) {
   delete(rootProject.layout.buildDirectory)
