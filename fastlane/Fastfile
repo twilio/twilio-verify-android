@@ -22,7 +22,9 @@ platform :android do
 
   desc "Assemble build"
   lane :assemble do
-    ensure_git_status_clean
+    ensure_git_status_clean(
+      ignore_files: ["Gemfile.lock"]
+    )
   end
   
   desc "Runs all the tests with coverage"
