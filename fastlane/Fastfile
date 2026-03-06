@@ -22,9 +22,7 @@ platform :android do
 
   desc "Assemble build"
   lane :assemble do
-    gradle(
-      tasks: ["assembleDebug", "assembleDebugAndroidTest", ":security:assembleDebugAndroidTest"]
-    )
+    ensure_git_status_clean
   end
   
   desc "Runs all the tests with coverage"
