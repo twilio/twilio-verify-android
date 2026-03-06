@@ -93,7 +93,9 @@ platform :android do
   desc "Increment version"
   lane :increment_version do |options|
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-    ensure_git_status_clean
+    ensure_git_status_clean(
+      ignore_files: ["Gemfile.lock"]
+    )
     # Increment version in Verify module
     UI.message("Updating verify/gradle.properties")
     gradle(task: "-q :verify:incrementVersion", properties: { 'version_number' => next_version })
