@@ -291,7 +291,6 @@ workflows:
     jobs:
       - assemble_build:
           context:
-            - verify-push
             - verify-push-android
       - lint:
           context:

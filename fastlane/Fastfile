@@ -22,9 +22,9 @@ platform :android do
 
   desc "Assemble build"
   lane :assemble do
-    sh("git config user.name \"#{ENV["GH_USER_NAME"]}\"")
-    sh("git config user.email \"#{ENV["GH_USER_EMAIL"]}\"")
-    sh("git config --list")
+    gradle(
+      tasks: ["assembleDebug", "assembleDebugAndroidTest", ":security:assembleDebugAndroidTest"]
+    )
   end
   
   desc "Runs all the tests with coverage"
