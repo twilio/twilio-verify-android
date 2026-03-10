@@ -148,7 +148,3 @@ fun mavenPublishCredentials(): Map<String, String> =
     MavenPublish.sonatypePasswordEnv,
     MavenPublish.sonatypeStagingProfileIdEnv
   )
-
-tasks.register("clean", Delete::class) {
-  delete(rootProject.layout.buildDirectory)
-}
