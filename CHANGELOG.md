@@ -1,3 +1,24 @@
+# 0.9.1 (2026-03-09)
+
+### Bug fixes
+- Update gradle version and dependencies ([bcd97a4](https://github.com/twilio/twilio-verify-android/commit/bcd97a425af7afed2523ed4d2415a50d8b37d7d9))
+
+### Building system
+- Replace Lint library ([7600236](https://github.com/twilio/twilio-verify-android/commit/76002365c9381dcc72fd3342806aad6cc35a17b3))
+- Change to Kover code coverage library ([0fd954f](https://github.com/twilio/twilio-verify-android/commit/0fd954feb25e277ed8a56e4cc22f256953e6a1e8))
+- Ignore gemfile config file during release ([6d9d4cc](https://github.com/twilio/twilio-verify-android/commit/6d9d4cc6cc7c07ffeac973d79630b628d5490f94))
+
+### Size impact
+
+| ABI             | APK Size Impact |
+| --------------- | --------------- |
+| x86             | 699.6KB         |
+| x86_64          | 699.6KB         |
+| armeabi-v7a     | 699.6KB         |
+| arm64-v8a       | 699.6KB         |
+| universal       | 699.6KB         |
+
+
 # 0.9.0 (2025-11-20)
 
 ### Features
