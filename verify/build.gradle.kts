@@ -100,9 +100,9 @@ val pomGroup: String by project
 val pomArtifactId: String by project
 
 val dokkaHtmlJar by tasks.creating(Jar::class) {
-  dependsOn(tasks.dokkaHtml)
+  dependsOn(tasks.dokkaGenerate)
   from(
-    tasks.dokkaHtml.get()
+    tasks.dokkaGenerate.get()
   )
   archiveClassifier.set("html-doc")
 }
