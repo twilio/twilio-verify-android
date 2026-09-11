@@ -1,4 +1,4 @@
-#!/bin/bash -v
+#!/bin/bash
 #./add_google_services_file Authy SECRET_KEY SECRET_IV
 KEY=$1
 IV=$2
