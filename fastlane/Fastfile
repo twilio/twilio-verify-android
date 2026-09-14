@@ -20,7 +20,6 @@ require 'fileutils'
 
 default_platform(:android)
 
-# fastlane runs with the working directory set to fastlane/, not the repo root.
 def repo_root
   @repo_root ||= `git rev-parse --show-toplevel`.strip
 end
@@ -40,9 +39,6 @@ def android_sdk_dir
   ""
 end
 
-# apkscale runs measureSize in a nested Gradle build that ignores the root
-# local.properties, and shells out to apkanalyzer from cmdline-tools. It needs
-# ANDROID_HOME set and cmdline-tools on PATH -- CI images have both, laptops don't.
 def ensure_android_sdk_env
   sdk_dir = android_sdk_dir
   if sdk_dir.empty?
@@ -98,11 +94,6 @@ platform :android do
   desc "Size impact report"
   lane :sdk_sizer do
     ensure_android_sdk_env
-
-    # --no-daemon matters here: Gradle runs exec tasks inside the daemon using
-    # the daemon's environment, so a daemon already running without apkanalyzer
-    # on PATH cannot launch it even after ensure_android_sdk_env fixes the
-    # client's PATH.
     gradle(task: "generateSizeReport", flags: "--no-daemon")
   end
 
