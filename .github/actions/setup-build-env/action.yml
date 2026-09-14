@@ -1,0 +1,39 @@
+name: Set up build environment
+description: Installs the JDK and Ruby toolchains and restores the Gradle cache.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK 17
+      uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+      with:
+        distribution: temurin
+        java-version: '17'
+
+    # gradle/actions/setup-gradle is not on this org's allowed-actions list, so a
+    # workflow using it fails at startup. To switch back, allow-list
+    # gradle/actions@9c971963bec38e04b3d30dcc455b5382be2fdbfb (repo-level: the
+    # parser requires owner/repo) in twilio-internal/github-actions-allowlist.
+    - name: Restore Gradle cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: >-
+          gradle-${{ runner.os }}-${{ hashFiles(
+            'gradle/wrapper/gradle-wrapper.properties',
+            '**/*.gradle.kts',
+            'buildSrc/src/main/kotlin/**',
+            'gradle.properties',
+            '*/gradle.properties'
+          ) }}
+        restore-keys: |
+          gradle-${{ runner.os }}-
+
+    # ruby-version is deliberately omitted: setup-ruby reads .ruby-version, so
+    # local and CI share a single source of truth and cannot drift.
+    - name: Set up Ruby and install gems
+      uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+      with:
+        bundler-cache: true
