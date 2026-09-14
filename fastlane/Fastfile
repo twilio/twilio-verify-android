@@ -20,6 +20,53 @@ require 'fileutils'
 
 default_platform(:android)
 
+# fastlane runs with the working directory set to fastlane/, not the repo root.
+def repo_root
+  @repo_root ||= `git rev-parse --show-toplevel`.strip
+end
+
+def android_sdk_dir
+  %w[ANDROID_HOME ANDROID_SDK_ROOT].each do |var|
+    value = ENV[var].to_s
+    return value unless value.empty?
+  end
+
+  properties = File.join(repo_root, "local.properties")
+  if File.exist?(properties)
+    entry = File.readlines(properties).find { |line| line.start_with?("sdk.dir=") }
+    return entry.to_s.split("=", 2).last.to_s.strip
+  end
+
+  ""
+end
+
+# apkscale runs measureSize in a nested Gradle build that ignores the root
+# local.properties, and shells out to apkanalyzer from cmdline-tools. It needs
+# ANDROID_HOME set and cmdline-tools on PATH -- CI images have both, laptops don't.
+def ensure_android_sdk_env
+  sdk_dir = android_sdk_dir
+  if sdk_dir.empty?
+    UI.user_error!(
+      "Android SDK not found. Set ANDROID_HOME (CI images normally do), or add " \
+      "sdk.dir=/path/to/sdk to local.properties."
+    )
+  end
+  ENV["ANDROID_HOME"] = sdk_dir
+
+  tools_bin = File.join(sdk_dir, "cmdline-tools", "latest", "bin")
+  unless File.directory?(tools_bin)
+    UI.important(
+      "cmdline-tools not found at #{tools_bin}. apkscale invokes apkanalyzer from " \
+      "there; install it with: sdkmanager --install \"cmdline-tools;latest\""
+    )
+    return
+  end
+
+  entries = ENV["PATH"].to_s.split(File::PATH_SEPARATOR)
+  ENV["PATH"] = ([tools_bin] + entries).join(File::PATH_SEPARATOR) unless entries.include?(tools_bin)
+  UI.message("Android SDK: #{sdk_dir} (apkanalyzer available for apkscale)")
+end
+
 platform :android do
 
   desc "Decrypt the sample app's google-services.json"
@@ -50,9 +97,13 @@ platform :android do
 
   desc "Size impact report"
   lane :sdk_sizer do
-    gradle(
-      task: "generateSizeReport"
-    )
+    ensure_android_sdk_env
+
+    # --no-daemon matters here: Gradle runs exec tasks inside the daemon using
+    # the daemon's environment, so a daemon already running without apkanalyzer
+    # on PATH cannot launch it even after ensure_android_sdk_env fixes the
+    # client's PATH.
+    gradle(task: "generateSizeReport", flags: "--no-daemon")
   end
 
   desc "Check android, kotlin style convention"
