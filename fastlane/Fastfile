@@ -16,9 +16,19 @@
 output_directory = './fastlane/Test Output/'
 coverage_directory = '/coverage'
 
+require 'fileutils'
+
 default_platform(:android)
 
 platform :android do
+
+  desc "Decrypt the sample app's google-services.json"
+  lane :decrypt_google_services do
+    key = ENV.fetch("GOOGLE_SERVICES_KEY")
+    iv = ENV.fetch("GOOGLE_SERVICES_IV")
+    # log: false -- the command line carries the key and IV.
+    sh("cd ../sample && ./add_google_services_file #{key} #{iv}", log: false)
+  end
 
   desc "Assemble build"
   lane :assemble do
@@ -52,6 +62,15 @@ platform :android do
     )
   end
 
+  desc "Materialize the GPG signing keyring from the base64-encoded SIGNING_KEY"
+  lane :install_signing_key do
+    key = ENV.fetch("SIGNING_KEY")
+    path = ENV.fetch("SIGNING_SECRET_KEY_RING_FILE")
+    FileUtils.mkdir_p(File.dirname(path))
+    # Overwrite rather than append: appending corrupts the keyring on a re-run.
+    File.binwrite(path, key.unpack1("m"))
+  end
+
   desc "Release a new production version"
   lane :release do
     title = 'Android Verify Push Release'
@@ -70,7 +89,7 @@ platform :android do
       UI.message("#{options[:title]} deploy was triggered on local machine")
       gradle(task: "clean")
     else
-      UI.message("#{options[:title]} deploy was triggered on CircleCI")
+      UI.message("#{options[:title]} deploy was triggered on CI")
     end
 
     # Check if there is any change since last version
