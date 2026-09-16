@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  push:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  assemble:
+    name: Assemble
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    env:
+      GOOGLE_SERVICES_KEY: ${{ secrets.GOOGLE_SERVICES_KEY }}
+      GOOGLE_SERVICES_IV: ${{ secrets.GOOGLE_SERVICES_IV }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-build-env
+      - name: Decrypt sample app secrets
+        run: bundle exec fastlane decrypt_google_services
+      - name: Assemble the project
+        run: bundle exec fastlane assemble
+      - name: Upload instrumentation test APKs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: androidtest-apks
+          path: |
+            verify/build/outputs/apk/androidTest/debug/verify-debug-androidTest.apk
+            security/build/outputs/apk/androidTest/debug/security-debug-androidTest.apk
+          if-no-files-found: error
+
+  lint:
+    name: Lint
+    needs: [assemble]
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    permissions:
+      contents: read
+      pull-requests: write # danger_check comments on the PR
+    env:
+      GOOGLE_SERVICES_KEY: ${{ secrets.GOOGLE_SERVICES_KEY }}
+      GOOGLE_SERVICES_IV: ${{ secrets.GOOGLE_SERVICES_IV }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-build-env
+      - name: Decrypt sample app secrets
+        run: bundle exec fastlane decrypt_google_services
+      - name: Run ktlint
+        run: bundle exec fastlane lint_checker
+      - name: Danger check
+        continue-on-error: true
+        run: bundle exec fastlane danger_check
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lint-reports
+          path: |
+            verify/build/reports
+            sample/build/reports
+            security/build/reports
+          if-no-files-found: warn
+
+  unit_tests:
+    name: Unit tests
+    needs: [assemble]
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    permissions:
+      contents: read
+      pull-requests: write # code_coverage_report comments on the PR
+    env:
+      GOOGLE_SERVICES_KEY: ${{ secrets.GOOGLE_SERVICES_KEY }}
+      GOOGLE_SERVICES_IV: ${{ secrets.GOOGLE_SERVICES_IV }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-build-env
+      - name: Decrypt sample app secrets
+        run: bundle exec fastlane decrypt_google_services
+      - name: Run unit tests with coverage
+        run: bundle exec fastlane unit_tests
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-results
+          path: |
+            verify/build/test-results/testDebugUnitTest/
+            security/build/test-results/testDebugUnitTest/
+            sample/build/test-results/testDebugUnitTest/
+          if-no-files-found: error
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-reports
+          path: |
+            verify/build/reports/kover
+            security/build/reports/kover
+          if-no-files-found: error
+      - name: Report code coverage
+        continue-on-error: true
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: bundle exec danger --danger_id=code_coverage_report --dangerfile=dangerfiles/code_coverage_reporter
+
+  size_report:
+    name: Size report
+    needs: [unit_tests]
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    env:
+      GOOGLE_SERVICES_KEY: ${{ secrets.GOOGLE_SERVICES_KEY }}
+      GOOGLE_SERVICES_IV: ${{ secrets.GOOGLE_SERVICES_IV }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-build-env
+      - name: Decrypt sample app secrets
+        run: bundle exec fastlane decrypt_google_services
+      - name: Generate the size report
+        run: bundle exec fastlane sdk_sizer
+      - name: Upload size report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: size-report
+          path: verify/build/outputs/sizeReport/
+          if-no-files-found: error
