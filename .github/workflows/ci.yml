@@ -167,7 +167,7 @@ jobs:
           --type instrumentation
           --app ftl/dummy.apk
           --test "$TEST_APK"
-          --device model=husky,version=34,locale=en,orientation=portrait
+          --device model=shiba,version=36,locale=en,orientation=portrait
       - name: Run on multiple devices
         run: |
           sed -i -e "s|{{test_build}}|$TEST_APK|g" "$FTL_CONFIG"
