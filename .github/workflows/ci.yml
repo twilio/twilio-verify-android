@@ -127,3 +127,48 @@ jobs:
           name: size-report
           path: verify/build/outputs/sizeReport/
           if-no-files-found: error
+
+  instrumentation_tests:
+    name: Instrumentation tests (${{ matrix.module }})
+    needs: [lint, unit_tests]
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    # Holds GCLOUD_SERVICE_KEY. No required reviewers: this runs on every push.
+    environment: ci
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: verify
+            ftl_config: ftl/verify-ftl-config.yaml
+            ftl_group: twilio-verify-tests
+          - module: security
+            ftl_config: ftl/security-ftl-config.yaml
+            ftl_group: twilio-security-tests
+    env:
+      TEST_APK: ${{ matrix.module }}/build/outputs/apk/androidTest/debug/${{ matrix.module }}-debug-androidTest.apk
+      FTL_CONFIG: ${{ matrix.ftl_config }}
+      FTL_GROUP: ${{ matrix.ftl_group }}
+      CLOUDSDK_CORE_DISABLE_PROMPTS: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download instrumentation test APKs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: androidtest-apks
+      - uses: ./.github/actions/setup-gcloud
+        with:
+          service-account-key: ${{ secrets.GCLOUD_SERVICE_KEY }}
+          project: twilioverify-sampleapp
+      # A quick single-device run gates the slower multi-device matrix.
+      - name: Run on a single device
+        run: >-
+          gcloud firebase test android run
+          --type instrumentation
+          --app ftl/dummy.apk
+          --test "$TEST_APK"
+          --device model=husky,version=34,locale=en,orientation=portrait
+      - name: Run on multiple devices
+        run: |
+          sed -i -e "s|{{test_build}}|$TEST_APK|g" "$FTL_CONFIG"
+          gcloud firebase test android run "$FTL_CONFIG:$FTL_GROUP"

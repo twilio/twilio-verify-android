@@ -1,0 +1,30 @@
+name: Authenticate gcloud
+description: Activates a service account on the runner's preinstalled gcloud CLI and sets the default project.
+
+inputs:
+  service-account-key:
+    description: Base64-encoded service account JSON key.
+    required: true
+  project:
+    description: Default GCP project for subsequent gcloud commands.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # The runner image ships the Google Cloud CLI, so no third-party action (and
+    # no allow-list entry) is needed. The key is passed through the environment
+    # rather than the command line so it never appears in the step log.
+    - name: Activate the service account
+      shell: bash
+      env:
+        SERVICE_ACCOUNT_KEY: ${{ inputs.service-account-key }}
+        PROJECT: ${{ inputs.project }}
+        CLOUDSDK_CORE_DISABLE_PROMPTS: '1'
+      run: |
+        key_file="$RUNNER_TEMP/gcloud-service-key.json"
+        (umask 077 && printf '%s' "$SERVICE_ACCOUNT_KEY" | base64 --decode > "$key_file")
+        gcloud auth activate-service-account --key-file="$key_file"
+        # gcloud keeps its own copy of the credential; the key file is no longer needed.
+        rm -f "$key_file"
+        gcloud config set project "$PROJECT"
