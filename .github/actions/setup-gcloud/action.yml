@@ -22,6 +22,12 @@ runs:
         PROJECT: ${{ inputs.project }}
         CLOUDSDK_CORE_DISABLE_PROMPTS: '1'
       run: |
+        # A job's environment is recreated empty if it was deleted, so a missing
+        # secret shows up here as an empty value rather than a workflow error.
+        if [ -z "$SERVICE_ACCOUNT_KEY" ]; then
+          echo "::error::The service account key is empty. Check that the job's environment still holds the secret."
+          exit 1
+        fi
         key_file="$RUNNER_TEMP/gcloud-service-key.json"
         (umask 077 && printf '%s' "$SERVICE_ACCOUNT_KEY" | base64 --decode > "$key_file")
         gcloud auth activate-service-account --key-file="$key_file"
