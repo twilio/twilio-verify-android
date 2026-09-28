@@ -12,3 +12,5 @@ twilio-security-tests:
         - {model: oriole, version: 31, locale: en, orientation: portrait}
         # Pixel 7
         - {model: panther, version: 33, locale: en, orientation: portrait}
+        # Pixel 9
+        - {model: tokay, version: 35, locale: en, orientation: portrait}
