@@ -1,7 +1,11 @@
 name: CI
 
 on:
+  # Feature branches are covered by their pull request; limiting pushes to the
+  # long-lived branches keeps a PR from running the pipeline twice.
   push:
+    branches: [main, dev]
+  pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -40,19 +44,24 @@ jobs:
     permissions:
       contents: read
       pull-requests: write # danger_check comments on the PR
+      statuses: write # danger_check reports the danger/Linter status
     env:
       GOOGLE_SERVICES_KEY: ${{ secrets.GOOGLE_SERVICES_KEY }}
       GOOGLE_SERVICES_IV: ${{ secrets.GOOGLE_SERVICES_IV }}
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # Danger diffs the PR against its base branch
       - uses: ./.github/actions/setup-build-env
       - name: Decrypt sample app secrets
         run: bundle exec fastlane decrypt_google_services
       - name: Run ktlint
         run: bundle exec fastlane lint_checker
+      # Fork PRs get a read-only token, so Danger could not comment or set a status.
       - name: Danger check
-        continue-on-error: true
+        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: bundle exec fastlane danger_check
       - name: Upload lint reports
         if: always()
@@ -72,11 +81,14 @@ jobs:
     permissions:
       contents: read
       pull-requests: write # code_coverage_report comments on the PR
+      statuses: write # code_coverage_report reports its danger status
     env:
       GOOGLE_SERVICES_KEY: ${{ secrets.GOOGLE_SERVICES_KEY }}
       GOOGLE_SERVICES_IV: ${{ secrets.GOOGLE_SERVICES_IV }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # Danger diffs the PR against its base branch
       - uses: ./.github/actions/setup-build-env
       - name: Decrypt sample app secrets
         run: bundle exec fastlane decrypt_google_services
@@ -101,10 +113,12 @@ jobs:
             verify/build/reports/kover
             security/build/reports/kover
           if-no-files-found: error
+      # Informational, so a reporter failure does not fail the job.
       - name: Report code coverage
+        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         continue-on-error: true
         env:
-          DANGER_GITHUB_API_TOKEN: ${{ secrets.GH_TOKEN }}
+          DANGER_GITHUB_API_TOKEN: ${{ github.token }}
         run: bundle exec danger --danger_id=code_coverage_report --dangerfile=dangerfiles/code_coverage_reporter
 
   size_report:
