@@ -28,7 +28,6 @@ buildscript {
   repositories {
     mavenCentral()
     google()
-    maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
   }
   dependencies {
     classpath(kotlin(Config.Dependencies.kotlin, Config.Versions.kotlin))
