@@ -22,9 +22,6 @@ plugins {
   id(Config.Plugins.firebasePerformance) version Config.Versions.firebasePerformancePlugin
   jacoco
 }
-repositories {
-  mavenLocal()
-}
 
 val verifyVersionName: String by rootProject.allprojects.first { it.name == Modules.verify }.extra
 val verifyVersionCode: String by rootProject.allprojects.first { it.name == Modules.verify }.extra
@@ -83,8 +80,8 @@ kotlin {
 
 dependencies {
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
-  debugImplementation(project(":${Modules.verify}"))
-  releaseImplementation("com.twilio:twilio-verify-android:0.9.0")
+  // Release builds use the local SDK too, so the sample always matches the version being released.
+  implementation(project(":${Modules.verify}"))
   implementation("com.squareup.retrofit2:retrofit:2.11.0")
   implementation("com.squareup.retrofit2:converter-gson:2.11.0")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Config.Versions.kotlin}")
