@@ -75,23 +75,20 @@ android {
 //endregion
 
 //region KDoc
-tasks.dokkaHtml {
-  dokkaSourceSets {
-    configureEach {
-      includeNonPublic = false
-      reportUndocumented = true
-      skipEmptyPackages = true
-    }
+dokka {
+  dokkaSourceSets.configureEach {
+    // Only public declarations are documented, which is Dokka's default.
+    reportUndocumented.set(true)
+    skipEmptyPackages.set(true)
   }
+}
 
-  doLast {
-    ant.withGroovyBuilder {
-      "copy"(
-        "file" to "index.html",
-        "todir" to "../docs/$verifyVersionName"
-      )
-    }
-  }
+// GitHub Pages serves the API reference for each release from docs/<version>.
+val generateVersionedDocs by tasks.registering(Sync::class) {
+  description = "Copies the generated HTML API reference into docs/<version>."
+  group = "documentation"
+  from(tasks.dokkaGeneratePublicationHtml)
+  into(rootProject.layout.projectDirectory.dir("docs/$verifyVersionName"))
 }
 //endregion
 
@@ -100,10 +97,8 @@ val pomGroup: String by project
 val pomArtifactId: String by project
 
 val dokkaHtmlJar by tasks.creating(Jar::class) {
-  dependsOn(tasks.dokkaGenerate)
-  from(
-    tasks.dokkaGenerate.get()
-  )
+  // dokkaGenerate is only a lifecycle task with no outputs, so packaging it produced an empty jar.
+  from(tasks.dokkaGeneratePublicationHtml)
   archiveClassifier.set("html-doc")
 }
 
