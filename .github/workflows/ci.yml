@@ -132,8 +132,6 @@ jobs:
     name: Instrumentation tests (${{ matrix.module }})
     needs: [lint, unit_tests]
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
-    # Holds GCLOUD_SERVICE_KEY. No required reviewers: this runs on every push.
-    environment: ci
     timeout-minutes: 75
     strategy:
       fail-fast: false
