@@ -57,7 +57,7 @@ jobs:
         run: bundle exec fastlane decrypt_google_services
       - name: Run ktlint
         run: bundle exec fastlane lint_checker
-      # Fork PRs get a read-only token, so Danger could not comment or set a status.
+      # Skipped for PRs from forks: GitHub gives them a read-only token, so Danger can't comment or set its status.
       - name: Danger check
         if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         env:
