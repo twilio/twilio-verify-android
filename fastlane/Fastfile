@@ -24,6 +24,10 @@ def repo_root
   @repo_root ||= `git rev-parse --show-toplevel`.strip
 end
 
+def app_distribution_key_file
+  File.join(ENV.fetch("HOME"), "gcloud-app-distribution-service-key.json")
+end
+
 def android_sdk_dir
   %w[ANDROID_HOME ANDROID_SDK_ROOT].each do |var|
     value = ENV[var].to_s
@@ -69,6 +73,13 @@ platform :android do
   lane :decrypt_google_services do
     key = ENV.fetch("GOOGLE_SERVICES_KEY")
     iv = ENV.fetch("GOOGLE_SERVICES_IV")
+    if key.empty? || iv.empty?
+      # GitHub passes secrets to fork PRs as empty strings.
+      UI.user_error!(
+        "GOOGLE_SERVICES_KEY/GOOGLE_SERVICES_IV are empty. Pull requests from forks " \
+        "don't receive secrets; a maintainer needs to push the branch to this repository."
+      )
+    end
     # log: false -- the command line carries the key and IV.
     sh("cd ../sample && ./add_google_services_file #{key} #{iv}", log: false)
   end
@@ -111,6 +122,15 @@ platform :android do
     FileUtils.mkdir_p(File.dirname(path))
     # Overwrite rather than append: appending corrupts the keyring on a re-run.
     File.binwrite(path, key.unpack1("m"))
+  end
+
+  desc "Materialize the Firebase App Distribution service account key from GCLOUD_APP_DISTRIBUTION_SERVICE_KEY"
+  lane :install_app_distribution_key do
+    key = ENV.fetch("GCLOUD_APP_DISTRIBUTION_SERVICE_KEY").strip
+    UI.user_error!("GCLOUD_APP_DISTRIBUTION_SERVICE_KEY is empty.") if key.empty?
+    # CircleCI stored the key base64-encoded; accept raw JSON as well.
+    json = key.start_with?("{") ? key : key.unpack1("m")
+    File.write(app_distribution_key_file, json, perm: 0o600)
   end
 
   desc "Release a new production version"
@@ -262,8 +282,6 @@ platform :android do
 
   desc "Distribute sample app for internal testing"
   lane :distribute_sample_app do |options|
-    app_distribution_key = "gcloud-app-distribution-service-key.json"
-    key_file = "#{ENV["HOME"]}/#{app_distribution_key}"
     build_android_app(
       properties: {
         "baseURL" => options[:url],
@@ -278,7 +296,7 @@ platform :android do
       app: ENV["SAMPLE_APP_FIREBASE_ID"],
       apk_path: path,
       groups: ENV["FIREBASE_APP_DISTRIBUTION_GROUP"],
-      service_credentials_file: key_file,
+      service_credentials_file: app_distribution_key_file,
       release_notes: options[:notes]
     )
   end
