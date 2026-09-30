@@ -140,7 +140,6 @@ platform :android do
   lane :install_app_distribution_key do
     key = ENV.fetch("GCLOUD_APP_DISTRIBUTION_SERVICE_KEY").strip
     UI.user_error!("GCLOUD_APP_DISTRIBUTION_SERVICE_KEY is empty.") if key.empty?
-    # CircleCI stored the key base64-encoded; accept raw JSON as well.
     json = key.start_with?("{") ? key : key.unpack1("m")
     File.write(app_distribution_key_file, json, perm: 0o600)
   end
