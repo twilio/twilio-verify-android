@@ -69,6 +69,13 @@ platform :android do
   lane :decrypt_google_services do
     key = ENV.fetch("GOOGLE_SERVICES_KEY")
     iv = ENV.fetch("GOOGLE_SERVICES_IV")
+    if key.empty? || iv.empty?
+      # GitHub passes secrets to fork PRs as empty strings.
+      UI.user_error!(
+        "GOOGLE_SERVICES_KEY/GOOGLE_SERVICES_IV are empty. Pull requests from forks " \
+        "don't receive secrets; a maintainer needs to push the branch to this repository."
+      )
+    end
     # log: false -- the command line carries the key and IV.
     sh("cd ../sample && ./add_google_services_file #{key} #{iv}", log: false)
   end
