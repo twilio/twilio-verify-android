@@ -69,17 +69,6 @@ references:
       name: Danger check
       command: bundle exec fastlane danger_check
 
-  #Release
-  release: &release
-    run:
-      name: Release SDK
-      command: bundle exec fastlane release
-
-  signing_key: &signing_key
-    run:
-      name: Install signing key
-      command: echo $SIGNING_KEY | base64 -d >> $SIGNING_SECRET_KEY_RING_FILE
-
 commands:
   setup:
     steps:
@@ -272,18 +261,6 @@ jobs:
           env: "PROD"
           base_url: $PROD_URL
       - *save_gradle_cache
-  release_sdk:
-    executor: *executor
-    steps:
-      - setup
-      - attach_workspace:
-          at: *workspace
-      - *restore_gradle_cache
-      - *decrypt_google_services
-      - *store_gcloud_app_distribution_service
-      - *signing_key
-      - *release
-      - *save_gradle_cache
 workflows:
   version: 2
 
@@ -345,16 +322,3 @@ workflows:
                 - /release.*/
                 - /hotfix.*/
                 - dev
-      - release_sdk:
-          context:
-            - verify-push
-            - verify-push-android
-            - verify-maven-publishing-android
-          requires:
-            - security_instrumentation_tests_multiple_devices
-            - verify_instrumentation_tests_multiple_devices
-            - sdk_size_report
-          filters:
-            branches:
-              only:
-                - main
