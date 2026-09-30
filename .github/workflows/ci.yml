@@ -2,9 +2,10 @@ name: CI
 
 on:
   # Feature branches are covered by their pull request; limiting pushes to the
-  # long-lived branches keeps a PR from running the pipeline twice.
+  # long-lived branches keeps a PR from running the pipeline twice. Release and
+  # hotfix pushes run too because they distribute the sample app.
   push:
-    branches: [main, dev]
+    branches: [main, dev, 'release**', 'hotfix**']
   pull_request:
 
 concurrency:
@@ -184,3 +185,44 @@ jobs:
         run: |
           sed -i -e "s|{{test_build}}|$TEST_APK|g" "$FTL_CONFIG"
           gcloud firebase test android run "$FTL_CONFIG:$FTL_GROUP"
+
+  distribute_sample_app:
+    name: Distribute sample app
+    needs: [instrumentation_tests]
+    # Only builds that reach dev, release or hotfix go to testers, never PR runs.
+    if: >-
+      github.event_name == 'push' && (
+        github.ref == 'refs/heads/dev' ||
+        startsWith(github.ref, 'refs/heads/release') ||
+        startsWith(github.ref, 'refs/heads/hotfix'))
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    timeout-minutes: 45
+    env:
+      GOOGLE_SERVICES_KEY: ${{ secrets.GOOGLE_SERVICES_KEY }}
+      GOOGLE_SERVICES_IV: ${{ secrets.GOOGLE_SERVICES_IV }}
+      GCLOUD_APP_DISTRIBUTION_SERVICE_KEY: ${{ secrets.GCLOUD_APP_DISTRIBUTION_SERVICE_KEY }}
+      SAMPLE_APP_FIREBASE_ID: ${{ secrets.SAMPLE_APP_FIREBASE_ID }}
+      FIREBASE_APP_DISTRIBUTION_GROUP: ${{ secrets.FIREBASE_APP_DISTRIBUTION_GROUP }}
+      DEV_URL: ${{ secrets.DEV_URL }}
+      STAGE_URL: ${{ secrets.STAGE_URL }}
+      PROD_URL: ${{ secrets.PROD_URL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the version name comes from the commits since the last tag
+      - uses: ./.github/actions/setup-build-env
+      - name: Decrypt sample app secrets
+        run: bundle exec fastlane decrypt_google_services
+      - name: Install the App Distribution key
+        run: bundle exec fastlane install_app_distribution_key
+      # The URL is wrapped in escaped quotes because it becomes a Java string
+      # literal in BuildConfig.
+      - name: Distribute the DEV build
+        run: bundle exec fastlane distribute_debug_sample_app env:DEV url:"\"$DEV_URL\""
+      - name: Distribute the STAGE build
+        run: bundle exec fastlane distribute_debug_sample_app env:STAGE url:"\"$STAGE_URL\""
+      - name: Distribute the PROD build
+        run: bundle exec fastlane distribute_debug_sample_app env:PROD url:"\"$PROD_URL\""
+      - name: Remove the App Distribution key
+        if: always()
+        run: rm -f "$HOME/gcloud-app-distribution-service-key.json"
