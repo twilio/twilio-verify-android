@@ -80,7 +80,6 @@ kotlin {
 
 dependencies {
   implementation(fileTree(mapOf("dir" to "libs", "includes" to listOf("*.jar"))))
-  // Release builds use the local SDK too, so the sample always matches the version being released.
   implementation(project(":${Modules.verify}"))
   implementation("com.squareup.retrofit2:retrofit:2.11.0")
   implementation("com.squareup.retrofit2:converter-gson:2.11.0")
