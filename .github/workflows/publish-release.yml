@@ -44,11 +44,32 @@ jobs:
             echo "on_central=$on_central"
           } >> "$GITHUB_OUTPUT"
           echo "$version: tagged=$tagged, on Maven Central=$on_central"
+          if [ "$on_central" = true ] && [ "$tagged" = false ]; then
+            echo "::error::$version is already on Maven Central but has no git tag. Back-fill the tag on the commit that was published, then re-run."
+            exit 1
+          fi
+
+  tag:
+    name: Tag the release
+    needs: check
+    if: needs.check.outputs.tagged == 'false'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: |
+          git tag "$VERSION" "$GITHUB_SHA"
+          git push origin "refs/tags/$VERSION"
 
   publish:
     name: Publish to Maven Central
-    needs: check
-    if: needs.check.outputs.tagged == 'false' && needs.check.outputs.on_central == 'false'
+    needs: [check, tag]
+    if: >-
+      always() && needs.check.result == 'success' && needs.check.outputs.on_central == 'false' &&
+      (needs.tag.result == 'success' || needs.tag.result == 'skipped')
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
     environment: production
     timeout-minutes: 45
@@ -77,11 +98,11 @@ jobs:
         if: always()
         run: rm -f "$RUNNER_TEMP/secring.gpg"
 
-  tag_release:
-    name: Tag and create the GitHub release
+  github_release:
+    name: Create the GitHub release
     needs: [check, publish]
     if: >-
-      always() && needs.check.result == 'success' && needs.check.outputs.tagged == 'false' &&
+      always() && needs.check.result == 'success' &&
       (needs.publish.result == 'success' || needs.publish.result == 'skipped')
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
     permissions:
@@ -92,14 +113,17 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: |
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "The $VERSION release already exists."
+            exit 0
+          fi
           awk '/^# /{n++} n==1' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
-          git tag "$VERSION" "$GITHUB_SHA"
-          git push origin "refs/tags/$VERSION"
           gh release create "$VERSION" --title "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag
 
   distribute_release_sample:
     name: Distribute the release sample app
-    needs: [check, tag_release]
+    needs: [check, publish]
+    if: needs.publish.result == 'success'
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
     timeout-minutes: 45
     env:
