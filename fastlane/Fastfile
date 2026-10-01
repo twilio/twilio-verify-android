@@ -147,7 +147,8 @@ platform :android do
   desc "Generates latest API doc"
   lane :latest_docs do
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-    UI.message("Generating latest API docs redirect for version #{next_version}")
+    UI.message("Generating the API docs for version #{next_version}")
+    gradle(task: ":verify:generateVersionedDocs")
     sh("ln -nsf #{next_version} ../docs/latest")
   end
 
