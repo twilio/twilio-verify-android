@@ -77,7 +77,6 @@ android {
 //region KDoc
 dokka {
   dokkaSourceSets.configureEach {
-    // Only public declarations are documented, which is Dokka's default.
     reportUndocumented.set(true)
     skipEmptyPackages.set(true)
   }
@@ -97,7 +96,6 @@ val pomGroup: String by project
 val pomArtifactId: String by project
 
 val dokkaHtmlJar by tasks.creating(Jar::class) {
-  // dokkaGenerate is only a lifecycle task with no outputs, so packaging it produced an empty jar.
   from(tasks.dokkaGeneratePublicationHtml)
   archiveClassifier.set("html-doc")
 }
