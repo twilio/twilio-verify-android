@@ -91,6 +91,7 @@ See [Verify Push Quickstart](https://www.twilio.com/docs/verify/quickstarts/push
 * Follow the steps from [Firebase configuration](#FirebaseConfiguration)
 * Get the Access Token generation URL from your backend [(Running the Sample backend)](#SampleBackend). You will use it for creating a factor
 * Run the `sample` module using `release` as build variant
+* The sample builds against the SDK source in this repo. To build the `release` variant against a version published on Maven Central instead, pass `-PsampleVerifyVersion=<version>`, for example `./gradlew :sample:assembleRelease -PsampleVerifyVersion=0.9.1`
 
 <a name='FirebaseConfiguration'></a>
 
