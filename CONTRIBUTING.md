@@ -32,6 +32,9 @@ cd twilio-verify-android
 ## Creating a pull request
 Please open a pull request on the [twilio-verify-android](https://github.com/twilio/twilio-verify-android) repository from your fork and fill out the pull request template.
 
+## Releasing
+Maintainers: see [RELEASING.md](./RELEASING.md).
+
 ## Code of conduct
 We want to make sure that this project is as welcoming to people as possible. By interacting with the project in any shape or from you are agreeing to the project's [Code of Conduct](./CODE_OF_CONDUCT.md). If you feel like another individual has violated the code of conduct, please raise a complaint to [open-source@twilio.com](mailto:open-source@twilio.com).
 
