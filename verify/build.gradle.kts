@@ -82,7 +82,6 @@ dokka {
   }
 }
 
-// GitHub Pages serves the API reference for each release from docs/<version>.
 val generateVersionedDocs by tasks.registering(Sync::class) {
   description = "Copies the generated HTML API reference into docs/<version>."
   group = "documentation"

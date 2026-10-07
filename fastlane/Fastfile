@@ -218,6 +218,42 @@ platform :android do
     distribute_sample_app(notes: plain_notes, build_type: "Release", url: ENV["PROD_URL"], versionName: next_version)
   end
 
+  desc "Commit a release/<version> branch with the version bump, CHANGELOG.md and docs/<version>"
+  lane :prepare_release do
+    next unless verify(title: "Android Verify Push Release", tag_prefix: "*")
+    next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
+    branch = "release/#{next_version}"
+    unless sh("git ls-remote --heads origin #{branch}").strip.empty?
+      UI.user_error!("#{branch} already exists on origin. Merge or delete its PR before preparing #{next_version} again.")
+    end
+
+    sh("git switch -c #{branch}")
+    increment_version
+    sdk_sizer
+    latest_docs
+
+    notes = conventional_changelog(
+      format: "markdown",
+      commit_url: "https://github.com/twilio/twilio-verify-android/commit"
+    )
+    size_report = File.read("../verify/build/outputs/sizeReport/TwilioVerifySizeImpactReport.txt").strip
+    entry = "#{notes.strip}\n\n#{size_report}\n"
+    File.write("../CHANGELOG.md", "#{entry}\n\n#{File.read('../CHANGELOG.md')}")
+    FileUtils.mkdir_p("../build")
+    File.write("../build/release-notes.md", entry)
+
+    release_files = ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"]
+    git_add(path: release_files)
+    sh("git commit -m \"chore(release): #{next_version}\"")
+
+    if ENV["GITHUB_OUTPUT"]
+      File.open(ENV["GITHUB_OUTPUT"], "a") do |f|
+        f.puts("version=#{next_version}")
+        f.puts("branch=#{branch}")
+      end
+    end
+  end
+
   desc "Danger check"
   lane :danger_check do
     danger(
