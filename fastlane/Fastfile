@@ -24,6 +24,18 @@ def repo_root
   @repo_root ||= `git rev-parse --show-toplevel`.strip
 end
 
+def release_version
+  File.read(File.join(repo_root, "verify/gradle.properties"))[/^verifyVersionName=(.+)$/, 1].to_s.strip
+end
+
+def changelog_entry(version)
+  entry = File.read(File.join(repo_root, "CHANGELOG.md")).split(/^(?=# )/).first.to_s
+  unless entry.start_with?("# #{version} ")
+    UI.user_error!("CHANGELOG.md doesn't start with a #{version} entry. Release PRs come from the Prepare release workflow.")
+  end
+  entry.strip
+end
+
 def app_distribution_key_file
   File.join(ENV.fetch("HOME"), "gcloud-app-distribution-service-key.json")
 end
@@ -128,21 +140,8 @@ platform :android do
   lane :install_app_distribution_key do
     key = ENV.fetch("GCLOUD_APP_DISTRIBUTION_SERVICE_KEY").strip
     UI.user_error!("GCLOUD_APP_DISTRIBUTION_SERVICE_KEY is empty.") if key.empty?
-    # CircleCI stored the key base64-encoded; accept raw JSON as well.
     json = key.start_with?("{") ? key : key.unpack1("m")
     File.write(app_distribution_key_file, json, perm: 0o600)
-  end
-
-  desc "Release a new production version"
-  lane :release do
-    title = 'Android Verify Push Release'
-    tag_prefix = '*'
-    next unless verify(title: title, tag_prefix: tag_prefix)
-    increment_version()
-    UI.message("Releasing to MavenCentral")
-    gradle(task: "sonatypeTwilioVerifyReleaseUpload")
-    latest_docs()
-    post_release()
   end
 
   desc "Verify next release"
@@ -183,41 +182,6 @@ platform :android do
     gradle(task: "-q :verify:incrementVersion", properties: { 'version_number' => next_version })
   end
 
-  desc "Generates release tag, release notes and updates CHANGELOG.md"
-  lane :post_release do
-    next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-    notes = conventional_changelog(
-      format: 'markdown',
-      commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-    tag = next_version
-    UI.important(notes)
-
-    UI.message("Updating CHANGELOG.md")
-    sdk_size = sh("cat ../builds/sizeReport/TwilioVerifySizeImpactReport.txt")
-    changelog = "#{notes}\\n\\n#{sdk_size}"
-    sh("echo \"#{changelog}\\n\" | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-    git_add(path: ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"])
-    sh("git config user.name \"#{ENV["GH_USER_NAME"]}\"")
-    sh("git config user.email \"#{ENV["GH_USER_EMAIL"]}\"")
-    sh("git commit -m \"Version bump to #{next_version} [skip ci]\"")
-    push_to_git_remote
-    add_git_tag(tag: tag)
-    push_git_tags(tag: tag)
-
-    set_github_release(
-      repository_name: "twilio/twilio-verify-android",
-      api_token: ENV["GH_TOKEN"],
-      name: tag,
-      tag_name: tag,
-      description: notes,
-      commitish: "main"
-    )
-    plain_notes = conventional_changelog(
-            format: 'plain',
-            commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-    distribute_sample_app(notes: plain_notes, build_type: "Release", url: ENV["PROD_URL"], versionName: next_version)
-  end
-
   desc "Commit a release/<version> branch with the version bump, CHANGELOG.md and docs/<version>"
   lane :prepare_release do
     next unless verify(title: "Android Verify Push Release", tag_prefix: "*")
@@ -252,6 +216,26 @@ platform :android do
         f.puts("branch=#{branch}")
       end
     end
+  end
+
+  desc "Publish the version in verify/gradle.properties to Maven Central"
+  lane :publish_release do
+    version = release_version
+    UI.user_error!("#{version.inspect} isn't a x.y.z version.") unless version.match?(/\A\d+\.\d+\.\d+\z/)
+    changelog_entry(version)
+    install_signing_key
+    gradle(task: "sonatypeTwilioVerifyReleaseUpload")
+  end
+
+  desc "Distribute the release build of the sample app"
+  lane :distribute_release_sample_app do
+    version = release_version
+    distribute_sample_app(
+      notes: changelog_entry(version),
+      build_type: "Release",
+      url: "\"#{ENV.fetch('PROD_URL')}\"",
+      versionName: version
+    )
   end
 
   desc "Danger check"
