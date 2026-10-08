@@ -1,6 +1,14 @@
 name: Prepare release
 
 on:
+  # Runs when dev is merged into main; the production approval is the go/no-go for cutting a release.
+  # A release PR's merge only touches these files, so it doesn't start another one.
+  push:
+    branches: [main]
+    paths-ignore:
+      - verify/gradle.properties
+      - CHANGELOG.md
+      - docs/**
   workflow_dispatch:
 
 concurrency:
