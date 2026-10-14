@@ -63,6 +63,9 @@ android {
   }
 
   testOptions {
+    // Without this the androidTest APK targets minSdk, which newer Android
+    // releases refuse to install.
+    targetSdk = Config.Versions.targetSDKVersion
     unitTests {
       isIncludeAndroidResources = true
     }

@@ -1,0 +1,147 @@
+name: Publish release
+
+on:
+  push:
+    branches: [main]
+    paths: [verify/gradle.properties]
+  workflow_dispatch:
+
+concurrency:
+  group: publish-release
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check release
+    if: github.repository_owner == 'twilio' && github.ref == 'refs/heads/main'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      tagged: ${{ steps.check.outputs.tagged }}
+      on_central: ${{ steps.check.outputs.on_central }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: check
+        run: |
+          version=$(sed -n 's/^verifyVersionName=//p' verify/gradle.properties)
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::verifyVersionName '$version' isn't a x.y.z version"
+            exit 1
+          fi
+          if ! head -1 CHANGELOG.md | grep -q "^# $version "; then
+            echo "::error::CHANGELOG.md doesn't start with a $version entry. Release PRs come from the Prepare release workflow."
+            exit 1
+          fi
+          tagged=false
+          git ls-remote --exit-code --tags origin "refs/tags/$version" >/dev/null && tagged=true
+          on_central=false
+          curl -fsI "https://repo1.maven.org/maven2/com/twilio/twilio-verify-android/$version/twilio-verify-android-$version.pom" >/dev/null && on_central=true
+          {
+            echo "version=$version"
+            echo "tagged=$tagged"
+            echo "on_central=$on_central"
+          } >> "$GITHUB_OUTPUT"
+          echo "$version: tagged=$tagged, on Maven Central=$on_central"
+          if [ "$on_central" = true ] && [ "$tagged" = false ]; then
+            echo "::error::$version is already on Maven Central but has no git tag. Back-fill the tag on the commit that was published, then re-run."
+            exit 1
+          fi
+
+  tag:
+    name: Tag the release
+    needs: check
+    if: needs.check.outputs.tagged == 'false'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: |
+          git tag "$VERSION" "$GITHUB_SHA"
+          git push origin "refs/tags/$VERSION"
+
+  publish:
+    name: Publish to Maven Central
+    needs: [check, tag]
+    if: >-
+      always() && needs.check.result == 'success' && needs.check.outputs.on_central == 'false' &&
+      (needs.tag.result == 'success' || needs.tag.result == 'skipped')
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    environment: production
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write # Artifactory OIDC login
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-build-env
+      - uses: twilio/sdk-actions/artifactory-oidc@c94e420aa64ea686ff25bb03d4c66cdaf8e523e4 # main; Gradle support is newer than v1.0.0
+        with:
+          ecosystem: gradle
+      - name: Publish
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_SECRET_KEY_RING_FILE: ${{ runner.temp }}/secring.gpg
+        run: bundle exec fastlane publish_release
+      - name: Remove the signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/secring.gpg"
+
+  github_release:
+    name: Create the GitHub release
+    needs: [check, publish]
+    if: >-
+      always() && needs.check.result == 'success' &&
+      (needs.publish.result == 'success' || needs.publish.result == 'skipped')
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: |
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "The $VERSION release already exists."
+            exit 0
+          fi
+          awk '/^# /{n++} n==1' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          gh release create "$VERSION" --title "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag
+
+  distribute_release_sample:
+    name: Distribute the release sample app
+    needs: [check, publish]
+    if: needs.publish.result == 'success'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest-large' }}
+    timeout-minutes: 45
+    env:
+      GOOGLE_SERVICES_KEY: ${{ secrets.GOOGLE_SERVICES_KEY }}
+      GOOGLE_SERVICES_IV: ${{ secrets.GOOGLE_SERVICES_IV }}
+      GCLOUD_APP_DISTRIBUTION_SERVICE_KEY: ${{ secrets.GCLOUD_APP_DISTRIBUTION_SERVICE_KEY }}
+      SAMPLE_APP_FIREBASE_ID: ${{ secrets.SAMPLE_APP_FIREBASE_ID }}
+      FIREBASE_APP_DISTRIBUTION_GROUP: ${{ secrets.FIREBASE_APP_DISTRIBUTION_GROUP }}
+      PROD_URL: ${{ secrets.PROD_URL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-build-env
+      - name: Decrypt sample app secrets
+        run: bundle exec fastlane decrypt_google_services
+      - name: Install the App Distribution key
+        run: bundle exec fastlane install_app_distribution_key
+      - name: Distribute
+        run: bundle exec fastlane distribute_release_sample_app
+      - name: Remove the App Distribution key
+        if: always()
+        run: rm -f "$HOME/gcloud-app-distribution-service-key.json"

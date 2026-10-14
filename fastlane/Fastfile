@@ -16,9 +16,85 @@
 output_directory = './fastlane/Test Output/'
 coverage_directory = '/coverage'
 
+require 'fileutils'
+
 default_platform(:android)
 
+def repo_root
+  @repo_root ||= `git rev-parse --show-toplevel`.strip
+end
+
+def release_version
+  File.read(File.join(repo_root, "verify/gradle.properties"))[/^verifyVersionName=(.+)$/, 1].to_s.strip
+end
+
+def changelog_entry(version)
+  entry = File.read(File.join(repo_root, "CHANGELOG.md")).split(/^(?=# )/).first.to_s
+  unless entry.start_with?("# #{version} ")
+    UI.user_error!("CHANGELOG.md doesn't start with a #{version} entry. Release PRs come from the Prepare release workflow.")
+  end
+  entry.strip
+end
+
+def app_distribution_key_file
+  File.join(ENV.fetch("HOME"), "gcloud-app-distribution-service-key.json")
+end
+
+def android_sdk_dir
+  %w[ANDROID_HOME ANDROID_SDK_ROOT].each do |var|
+    value = ENV[var].to_s
+    return value unless value.empty?
+  end
+
+  properties = File.join(repo_root, "local.properties")
+  if File.exist?(properties)
+    entry = File.readlines(properties).find { |line| line.start_with?("sdk.dir=") }
+    return entry.to_s.split("=", 2).last.to_s.strip
+  end
+
+  ""
+end
+
+def ensure_android_sdk_env
+  sdk_dir = android_sdk_dir
+  if sdk_dir.empty?
+    UI.user_error!(
+      "Android SDK not found. Set ANDROID_HOME (CI images normally do), or add " \
+      "sdk.dir=/path/to/sdk to local.properties."
+    )
+  end
+  ENV["ANDROID_HOME"] = sdk_dir
+
+  tools_bin = File.join(sdk_dir, "cmdline-tools", "latest", "bin")
+  unless File.directory?(tools_bin)
+    UI.important(
+      "cmdline-tools not found at #{tools_bin}. apkscale invokes apkanalyzer from " \
+      "there; install it with: sdkmanager --install \"cmdline-tools;latest\""
+    )
+    return
+  end
+
+  entries = ENV["PATH"].to_s.split(File::PATH_SEPARATOR)
+  ENV["PATH"] = ([tools_bin] + entries).join(File::PATH_SEPARATOR) unless entries.include?(tools_bin)
+  UI.message("Android SDK: #{sdk_dir} (apkanalyzer available for apkscale)")
+end
+
 platform :android do
+
+  desc "Decrypt the sample app's google-services.json"
+  lane :decrypt_google_services do
+    key = ENV.fetch("GOOGLE_SERVICES_KEY")
+    iv = ENV.fetch("GOOGLE_SERVICES_IV")
+    if key.empty? || iv.empty?
+      # GitHub passes secrets to fork PRs as empty strings.
+      UI.user_error!(
+        "GOOGLE_SERVICES_KEY/GOOGLE_SERVICES_IV are empty. Pull requests from forks " \
+        "don't receive secrets; a maintainer needs to push the branch to this repository."
+      )
+    end
+    # log: false -- the command line carries the key and IV.
+    sh("cd ../sample && ./add_google_services_file #{key} #{iv}", log: false)
+  end
 
   desc "Assemble build"
   lane :assemble do
@@ -40,9 +116,8 @@ platform :android do
 
   desc "Size impact report"
   lane :sdk_sizer do
-    gradle(
-      task: "generateSizeReport"
-    )
+    ensure_android_sdk_env
+    gradle(task: "generateSizeReport", flags: "--no-daemon")
   end
 
   desc "Check android, kotlin style convention"
@@ -52,16 +127,21 @@ platform :android do
     )
   end
 
-  desc "Release a new production version"
-  lane :release do
-    title = 'Android Verify Push Release'
-    tag_prefix = '*'
-    next unless verify(title: title, tag_prefix: tag_prefix)
-    increment_version()
-    UI.message("Releasing to MavenCentral")
-    gradle(task: "sonatypeTwilioVerifyReleaseUpload")
-    latest_docs()
-    post_release()
+  desc "Materialize the GPG signing keyring from the base64-encoded SIGNING_KEY"
+  lane :install_signing_key do
+    key = ENV.fetch("SIGNING_KEY")
+    path = ENV.fetch("SIGNING_SECRET_KEY_RING_FILE")
+    FileUtils.mkdir_p(File.dirname(path))
+    # Overwrite rather than append: appending corrupts the keyring on a re-run.
+    File.binwrite(path, key.unpack1("m"))
+  end
+
+  desc "Materialize the Firebase App Distribution service account key from GCLOUD_APP_DISTRIBUTION_SERVICE_KEY"
+  lane :install_app_distribution_key do
+    key = ENV.fetch("GCLOUD_APP_DISTRIBUTION_SERVICE_KEY").strip
+    UI.user_error!("GCLOUD_APP_DISTRIBUTION_SERVICE_KEY is empty.") if key.empty?
+    json = key.start_with?("{") ? key : key.unpack1("m")
+    File.write(app_distribution_key_file, json, perm: 0o600)
   end
 
   desc "Verify next release"
@@ -70,7 +150,7 @@ platform :android do
       UI.message("#{options[:title]} deploy was triggered on local machine")
       gradle(task: "clean")
     else
-      UI.message("#{options[:title]} deploy was triggered on CircleCI")
+      UI.message("#{options[:title]} deploy was triggered on CI")
     end
 
     # Check if there is any change since last version
@@ -86,7 +166,8 @@ platform :android do
   desc "Generates latest API doc"
   lane :latest_docs do
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-    UI.message("Generating latest API docs redirect for version #{next_version}")
+    UI.message("Generating the API docs for version #{next_version}")
+    gradle(task: ":verify:generateVersionedDocs")
     sh("ln -nsf #{next_version} ../docs/latest")
   end
 
@@ -101,40 +182,60 @@ platform :android do
     gradle(task: "-q :verify:incrementVersion", properties: { 'version_number' => next_version })
   end
 
-  desc "Generates release tag, release notes and updates CHANGELOG.md"
-  lane :post_release do
+  desc "Commit a release/<version> branch with the version bump, CHANGELOG.md and docs/<version>"
+  lane :prepare_release do
+    next unless verify(title: "Android Verify Push Release", tag_prefix: "*")
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
+    branch = "release/#{next_version}"
+    unless sh("git ls-remote --heads origin #{branch}").strip.empty?
+      UI.user_error!("#{branch} already exists on origin. Merge or delete its PR before preparing #{next_version} again.")
+    end
+
+    sh("git switch -c #{branch}")
+    increment_version
+    sdk_sizer
+    latest_docs
+
     notes = conventional_changelog(
-      format: 'markdown',
-      commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-    tag = next_version
-    UI.important(notes)
-
-    UI.message("Updating CHANGELOG.md")
-    sdk_size = sh("cat ../builds/sizeReport/TwilioVerifySizeImpactReport.txt")
-    changelog = "#{notes}\\n\\n#{sdk_size}"
-    sh("echo \"#{changelog}\\n\" | cat - ../CHANGELOG.md > temp && mv temp ../CHANGELOG.md")
-    git_add(path: ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"])
-    sh("git config user.name \"#{ENV["GH_USER_NAME"]}\"")
-    sh("git config user.email \"#{ENV["GH_USER_EMAIL"]}\"")
-    sh("git commit -m \"Version bump to #{next_version} [skip ci]\"")
-    push_to_git_remote
-    add_git_tag(tag: tag)
-    push_git_tags(tag: tag)
-
-    set_github_release(
-      repository_name: "twilio/twilio-verify-android",
-      api_token: ENV["GH_TOKEN"],
-      name: tag,
-      tag_name: tag,
-      description: notes,
-      commitish: "main"
+      format: "markdown",
+      commit_url: "https://github.com/twilio/twilio-verify-android/commit"
     )
-    gradle(task: "mavenLocalTwilioVerifyReleaseUpload")
-    plain_notes = conventional_changelog(
-            format: 'plain',
-            commit_url: 'https://github.com/twilio/twilio-verify-android/commit')
-    distribute_sample_app(notes: plain_notes, build_type: "Release", url: ENV["PROD_URL"], versionName: next_version)
+    size_report = File.read("../verify/build/outputs/sizeReport/TwilioVerifySizeImpactReport.txt").strip
+    entry = "#{notes.strip}\n\n#{size_report}\n"
+    File.write("../CHANGELOG.md", "#{entry}\n\n#{File.read('../CHANGELOG.md')}")
+    FileUtils.mkdir_p("../build")
+    File.write("../build/release-notes.md", entry)
+
+    release_files = ["./verify/gradle.properties", "./CHANGELOG.md", "./docs/#{next_version}", "./docs/latest"]
+    git_add(path: release_files)
+    sh("git commit -m \"chore(release): #{next_version}\"")
+
+    if ENV["GITHUB_OUTPUT"]
+      File.open(ENV["GITHUB_OUTPUT"], "a") do |f|
+        f.puts("version=#{next_version}")
+        f.puts("branch=#{branch}")
+      end
+    end
+  end
+
+  desc "Publish the version in verify/gradle.properties to Maven Central"
+  lane :publish_release do
+    version = release_version
+    UI.user_error!("#{version.inspect} isn't a x.y.z version.") unless version.match?(/\A\d+\.\d+\.\d+\z/)
+    changelog_entry(version)
+    install_signing_key
+    gradle(task: "sonatypeTwilioVerifyReleaseUpload")
+  end
+
+  desc "Distribute the release build of the sample app"
+  lane :distribute_release_sample_app do
+    version = release_version
+    distribute_sample_app(
+      notes: changelog_entry(version),
+      build_type: "Release",
+      url: "\"#{ENV.fetch('PROD_URL')}\"",
+      versionName: version
+    )
   end
 
   desc "Danger check"
@@ -165,8 +266,6 @@ platform :android do
 
   desc "Distribute sample app for internal testing"
   lane :distribute_sample_app do |options|
-    app_distribution_key = "gcloud-app-distribution-service-key.json"
-    key_file = "#{ENV["HOME"]}/#{app_distribution_key}"
     build_android_app(
       properties: {
         "baseURL" => options[:url],
@@ -181,7 +280,7 @@ platform :android do
       app: ENV["SAMPLE_APP_FIREBASE_ID"],
       apk_path: path,
       groups: ENV["FIREBASE_APP_DISTRIBUTION_GROUP"],
-      service_credentials_file: key_file,
+      service_credentials_file: app_distribution_key_file,
       release_notes: options[:notes]
     )
   end
